@@ -1,0 +1,169 @@
+#include "stdafx.h"
+#include "Spider.h"
+#include "GameInstance.h"
+
+#include "FreeCamera.h"
+
+#include "Player.h"
+
+CSpider::CSpider(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
+    : CMonster(pDevice, pContext)
+{
+
+}
+
+
+CSpider::CSpider(const CSpider& Prototype)
+    : CMonster(Prototype)
+{
+
+}
+
+
+HRESULT CSpider::Initialize_Prototype()
+{
+    return S_OK;
+}
+
+
+HRESULT CSpider::Initialize(void* pArg)
+{
+    __super::Initialize(pArg);
+
+    if (FAILED(Ready_Component()))
+        return E_FAIL;
+
+    m_pModel->SetUp_Animation(0, true);
+
+    return S_OK;
+}
+
+void CSpider::Priority_Update(_float fTimeDelta)
+{
+
+    _vector vPlayerPos = m_pPlayer->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+    _vector vMyPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+
+    _float fPlayerPosX = XMVectorGetX(vPlayerPos);
+    _float fPlayerPosZ = XMVectorGetZ(vPlayerPos);
+
+    _float fMyPosX = XMVectorGetX(vMyPos);
+    _float fMyPosZ = XMVectorGetZ(vMyPos);
+
+
+    if (fabs(fPlayerPosX - fMyPosX) < 7.f && fabs(fPlayerPosZ - fMyPosZ) < 80.f)
+    {
+        m_pModel->SetUp_Animation(5, true);
+    }
+    else
+        m_pModel->SetUp_Animation(0, true);
+
+
+}
+
+void CSpider::Update(_float fTimeDelta)
+{
+    __super::Update(fTimeDelta);
+
+
+    m_pModel->Play_Animation(fTimeDelta);
+}
+
+void CSpider::Late_Update(_float fTimeDelta)
+{
+   
+    m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+
+}
+
+HRESULT CSpider::Render()
+{
+    if (FAILED(m_pTransformCom->Bind_ShaderResource(m_pShaderCom, "g_WorldMatrix")))
+        return E_FAIL;
+
+
+    if (FAILED(m_pShaderCom->Bind_Matrix("g_ViewMatrix", &m_pGameInstance->Get_Transform_Float4x4((CPipeLine::D3DTS_VIEW)))))
+        return E_FAIL;
+
+    if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
+        return E_FAIL;
+
+
+    
+
+
+    _uint iNumMeshes = m_pModel->Get_NumMeshes();
+
+    for (size_t i = 0; i < iNumMeshes; i++)
+    {
+        m_pModel->Bind_MeshBoneMatrices(m_pShaderCom, "g_BoneMatrices", i);
+
+        if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
+            return E_FAIL;
+
+        if (FAILED(m_pShaderCom->Begin(0)))
+            return E_FAIL;
+
+        if (FAILED(m_pModel->Render(i)))
+            return E_FAIL;
+    }
+
+
+    return S_OK;
+}
+
+HRESULT CSpider::Ready_Component()
+{
+    /* FOR.Com_Shader */
+    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxAnimModel"),
+        TEXT("Com_Shader"), reinterpret_cast<CComponent**>(&m_pShaderCom))))
+        return E_FAIL;
+
+
+
+
+
+    /* For.Com_VIBuffer */
+    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Spider"),
+        TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModel), nullptr)))
+        return E_FAIL;
+
+
+    return S_OK;
+}
+
+CSpider* CSpider::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
+{
+    CSpider* pInstance = new CSpider(pDevice, pContext);
+
+    if (FAILED(pInstance->Initialize_Prototype()))
+    {
+        MSG_BOX(TEXT("Failed to Created : CSpider"));
+        Safe_Release(pInstance);
+    }
+
+    return pInstance;
+}
+
+CGameObject* CSpider::Clone(void* pArg)
+{
+    CSpider* pInstance = new CSpider(*this);
+
+    if (FAILED(pInstance->Initialize(pArg)))
+    {
+        MSG_BOX(TEXT("Failed to Cloned : CSpider"));
+        Safe_Release(pInstance);
+    }
+
+    return pInstance;
+}
+
+void CSpider::Free()
+{
+    __super::Free();
+
+
+
+    Safe_Release(m_pShaderCom);
+    Safe_Release(m_pModel);
+}
