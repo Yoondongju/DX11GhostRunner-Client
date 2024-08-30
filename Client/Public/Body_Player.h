@@ -52,6 +52,7 @@ private:
 	PxVec3					m_vDir = {};
 	PxReal					m_vDepth = {};
 
+					
 
 private:
 	HRESULT Ready_Components();

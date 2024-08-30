@@ -69,11 +69,12 @@ void CTransform::Go_Straight(_float fTimeDelta)
 	_vector vPosition = Get_State(STATE_POSITION);
 	_vector vLook = Get_State(STATE_LOOK);
 
-
+	
 
 	_vector vCompute_Result = XMVector3Normalize(vLook) * m_fSpeedPerSec * fTimeDelta;
 
-	vPosition += vCompute_Result;
+	vPosition.m128_f32[0] = vPosition.m128_f32[0] + vCompute_Result.m128_f32[0];		// x
+	vPosition.m128_f32[2] = vPosition.m128_f32[2] + vCompute_Result.m128_f32[2];		// z
 
 
 	Set_State(STATE_POSITION, vPosition);
@@ -88,7 +89,8 @@ void CTransform::Go_Backward(_float fTimeDelta)
 
 	_vector vCompute_Result = XMVector3Normalize(vLook) * m_fSpeedPerSec * fTimeDelta;
 
-	vPosition -= vCompute_Result;
+	vPosition.m128_f32[0] = vPosition.m128_f32[0] - vCompute_Result.m128_f32[0];		// x
+	vPosition.m128_f32[2] = vPosition.m128_f32[2] - vCompute_Result.m128_f32[2];		// z
 
 
 	Set_State(STATE_POSITION, vPosition);
@@ -103,7 +105,8 @@ void CTransform::Go_Right(_float fTimeDelta)
 
 	_vector vCompute_Result = XMVector3Normalize(vLook) * m_fSpeedPerSec * fTimeDelta;
 
-	vPosition += vCompute_Result;
+	vPosition.m128_f32[0] = vPosition.m128_f32[0] + vCompute_Result.m128_f32[0];		// x
+	vPosition.m128_f32[2] = vPosition.m128_f32[2] + vCompute_Result.m128_f32[2];		// z
 
 
 	Set_State(STATE_POSITION, vPosition);
@@ -118,7 +121,8 @@ void CTransform::Go_Left(_float fTimeDelta)
 
 	_vector vCompute_Result = XMVector3Normalize(vLook) * m_fSpeedPerSec * fTimeDelta;
 
-	vPosition -= vCompute_Result;
+	vPosition.m128_f32[0] = vPosition.m128_f32[0] - vCompute_Result.m128_f32[0];		// x
+	vPosition.m128_f32[2] = vPosition.m128_f32[2] - vCompute_Result.m128_f32[2];		// z
 
 
 	Set_State(STATE_POSITION, vPosition);

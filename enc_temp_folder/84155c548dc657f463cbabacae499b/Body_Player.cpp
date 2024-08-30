@@ -118,7 +118,7 @@ void CBody_Player::Update(_float fTimeDelta)
 			}
 
 
-			if (static_cast<CPlayer*>(m_pOwner)->Get_OffsetY() < fabs(fPlayerY - fMeshY))
+			if (static_cast<CPlayer*>(m_pOwner)->Get_OffsetY() > fabs(fPlayerY - fMeshY))
 			{
 				// 충돌은 안했는데 아직 메쉬y와 플레이어y의 차이가 크다면 중력줘 == 충돌안햇어
 				m_isCollision = false;

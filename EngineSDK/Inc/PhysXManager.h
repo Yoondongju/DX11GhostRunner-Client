@@ -23,8 +23,8 @@ class CPhysXManager final : public CBase
 public:
 	typedef struct
 	{
-		PxTriangleMeshGeometry*		pMeshGeometry = { nullptr };
-		PxTransform					PxTransform = {};
+		const PxTriangleMeshGeometry&			MeshGeometry;
+		const PxTransform&						PxTransform;
 
 	}PLAYER_WALKABLE_MESH;
 
@@ -41,8 +41,6 @@ public:
 
 
 
-
-
 public:
 	HRESULT Initialize();
 	void Update(_float fTimeDelta);
@@ -52,8 +50,6 @@ public:
 public:
 	HRESULT	Add_WalkAble_Mesh(const PLAYER_WALKABLE_MESH& WalkAbleMesh)
 	{
-		if (nullptr == WalkAbleMesh.pMeshGeometry)
-			return E_FAIL;
 		m_Player_WalkAble_Mesh.emplace_back(WalkAbleMesh);
 
 		return S_OK;

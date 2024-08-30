@@ -44,10 +44,10 @@ private:
 
 
 private:
-	PxTransform				m_PxTransform = {};
-	PxRigidStatic*			m_pPxRigidStatic = { nullptr };
-	PxShape*				m_pShape = { nullptr };
-
+	PxTransform					m_PxTransform = {};
+	PxRigidStatic*				m_pPxRigidStatic = { nullptr };
+	PxShape*					m_pShape = { nullptr };
+	PxTriangleMeshGeometry*		m_pMeshGeometry = { nullptr };
 
 private:
 	HRESULT		Ready_Component();

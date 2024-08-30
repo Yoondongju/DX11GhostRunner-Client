@@ -28,14 +28,14 @@ void CPlayer_Idle::Update(_float fTimeDelta)
 {
 	m_fAccTime += fTimeDelta;
 
-	
 	Check_RunAndWalk();
 
-	Check_Dash();
+	//Check_Dash();
 
 	Check_HookUp();
 
 	Check_Jump();
+
 }
 
 void CPlayer_Idle::End_State()

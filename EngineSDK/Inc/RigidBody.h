@@ -16,7 +16,7 @@ private:
     virtual ~CRigidBody() = default;
 
 public:
-    void                Set_OwnerTransform(class CTransform* pOwnerTransform);
+    void                Set_OwnerTransform(class CTransform* pOwnerTransform, _float fOwnerOffsetY);
 
     _float              Get_Mass() { return m_fMass; }
     void                Set_Mass(_float fMass) { m_fMass = fMass; }
@@ -61,11 +61,13 @@ public:
 
 private:
     class CTransform*       m_pOwnerTransform  = { nullptr };
+    _float                  m_fOwnerOffsetY = {0.f};
+
 
     _float                  m_fMass = { 1.f };              // 질량
     _float                  m_fGravityScale = { 1.f };      // 중력 크기
     _float                  m_fGravityAccel = { 9.8f };     // 중력 가속도
-    _float                  m_fGravityLimit = { 10.f };     // 중력 최대 값
+    _float                  m_fGravityLimit = { 20.f };     // 중력 최대 값
     _float                  m_fFriction = { 0.3f };          // 마찰력
 
 

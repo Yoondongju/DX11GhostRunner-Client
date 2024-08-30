@@ -23,6 +23,11 @@ protected:
 public:
 	virtual class CModel* Get_Model() { return nullptr; }
 
+
+public:
+	_bool	IsCollision() { return m_isCollision; }
+
+
 public:
 	virtual HRESULT Initialize_Prototype();
 	virtual HRESULT Initialize(void* pArg);
@@ -38,7 +43,7 @@ protected:
 
 	CGameObject*			m_pOwner = { nullptr };
 
-
+	_bool					m_isCollision = { false };
 
 protected:
 	HRESULT Bind_WorldMatrix(class CShader* pShader, const _char * pContantName);

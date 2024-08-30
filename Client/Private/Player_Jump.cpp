@@ -30,8 +30,10 @@ HRESULT CPlayer_Jump::Start_State()
 
 	// 점프 막 시작 이니 ?   or  점프 중이니  or  점프 끝났니 
 	
-	if(CPlayer::PLAYER_ANIMATIONID::JUMP_START == pModel->Get_NextAnimationIndex())
-		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_UP), 1500, Engine::CRigidBody::VELOCITYCHANGE);
+	
+	if(m_pGameInstance->Get_KeyState(KEY::SPACE) == KEY_STATE::TAP &&
+		CPlayer::PLAYER_ANIMATIONID::JUMP_START == pModel->Get_NextAnimationIndex())
+		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_UP), 2000, Engine::CRigidBody::VELOCITYCHANGE);
 
 
 	return S_OK;
@@ -42,8 +44,9 @@ void CPlayer_Jump::Update(_float fTimeDelta)
 	m_fAccTime += fTimeDelta;
 
 	CTransform* pTransform = m_pOwner->Get_Transform();
+	_float fOffSetY = static_cast<CPlayer*>(m_pOwner)->Get_OffsetY();
 
-	if (8.f >= XMVectorGetY(pTransform->Get_State(CTransform::STATE_POSITION)))
+	if ((fOffSetY * 3) >= XMVectorGetY(pTransform->Get_State(CTransform::STATE_POSITION)))
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 		CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();

@@ -46,13 +46,13 @@ void CBuilding::Update(_float fTimeDelta)
 {
     __super::Update(fTimeDelta);
 
-    _vector vUp = m_pTransformCom->Get_State(CTransform::STATE_UP);
+    //_vector vUp = m_pTransformCom->Get_State(CTransform::STATE_UP);
     _vector vPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+    //
+    //PxVec3 vStartPos = { XMVectorGetX(vUp), XMVectorGetY(vUp), XMVectorGetZ(vUp) };
+    //PxVec3 vEndPos = { -XMVectorGetX(vUp), -XMVectorGetY(vUp), -XMVectorGetZ(vUp) };
     
-    PxVec3 vStartPos = { XMVectorGetX(vUp), XMVectorGetY(vUp), XMVectorGetZ(vUp) };
-    PxVec3 vEndPos = { -XMVectorGetX(vUp), -XMVectorGetY(vUp), -XMVectorGetZ(vUp) };
-    
-    m_PxTransform = PxTransformFromSegment(vStartPos, vEndPos);
+    //m_PxTransform = PxTransformFromSegment(vStartPos, vEndPos);
 
     m_PxTransform.p = { XMVectorGetX(vPos), XMVectorGetY(vPos), XMVectorGetZ(vPos) };
 
@@ -126,6 +126,8 @@ HRESULT CBuilding::Ready_PhysX()
 
     vector<CMesh*>& Meshs = m_pModel->Get_Meshes();
 
+    m_pMeshGeometry = new PxTriangleMeshGeometry[Meshs.size()];
+
     for (_uint i = 0; i < Meshs.size(); i++)
     {
         _uint iNumVertices = Meshs[i]->Get_NumVertices();
@@ -172,13 +174,25 @@ HRESULT CBuilding::Ready_PhysX()
         PxTriangleMesh* pTriangleMesh = PxCreateTriangleMesh(cookingParams, meshDesc);
 
         // 4. Triangle Mesh 기반 Shape 생성
-        m_pShape = m_pGameInstance->Get_Physics()->createShape(PxTriangleMeshGeometry(pTriangleMesh), *Material);
+
+        m_pMeshGeometry[i] = PxTriangleMeshGeometry(pTriangleMesh);
+
+        m_pShape = m_pGameInstance->Get_Physics()->createShape(m_pMeshGeometry[i], *Material);
         if (!m_pShape) {
             MSG_BOX(TEXT("createShape failed!"));
             return E_FAIL;
         }
 
+
+    
+
+
+
         m_pPxRigidStatic->attachShape(*m_pShape);
+
+        CPhysXManager::PLAYER_WALKABLE_MESH Desc = { m_pMeshGeometry[i] , m_PxTransform };
+  
+        m_pGameInstance->Add_WalkAble_Mesh(Desc);
     }
 
     m_pGameInstance->Get_Scene()->addActor(*m_pPxRigidStatic);
@@ -221,6 +235,9 @@ void CBuilding::Free()
 
     if (m_pShape)
         m_pShape->release();
+
+    if (m_pMeshGeometry)
+        Safe_Delete_Array(m_pMeshGeometry);
 
     Safe_Release(m_pShaderCom);
     Safe_Release(m_pModel);

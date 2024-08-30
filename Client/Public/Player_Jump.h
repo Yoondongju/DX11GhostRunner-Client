@@ -21,10 +21,10 @@ public:
 
 
 private:
-    _float m_fLastKeyPressTimeW = -1.f;
-    _float m_fLastKeyPressTimeS = -1.f;
-    _float m_fLastKeyPressTimeA = -1.f;
-    _float m_fLastKeyPressTimeD = -1.f;
+    _float  m_fLastKeyPressTimeW = -1.f;
+    _float  m_fLastKeyPressTimeS = -1.f;
+    _float  m_fLastKeyPressTimeA = -1.f;
+    _float  m_fLastKeyPressTimeD = -1.f;
 
 private:
     void Check_HookUp();

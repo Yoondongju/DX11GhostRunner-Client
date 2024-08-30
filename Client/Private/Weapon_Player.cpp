@@ -67,6 +67,7 @@ void CWeapon_Player::Late_Update(_float fTimeDelta)
 	}
 
 
+	
 
 	XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
 

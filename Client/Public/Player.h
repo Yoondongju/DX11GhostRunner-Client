@@ -90,6 +90,8 @@ public:
 	const _float4x4&	Get_RotationMatrix() { return m_RotationMatrix; }
 
 
+public:
+	_float				Get_OffsetY() { return m_fOffsetY; }
 
 
 public:
@@ -111,6 +113,8 @@ private:
 	_float4x4				m_RotationMatrix = {};
 
 
+private:
+	_float					m_fOffsetY = { 20.f };
 
 
 private:

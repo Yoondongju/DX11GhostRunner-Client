@@ -56,6 +56,13 @@ HRESULT CPlayer::Initialize(void* pArg)
     m_pFsm->Set_State(PLAYER_ANIMATIONID::IDLE);
 
 
+    _vector vPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+
+    _vector vNewPos = { XMVectorGetX(vPos) , m_fOffsetY, XMVectorGetZ(vPos) };
+
+    m_pTransformCom->Set_State(CTransform::STATE_POSITION, vNewPos);
+
+
     return S_OK;
 }
 
@@ -105,9 +112,16 @@ void CPlayer::Update(_float fTimeDelta)
     m_pFsm->Update(fTimeDelta);
     m_pRigidBody->Update(fTimeDelta);
 
-
+    
     for (auto& pPartObject : m_Parts)
         pPartObject->Update(fTimeDelta);
+
+
+    if(m_Parts[PARTID::PART_BODY]->IsCollision())
+        m_pRigidBody->Set_IsGravity(false);
+    else
+        m_pRigidBody->Set_IsGravity(true);
+
 }
 
 void CPlayer::Late_Update(_float fTimeDelta)
@@ -134,7 +148,8 @@ HRESULT CPlayer::Ready_Component()
     if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_RigidBody"),
         TEXT("Com_RigidBody"), reinterpret_cast<CComponent**>(&m_pRigidBody), nullptr)))
         return E_FAIL;
-    m_pRigidBody->Set_OwnerTransform(m_pTransformCom);
+
+    m_pRigidBody->Set_OwnerTransform(m_pTransformCom , m_fOffsetY);
 
 
 

@@ -111,9 +111,7 @@ void CRigidBody::Calculate_Gravity()
 
 	_vector vCurrentPosition = m_pOwnerTransform->Get_State(CTransform::STATE_POSITION);
 
-	// 중력을 주기전에 건물과 내 레이에 건물이 있는지 체크해야함
-
-	if(XMVectorGetY(vCurrentPosition) > m_fOwnerOffsetY)	
+	if(XMVectorGetY(vCurrentPosition) > m_fOwnerOffsetY)
 		XMStoreFloat3(&m_vVelocity , XMLoadFloat3(&m_vVelocity) - vGravity * 4);
 	else
 	{
