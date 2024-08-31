@@ -14,6 +14,7 @@ private:
 
 public:
 	//class CGameObject* Get_Owner() { return m_pOwner; }
+	_uint	Get_CurStateIndex();
 
 public:
 	virtual HRESULT Initialize_Prototype(_uint iNumMaxState);

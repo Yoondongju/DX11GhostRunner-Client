@@ -6,7 +6,9 @@
 BEGIN(Engine)
 class CShader;
 class CModel;
+class CCollider;
 END
+
 
 BEGIN(Client)
 
@@ -27,7 +29,8 @@ private:
 
 public:
 	const _float4x4* Get_BoneMatrix_Ptr(const _char* pBoneName) const;
-	class CModel* Get_Model() override { return m_pModelCom; }
+	virtual CModel* Get_Model() override { return m_pModelCom; }
+	virtual CCollider* Get_Collider() { return m_pColliderCom; }
 
 
 public:
@@ -40,22 +43,25 @@ public:
 
 
 private:
-	class CShader* m_pShaderCom = { nullptr };
-	class CModel*  m_pModelCom = { nullptr };
+	CShader* m_pShaderCom = { nullptr };
+	CModel* m_pModelCom = { nullptr };
+	CCollider* m_pColliderCom = { nullptr };
+
 
 
 private:
 	PxTransform				m_PxTransform = {};
-	PxRigidDynamic*			m_pPxRigidDynamic = { nullptr };
-	PxShape*				m_pShape = { nullptr };
+	PxRigidDynamic* m_pPxRigidDynamic = { nullptr };
+	PxShape* m_pShape = { nullptr };
 
 	PxVec3					m_vDir = {};
 	PxReal					m_vDepth = {};
 
-					
+
 
 private:
 	HRESULT Ready_Components();
+
 	void	Ready_Modify_Animation();
 
 	HRESULT	Ready_PhysX();

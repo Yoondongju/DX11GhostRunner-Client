@@ -142,6 +142,9 @@
     <Filter Include="01.Utility\97.PhysXManager\96.CollisionManger">
       <UniqueIdentifier>{30d48264-48f6-42fa-898d-d41626842b52}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01.Utility\03.Components\Collider">
+      <UniqueIdentifier>{9cfbe1df-6947-4270-a446-c9a05f574d83}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Private\Base.cpp">
@@ -272,6 +275,9 @@
     </ClCompile>
     <ClCompile Include="..\Private\CollisionManager.cpp">
       <Filter>01.Utility\97.PhysXManager\96.CollisionManger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Collider.cpp">
+      <Filter>01.Utility\03.Components\Collider</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -418,6 +424,9 @@
     </ClInclude>
     <ClInclude Include="..\Public\CollisionManager.h">
       <Filter>01.Utility\97.PhysXManager\96.CollisionManger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Collider.h">
+      <Filter>01.Utility\03.Components\Collider</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

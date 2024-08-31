@@ -4,7 +4,7 @@
 #include "Transform.h"
 
 CRigidBody::CRigidBody(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
-	: CComponent{ pDevice,pContext}
+	: CComponent{ pDevice,pContext }
 {
 }
 
@@ -14,15 +14,14 @@ CRigidBody::CRigidBody(const CRigidBody& Prototype)
 
 }
 
-void CRigidBody::Set_OwnerTransform(CTransform* pOwnerTransform, _float fOwnerOffsetY)
+void CRigidBody::Set_OwnerTransform(CTransform* pOwnerTransform)
 {
 	if (pOwnerTransform)
 	{
 		m_pOwnerTransform = pOwnerTransform;
-		m_fOwnerOffsetY = fOwnerOffsetY;
 		//Safe_AddRef(m_pOwner);	이게 프로토타입에 만들어주고 얕은복사 하면 릭이 안생기는데 복사본에다 바로 때려박아서 상호 참조때문임
 	}
-		
+
 }
 
 HRESULT CRigidBody::Initialize_Prototype()
@@ -36,13 +35,13 @@ HRESULT CRigidBody::Initialize(void* pArg)
 	return S_OK;
 }
 
-void CRigidBody::Update(_float fTimeDelta)
+void CRigidBody::Update(_float fTimeDelta, _float fTargetY)
 {
 	//가해지는 힘이 있을 때만 실행
 	//힘을 가해 속도를 더함
 
 	m_fTime += fTimeDelta;
-	
+
 
 	// 가속도가 있고 1초동안 속도를 증가시킨다.
 	if (m_fTime <= 0.5f && XMVectorGetX(XMLoadFloat3(&m_vAccel)) != 0.f)
@@ -51,22 +50,22 @@ void CRigidBody::Update(_float fTimeDelta)
 		XMStoreFloat3(&m_vVelocity, XMLoadFloat3(&m_vVelocity) + AddAccel);
 	}
 
-	
 
-	Calculate_Tranform(fTimeDelta);	
+
+	Calculate_Tranform(fTimeDelta, fTargetY);
 }
 
-void CRigidBody::Calculate_Tranform(_float fTimeDelta)
+void CRigidBody::Calculate_Tranform(_float fTimeDelta, _float fTargetY)
 {
 	Calculate_Friction();
 
 	//중력 적용 && !m_isGround
 	if (m_isGravity)
 	{
-		Calculate_Gravity();
+		Calculate_Gravity(fTargetY);
 	}
-	
-	
+
+
 	if (nullptr == m_pOwnerTransform)
 		return;
 
@@ -88,39 +87,57 @@ void CRigidBody::Calculate_Tranform(_float fTimeDelta)
 		m_vVelocity.z = (m_vVelocity.z / fabsf(m_vVelocity.z)) * fabsf(m_vMaxVelocity.z);
 	}
 
-	
+
 
 
 	_vector vNewPosition = vCurrentPosition + (XMLoadFloat3(&m_vVelocity) * fTimeDelta);
-
 	m_pOwnerTransform->Set_State(CTransform::STATE_POSITION, vNewPosition);
+
+
+	// 중력을 줄때 어디까지 내려갈까? 라는걸 체크하기위해선
+	if (fTargetY < 0)
+		fTargetY = 0.f;
+
+	if (XMVectorGetY(vNewPosition) < fTargetY)		// TargetY는 내가 착지해야할 Y위치를 뜻함
+	{
+		vNewPosition = XMVectorSetY(vNewPosition, fTargetY);
+		m_pOwnerTransform->Set_State(CTransform::STATE_POSITION, vNewPosition);
+	}
+
 }
 
-void CRigidBody::Calculate_Gravity()
+void CRigidBody::Calculate_Gravity(_float fTargetY)
 {
-	_vector vGravity = { 0.f, m_fGravityAccel * m_fGravityScale, 0.f };
+	if (nullptr == m_pOwnerTransform)
+		return;
 
-	if (fabsf(XMVectorGetY(vGravity) > m_fGravityLimit))
+
+
+	_vector vCurrentPosition = m_pOwnerTransform->Get_State(CTransform::STATE_POSITION);
+	_float currentHeight = XMVectorGetY(vCurrentPosition);
+
+	// 현재 높이와 목표 높이 간의 차이를 사용하여 높이 비율을 계산합니다.
+	_float heightDifference = fabs(fTargetY - currentHeight);
+
+	// 높이 차이에 따른 중력 증가를 조정합니다.
+	_float fHeightFactor = 0.0f;
+	if (heightDifference > 0.0f)
+	{
+		fHeightFactor = 40.f / (heightDifference + 0.1f);  // +0.1f로 나눗셈에서 0 나누기 방지
+		fHeightFactor = min(fHeightFactor, 30.f);  // 최대 중력 증가 한도 설정
+	}
+	_float fAdjustedGravityAccel = m_fGravityAccel + fHeightFactor;
+
+
+	_vector vGravity = { 0.f, fAdjustedGravityAccel * 3.f, 0.f };
+
+	if (fabsf(XMVectorGetY(vGravity)) > m_fGravityLimit)
 	{
 		vGravity = XMVectorSetY(vGravity, m_fGravityLimit);
 	}
 
-
-	if (nullptr == m_pOwnerTransform)
-		return;
-
-	_vector vCurrentPosition = m_pOwnerTransform->Get_State(CTransform::STATE_POSITION);
-
-	// 중력을 주기전에 건물과 내 레이에 건물이 있는지 체크해야함
-
-	if(XMVectorGetY(vCurrentPosition) > m_fOwnerOffsetY)	
-		XMStoreFloat3(&m_vVelocity , XMLoadFloat3(&m_vVelocity) - vGravity * 4);
-	else
-	{
-		vCurrentPosition = XMVectorSetY(vCurrentPosition, m_fOwnerOffsetY);
-		m_pOwnerTransform->Set_State(CTransform::STATE_POSITION, vCurrentPosition);
-	}
-		
+	// 중력 가속도를 속도에 반영
+	XMStoreFloat3(&m_vVelocity, XMLoadFloat3(&m_vVelocity) - vGravity);
 
 }
 
@@ -141,7 +158,7 @@ void CRigidBody::Calculate_Friction()
 		if (newVelocityMagnitude < 0.01f)
 		{
 			m_vVelocity = { 0.f, 0.f, 0.f };
-			m_vAccel = { 0.f, 0.f, 0.f }; 
+			m_vAccel = { 0.f, 0.f, 0.f };
 		}
 		else
 		{
@@ -185,16 +202,16 @@ void CRigidBody::Add_Force(FORCEMODE eForceMode, _fvector vForce)
 }
 
 void CRigidBody::Add_Force_Direction(_fvector vDirection, _float fMagnitude, FORCEMODE eForceMode)
-{	
+{
 	_vector vForce = XMVector3Normalize(vDirection) * fMagnitude;
 
-	
+
 	Add_Force(eForceMode, vForce); // 기존 Add_Force 함수 이용
 }
 
 CRigidBody* CRigidBody::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {
-	CRigidBody* pInstance = new CRigidBody(pDevice , pContext);
+	CRigidBody* pInstance = new CRigidBody(pDevice, pContext);
 
 	if (FAILED(pInstance->Initialize_Prototype()))
 	{
@@ -223,5 +240,5 @@ void CRigidBody::Free()
 {
 	__super::Free();
 
-	
+
 }

@@ -24,17 +24,18 @@ HRESULT CPlayer_Walk::Start_State()
 }
 
 void CPlayer_Walk::Update(_float fTimeDelta)
-{	
+{
 	if (m_pGameInstance->Get_KeyState(KEY::LSHIFT) == KEY_STATE::HOLD)
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 		CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 
-		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::RUN);
+
 		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::RUN, true);
+		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::RUN);
 	}
-	
-	
+
+
 
 	if (m_pGameInstance->Get_KeyState(KEY::W) == KEY_STATE::NONE &&
 		m_pGameInstance->Get_KeyState(KEY::S) == KEY_STATE::NONE &&
@@ -44,8 +45,8 @@ void CPlayer_Walk::Update(_float fTimeDelta)
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 		CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 
-		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);
 		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::IDLE, true);
+		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);
 	}
 
 
@@ -77,12 +78,23 @@ void CPlayer_Walk::Check_Jump()
 {
 	if (m_pGameInstance->Get_KeyState(KEY::SPACE) == KEY_STATE::TAP)
 	{
-		CFsm* pFsm = m_pOwner->Get_Fsm();
+		CTransform* pTransform = m_pOwner->Get_Transform();
+		CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
+
+		_float fLandY = pPlayer->Get_LandPosY();
+		_float fOffSetY = pPlayer->Get_OffsetY();
 		CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 
+		if (CPlayer::PLAYER_ANIMATIONID::JUMP_END != pModel->Get_CurAnimationIndex() &&
+			0.1f >= fabs((fLandY + fOffSetY) - XMVectorGetY(pTransform->Get_State(CTransform::STATE_POSITION))))
+		{
+			CFsm* pFsm = m_pOwner->Get_Fsm();
+			CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::JUMP_START, false, CPlayer::PLAYER_ANIMATIONID::JUMP_LOOP);	// Change_State보다 먼저 세팅해줘야함 Hook이나 Attack같은 같은 State를 공유하는녀석일 경우
-		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::JUMP_START);
+
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::JUMP_LOOP, false);	// Change_State보다 먼저 세팅해줘야함 Hook이나 Attack같은 같은 State를 공유하는녀석일 경우
+			pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::JUMP_START);
+		}
 	}
 }
 

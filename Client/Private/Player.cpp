@@ -43,9 +43,6 @@ HRESULT CPlayer::Initialize(void* pArg)
     if (FAILED(Ready_Component()))
         return E_FAIL;
 
-    if (FAILED(Ready_PartObjects()))
-        return E_FAIL;
-
     if (FAILED(Ready_State()))
         return E_FAIL;
 
@@ -57,10 +54,13 @@ HRESULT CPlayer::Initialize(void* pArg)
 
 
     _vector vPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
-
     _vector vNewPos = { XMVectorGetX(vPos) , m_fOffsetY, XMVectorGetZ(vPos) };
-
     m_pTransformCom->Set_State(CTransform::STATE_POSITION, vNewPos);
+
+
+
+    if (FAILED(Ready_PartObjects()))
+        return E_FAIL;
 
 
     return S_OK;
@@ -108,24 +108,51 @@ void CPlayer::Priority_Update(_float fTimeDelta)
 }
 
 void CPlayer::Update(_float fTimeDelta)
-{ 
-    m_pFsm->Update(fTimeDelta);
-    m_pRigidBody->Update(fTimeDelta);
+{
+    CBody_Player* pBodyPart = static_cast<CBody_Player*>(m_Parts[PARTID::PART_BODY]);
 
-    
+
+    m_pFsm->Update(fTimeDelta);
+    m_pRigidBody->Update(fTimeDelta, m_fLandPosY + m_fOffsetY);
+
+    // < PVD상에서 정확하게 충돌하는 지점 확인하고싶으면 m_fOffsetY 주석치고 확인해봐
+    // 저거 있으니까 헷갈림
+    // 점프버그 수정해야하고 , 마우스 회전시 내 up벡터에 뭐가 문제가잇어  마우스를 회전해도 내 캡슐이 회전되면 안대
+
+
+
     for (auto& pPartObject : m_Parts)
         pPartObject->Update(fTimeDelta);
 
 
-    if(m_Parts[PARTID::PART_BODY]->IsCollision())
+    if (pBodyPart->Get_Collider()->IsCollision() || PLAYER_ANIMATIONID::HOOK_UP == m_pFsm->Get_CurStateIndex())
         m_pRigidBody->Set_IsGravity(false);
     else
         m_pRigidBody->Set_IsGravity(true);
-
 }
 
 void CPlayer::Late_Update(_float fTimeDelta)
 {
+    // 공중에 떠있니? 
+    if (m_pGameInstance->Get_KeyState(KEY::SPACE) == KEY_STATE::NONE &&
+        XMVectorGetY(m_pTransformCom->Get_State(CTransform::STATE_POSITION)) > (m_fLandPosY + m_fOffsetY) * 3)
+    {
+        _uint iCurStateIndex = m_pFsm->Get_CurStateIndex();
+       
+        if (PLAYER_ANIMATIONID::IDLE == iCurStateIndex ||
+            PLAYER_ANIMATIONID::RUN == iCurStateIndex ||
+            PLAYER_ANIMATIONID::WALK == iCurStateIndex)
+        {
+            // 점프할때 포물선방정식이용한 점프 구현해야하고 
+            // 무조건 착지 전이면 점프 상태로 돌입 -> 점프상태일때 이동이 안되야하나?
+            // 점프할때 이동 돼 안돼 여부 랑 점프할때 애니메이션 여부
+
+            m_Parts[PARTID::PART_BODY]->Get_Model()->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::JUMP_START, false, CPlayer::PLAYER_ANIMATIONID::JUMP_LOOP);
+            m_pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::JUMP_START);
+        }
+    }
+
+
     for (auto& pPartObject : m_Parts)
         pPartObject->Late_Update(fTimeDelta);
 }
@@ -149,7 +176,7 @@ HRESULT CPlayer::Ready_Component()
         TEXT("Com_RigidBody"), reinterpret_cast<CComponent**>(&m_pRigidBody), nullptr)))
         return E_FAIL;
 
-    m_pRigidBody->Set_OwnerTransform(m_pTransformCom , m_fOffsetY);
+    m_pRigidBody->Set_OwnerTransform(m_pTransformCom);
 
 
 
@@ -160,25 +187,25 @@ HRESULT	CPlayer::Ready_State()
 {
     if (FAILED(m_pFsm->Add_State(CPlayer_Idle::Create(this))))
         return E_FAIL;
-    
+
     if (FAILED(m_pFsm->Add_State(CPlayer_Dash::Create(this))))
         return E_FAIL;
-    
+
     if (FAILED(m_pFsm->Add_State(CPlayer_Block::Create(this))))
         return E_FAIL;
-    
+
     if (FAILED(m_pFsm->Add_State(CPlayer_Attack::Create(this))))
         return E_FAIL;
-    
+
     if (FAILED(m_pFsm->Add_State(CPlayer_Hook::Create(this))))
         return E_FAIL;
-    
+
     if (FAILED(m_pFsm->Add_State(CPlayer_Climb::Create(this))))
         return E_FAIL;
-    
+
     if (FAILED(m_pFsm->Add_State(CPlayer_Walk::Create(this))))
         return E_FAIL;
-    
+
     if (FAILED(m_pFsm->Add_State(CPlayer_Run::Create(this))))
         return E_FAIL;
 
@@ -253,7 +280,7 @@ void CPlayer::Free()
     // 애초에 파트 오브젝트는 레이어에 담겨잇지않아서 사본의 Free가 호출되지않음.
     // State도 마찬가지
     // 레이어에 담기지않는 녀석들은 m_pOwner 이런걸 쓰면안되겠다 릭을 못찾겠어
-    
+
     // 깨달은점 : 1. 서로 다른 클래스에서 멤버로 순환참조 들고 있게하지말자
     //           2. 만약 Clone Object일경우 다른곳에서 이놈의 레퍼런스카운트를 증가시켜 이 사본의 Free가 호출되지 않는다면 이 사본의 멤버인 객체를 해제할수없다.
     //           3. 만약 레이어에 담기지 않는 오브젝트일경우 Layer쪽에서 호출이 안되기에 Free가 호출안되서 릭날 가능성도 있따...... 

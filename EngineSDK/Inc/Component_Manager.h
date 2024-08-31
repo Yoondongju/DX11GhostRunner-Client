@@ -10,6 +10,7 @@
 #include "Model.h"
 #include "Fsm.h"
 #include "RigidBody.h"
+#include "Collider.h"
 
 
 /* 컴포넌트의 원형을 레벨별로 보관한다. */

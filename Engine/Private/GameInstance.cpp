@@ -132,7 +132,6 @@ void CGameInstance::FinalUpdate_Engine()
 
 HRESULT CGameInstance::Draw_Engine()
 {
-	
 	m_pRenderer->Draw();
 
 	return m_pLevel_Manager->Render();
@@ -391,7 +390,7 @@ _bool CGameInstance::CollisionUpdate_PlayerToTriangleMeshGeometry(PxVec3* pOutDi
 
 void CGameInstance::Release_Engine()
 {	
-	Safe_Release(m_pPhysX_Manager);
+	
 
 	Safe_Release(m_pInput_Device);
 	Safe_Release(m_pPipeLine);
@@ -403,9 +402,12 @@ void CGameInstance::Release_Engine()
 	Safe_Release(m_pTimer_Manager);
 	Safe_Release(m_pComponent_Manager);
 	Safe_Release(m_pObject_Manager);
+	Safe_Release(m_pPhysX_Manager);
+
 	Safe_Release(m_pLevel_Manager);
 	Safe_Release(m_pGraphic_Device);
 
+	
 
 	CGameInstance::Get_Instance()->Destroy_Instance();	
 }

@@ -1282,6 +1282,11 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CRigidBody::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	lstrcpy(m_szLoadingText, TEXT("Collider을(를) 로딩중입니다."));
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_CCollider"),
+		CCollider::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 
 
 	lstrcpy(m_szLoadingText, TEXT("셰이더을(를) 로딩중입니다."));

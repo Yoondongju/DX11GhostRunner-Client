@@ -167,7 +167,7 @@ HRESULT CLevel_GamePlay::Ready_Layer_Player(void* pArg)
 
 	CGameObject::GAMEOBJECT_DESC Desc = {};
 	Desc.fRotationPerSec = XMConvertToRadians(90.0f);
-	Desc.fSpeedPerSec = 30.f;
+	Desc.fSpeedPerSec = 80.f;
 	Desc.InitWorldMatrix = XMLoadFloat4x4(&pPlayerData[0].vWorldMatrix);	// 바디의 월드행렬이아니라 플레이어 본체의 월드행렬이여야 하잖아
 
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, pPlayerData[0].strLayerName, pPlayerData[0].strPrototypeName, L"Model Exist Parts", &Desc)))

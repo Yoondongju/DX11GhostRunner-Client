@@ -30,7 +30,7 @@ public:
 	_wstring    Get_LayerName() { return m_strLayerName; }
 
 	
-	virtual void		  Set_ModelPrototypeTag(const _wstring& strModelPrototypeName) { m_strModelPrototypeName = strModelPrototypeName; }
+	virtual void			  Set_ModelPrototypeTag(const _wstring& strModelPrototypeName) { m_strModelPrototypeName = strModelPrototypeName; }
 
 	virtual class CModel*	  Get_Model() { return nullptr; }
 	virtual class CFsm*		  Get_Fsm() { return nullptr; }

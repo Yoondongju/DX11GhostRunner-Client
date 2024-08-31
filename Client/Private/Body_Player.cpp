@@ -12,11 +12,13 @@
 CBody_Player::CBody_Player(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CPartObject{ pDevice, pContext }
 {
+
 }
 
 CBody_Player::CBody_Player(const CBody_Player& Prototype)
 	: CPartObject{ Prototype }
 {
+
 }
 
 const _float4x4* CBody_Player::Get_BoneMatrix_Ptr(const _char* pBoneName) const
@@ -62,16 +64,10 @@ void CBody_Player::Update(_float fTimeDelta)
 		m_pModelCom->SetUp_Animation(m_pModelCom->Get_EndNextAnimationIndex(), true);
 	}
 
+	CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
 
-	PxVec3 vStartPos = { m_WorldMatrix.m[1][0] , m_WorldMatrix.m[1][1] , m_WorldMatrix.m[1][2] };
-	PxVec3 vEndPos = { -m_WorldMatrix.m[1][0], -m_WorldMatrix.m[1][1] , -m_WorldMatrix.m[1][2] };
-
-	m_PxTransform = PxTransformFromSegment(vStartPos, vEndPos);
-
-	m_PxTransform.p = { m_WorldMatrix.m[3][0], m_WorldMatrix.m[3][1], m_WorldMatrix.m[3][2] };
-
+	m_PxTransform.p = { m_WorldMatrix.m[3][0], m_WorldMatrix.m[3][1] + pPlayer->Get_OffsetY() * 0.5f  , m_WorldMatrix.m[3][2] };
 	m_pPxRigidDynamic->setGlobalPose(m_PxTransform);
-
 
 	if (true == m_pGameInstance->CollisionUpdate_PlayerToTriangleMeshGeometry(&m_vDir, &m_vDepth, m_pShape, &m_PxTransform))
 	{
@@ -80,15 +76,19 @@ void CBody_Player::Update(_float fTimeDelta)
 		pParentMatrix->m[3][1] += m_vDir.y * m_vDepth;
 		pParentMatrix->m[3][2] += m_vDir.z * m_vDepth;
 
-		m_isCollision = true;
+		m_pColliderCom->Set_Collision(true);
 	}
 	else
-	{		
+	{
+		m_pColliderCom->Set_Collision(false);
 		// 만약 충돌을 안했는데 플레이어 Y와 메쉬의 Y 차이가 offset보다 크면 진짜 충돌을 안해서 중력이 들어가야하고
 		// 충돌 안햇는데 플레이어 Y와 메쉬의 Y 차이가 offset보다 작거나 같으면 중력적용을 안해야해
 		// 그럼 메쉬의 Y를 구해야한다.
-		 
+
 		PxVec3 rayOrigin = m_PxTransform.p;
+
+		PxVec3 vEndPos = { 0.0f, -1.0f, 0.0f };
+
 		PxVec3 rayDirection = vEndPos;		// 내 업벡터의 반대방향
 
 		// 레이 길이는 충분히 크게 설정
@@ -100,46 +100,27 @@ void CBody_Player::Update(_float fTimeDelta)
 		data.flags = PxQueryFlag::eSTATIC;
 
 
-		_bool status = m_pGameInstance->Get_Scene()->raycast(rayOrigin, rayDirection, rayLength, hitInfo , PxHitFlag::eDEFAULT , data);
+		_bool status = m_pGameInstance->Get_Scene()->raycast(rayOrigin, rayDirection, rayLength, hitInfo, PxHitFlag::eDEFAULT, data);
 
 		if (status && hitInfo.hasBlock)
 		{
 			_float fMeshY = hitInfo.block.position.y;
 			_float fPlayerY = m_PxTransform.p.y;
-			
-
-			if (m_pPxRigidDynamic == hitInfo.block.actor)	// 지가 지랑 충돌한건 넘어가
-			{
-				int b = 1;
-			}
-			else
-			{
-				int a = 1;
-			}
 
 
-			if (static_cast<CPlayer*>(m_pOwner)->Get_OffsetY() < fabs(fPlayerY - fMeshY))
-			{
-				// 충돌은 안했는데 아직 메쉬y와 플레이어y의 차이가 크다면 중력줘 == 충돌안햇어
-				m_isCollision = false;
-			}
-			else
-			{
-				// 충돌안햇는데 그 offset의 거리가 내가 설정한거보다 작거나 같다면 중력주지마 (붙어있는상태로 봐)
-				// 밀어내진않고 그 위치 그대로
-				m_isCollision = true;
-			}
+			pPlayer->Set_LandPosY(fMeshY);
 		}
 		else
-			m_isCollision = false;
-		
-	}	
+			pPlayer->Set_LandPosY(0.f);
+	}
+
+
+	XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * XMLoadFloat4x4(m_pParentMatrix));
 }
 
 
 void CBody_Player::Late_Update(_float fTimeDelta)
 {
-	XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * XMLoadFloat4x4(m_pParentMatrix));
 
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 }
@@ -188,6 +169,15 @@ HRESULT CBody_Player::Ready_Components()
 		TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModelCom))))
 		return E_FAIL;
 
+
+	/* FOR.Com_Collider */
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_CCollider"),
+		TEXT("Com_Collider"), reinterpret_cast<CComponent**>(&m_pColliderCom))))
+		return E_FAIL;
+
+
+
+
 	return S_OK;
 }
 
@@ -196,13 +186,19 @@ void CBody_Player::Ready_Modify_Animation()
 {
 	vector<CAnimation*>& Animations = m_pModelCom->Get_Animations();
 
-	//Animations[CPlayer::PLAYER_ANIMATIONID::HOOK_UP]->Set_SpeedPerSec(20.f);
-	Animations[CPlayer::PLAYER_ANIMATIONID::HOOK_DOWN]->Set_SpeedPerSec(40.f);
+	Animations[CPlayer::PLAYER_ANIMATIONID::JUMP_START]->Set_SpeedPerSec(30.f);
+	Animations[CPlayer::PLAYER_ANIMATIONID::JUMP_START]->Set_SpeedPerSec(70.f);
+	Animations[CPlayer::PLAYER_ANIMATIONID::JUMP_END]->Set_SpeedPerSec(20.f);
 }
 
 HRESULT CBody_Player::Ready_PhysX()
 {
 	m_PxTransform = PxTransform(PxMat44(m_pTransformCom->Get_WorldMatrix_Ptr()->_11));
+
+	PxVec3 vStartPos = { m_pParentMatrix->m[1][0] , m_pParentMatrix->m[1][1] , m_pParentMatrix->m[1][2] };
+	PxVec3 vEndPos = { -m_pParentMatrix->m[1][0], -m_pParentMatrix->m[1][1] , -m_pParentMatrix->m[1][2] };
+	m_PxTransform = PxTransformFromSegment(vStartPos, vEndPos);
+
 
 	m_pPxRigidDynamic = m_pGameInstance->Get_Physics()->createRigidDynamic(m_PxTransform);
 
@@ -213,15 +209,15 @@ HRESULT CBody_Player::Ready_PhysX()
 
 
 	// 4. Triangle Mesh 기반 Shape 생성
-	m_pShape = m_pGameInstance->Get_Physics()->createShape(PxCapsuleGeometry(5.f, 20.f), *Material);
+	m_pShape = m_pGameInstance->Get_Physics()->createShape(PxCapsuleGeometry(5.f, 5.f), *Material);
 	if (!m_pShape) {
 		MSG_BOX(TEXT("createShape failed!"));
 		return E_FAIL;
 	}
 
 
-	PxTransform localPose(PxVec3(0.f, 0.f, 0.f));  // (5.f, 0.f, 0.f) 위치로 이동
-	m_pShape->setLocalPose(localPose);
+	//PxTransform localPose(PxVec3(0.f, 10.f, 0.f));  // (5.f, 0.f, 0.f) 위치로 이동
+	//m_pShape->setLocalPose(localPose);
 	m_pPxRigidDynamic->attachShape(*m_pShape);
 	m_pGameInstance->Get_Scene()->addActor(*m_pPxRigidDynamic);
 
@@ -276,12 +272,14 @@ void CBody_Player::Free()
 {
 	__super::Free();
 
-	if(m_pPxRigidDynamic)
+	if (m_pPxRigidDynamic)
 		m_pPxRigidDynamic->release();
 
 	if (m_pShape)
 		m_pShape->release();
 
+
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pModelCom);
+	Safe_Release(m_pColliderCom);
 }

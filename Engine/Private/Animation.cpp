@@ -34,10 +34,10 @@ _bool CAnimation::Update_TransformationMatrices(const vector<CBone*>& Bones, _do
 
 	if (*pCurrentTrackPosition >= m_Duration)
 	{
+		*pCurrentTrackPosition = 0.f;
+
 		if (false == isLoop)
 			return true;
-
-		*pCurrentTrackPosition = 0.f;
 	}
 
 	/* 현재 재생위치에 맞게 현재 애니메이션이 컨트롤해야 할 뼈의 상태들을 갱신해준다. */

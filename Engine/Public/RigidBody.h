@@ -16,7 +16,9 @@ private:
     virtual ~CRigidBody() = default;
 
 public:
-    void                Set_OwnerTransform(class CTransform* pOwnerTransform, _float fOwnerOffsetY);
+    void                Set_OwnerTransform(class CTransform* pOwnerTransform);
+
+
 
     _float              Get_Mass() { return m_fMass; }
     void                Set_Mass(_float fMass) { m_fMass = fMass; }
@@ -29,7 +31,7 @@ public:
     _float3             Get_Velocity() { return m_vVelocity; }
     void                Set_Velocity(_float3 _vVelocity) { m_vVelocity = _vVelocity; }
 
-    void                AddVelocity(_float3 _vAddV) 
+    void                AddVelocity(_float3 _vAddV)
     {
         XMStoreFloat3(&m_vVelocity , XMLoadFloat3(&m_vVelocity) + XMLoadFloat3(&_vAddV));
     }
@@ -51,7 +53,7 @@ public:
 public:
     virtual HRESULT Initialize_Prototype();
     virtual HRESULT Initialize(void* pArg) override;
-    void Update(_float fTimeDelta);
+    void Update(_float fTimeDelta, _float fTargetY);
 
 public:
     void Add_Force(FORCEMODE eForceMode, _fvector vForce);   // 힘을 주는 함수
@@ -60,36 +62,42 @@ public:
 
 
 private:
-    class CTransform*       m_pOwnerTransform  = { nullptr };
-    _float                  m_fOwnerOffsetY = {0.f};
+    class CTransform* m_pOwnerTransform = { nullptr };
 
 
-    _float                  m_fMass = { 1.f };              // 질량
-    _float                  m_fGravityScale = { 1.f };      // 중력 크기
-    _float                  m_fGravityAccel = { 9.8f };     // 중력 가속도
-    _float                  m_fGravityLimit = { 20.f };     // 중력 최대 값
-    _float                  m_fFriction = { 0.3f };          // 마찰력
+    _float                  m_fMass = { 1.f };                  // 질량
+    _float                  m_fGravityScale = { 5.f };          // 중력 크기
+    _float                  m_fGravityAccel = { 9.8f };         // 중력 가속도
+    _float                  m_fGravityLimit = { 400.f };         // 중력 최대 값
+    _float                  m_fFriction = { 0.3f };             // 마찰력
 
 
-    _float3                 m_vForce = { 0.f,0.f,0.f };                 // 가해지는 힘
-    _float3                 m_vAccel = { 0.f,0.f,0.f };                 // 가속도
-    _float3                 m_vVelocity = { 0.f,0.f,0.f };              // 속도
-    _float3                 m_vMaxVelocity = { 5000.f,5000.f,5000.f };     // 최고 속도
+    _float3                 m_vForce = { 0.f,0.f,0.f };                     // 가해지는 힘
+    _float3                 m_vAccel = { 0.f,0.f,0.f };                     // 가속도
+    _float3                 m_vVelocity = { 0.f,0.f,0.f };                  // 속도
+    _float3                 m_vMaxVelocity = { 5000.f,5000.f,5000.f };      // 최고 속도
 
-    _bool                   m_isActive = { true };  // 활성화 되있어?
-    _bool                   m_isGravity = { true }; // 중력 적용할거야?
-    _bool                   m_isGround = { false }; // 땅에 붙어있어?
-    _bool                   m_isKinematic = { false }; // true면 물리효과를 안 줄 거야
+
+
+    _bool                   m_isActive = { true };      // 활성화 되있어?
+    _bool                   m_isGravity = { true };     // 중력 적용할거야?
+    _bool                   m_isGround = { false };     // 땅에 붙어있어?
+    _bool                   m_isKinematic = { false };  // true면 물리효과를 안 줄 거야
 
     _float                  m_fTime = { 0.f };
 
+
+
+
 private:
-    void Calculate_Tranform(_float fTimeDelta); // 최종 위치 계산
-    void Calculate_Gravity(); // 중력 계산
+    void Calculate_Tranform(_float fTimeDelta, _float fTargetY); // 최종 위치 계산
+    void Calculate_Gravity(_float fTargetY); // 중력 계산
     void Calculate_Friction(); // 마찰 계산
 
+
+
 public:
-    static CRigidBody* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
+    static CRigidBody* Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext);
     virtual CComponent* Clone(void* pArg) override;
     virtual void Free() override;
 };

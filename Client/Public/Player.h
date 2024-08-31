@@ -82,16 +82,20 @@ private:
 	virtual ~CPlayer() = default;
 
 public:
-	class CFsm*			Get_Fsm() override { return m_pFsm; }
-	class CRigidBody*   Get_RigidBody() override { return m_pRigidBody; }
+	class CFsm* Get_Fsm() override { return m_pFsm; }
+	class CRigidBody* Get_RigidBody() override { return m_pRigidBody; }
 
 	PLAYER_ANIMATIONID	Get_CurAnimationID() { return m_eCurAnimationID; }
 
-	const _float4x4&	Get_RotationMatrix() { return m_RotationMatrix; }
+	const _float4x4& Get_RotationMatrix() { return m_RotationMatrix; }
 
 
 public:
 	_float				Get_OffsetY() { return m_fOffsetY; }
+
+	_float				Get_LandPosY() { return m_fLandPosY; }
+	void				Set_LandPosY(_float fLandY) { m_fLandPosY = fLandY; }
+
 
 
 public:
@@ -104,8 +108,8 @@ public:
 
 
 private:
-	CFsm*					m_pFsm = { nullptr };
-	CRigidBody*				m_pRigidBody = { nullptr };
+	CFsm* m_pFsm = { nullptr };
+	CRigidBody* m_pRigidBody = { nullptr };
 
 	PLAYER_ANIMATIONID		m_eCurAnimationID = { PLAYER_ANIMATION_END };
 
@@ -115,6 +119,7 @@ private:
 
 private:
 	_float					m_fOffsetY = { 20.f };
+	_float					m_fLandPosY = { 0.f };		// 내가 착지해야할 Y위치는 어디니? 메쉬가 내 발아래있으면 메쉬의 Y위치고 없으면 0 
 
 
 private:

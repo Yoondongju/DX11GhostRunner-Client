@@ -18,7 +18,7 @@ CFsm::CFsm(const CFsm& Prototype)
 HRESULT CFsm::Initialize_Prototype(_uint iNumMaxState)
 {
 	m_iNumMaxState = iNumMaxState;
-	
+
 	return S_OK;
 }
 
@@ -45,6 +45,11 @@ void CFsm::Release_States()
 	//m_States.clear();
 }
 
+_uint CFsm::Get_CurStateIndex()
+{
+	return m_pNowState->Get_StateIndex();
+}
+
 HRESULT CFsm::Add_State(CState* pState)
 {
 	if (nullptr == pState)
@@ -57,7 +62,7 @@ HRESULT CFsm::Add_State(CState* pState)
 	_uint iStateIndex = pState->Get_StateIndex(); // Idle은 뭐 20  Walk는 15  Climb은 0 이게 그 애니메이션 == 이랑 State랑 와꾸가 맞아야함
 
 	m_States[iStateIndex] = pState;
-	
+
 
 	return S_OK;
 }
@@ -138,7 +143,7 @@ void CFsm::Free()
 		m_States.clear();
 	}
 
-	
+
 
 	Safe_Release(m_pNowState);
 	Safe_Release(m_pPreState);

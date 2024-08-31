@@ -28,13 +28,45 @@ HRESULT CPlayer_Jump::Start_State()
 	pRigidBody->Set_Accel(_float3(0.f, 0.f, 0.f));
 	pRigidBody->Set_ZeroTimer();
 
-	// 점프 막 시작 이니 ?   or  점프 중이니  or  점프 끝났니 
-	
-	
-	if(m_pGameInstance->Get_KeyState(KEY::SPACE) == KEY_STATE::TAP &&
-		CPlayer::PLAYER_ANIMATIONID::JUMP_START == pModel->Get_NextAnimationIndex())
-		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_UP), 2000, Engine::CRigidBody::VELOCITYCHANGE);
 
+
+	// 내가 Space로누른 의도한 점프라면 Force를 주고
+
+	_vector vJumpDirection = _vector{ 0.f, 1.f, 0.f };
+	if (m_pGameInstance->Get_KeyState(KEY::W) == KEY_STATE::HOLD)
+	{
+		vJumpDirection += pTransform->Get_State(CTransform::STATE_LOOK);
+	}
+	if (m_pGameInstance->Get_KeyState(KEY::S) == KEY_STATE::HOLD)
+	{
+		vJumpDirection -= pTransform->Get_State(CTransform::STATE_LOOK);
+	}
+	if (m_pGameInstance->Get_KeyState(KEY::A) == KEY_STATE::HOLD)
+	{
+		vJumpDirection -= pTransform->Get_State(CTransform::STATE_RIGHT);
+	}
+	if (m_pGameInstance->Get_KeyState(KEY::D) == KEY_STATE::HOLD)
+	{
+		vJumpDirection += pTransform->Get_State(CTransform::STATE_RIGHT);
+	}
+
+
+	_float fSpeed = pTransform->Get_SpeedPerSec();
+	_float fOringinSpeed = pTransform->Get_OriginSpeedPerSec();
+
+	_float fXWeight = 1.f * (fSpeed / fOringinSpeed);
+	_float fYWeight = 3.f;
+	_float fZWeight = 1.f * (fSpeed / fOringinSpeed);
+
+	vJumpDirection = XMVectorSetX(vJumpDirection, XMVectorGetX(vJumpDirection) * fXWeight);
+	vJumpDirection = XMVectorSetY(vJumpDirection, XMVectorGetY(vJumpDirection) * fYWeight);
+	vJumpDirection = XMVectorSetZ(vJumpDirection, XMVectorGetZ(vJumpDirection) * fZWeight);
+
+
+	vJumpDirection = XMVector3Normalize(vJumpDirection);
+
+	if (m_pGameInstance->Get_KeyState(KEY::SPACE) == KEY_STATE::TAP)
+		pRigidBody->Add_Force_Direction(vJumpDirection, 2700, Engine::CRigidBody::VELOCITYCHANGE);
 
 	return S_OK;
 }
@@ -44,21 +76,51 @@ void CPlayer_Jump::Update(_float fTimeDelta)
 	m_fAccTime += fTimeDelta;
 
 	CTransform* pTransform = m_pOwner->Get_Transform();
-	_float fOffSetY = static_cast<CPlayer*>(m_pOwner)->Get_OffsetY();
+	CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
 
-	if ((fOffSetY * 3) >= XMVectorGetY(pTransform->Get_State(CTransform::STATE_POSITION)))
+
+	_float fLandY = pPlayer->Get_LandPosY();
+	_float fOffSetY = pPlayer->Get_OffsetY();
+
+
+	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+
+	if ((fLandY + fOffSetY) * 4 > XMVectorGetY(pTransform->Get_State(CTransform::STATE_POSITION)))
+	{
+		if (m_pGameInstance->Get_KeyState(KEY::W) == KEY_STATE::HOLD ||
+			m_pGameInstance->Get_KeyState(KEY::S) == KEY_STATE::HOLD ||
+			m_pGameInstance->Get_KeyState(KEY::A) == KEY_STATE::HOLD ||
+			m_pGameInstance->Get_KeyState(KEY::D) == KEY_STATE::HOLD)
+		{
+			if (m_pGameInstance->Get_KeyState(KEY::LSHIFT) == KEY_STATE::HOLD)
+				pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::JUMP_END, false, CPlayer::PLAYER_ANIMATIONID::RUN);
+			else
+				pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::JUMP_END, false, CPlayer::PLAYER_ANIMATIONID::WALK);
+		}
+		else
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::JUMP_END, false, CPlayer::PLAYER_ANIMATIONID::IDLE);
+		
+	}
+	if (CPlayer::PLAYER_ANIMATIONID::JUMP_END == pModel->Get_CurAnimationIndex() &&
+		0.1f >= fabs((fLandY + fOffSetY) - XMVectorGetY(pTransform->Get_State(CTransform::STATE_POSITION))) )
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
-		CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 
-		if (CPlayer::PLAYER_ANIMATIONID::JUMP_START == pModel->Get_CurAnimationIndex() ||
-			CPlayer::PLAYER_ANIMATIONID::JUMP_LOOP == pModel->Get_CurAnimationIndex())
+		if (m_pGameInstance->Get_KeyState(KEY::W) == KEY_STATE::HOLD ||
+			m_pGameInstance->Get_KeyState(KEY::S) == KEY_STATE::HOLD || 
+			m_pGameInstance->Get_KeyState(KEY::A) == KEY_STATE::HOLD ||
+			m_pGameInstance->Get_KeyState(KEY::D) == KEY_STATE::HOLD)
 		{
-			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::JUMP_END, false, CPlayer::PLAYER_ANIMATIONID::IDLE);
-			pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);
+			if(m_pGameInstance->Get_KeyState(KEY::LSHIFT) == KEY_STATE::HOLD)
+				pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::RUN);
+			else
+				pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::WALK);	
 		}
-			
+		else
+			pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);	
 	}
+
+
 
 
 	Check_Dash();
@@ -68,6 +130,12 @@ void CPlayer_Jump::Update(_float fTimeDelta)
 void CPlayer_Jump::End_State()
 {
 	m_fAccTime = 0.f;
+
+	m_fLastKeyPressTimeW = -1.f;
+	m_fLastKeyPressTimeS = -1.f;
+	m_fLastKeyPressTimeA = -1.f;
+	m_fLastKeyPressTimeD = -1.f;
+
 }
 
 
