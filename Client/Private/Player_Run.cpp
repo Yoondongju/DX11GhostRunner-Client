@@ -5,6 +5,7 @@
 #include "Body_Player.h"
 
 #include "GameInstance.h"
+#include "GrapplingPointUI.h"
 
 CPlayer_Run::CPlayer_Run(class CGameObject* pOwner)
 	: CState{ CPlayer::PLAYER_ANIMATIONID::RUN ,pOwner }
@@ -54,8 +55,11 @@ void CPlayer_Run::Update(_float fTimeDelta)
 	}
 
 
-	Check_HookUp();
-	Check_Jump();
+	if (Check_HookUp())
+		return;
+	
+	if (Check_Jump())
+		return;
 
 }
 
@@ -68,8 +72,11 @@ void CPlayer_Run::End_State()
 }
 
 
-void CPlayer_Run::Check_HookUp()
+_bool CPlayer_Run::Check_HookUp()
 {
+	if (false == static_cast<CPlayer*>(m_pOwner)->Get_GrapplingPoint()->Get_FindPlayer())
+		return false;
+
 	if (m_pGameInstance->Get_KeyState(KEY::F) == KEY_STATE::TAP)
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
@@ -78,11 +85,18 @@ void CPlayer_Run::Check_HookUp()
 
 		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::HOOK_UP, false, CPlayer::PLAYER_ANIMATIONID::IDLE);	// Change_State보다 먼저 세팅해줘야함 Hook이나 Attack같은 같은 State를 공유하는녀석일 경우
 		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::HOOK_UP);
+
+		return true;
 	}
+
+	return false;
 }
 
-void CPlayer_Run::Check_Jump()
+_bool CPlayer_Run::Check_Jump()
 {
+	if (true == static_cast<CBody_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY))->IsLandingWall())
+		return false;
+
 	if (m_pGameInstance->Get_KeyState(KEY::SPACE) == KEY_STATE::TAP)
 	{
 		CTransform* pTransform = m_pOwner->Get_Transform();
@@ -93,7 +107,7 @@ void CPlayer_Run::Check_Jump()
 		CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 
 		if (CPlayer::PLAYER_ANIMATIONID::JUMP_END != pModel->Get_CurAnimationIndex() &&
-			0.1f >= fabs( (fLandY + fOffSetY) - XMVectorGetY(pTransform->Get_State(CTransform::STATE_POSITION))) )
+			0.1f >= fabs((fLandY + fOffSetY) - XMVectorGetY(pTransform->Get_State(CTransform::STATE_POSITION))))
 		{
 			CFsm* pFsm = m_pOwner->Get_Fsm();
 			CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
@@ -101,10 +115,15 @@ void CPlayer_Run::Check_Jump()
 
 			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::JUMP_LOOP, false);	// Change_State보다 먼저 세팅해줘야함 Hook이나 Attack같은 같은 State를 공유하는녀석일 경우
 			pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::JUMP_START);
+			
 		}
+
+		return true;
 	}
 
+	return false;
 }
+
 
 
 CPlayer_Run* CPlayer_Run::Create(class CGameObject* pOwner)

@@ -29,6 +29,9 @@ private:
 	HRESULT Ready_Prototype_Component_Static();
 	HRESULT Open_Level(LEVELID eStartLevelID);
 
+	HRESULT	Ready_Font();
+
+
 public:
 	static CMainApp* Create();
 	virtual void Free() override;

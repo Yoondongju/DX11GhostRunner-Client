@@ -36,8 +36,17 @@ void CLevel_Loading::Update(_float fTimeDelta)
 
 
 		LOAD_DATA_DESC Data;
-		Data.iDataSize = m_pLoader->Get_Loading_Object_Size(m_eNextLevelID);
-		Data.pData = m_pLoader->Get_Loading_Object_Info(m_eNextLevelID);
+		Data.iDecorativeDataSize = m_pLoader->Get_Loading_DecorativeObject_Size(m_eNextLevelID);
+		Data.pDecorativeData = m_pLoader->Get_Loading_DecorativeObject_Info(m_eNextLevelID);
+
+		Data.iStaticDataSize = m_pLoader->Get_Loading_StaticObject_Size(m_eNextLevelID);
+		Data.pStaticData = m_pLoader->Get_Loading_StaticObject_Info(m_eNextLevelID);
+
+		Data.iDynamicDataSize = m_pLoader->Get_Loading_DynamicObject_Size(m_eNextLevelID);
+		Data.pDynamicData = m_pLoader->Get_Loading_DynamicObject_Info(m_eNextLevelID);
+
+
+
 
 
 		Data.iAnimDataSize = m_pLoader->Get_Loading_AnimObject_Size(m_eNextLevelID);

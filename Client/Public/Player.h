@@ -88,6 +88,7 @@ public:
 	PLAYER_ANIMATIONID	Get_CurAnimationID() { return m_eCurAnimationID; }
 
 	const _float4x4& Get_RotationMatrix() { return m_RotationMatrix; }
+	_float4x4*		 Get_RotationMatrixPtr() { return &m_RotationMatrix; }
 
 
 public:
@@ -96,6 +97,13 @@ public:
 	_float				Get_LandPosY() { return m_fLandPosY; }
 	void				Set_LandPosY(_float fLandY) { m_fLandPosY = fLandY; }
 
+	_bool				Get_Shaking() { return m_bShaking; }
+
+	void				Set_JumpProgressTime(_float fTime) { m_fJumpProgressTime = fTime; }
+	_float				Get_JumpProgressTime() { return m_fJumpProgressTime; }
+
+
+	class CGrapplingPointUI*		Get_GrapplingPoint()  { return m_pGrapplingPoint; }
 
 
 public:
@@ -107,13 +115,36 @@ public:
 	virtual HRESULT Render() override;
 
 
+	void    Set_Shake(_uint iShakeCount, _float fForce, _fvector vAsix)
+	{
+		if (iShakeCount % 2 != 0)
+		{
+			iShakeCount += 1;
+		}
+		else if (iShakeCount == 0)
+			iShakeCount = 2;
+
+
+		m_iShakingCount = iShakeCount;
+		m_iOriginShakingCount = m_iShakingCount;
+
+		m_bShaking = true;
+		m_fForce = fForce;
+		XMStoreFloat3(&m_ShakeAsix, vAsix);
+	}
+	void	Active_Shake(_float fForce, _fvector vAsix);
+
+
+
 private:
-	CFsm* m_pFsm = { nullptr };
+	CFsm*		m_pFsm = { nullptr };
 	CRigidBody* m_pRigidBody = { nullptr };
 
 	PLAYER_ANIMATIONID		m_eCurAnimationID = { PLAYER_ANIMATION_END };
 
 	POINT					m_ptOldMousePos = {};
+
+
 	_float4x4				m_RotationMatrix = {};
 
 
@@ -122,13 +153,37 @@ private:
 	_float					m_fLandPosY = { 0.f };		// 내가 착지해야할 Y위치는 어디니? 메쉬가 내 발아래있으면 메쉬의 Y위치고 없으면 0 
 
 
+
+private:
+	_bool				m_bShaking = false;
+	_uint				m_iOriginShakingCount = { 0 };
+	_int				m_iShakingCount = 0;
+
+	_float				m_fForce = { 0.f };			// 쉐이킹에서 사용할 회전힘의 강도
+	_float				m_fCurRotation = { 0.f };	// 쉐이킹에서 사용할 회전값
+	_float				m_fPreRotation = { 0.f };	// 쉐이킹에서 사용할 회전값
+
+	_float3				m_ShakeAsix = {};
+
+private:
+	_float				m_fJumpProgressTime = { 0.f };	// 점프 진행시간
+
+
+private:
+	class CGrapplingPointUI*		m_pGrapplingPoint = { nullptr };
+
+
+	_bool							m_bFreeWalk = { false };
+
+
 private:
 	HRESULT		Ready_Component();
+
 	HRESULT		Ready_PartObjects();
 
 	HRESULT		Ready_State();
 
-
+	HRESULT		Ready_PlayerUI();
 
 
 

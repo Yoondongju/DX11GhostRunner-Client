@@ -26,9 +26,13 @@ private:
     _float  m_fLastKeyPressTimeA = -1.f;
     _float  m_fLastKeyPressTimeD = -1.f;
 
+    
+
+
 private:
-    void Check_HookUp();
-    void Check_Dash();
+    _bool Check_HookUp();
+    _bool Check_Dash();
+    _bool Check_Climb();
 
 public:
     static CPlayer_Jump* Create(class CGameObject* pOwner);

@@ -30,6 +30,12 @@ public:
 	CUIObject* GetParent() { return m_pParentUI; }
 	list<CUIObject*>& GetChildUI() { return m_childUI_List; }
 
+	_float				Get_fX() { return m_fX; }
+	_float				Get_fY() { return m_fY; }
+
+	_float				Get_fSizeX() { return m_fSizeX; }
+	_float				Get_fSizeY() { return m_fSizeY; }
+
 
 public:
 	virtual HRESULT Initialize_Prototype() override;
@@ -52,12 +58,18 @@ protected:
 
 	CUIObject*						m_pParentUI = { nullptr };	 // 부모 UI가 있니
 
-	_bool							m_bMovement = {};     // UI가 움직일수 있는지?
-	_bool							m_bMouseOn = {};	 // UI 위에 마우스가 있는지
-	_bool							m_bLbtnDown = {};	 // UI에 왼쪽버튼이 눌러져 있는지
+	_bool							m_bMovement = { false };     // UI가 움직일수 있는지?
+	_bool							m_bMouseOn = { false };		 // UI 위에 마우스가 있는지
+	_bool							m_bLbtnDown = { false };	 // UI에 왼쪽버튼이 눌러져 있는지
 
-	_bool							m_bActivate = {};	 // 활성화
+	_bool							m_bActivate = { true };		 // 활성화
 	
+
+protected:
+	HRESULT		Add_Child(CUIObject* pChild);
+
+
+
 protected:
 	virtual void MouseOnCheck();				// 모든 자식 UI들은 부모꺼를 쓸거임
 

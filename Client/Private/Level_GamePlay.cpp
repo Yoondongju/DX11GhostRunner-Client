@@ -6,6 +6,8 @@
 
 #include "Level_Loading.h"
 
+#include "GrapplingPointUI.h"
+
 CLevel_GamePlay::CLevel_GamePlay(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CLevel{ pDevice, pContext }
 {
@@ -13,9 +15,6 @@ CLevel_GamePlay::CLevel_GamePlay(ID3D11Device* pDevice, ID3D11DeviceContext* pCo
 
 HRESULT CLevel_GamePlay::Initialize(void *pArg)
 {
-	if (FAILED(Ready_Layer_Player(pArg)))			// << 플레이어는 항상 맨처음 !
-		return E_FAIL;
-
 
 	if (FAILED(Ready_Lights()))
 		return E_FAIL;
@@ -31,6 +30,13 @@ HRESULT CLevel_GamePlay::Initialize(void *pArg)
  	if (FAILED(Ready_Layer_MapObject(pArg)))
 		return E_FAIL;
 
+
+	if (FAILED(Ready_Layer_UI()))
+		return E_FAIL;
+
+
+	if (FAILED(Ready_Layer_Player(pArg)))			// 플레이어는 Hook에서 Grap을 알아야하기에 늦게생성해야한다.
+		return E_FAIL;
 
 	return S_OK;
 }
@@ -53,6 +59,18 @@ HRESULT CLevel_GamePlay::Ready_Lights()
 {
 	/* 게임플레이 레벨에 필요한 광원을 준비한다. */
 	
+	LIGHT_DESC			LightDesc{};
+
+	ZeroMemory(&LightDesc, sizeof LightDesc);
+	LightDesc.eType = LIGHT_DESC::TYPE_DIRECTIONAL;
+	LightDesc.vDirection = _float4(1.f, -1.f, 1.f, 0.f);	// 광원이 쏘는 방향 
+	LightDesc.vDiffuse = _float4(1.f, 1.f, 1.f, 1.f);
+	LightDesc.vAmbient = _float4(1.f, 1.f, 1.f, 1.f);
+	LightDesc.vSpecular = _float4(1.f, 1.f, 1.f, 1.f);
+
+	if (FAILED(m_pGameInstance->Add_Light(LightDesc)))
+		return E_FAIL;
+
 
 	return S_OK;
 }
@@ -100,8 +118,9 @@ HRESULT CLevel_GamePlay::Ready_Layer_BackGround(void* pArg)
 	}
 
 
-	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Sky"))))
-	//	return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_BackGround"), TEXT("Prototype_GameObject_Sky"),L"No Model")))
+		return E_FAIL;
+
 
 	return S_OK;
 }
@@ -122,20 +141,57 @@ HRESULT CLevel_GamePlay::Ready_Layer_MapObject(void* pArg)
 {
 	CLevel_Loading::LOAD_DATA_DESC* pDesc = static_cast<CLevel_Loading::LOAD_DATA_DESC*>(pArg);
 	
-	_uint iDataSize = pDesc->iDataSize;
-	const CLoader::LOADING_OBJECT_INFO* pData = pDesc->pData;
+	_uint iDecorativeDataSize = pDesc->iDecorativeDataSize;
+	const CLoader::LOADING_OBJECT_INFO* pData = pDesc->pDecorativeData;
 
-	for (size_t i = 0; i < iDataSize; i++)		// Non Anim Object
+	for (size_t i = 0; i < iDecorativeDataSize; i++)		// Non Anim Object
 	{
 		CGameObject::GAMEOBJECT_DESC Desc = {};
 
 		Desc.fRotationPerSec = 20.f;
 		Desc.fSpeedPerSec = 20.f;
 		Desc.InitWorldMatrix = XMLoadFloat4x4(&pData[i].vWorldMatrix);
+		Desc.iObjectType = pData[i].eModelType;
 
 		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, pData[i].strLayerName, pData[i].strPrototypeName, pData[i].strModelPrototypeName, &Desc)))
 			return E_FAIL;
 	}
+
+	_uint iStaticDataSize = pDesc->iStaticDataSize;
+	pData = pDesc->pStaticData;
+
+	for (size_t i = 0; i < iStaticDataSize; i++)		// Non Anim Object
+	{
+		CGameObject::GAMEOBJECT_DESC Desc = {};
+
+		Desc.fRotationPerSec = 20.f;
+		Desc.fSpeedPerSec = 20.f;
+		Desc.InitWorldMatrix = XMLoadFloat4x4(&pData[i].vWorldMatrix);
+		Desc.iObjectType = pData[i].eModelType;
+
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, pData[i].strLayerName, pData[i].strPrototypeName, pData[i].strModelPrototypeName, &Desc)))
+			return E_FAIL;
+	}
+
+
+	_uint iDynamicDataSize = pDesc->iDynamicDataSize;
+	pData = pDesc->pDynamicData;
+
+	for (size_t i = 0; i < iDynamicDataSize; i++)		// Non Anim Object
+	{
+		CGameObject::GAMEOBJECT_DESC Desc = {};
+
+		Desc.fRotationPerSec = 20.f;
+		Desc.fSpeedPerSec = 20.f;
+		Desc.InitWorldMatrix = XMLoadFloat4x4(&pData[i].vWorldMatrix);
+		Desc.iObjectType = pData[i].eModelType;
+
+		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, pData[i].strLayerName, pData[i].strPrototypeName, pData[i].strModelPrototypeName, &Desc)))
+			return E_FAIL;
+	}
+
+
+
 
 
 
@@ -149,6 +205,8 @@ HRESULT CLevel_GamePlay::Ready_Layer_MapObject(void* pArg)
 		Desc.fRotationPerSec = 20.f;
 		Desc.fSpeedPerSec = 20.f;
 		Desc.InitWorldMatrix = XMLoadFloat4x4(&pAnimData[i].vWorldMatrix);
+		Desc.iObjectType = pAnimData[i].eModelType;
+
 
 		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, pAnimData[i].strLayerName, pAnimData[i].strPrototypeName, pAnimData[i].strModelPrototypeName, &Desc)))
 			return E_FAIL;
@@ -172,6 +230,13 @@ HRESULT CLevel_GamePlay::Ready_Layer_Player(void* pArg)
 
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, pPlayerData[0].strLayerName, pPlayerData[0].strPrototypeName, L"Model Exist Parts", &Desc)))
 		return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CLevel_GamePlay::Ready_Layer_UI()
+{
+	
 
 	return S_OK;
 }

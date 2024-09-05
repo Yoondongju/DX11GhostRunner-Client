@@ -222,7 +222,9 @@ HRESULT CModel::Ready_Materials(const _char * pModelFilePath,  _wstring* pMateri
 
 			MeshMaterial.pMaterialTextures[j] = CTexture::Create(m_pDevice, m_pContext, pMaterialTexturesPath[i * AI_TEXTURE_TYPE_MAX + j].c_str(), 1);
 			if (nullptr == MeshMaterial.pMaterialTextures[j])
-				return E_FAIL;			
+			{
+				int  a = 1;
+			}
 		}
 
 		m_Materials.emplace_back(MeshMaterial);

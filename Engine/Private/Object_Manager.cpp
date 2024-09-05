@@ -51,7 +51,19 @@ HRESULT CObject_Manager::Add_CloneObject_ToLayer(_uint iLevelIndex, const _wstri
 
 	/* 객체들은 레잉어로 묶어서 관리하고 있었거든 */
 	/* 사본을 추가하기위한 레이어를 찾자.*/
-	CLayer*		pLayer = Find_Layer(iLevelIndex, strLayerTag);
+
+	const _wstring& strChangeLayerName = pGameObject->Get_ChangeLayerName();
+	_wstring	    strFinalLayerName = L"";
+
+	if (L"" != strChangeLayerName)	// 레이어이름이 바뀌었니?  Clone에서 새로운 레이어이름을 채워준다.
+	{
+		strFinalLayerName = strChangeLayerName;
+	}
+	else
+		strFinalLayerName = strLayerTag;
+
+
+	CLayer*		pLayer = Find_Layer(iLevelIndex, strFinalLayerName);
 
 	/* 야 그 레이어가 없는디? */
 	/* 내가 추가하려고했던 레이어가 아직없었다 == 처음 추가하는 객체였다. */
@@ -60,14 +72,13 @@ HRESULT CObject_Manager::Add_CloneObject_ToLayer(_uint iLevelIndex, const _wstri
 	{
 		pLayer = CLayer::Create();
 		pLayer->Add_GameObject(pGameObject);
-		m_pLayers[iLevelIndex].emplace(strLayerTag, pLayer);		
+		m_pLayers[iLevelIndex].emplace(strFinalLayerName, pLayer);
 	}
 	else /* 내가 추가하려고 하는 레잉어가 만들어져있었어. */
 		pLayer->Add_GameObject(pGameObject);
 
 
-	//pGameObject->Set_PrototypeName(strPrototypeTag);
-	//pGameObject->Set_LayerName(strLayerTag);
+	pGameObject->Set_FinalLayerName(strFinalLayerName);
 
 	return S_OK;
 }
@@ -161,18 +172,18 @@ CGameObject* CObject_Manager::Find_Object(_uint iLevelIndex, const _wstring& str
 	return pLayer->Find_Object(iIndex);
 }
 
-CGameObject* CObject_Manager::Find_Player()
+CGameObject* CObject_Manager::Find_Player(_uint iLevelIndex)
 {
-	CGameObject* pPlayer = Find_Object(3, TEXT("Layer_Player"), 0);				// 레벨 3이 게임플레이임 
+	CGameObject* pPlayer = Find_Object(iLevelIndex, TEXT("Layer_Player"), 0);				// 레벨 3이 게임플레이임 
 	if (nullptr == pPlayer)
 		return nullptr;
 
 	return pPlayer;
 }
 
-CGameObject* CObject_Manager::Find_Camera()
+CGameObject* CObject_Manager::Find_Camera(_uint iLevelIndex)
 {
-	CGameObject* pCamera = Find_Object(3, TEXT("Layer_Camera"), 0);
+	CGameObject* pCamera = Find_Object(iLevelIndex, TEXT("Layer_Camera"), 0);
 	if (nullptr == pCamera)
 		return nullptr;
 

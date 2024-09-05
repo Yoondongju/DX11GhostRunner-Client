@@ -40,6 +40,9 @@ HRESULT CMainApp::Initialize()
 	if (FAILED(Open_Level(LEVEL_LOGO)))
 		return E_FAIL;
 
+	if (FAILED(Ready_Font()))
+		return E_FAIL;
+
 	return S_OK;
 }
 
@@ -56,6 +59,8 @@ HRESULT CMainApp::Render()
 	m_pGameInstance->Render_Begin();
 
 	m_pGameInstance->Draw_Engine();
+
+	//m_pGameInstance->Render_Text(TEXT("Font_145"), TEXT("배예영 바보"), XMVectorSet(0.f, 0.f, 0.f, 1.f));
 
 	m_pGameInstance->Render_End();
 
@@ -94,6 +99,14 @@ HRESULT CMainApp::Open_Level(LEVELID eStartLevelID)
 	/* 로딩레벨에서 내가 선택한 레벨에 필요한 자원을 준비한다. */
 	/* 로딩 레벨은 다음레벨(내가 선택한 레벨)이 누구인지를 인지해야한다. */
 	if (FAILED(m_pGameInstance->Change_Level(LEVEL_LOADING, CLevel_Loading::Create(m_pDevice, m_pContext, eStartLevelID))))
+		return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CMainApp::Ready_Font()
+{
+	if (FAILED(m_pGameInstance->Add_Font(TEXT("Font_145"), TEXT("../Bin/Resources/Fonts/143ex.spritefont"))))
 		return E_FAIL;
 
 	return S_OK;

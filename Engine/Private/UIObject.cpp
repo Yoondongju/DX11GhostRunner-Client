@@ -39,10 +39,11 @@ HRESULT CUIObject::Initialize(void * pArg)
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixIdentity());			
 	XMStoreFloat4x4(&m_ProjMatrix, XMMatrixOrthographicLH(ViewportDesc.Width, ViewportDesc.Height, 0.f, 1.f));
 	
+	// 직교투영을 위한 뷰(항등),투영 세팅이고
+
 	m_fViewWidth = ViewportDesc.Width;
 	m_fViewHeight = ViewportDesc.Height;
-
-	// XMVector3Equal(XMLoadFloat3(&m_vTmp), XMLoadFloat3(&m_vTmp));	
+	
 
 	if (FAILED(__super::Initialize(pDesc)))
 		return E_FAIL;
@@ -72,6 +73,20 @@ HRESULT CUIObject::Render()
 {
 	return S_OK;
 }
+
+
+HRESULT CUIObject::Add_Child(CUIObject* pChild)
+{
+	if (nullptr != pChild)
+	{
+		m_childUI_List.emplace_back(pChild);
+
+		pChild->SetParentUI(this);
+	}
+
+	return S_OK;
+}
+
 
 
 void CUIObject::MouseOnCheck()
@@ -118,6 +133,7 @@ void CUIObject::Free()
 {
 	__super::Free();
 
+	Safe_Release(m_pParentUI);
 }
 
 

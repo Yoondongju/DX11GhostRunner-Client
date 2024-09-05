@@ -5,6 +5,7 @@
 #include "Client.h"
 #include "MainApp.h"
 #include "GameInstance.h"
+#include <ctime> 
 
 #define MAX_LOADSTRING 100
 
@@ -70,6 +71,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	_float		fTimeAcc = { 0.0f };
 
     // 기본 메시지 루프입니다.
+    srand(static_cast<unsigned int>(time(0)));
+
 	while (true)
 	{
 		if(PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
@@ -89,7 +92,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		if (fTimeAcc >= 1.f / 60.0f)
 		{
 			fTimeAcc = 0.f;
-			pMainApp->Update(pGameInstance->Compute_TimeDelta(TEXT("Timer_60")));
+            _float fTimeDelta = pGameInstance->Compute_TimeDelta(TEXT("Timer_60"));
+
+#ifdef _DEBUG
+            fTimeDelta = 1.f / 60.0f;
+#endif
+			pMainApp->Update(fTimeDelta);
 			pMainApp->Render();
 		}
 	}

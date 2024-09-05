@@ -1,26 +1,26 @@
 #include "stdafx.h"
-#include "Aid_props.h"
+#include "Decorative_Object.h"
 #include "GameInstance.h"
 
 
-CAid_props::CAid_props(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
+CDecorative_Object::CDecorative_Object(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CGameObject(pDevice, pContext)
 {
 
 }
 
-CAid_props::CAid_props(const CAid_props& Prototype)
+CDecorative_Object::CDecorative_Object(const CDecorative_Object& Prototype)
     : CGameObject(Prototype)
 {
 
 }
 
-HRESULT CAid_props::Initialize_Prototype()
+HRESULT CDecorative_Object::Initialize_Prototype()
 {
     return S_OK;
 }
 
-HRESULT CAid_props::Initialize(void* pArg)
+HRESULT CDecorative_Object::Initialize(void* pArg)
 {
     __super::Initialize(pArg);
 
@@ -30,11 +30,11 @@ HRESULT CAid_props::Initialize(void* pArg)
     return S_OK;
 }
 
-void CAid_props::Priority_Update(_float fTimeDelta)
+void CDecorative_Object::Priority_Update(_float fTimeDelta)
 {
 }
 
-void CAid_props::Update(_float fTimeDelta)
+void CDecorative_Object::Update(_float fTimeDelta)
 {
     __super::Update(fTimeDelta);
   
@@ -43,13 +43,13 @@ void CAid_props::Update(_float fTimeDelta)
 
 }
 
-void CAid_props::Late_Update(_float fTimeDelta)
+void CDecorative_Object::Late_Update(_float fTimeDelta)
 {
 
         m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 }
 
-HRESULT CAid_props::Render()
+HRESULT CDecorative_Object::Render()
 {
     if (FAILED(m_pTransformCom->Bind_ShaderResource(m_pShaderCom, "g_WorldMatrix")))
         return E_FAIL;
@@ -61,6 +61,22 @@ HRESULT CAid_props::Render()
     if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
         return E_FAIL;
 
+
+    const LIGHT_DESC* pLightDesc = m_pGameInstance->Get_LightDesc(0);
+    if (nullptr == pLightDesc)
+        return E_FAIL;
+
+    if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightDir", &pLightDesc->vDirection, sizeof(_float4))))
+        return E_FAIL;
+    if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightDiffuse", &pLightDesc->vDiffuse, sizeof(_float4))))
+        return E_FAIL;
+    if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightAmbient", &pLightDesc->vAmbient, sizeof(_float4))))
+        return E_FAIL;
+    if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightSpecular", &pLightDesc->vSpecular, sizeof(_float4))))
+        return E_FAIL;
+
+    if (FAILED(m_pShaderCom->Bind_RawValue("g_vCamPosition", &m_pGameInstance->Get_CamPosition_Float4(), sizeof(_float4))))
+        return E_FAIL;
 
 
     _uint iNumMeshes = m_pModel->Get_NumMeshes();
@@ -80,7 +96,7 @@ HRESULT CAid_props::Render()
     return S_OK;
 }
 
-HRESULT CAid_props::Ready_Component()
+HRESULT CDecorative_Object::Ready_Component()
 {
     /* FOR.Com_Shader */
     if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxModel"),
@@ -97,33 +113,33 @@ HRESULT CAid_props::Ready_Component()
     return S_OK;
 }
 
-CAid_props* CAid_props::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
+CDecorative_Object* CDecorative_Object::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {
-    CAid_props* pInstance = new CAid_props(pDevice, pContext);
+    CDecorative_Object* pInstance = new CDecorative_Object(pDevice, pContext);
 
     if (FAILED(pInstance->Initialize_Prototype()))
     {
-        MSG_BOX(TEXT("Failed to Created : CAid_props"));
+        MSG_BOX(TEXT("Failed to Created : CDecorative_Object"));
         Safe_Release(pInstance);
     }
 
     return pInstance;
 }
 
-CGameObject* CAid_props::Clone(void* pArg)
+CGameObject* CDecorative_Object::Clone(void* pArg)
 {
-    CAid_props* pInstance = new CAid_props(*this);
+    CDecorative_Object* pInstance = new CDecorative_Object(*this);
 
     if (FAILED(pInstance->Initialize(pArg)))
     {
-        MSG_BOX(TEXT("Failed to Cloned : CAid_props"));
+        MSG_BOX(TEXT("Failed to Cloned : CDecorative_Object"));
         Safe_Release(pInstance);
     }
 
     return pInstance;
 }
 
-void CAid_props::Free()
+void CDecorative_Object::Free()
 {
     __super::Free();
 

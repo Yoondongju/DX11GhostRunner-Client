@@ -6,6 +6,9 @@
 
 #include "GameInstance.h"
 
+#include "GrapplingPointUI.h"
+#include "Static_Object.h"
+
 CPlayer_Hook::CPlayer_Hook(class CGameObject* pOwner)
 	: CState{ CPlayer::PLAYER_ANIMATIONID::HOOK_UP , pOwner }
 {
@@ -14,12 +17,16 @@ CPlayer_Hook::CPlayer_Hook(class CGameObject* pOwner)
 
 HRESULT CPlayer_Hook::Initialize()
 {
+	
+
 	return S_OK;
 }
 
 HRESULT CPlayer_Hook::Start_State()
 {
 	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+	_double& CurTrankPos = pModel->Get_Referene_CurrentTrackPosition();
+	CurTrankPos = 0.f;
 
 	CTransform* pTransform = m_pOwner->Get_Transform();
 	CRigidBody* pRigidBody = m_pOwner->Get_RigidBody();
@@ -29,12 +36,18 @@ HRESULT CPlayer_Hook::Start_State()
 	pRigidBody->Set_ZeroTimer();
 
 
+	CGrapplingPointUI* pGrapplingPoint = static_cast<CPlayer*>(m_pOwner)->Get_GrapplingPoint();
+
+	_vector vGrapPointPos = pGrapplingPoint->Get_Crane()->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+	_vector vPlayerPos = pTransform->Get_State(CTransform::STATE_POSITION);
+
+	_vector vDir = XMVector3Normalize(vGrapPointPos - vPlayerPos);
+
+
+
+	pRigidBody->Add_Force_Direction(vDir, 1100, Engine::CRigidBody::ACCELERATION);
+	pRigidBody->Add_Force_Direction(vDir, 100, Engine::CRigidBody::VELOCITYCHANGE);
 	
-	if (CPlayer::PLAYER_ANIMATIONID::HOOK_UP == pModel->Get_NextAnimationIndex())
-	{
-		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_LOOK), 220, Engine::CRigidBody::ACCELERATION);
-		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_LOOK), 300, Engine::CRigidBody::VELOCITYCHANGE);
-	}
 
 
 	return S_OK;
@@ -44,28 +57,32 @@ void CPlayer_Hook::Update(_float fTimeDelta)
 {
 	m_fAccTime += fTimeDelta;
 
-	if (m_fAccTime >= 0.5f)
+	
+	CTransform* pTransform = m_pOwner->Get_Transform();
+	CRigidBody* pRigidBody = m_pOwner->Get_RigidBody();
+
+	CGrapplingPointUI* pGrapplingPoint = static_cast<CPlayer*>(m_pOwner)->Get_GrapplingPoint();
+
+	_vector vGrapPointPos = pGrapplingPoint->Get_Crane()->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+	_vector vPlayerPos = pTransform->Get_State(CTransform::STATE_POSITION);
+
+	_vector vAbsDistance = XMVectorAbs(XMVectorSubtract(vGrapPointPos, vPlayerPos));
+	
+	
+
+	if (60.f >= XMVectorGetX(XMVector3Length(vAbsDistance)))
 	{
+		pRigidBody->Set_Velocity(_float3(0.f, 0.f, 0.f));
+		pRigidBody->Set_Accel(_float3(0.f, 0.f, 0.f));
+		pRigidBody->Set_ZeroTimer();
+
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 		CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 
 		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::IDLE, true);
-		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);	
+		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);
 	}
-	
-	if (m_fAccTime >= 0.3f && m_pGameInstance->Get_KeyState(KEY::F) == KEY_STATE::TAP)	// µô·¹ÀÌ 0.3ÃÊ
-	{
-		CFsm* pFsm = m_pOwner->Get_Fsm();
-		CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
-	
-		if (CPlayer::PLAYER_ANIMATIONID::HOOK_UP == pModel->Get_CurAnimationIndex())
-		{
-			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::HOOK_DOWN, false, CPlayer::PLAYER_ANIMATIONID::IDLE);
-			
-			if(CPlayer::PLAYER_ANIMATIONID::HOOK_DOWN == pModel->Get_CurAnimationIndex())
-				pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::HOOK_UP);		
-		}	
-	}
+
 }
 
 void CPlayer_Hook::End_State()
@@ -74,7 +91,7 @@ void CPlayer_Hook::End_State()
 }
 
 
-CPlayer_Hook* CPlayer_Hook::Create(class CGameObject* pOwner)
+CPlayer_Hook* CPlayer_Hook::Create(CGameObject* pOwner)
 {
 	CPlayer_Hook* pInstance = new CPlayer_Hook(pOwner);
 
@@ -90,4 +107,6 @@ CPlayer_Hook* CPlayer_Hook::Create(class CGameObject* pOwner)
 void CPlayer_Hook::Free()
 {
 	__super::Free();
+
+	
 }

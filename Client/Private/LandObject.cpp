@@ -47,12 +47,6 @@ void CLandObject::Update(_float fTimeDelta)
 {
 	__super::Update(fTimeDelta);
 
-
-	if (m_strLayerName == L"Layer_PreView_Object")
-	{
-		SetUp_OnTerrain(m_pTransformCom, 0.5f);
-	}
-
 }
 
 void CLandObject::Late_Update(_float fTimeDelta)

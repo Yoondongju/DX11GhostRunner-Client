@@ -10,14 +10,18 @@
 #include "Player_Idle.h"
 #include "Player_Dash.h"
 #include "Player_Block.h"
-#include "Player_Attack.h"
+
+#include "Player_Attack1.h"
+#include "Player_Attack2.h"
+#include "Player_Attack3.h"
+
 #include "Player_Hook.h"
 #include "Player_Climb.h"
 #include "Player_Walk.h"
 #include "Player_Run.h"
 #include "Player_Jump.h"
 
-
+#include "GrapplingPointUI.h"
 
 CPlayer::CPlayer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CContainerObject(pDevice, pContext)
@@ -54,7 +58,7 @@ HRESULT CPlayer::Initialize(void* pArg)
 
 
     _vector vPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
-    _vector vNewPos = { XMVectorGetX(vPos) , m_fOffsetY, XMVectorGetZ(vPos) };
+    _vector vNewPos = { XMVectorGetX(vPos) + 9 , m_fOffsetY, XMVectorGetZ(vPos)+15 };
     m_pTransformCom->Set_State(CTransform::STATE_POSITION, vNewPos);
 
 
@@ -62,46 +66,127 @@ HRESULT CPlayer::Initialize(void* pArg)
     if (FAILED(Ready_PartObjects()))
         return E_FAIL;
 
+    if (FAILED(Ready_PlayerUI()))
+        return E_FAIL;
 
     return S_OK;
 }
 
 void CPlayer::Priority_Update(_float fTimeDelta)
 {
-    if (m_pGameInstance->Get_KeyState(KEY::W) == KEY_STATE::HOLD)
-        m_pTransformCom->Go_Straight(fTimeDelta);
-    if (m_pGameInstance->Get_KeyState(KEY::S) == KEY_STATE::HOLD)
-        m_pTransformCom->Go_Backward(fTimeDelta);
-    if (m_pGameInstance->Get_KeyState(KEY::A) == KEY_STATE::HOLD)
-        m_pTransformCom->Go_Left(fTimeDelta);
-    if (m_pGameInstance->Get_KeyState(KEY::D) == KEY_STATE::HOLD)
-        m_pTransformCom->Go_Right(fTimeDelta);
+    if (m_pGameInstance->Get_KeyState(KEY::P) == KEY_STATE::TAP)
+    {
+        if (false == m_bFreeWalk)
+            m_bFreeWalk = true;
+        else
+            m_bFreeWalk = false;
+    }
+
+
+    if (false == m_bFreeWalk)
+    {
+        if (m_pGameInstance->Get_KeyState(KEY::W) == KEY_STATE::HOLD)
+            m_pTransformCom->Go_Straight(fTimeDelta);
+        if (m_pGameInstance->Get_KeyState(KEY::S) == KEY_STATE::HOLD)
+            m_pTransformCom->Go_Backward(fTimeDelta);
+
+        if (false == static_cast<CBody_Player*>(m_Parts[PARTID::PART_BODY])->IsLandingWall())
+        {
+            if (m_pGameInstance->Get_KeyState(KEY::A) == KEY_STATE::HOLD)
+                m_pTransformCom->Go_Left(fTimeDelta);
+            if (m_pGameInstance->Get_KeyState(KEY::D) == KEY_STATE::HOLD)
+                m_pTransformCom->Go_Right(fTimeDelta);
+        }
+    }
+    else
+    {
+        m_pRigidBody->Set_IsGravity(false);
+
+        if (m_pGameInstance->Get_KeyState(KEY::W) == KEY_STATE::HOLD)
+            m_pTransformCom->Go_Straight_FreeWalk(fTimeDelta);
+        if (m_pGameInstance->Get_KeyState(KEY::S) == KEY_STATE::HOLD)
+            m_pTransformCom->Go_Backward_FreeWalk(fTimeDelta);
+
+        if (m_pGameInstance->Get_KeyState(KEY::A) == KEY_STATE::HOLD)
+            m_pTransformCom->Go_Left_FreeWalk(fTimeDelta);
+        if (m_pGameInstance->Get_KeyState(KEY::D) == KEY_STATE::HOLD)
+            m_pTransformCom->Go_Right_FreeWalk(fTimeDelta);
+    }
+    
+   
 
     POINT ptMousePos = {};
     GetCursorPos(&ptMousePos);
 
-    if (g_hWnd == GetFocus() && m_pGameInstance->Get_KeyState(KEY::RBUTTON) == KEY_STATE::HOLD)
+    
+    if (false == static_cast<CBody_Player*>(m_Parts[PARTID::PART_BODY])->IsLandingWall())
     {
-        _long	MouseMove = {};
-        static CGameObject* pPlayer = m_pGameInstance->Find_Player();
-
-        if (MouseMove = ptMousePos.x - m_ptOldMousePos.x)
+        if (g_hWnd == GetFocus() && m_pGameInstance->Get_KeyState(KEY::RBUTTON) == KEY_STATE::HOLD)
         {
-            m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), fTimeDelta * MouseMove * 0.07f, &m_RotationMatrix);
-        }
+            _long	MouseMove = {};
+           
 
-        if (MouseMove = ptMousePos.y - m_ptOldMousePos.y)
-        {
-            m_pTransformCom->Turn(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), fTimeDelta * MouseMove * 0.07f, &m_RotationMatrix);
-        }
+            if (MouseMove = ptMousePos.x - m_ptOldMousePos.x)
+            {
+                m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), fTimeDelta * MouseMove * 0.07f, &m_RotationMatrix);
+            }
 
+            if (MouseMove = ptMousePos.y - m_ptOldMousePos.y)
+            {
+                m_pTransformCom->Turn(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), fTimeDelta * MouseMove * 0.07f, &m_RotationMatrix);
+            }
+        }
     }
-
+   
     m_ptOldMousePos = ptMousePos;
 
 
 
+    if (m_bShaking)
+    {
+        if (m_iShakingCount >= 0)
+        {
+                         
+            // 짝수일 때 오른쪽으로 회전
+     
+            // 짝수일때 이전프레임때 줫던힘 + 이번프레임의 힘의 강도
+            // 다시 홀수일때 이번프레임의 힘의 강도의 2배  
+            // 이번프레임의 힘의강도는 ?>
 
+            _float fShakeForce = { 0.f };
+
+            if (m_iShakingCount % 2 == 0)
+            {    
+                fShakeForce = m_fForce * ((_float)m_iShakingCount / m_iOriginShakingCount);
+                         
+                m_fCurRotation = fShakeForce;
+            }
+            else
+            {                          
+                m_fCurRotation = -m_fPreRotation * 2;
+            }
+          
+            Active_Shake(0.2f * (m_fCurRotation - m_fPreRotation) , XMLoadFloat3(&m_ShakeAsix));
+            m_fPreRotation = m_fCurRotation;
+
+        }       
+        else
+        {
+            m_bShaking = false;
+    
+            m_iShakingCount = 0;
+            m_iShakingCount = 0;
+    
+            m_fForce = { 0.f };
+            m_ShakeAsix = {};
+
+            m_fCurRotation = 0.f;
+            m_fPreRotation = 0.f; 
+        }
+    }
+
+
+    
     for (auto& pPartObject : m_Parts)
         pPartObject->Priority_Update(fTimeDelta);
 
@@ -110,25 +195,26 @@ void CPlayer::Priority_Update(_float fTimeDelta)
 void CPlayer::Update(_float fTimeDelta)
 {
     CBody_Player* pBodyPart = static_cast<CBody_Player*>(m_Parts[PARTID::PART_BODY]);
-
-
+    
     m_pFsm->Update(fTimeDelta);
-    m_pRigidBody->Update(fTimeDelta, m_fLandPosY + m_fOffsetY);
+    m_pRigidBody->Update(fTimeDelta, m_fLandPosY + m_fOffsetY, pBodyPart->Get_Collider()->Get_CurPhysXCollision());
 
     // < PVD상에서 정확하게 충돌하는 지점 확인하고싶으면 m_fOffsetY 주석치고 확인해봐
     // 저거 있으니까 헷갈림
     // 점프버그 수정해야하고 , 마우스 회전시 내 up벡터에 뭐가 문제가잇어  마우스를 회전해도 내 캡슐이 회전되면 안대
 
 
-
     for (auto& pPartObject : m_Parts)
         pPartObject->Update(fTimeDelta);
 
+    
+    
 
-    if (pBodyPart->Get_Collider()->IsCollision() || PLAYER_ANIMATIONID::HOOK_UP == m_pFsm->Get_CurStateIndex())
+    if (pBodyPart->Get_Collider()->Get_CurPhysXCollision() || PLAYER_ANIMATIONID::HOOK_UP == m_pFsm->Get_CurStateIndex())
         m_pRigidBody->Set_IsGravity(false);
     else
         m_pRigidBody->Set_IsGravity(true);
+
 }
 
 void CPlayer::Late_Update(_float fTimeDelta)
@@ -137,19 +223,24 @@ void CPlayer::Late_Update(_float fTimeDelta)
     if (m_pGameInstance->Get_KeyState(KEY::SPACE) == KEY_STATE::NONE &&
         XMVectorGetY(m_pTransformCom->Get_State(CTransform::STATE_POSITION)) > (m_fLandPosY + m_fOffsetY) * 3)
     {
-        _uint iCurStateIndex = m_pFsm->Get_CurStateIndex();
-       
-        if (PLAYER_ANIMATIONID::IDLE == iCurStateIndex ||
-            PLAYER_ANIMATIONID::RUN == iCurStateIndex ||
-            PLAYER_ANIMATIONID::WALK == iCurStateIndex)
+        if (false == static_cast<CBody_Player*>(m_Parts[PARTID::PART_BODY])->IsLandingWall())
         {
-            // 점프할때 포물선방정식이용한 점프 구현해야하고 
-            // 무조건 착지 전이면 점프 상태로 돌입 -> 점프상태일때 이동이 안되야하나?
-            // 점프할때 이동 돼 안돼 여부 랑 점프할때 애니메이션 여부
-
-            m_Parts[PARTID::PART_BODY]->Get_Model()->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::JUMP_START, false, CPlayer::PLAYER_ANIMATIONID::JUMP_LOOP);
-            m_pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::JUMP_START);
+            _uint iCurStateIndex = m_pFsm->Get_CurStateIndex();
+   
+            if (PLAYER_ANIMATIONID::JUMP_START != iCurStateIndex &&
+                PLAYER_ANIMATIONID::JUMP_LOOP != iCurStateIndex &&
+                PLAYER_ANIMATIONID::JUMP_END != iCurStateIndex &&
+                PLAYER_ANIMATIONID::HOOK_UP != iCurStateIndex)
+            {
+                // 점프할때 포물선방정식이용한 점프 구현해야하고 
+                // 무조건 착지 전이면 점프 상태로 돌입 -> 점프상태일때 이동이 안되야하나?
+                // 점프할때 이동 돼 안돼 여부 랑 점프할때 애니메이션 여부
+   
+                m_Parts[PARTID::PART_BODY]->Get_Model()->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::JUMP_START, false, CPlayer::PLAYER_ANIMATIONID::JUMP_LOOP);
+                m_pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::JUMP_START);
+            }
         }
+   
     }
 
 
@@ -163,6 +254,14 @@ HRESULT CPlayer::Render()
 
     return S_OK;
 }
+
+
+void CPlayer::Active_Shake(_float fForce, _fvector vAsix)
+{
+    m_pTransformCom->Turn(vAsix, fForce, &m_RotationMatrix);
+    --m_iShakingCount;
+}
+
 
 HRESULT CPlayer::Ready_Component()
 {
@@ -194,7 +293,13 @@ HRESULT	CPlayer::Ready_State()
     if (FAILED(m_pFsm->Add_State(CPlayer_Block::Create(this))))
         return E_FAIL;
 
-    if (FAILED(m_pFsm->Add_State(CPlayer_Attack::Create(this))))
+    if (FAILED(m_pFsm->Add_State(CPlayer_Attack1::Create(this))))
+        return E_FAIL;
+
+    if (FAILED(m_pFsm->Add_State(CPlayer_Attack2::Create(this))))
+        return E_FAIL;
+
+    if (FAILED(m_pFsm->Add_State(CPlayer_Attack3::Create(this))))
         return E_FAIL;
 
     if (FAILED(m_pFsm->Add_State(CPlayer_Hook::Create(this))))
@@ -215,7 +320,14 @@ HRESULT	CPlayer::Ready_State()
     return S_OK;
 }
 
+HRESULT CPlayer::Ready_PlayerUI()
+{
+    m_pGrapplingPoint = static_cast<CGrapplingPointUI*>(m_pGameInstance->Find_Object(LEVEL_GAMEPLAY, TEXT("Layer_UI"), 0));
+    Safe_AddRef(m_pGrapplingPoint);     // 얘는 Crane만들때 만들어줬다 이유: Crane을 알야하는데 후에 찾으려면 너무 비용이들어서
+   
 
+    return S_OK;
+}
 
 
 
@@ -289,4 +401,5 @@ void CPlayer::Free()
 
     Safe_Release(m_pFsm);
     Safe_Release(m_pRigidBody);
+    Safe_Release(m_pGrapplingPoint);
 }

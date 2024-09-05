@@ -26,6 +26,8 @@ public:
 		const PxTriangleMeshGeometry&			MeshGeometry;
 		const PxTransform&						PxTransform;
 
+		class CGameObject*						pOnwer = {nullptr};
+
 	}PLAYER_WALKABLE_MESH;
 
 
@@ -48,15 +50,11 @@ public:
 	
 
 public:
-	HRESULT	Add_WalkAble_Mesh(const PLAYER_WALKABLE_MESH& WalkAbleMesh)
-	{
-		m_Player_WalkAble_Mesh.emplace_back(WalkAbleMesh);
-
-		return S_OK;
-	}
+	HRESULT	Add_WalkAble_Mesh(const PLAYER_WALKABLE_MESH& WalkAbleMesh);
+	
 
 
-	_bool CollisionUpdate_PlayerToTriangleMeshGeometry(PxVec3* pOutDir, PxReal* pOutDepth, PxShape* pPlayerShape, PxTransform* pPlayerTransform);
+	_bool CollisionUpdate_PlayerToTriangleMeshGeometry(PxVec3* pOutDir, PxReal* pOutDepth, PxShape* pPlayerShape, PxTransform* pPlayerTransform, class CGameObject** pCollTarget);
 
 
 
@@ -69,6 +67,8 @@ private:
 
 	PxDefaultCpuDispatcher*			m_pDispatcher = nullptr;		// 물리 시뮬레이션의 멀티스레딩을 관리 ( 일단 딱히 필요없음 )
 	PxPvd*							m_pPvd = nullptr;
+
+	PxPvdTransport*					m_pTransport = { nullptr };
 
 
 	vector<PLAYER_WALKABLE_MESH>	m_Player_WalkAble_Mesh;	// 플레이어가 걸어다니는 메쉬의 지오메트리

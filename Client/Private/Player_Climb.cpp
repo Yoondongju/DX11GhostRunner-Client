@@ -4,6 +4,9 @@
 #include "Player.h"
 #include "GameInstance.h"
 
+
+#include "Body_Player.h"
+
 CPlayer_Climb::CPlayer_Climb(class CGameObject* pOwner)
 	: CState{ CPlayer::PLAYER_ANIMATIONID::CLIMB , pOwner }
 {
@@ -17,12 +20,52 @@ HRESULT CPlayer_Climb::Initialize()
 
 HRESULT CPlayer_Climb::Start_State()
 {
+	// 방향에 대한건 고려안해도될것같고 
+	// 거리도 고려하지말고 
+	// 그냥 바로 포물선으로 그리면서 넘어가도록 하는걸 시도해보자
+
+
+	CTransform* pTransform = m_pOwner->Get_Transform();
+	CRigidBody* pRigidBody = m_pOwner->Get_RigidBody();
+
+	pRigidBody->Set_Velocity(_float3(0.f, 0.f, 0.f));
+	pRigidBody->Set_Accel(_float3(0.f, 0.f, 0.f));
+	pRigidBody->Set_ZeroTimer();
+
+
+	_vector vJumpDirection = _vector{ 0.f, 1.f, 0.f };
+	_vector vLookNormal = pTransform->Get_State(CTransform::STATE_LOOK);
+
+	vJumpDirection += vLookNormal;
+
+	_float fXWeight = 1.3f;			
+	_float fYWeight = 5.f;			
+	_float fZWeight = 1.3f;			
+
+	vJumpDirection = XMVectorSetX(vJumpDirection, XMVectorGetX(vJumpDirection) * fXWeight);
+	vJumpDirection = XMVectorSetY(vJumpDirection, XMVectorGetY(vJumpDirection) * fYWeight);
+	vJumpDirection = XMVectorSetZ(vJumpDirection, XMVectorGetZ(vJumpDirection) * fZWeight);
+
+
+	vJumpDirection = XMVector3Normalize(vJumpDirection);
+
+
+	pRigidBody->Add_Force_Direction(vJumpDirection, 180, Engine::CRigidBody::ACCELERATION);
+	pRigidBody->Add_Force_Direction(vJumpDirection, 50, Engine::CRigidBody::VELOCITYCHANGE);
+
 
 	return S_OK;
 }
 
 void CPlayer_Climb::Update(_float fTimeDelta)
 {
+	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+	
+	if (CPlayer::PLAYER_ANIMATIONID::CLIMB != pModel->Get_NextAnimationIndex())
+	{
+		CFsm* pFsm = m_pOwner->Get_Fsm();
+		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);
+	}
 }
 
 void CPlayer_Climb::End_State()

@@ -13,6 +13,21 @@ namespace Engine
 
 	typedef struct
 	{
+		enum TYPE { TYPE_DIRECTIONAL, TYPE_POINT, TYPE_END };
+
+		TYPE		eType;
+		XMFLOAT4	vDirection;
+		XMFLOAT4	vPosition;
+		float		fRange;
+
+		XMFLOAT4	vDiffuse;
+		XMFLOAT4	vAmbient;
+		XMFLOAT4	vSpecular;
+	}LIGHT_DESC;
+
+
+	typedef struct
+	{
 		class CTexture* pMaterialTextures[AI_TEXTURE_TYPE_MAX];
 	}MESH_MATERIAL;
 
@@ -43,14 +58,14 @@ namespace Engine
 	}VTXPOSTEX;
 
 
-	typedef struct   ENGINE_DLL
+	typedef struct ENGINE_DLL
 	{
 		XMFLOAT3		vPosition;
 		XMFLOAT3		vTexcoord;
 
 		static const unsigned int	iNumElements = 2;
 		static const D3D11_INPUT_ELEMENT_DESC	Elements[iNumElements];
-	}VTXCUBE;
+	}VTXCUBETEX;
 
 
 	typedef struct  ENGINE_DLL

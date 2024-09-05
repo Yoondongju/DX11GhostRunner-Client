@@ -33,6 +33,9 @@ public:
 
 	_uint					 Get_NumChannel() { return m_iNumChannels; }
 	_double					 Get_Duration() { return m_Duration; }
+
+
+	_double					 Get_OriginSpeedPerSec() { return m_OriginSpeedPerSec; }
 	_double					 Get_SpeedPerSec() { return m_SpeedPerSec; }
 
 	void					 Set_SpeedPerSec(_double SpeedPersec) { m_SpeedPerSec = SpeedPersec; }
@@ -55,6 +58,7 @@ private:
 	_double						m_Duration = {};
 
 	/* 애니메이션의 초당 재생속도 */
+	_double						m_OriginSpeedPerSec = {};
 	_double						m_SpeedPerSec = {};
 
 

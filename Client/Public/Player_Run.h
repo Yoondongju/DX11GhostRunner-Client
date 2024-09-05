@@ -20,8 +20,9 @@ public:
 
 
 private:
-    void Check_HookUp();
-    void Check_Jump();
+    _bool Check_HookUp();
+    _bool Check_Jump();
+
 
 public:
     static CPlayer_Run* Create(class CGameObject* pOwner);

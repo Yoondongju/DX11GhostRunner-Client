@@ -128,6 +128,63 @@ void CTransform::Go_Left(_float fTimeDelta)
 	Set_State(STATE_POSITION, vPosition);
 }
 
+void CTransform::Go_Straight_FreeWalk(_float fTimeDelta)
+{
+	_vector vPosition = Get_State(STATE_POSITION);
+	_vector vLook = Get_State(STATE_LOOK);
+
+
+
+	_vector vCompute_Result = XMVector3Normalize(vLook) * m_fSpeedPerSec * fTimeDelta * 2;
+
+	vPosition += vCompute_Result;
+	Set_State(STATE_POSITION, vPosition);
+}
+
+void CTransform::Go_Backward_FreeWalk(_float fTimeDelta)
+{
+	_vector vPosition = Get_State(STATE_POSITION);
+	_vector vLook = Get_State(STATE_LOOK);
+
+
+
+	_vector vCompute_Result = XMVector3Normalize(vLook) * m_fSpeedPerSec * fTimeDelta * 2;
+
+	vPosition -= vCompute_Result;
+
+
+	Set_State(STATE_POSITION, vPosition);
+}
+
+void CTransform::Go_Right_FreeWalk(_float fTimeDelta)
+{
+	_vector vPosition = Get_State(STATE_POSITION);
+	_vector vLook = Get_State(STATE_RIGHT);
+
+
+
+	_vector vCompute_Result = XMVector3Normalize(vLook) * m_fSpeedPerSec * fTimeDelta * 2;
+
+	vPosition += vCompute_Result;
+
+	Set_State(STATE_POSITION, vPosition);
+}
+
+void CTransform::Go_Left_FreeWalk(_float fTimeDelta)
+{
+	_vector vPosition = Get_State(STATE_POSITION);
+	_vector vLook = Get_State(STATE_RIGHT);
+
+
+
+	_vector vCompute_Result = XMVector3Normalize(vLook) * m_fSpeedPerSec * fTimeDelta * 2;
+
+	vPosition -= vCompute_Result;
+
+
+	Set_State(STATE_POSITION, vPosition);
+}
+
 void CTransform::Turn(const _fvector& vAxis, _float fTimeDelta, _float4x4* RotationMatrix)
 {
 	// 이건 나의 월드좌표에서의 정보  현재 내 월드좌표의 위치에서 턴
@@ -151,26 +208,21 @@ void CTransform::Turn(const _fvector& vAxis, _float fTimeDelta, _float4x4* Rotat
 }
 
 
-void CTransform::Turn(const _fmatrix& vRotationMatrix)
+void CTransform::Turn(const _fmatrix& vRotationMatrix, _float4x4* RotationMatrix)
 {
 	_vector vRight = Get_State(STATE_RIGHT);				// 지가 지금 잇는 월드행렬 성분을 토대로
 	_vector	vUp = Get_State(STATE_UP);
 	_vector	vLook = Get_State(STATE_LOOK);
 
 
+	if (RotationMatrix)
+		XMStoreFloat4x4(RotationMatrix, XMMatrixMultiply(XMLoadFloat4x4(RotationMatrix), vRotationMatrix));
 
 
 	Set_State(STATE_RIGHT, XMVector3TransformNormal(vRight, vRotationMatrix));
 	Set_State(STATE_UP, XMVector3TransformNormal(vUp, vRotationMatrix));
 	Set_State(STATE_LOOK, XMVector3TransformNormal(vLook, vRotationMatrix));
 }
-
-
-
-
-
-
-
 
 
 

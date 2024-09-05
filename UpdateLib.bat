@@ -11,5 +11,5 @@ xcopy	/y		.\Engine\Bin\PVDRuntime_64.dll			.\Client\Bin\
 xcopy	/y		.\Engine\Bin\PhysXDevice64.dll			.\Client\Bin\
 
 
-xcopy	/y		.\Engine\Bin\ShaderFiles\*.hlsl			.\Client\Bin\ShaderFiles\
+xcopy	/y		.\Engine\Bin\ShaderFiles\*.*			.\Client\Bin\ShaderFiles\
 xcopy	/y/s	.\Engine\Public\*.*						.\EngineSDK\Inc\

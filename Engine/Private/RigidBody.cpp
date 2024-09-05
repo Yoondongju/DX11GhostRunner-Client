@@ -35,13 +35,10 @@ HRESULT CRigidBody::Initialize(void* pArg)
 	return S_OK;
 }
 
-void CRigidBody::Update(_float fTimeDelta, _float fTargetY)
+void CRigidBody::Update(_float fTimeDelta, _float fTargetY, _bool isColl)
 {
-	//가해지는 힘이 있을 때만 실행
-	//힘을 가해 속도를 더함
 
 	m_fTime += fTimeDelta;
-
 
 	// 가속도가 있고 1초동안 속도를 증가시킨다.
 	if (m_fTime <= 0.5f && XMVectorGetX(XMLoadFloat3(&m_vAccel)) != 0.f)
@@ -49,6 +46,7 @@ void CRigidBody::Update(_float fTimeDelta, _float fTargetY)
 		_vector AddAccel = XMLoadFloat3(&m_vAccel) * m_fTime * 4;
 		XMStoreFloat3(&m_vVelocity, XMLoadFloat3(&m_vVelocity) + AddAccel);
 	}
+
 
 
 
@@ -95,8 +93,8 @@ void CRigidBody::Calculate_Tranform(_float fTimeDelta, _float fTargetY)
 
 
 	// 중력을 줄때 어디까지 내려갈까? 라는걸 체크하기위해선
-	if (fTargetY < 0)
-		fTargetY = 0.f;
+	//if (fTargetY < 0)
+	//	fTargetY = 0.f;
 
 	if (XMVectorGetY(vNewPosition) < fTargetY)		// TargetY는 내가 착지해야할 Y위치를 뜻함
 	{
@@ -112,21 +110,26 @@ void CRigidBody::Calculate_Gravity(_float fTargetY)
 		return;
 
 
-
 	_vector vCurrentPosition = m_pOwnerTransform->Get_State(CTransform::STATE_POSITION);
 	_float currentHeight = XMVectorGetY(vCurrentPosition);
 
-	// 현재 높이와 목표 높이 간의 차이를 사용하여 높이 비율을 계산합니다.
+	// 현재 높이와 목표 높이 간의 차이를 사용하여 높이 비율을 계산
 	_float heightDifference = fabs(fTargetY - currentHeight);
 
-	// 높이 차이에 따른 중력 증가를 조정합니다.
+	// 높이 차이에 따른 중력 증가를 조정
 	_float fHeightFactor = 0.0f;
 	if (heightDifference > 0.0f)
 	{
-		fHeightFactor = 40.f / (heightDifference + 0.1f);  // +0.1f로 나눗셈에서 0 나누기 방지
-		fHeightFactor = min(fHeightFactor, 30.f);  // 최대 중력 증가 한도 설정
+		fHeightFactor = 70.f / (heightDifference + 0.1f);  // +0.1f로 나눗셈에서 0 나누기 방지
+
+		// 거리가 100 차이나 그럼 중력의 0.7배
+		// 거리가 10 차이나   중력의 7배
+		// 거리가 작을때 최소의 중력을 보장해줘야해 
+
+		fHeightFactor = min(fHeightFactor, 1.6f);  // 최소 중력
+		fHeightFactor = max(fHeightFactor, 0.7f);  // 최대 중력
 	}
-	_float fAdjustedGravityAccel = m_fGravityAccel + fHeightFactor;
+	_float fAdjustedGravityAccel = m_fGravityAccel * fHeightFactor;
 
 
 	_vector vGravity = { 0.f, fAdjustedGravityAccel * 3.f, 0.f };
@@ -138,7 +141,6 @@ void CRigidBody::Calculate_Gravity(_float fTargetY)
 
 	// 중력 가속도를 속도에 반영
 	XMStoreFloat3(&m_vVelocity, XMLoadFloat3(&m_vVelocity) - vGravity);
-
 }
 
 

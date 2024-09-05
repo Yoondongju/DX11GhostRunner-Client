@@ -54,7 +54,7 @@ public:
 	virtual HRESULT Render(_uint iMeshIndex);
 
 public:
-	void SetUp_Animation(_uint iAnimationIndex, _bool isLoop = false, _uint iEndNextAnimationIndex = 0) // 종료되면 실행될 다음애니메이션은 ?
+	void SetUp_Animation(_uint iAnimationIndex, _bool isLoop = false, _uint iEndNextAnimationIndex = 13) // 종료되면 실행될 다음애니메이션은 ?
 	{
 		m_iNextAnimIndex = iAnimationIndex;
 

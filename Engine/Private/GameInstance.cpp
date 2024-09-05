@@ -11,6 +11,9 @@
 #include "../Public/UI_Manager.h"
 #include "../Public/Event_Manager.h"
 #include "../Public/PhysXManager.h"
+#include "../Public/Light_Manager.h"
+#include "../Public/Font_Manager.h"
+
 
 IMPLEMENT_SINGLETON(CGameInstance)
 
@@ -50,8 +53,14 @@ HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, cons
 	if (nullptr == m_pPipeLine)
 		return E_FAIL;
 
+	m_pLight_Manager = CLight_Manager::Create();
+	if (nullptr == m_pLight_Manager)
+		return E_FAIL;
 
-	/* 사운드 카드를 초기화하낟. */
+	m_pFont_Manager = CFont_Manager::Create(*ppDevice, *ppContext);
+	if (nullptr == m_pFont_Manager)
+		return E_FAIL;
+
 
 	/* 입력장치를 초기화하낟. */
 	m_pInput_Device = CInput_Device::Create(hInst, EngineDesc.hWnd);
@@ -114,6 +123,7 @@ void CGameInstance::Update_Engine(_float fTimeDelta)
 	m_pObject_Manager->Update(fTimeDelta);	
 	m_pObject_Manager->Late_Update(fTimeDelta);
 	
+
 	m_pPhysX_Manager->Update(fTimeDelta);
 
 
@@ -143,7 +153,7 @@ HRESULT CGameInstance::Clear(_uint iLevelIndex)
 	m_pObject_Manager->Clear(iLevelIndex);
 
 	/* 컴포넌트 원형들도 레벨별로 관리했었다. */
-	// m_pComponent_Manager->Clear(iLevelIndex);
+	//m_pComponent_Manager->Clear(iLevelIndex);
 
 	return S_OK;
 }
@@ -151,7 +161,7 @@ HRESULT CGameInstance::Clear(_uint iLevelIndex)
 void CGameInstance::Render_Begin()
 {
 	/*m_pGraphic_Device->Render_Begin();*/
-	m_pGraphic_Device->Clear_BackBuffer_View(_float4(0.f, 0.f, 1.f, 1.f));
+	m_pGraphic_Device->Clear_BackBuffer_View(_float4(0.1f, 0.1f, 0.1f, 1.f));
 	m_pGraphic_Device->Clear_DepthStencil_View();
 	
 
@@ -215,14 +225,19 @@ CGameObject* CGameInstance::Clone_GameObject(const _wstring& strPrototypeTag, vo
 	return m_pObject_Manager->Clone_GameObject(strPrototypeTag, pArg);
 }
 
-CGameObject* CGameInstance::Find_Player()
+CGameObject* CGameInstance::Find_Object(_uint iLevelIndex, const _wstring& strLayerTag, _uint iIndex)
 {
-	return m_pObject_Manager->Find_Player();
+	return m_pObject_Manager->Find_Object(iLevelIndex,strLayerTag,iIndex);
 }
 
-CGameObject* CGameInstance::Find_Camera()
+CGameObject* CGameInstance::Find_Player(_uint iLevelIndex)
 {
-	return m_pObject_Manager->Find_Camera();
+	return m_pObject_Manager->Find_Player(iLevelIndex);
+}
+
+CGameObject* CGameInstance::Find_Camera(_uint iLevelIndex)
+{
+	return m_pObject_Manager->Find_Camera(iLevelIndex);
 }
 
 list<class CGameObject*>& CGameInstance::Get_GameObjects(_uint iLevelIndx, const _wstring& strLayerTag)
@@ -295,7 +310,6 @@ void CGameInstance::Delete(_uint iLevelIndex, CRenderer::RENDERGROUP eRenderGrou
 	eEvent.lParam = (DWORD_PTR)pObj;
 
 
-
 	list<CGameObject*>& RenderObjectList = m_pRenderer->Get_RenderList(eRenderGroup);
 	for (auto iter = RenderObjectList.begin(); iter != RenderObjectList.end();)
 	{
@@ -307,7 +321,8 @@ void CGameInstance::Delete(_uint iLevelIndex, CRenderer::RENDERGROUP eRenderGrou
 			++iter;
 	}
 
-	list<CGameObject*>& GameObjectList = m_pObject_Manager->Get_GameObjects(iLevelIndex, pObj->Get_LayerName());
+
+	list<CGameObject*>& GameObjectList = m_pObject_Manager->Get_GameObjects(iLevelIndex, pObj->Get_FinalLayerName());
 	for (auto iter = GameObjectList.begin(); iter != GameObjectList.end();)
 	{
 		if (*iter == pObj) // 단순 객체의 주소 비교
@@ -358,6 +373,26 @@ _vector CGameInstance::Get_CamPosition_Vector() const
 	return m_pPipeLine->Get_CamPosition_Vector();
 }
 
+HRESULT CGameInstance::Add_Light(const LIGHT_DESC& LightDesc)
+{
+	return m_pLight_Manager->Add_Light(LightDesc);
+}
+
+const LIGHT_DESC* CGameInstance::Get_LightDesc(_uint iIndex) const
+{
+	return m_pLight_Manager->Get_LightDesc(iIndex);
+}
+
+HRESULT CGameInstance::Add_Font(const _wstring& strFontTag, const _tchar* pFontFilePath)
+{
+	return m_pFont_Manager->Add_Font(strFontTag, pFontFilePath);
+}
+
+HRESULT CGameInstance::Render_Text(const _wstring& strFontTag, const _tchar* pText, _fvector vPosition, _fvector vColor, _float fRadian, _fvector vPivot, _float fScale)
+{
+	return m_pFont_Manager->Render(strFontTag, pText, vPosition, vColor, fRadian, vPivot, fScale);
+}
+
 #pragma endregion
 
 
@@ -382,15 +417,17 @@ HRESULT CGameInstance::Add_WalkAble_Mesh(const CPhysXManager::PLAYER_WALKABLE_ME
 	return m_pPhysX_Manager->Add_WalkAble_Mesh(WalkAbleMesh);
 }
 
-_bool CGameInstance::CollisionUpdate_PlayerToTriangleMeshGeometry(PxVec3* pOutDir, PxReal* pOutDepth, PxShape* pPlayerShape, PxTransform* pPlayerTransform)
+_bool CGameInstance::CollisionUpdate_PlayerToTriangleMeshGeometry(PxVec3* pOutDir, PxReal* pOutDepth, PxShape* pPlayerShape, PxTransform* pPlayerTransform, CGameObject** pCollTarget)
 {
-	return m_pPhysX_Manager->CollisionUpdate_PlayerToTriangleMeshGeometry(pOutDir, pOutDepth, pPlayerShape, pPlayerTransform);
+	return m_pPhysX_Manager->CollisionUpdate_PlayerToTriangleMeshGeometry(pOutDir, pOutDepth, pPlayerShape, pPlayerTransform, pCollTarget);
 }
 
 
 void CGameInstance::Release_Engine()
-{	
-	
+{		
+
+	Safe_Release(m_pFont_Manager);
+	Safe_Release(m_pLight_Manager);
 
 	Safe_Release(m_pInput_Device);
 	Safe_Release(m_pPipeLine);
@@ -402,14 +439,16 @@ void CGameInstance::Release_Engine()
 	Safe_Release(m_pTimer_Manager);
 	Safe_Release(m_pComponent_Manager);
 	Safe_Release(m_pObject_Manager);
-	Safe_Release(m_pPhysX_Manager);
 
 	Safe_Release(m_pLevel_Manager);
 	Safe_Release(m_pGraphic_Device);
 
 	
-
 	CGameInstance::Get_Instance()->Destroy_Instance();	
+
+
+	Safe_Release(m_pPhysX_Manager);
+
 }
 
 void CGameInstance::Free()

@@ -54,8 +54,10 @@ void CFreeCamera::Update(_float fTimeDelta)
 
 void CFreeCamera::Late_Update(_float fTimeDelta)
 {
-	CPlayer* pPlayer = static_cast<CPlayer*>(m_pGameInstance->Find_Player());
+	CPlayer* pPlayer = static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY));
 	
+	if (nullptr == pPlayer)
+		return;
 
 	_vector vCamPosition = pPlayer->Get_Transform()->Get_State(CTransform::STATE_POSITION);
 
@@ -70,6 +72,8 @@ void CFreeCamera::Late_Update(_float fTimeDelta)
 	m_pTransformCom->Set_State(CTransform::STATE_UP, pPlayer->Get_Transform()->Get_State(CTransform::STATE_UP));
 	m_pTransformCom->Set_State(CTransform::STATE_LOOK, pPlayer->Get_Transform()->Get_State(CTransform::STATE_LOOK));
 
+
+
 	__super::Late_Update(fTimeDelta);
 }
 
@@ -77,6 +81,7 @@ HRESULT CFreeCamera::Render()
 {
 	return S_OK;
 }
+
 
 CFreeCamera * CFreeCamera::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 {

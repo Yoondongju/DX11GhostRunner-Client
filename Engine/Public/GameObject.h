@@ -12,7 +12,7 @@ class ENGINE_DLL CGameObject abstract : public CBase
 public:
 	typedef struct GAMEOBJECT_DESC : public CTransform::TRANSFORM_DESC
 	{
-		
+		_uint					iObjectType = {};
 
 	} GAMEOBJECT_DESC;
 
@@ -22,12 +22,12 @@ protected:
 	virtual ~CGameObject() = default;
 
 public:
-	void		Set_PrototypeName(const _wstring& strPrototypeName) { m_strPrototypeName = strPrototypeName; }
-	_wstring	Get_PrototypeName() { return m_strPrototypeName; }
+	const _wstring&			  Get_ChangeLayerName() { return m_strChangeLayerName; }
 
+	void					  Set_FinalLayerName(const _wstring& strFinalLayerName) { m_strFinalLayerName = strFinalLayerName; }
+	const _wstring&			  Get_FinalLayerName() { return m_strFinalLayerName; }
 
-	void		Set_LayerName(const _wstring& strLayerName) { m_strLayerName = strLayerName; }
-	_wstring    Get_LayerName() { return m_strLayerName; }
+	_uint					  Get_ModelListType() { return m_iObjectType; }
 
 	
 	virtual void			  Set_ModelPrototypeTag(const _wstring& strModelPrototypeName) { m_strModelPrototypeName = strModelPrototypeName; }
@@ -63,9 +63,13 @@ protected:
 	class CGameInstance*		m_pGameInstance = { nullptr };
 
 
-	_wstring				m_strPrototypeName = L"";		// 맵툴에서 저장불러오기할때 도저히 판단기준을 잡을수없어서 만듬
-	_wstring				m_strLayerName = L"";
+	
+	_wstring				m_strChangeLayerName = L"";		// 레이어이름이 바뀌어야 하는경우
+	_wstring				m_strFinalLayerName = L"";		// 최종 나의 레이어 이름알고있어야해 이유: 나중에 삭제할때필요
+
 	_wstring				m_strModelPrototypeName = L"";
+
+	_uint					m_iObjectType = {};
 
 protected:
 	map<const _wstring, class CComponent*>			m_Components;

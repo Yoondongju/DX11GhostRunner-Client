@@ -30,7 +30,7 @@ public:
 
 	HRESULT Ready_Layer_Player(void* pArg);
 
-
+	HRESULT Ready_Layer_UI();
 	
 
 public:

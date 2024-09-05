@@ -99,8 +99,17 @@ public:
 	void Go_Right(_float fTimeDelta);
 	void Go_Left(_float fTimeDelta);
 
+
+	void Go_Straight_FreeWalk(_float fTimeDelta);
+	void Go_Backward_FreeWalk(_float fTimeDelta);
+	void Go_Right_FreeWalk(_float fTimeDelta);
+	void Go_Left_FreeWalk(_float fTimeDelta);
+
+
+
+
 	void Turn(const _fvector & vAxis, _float fTimeDelta, _float4x4 * RotationMatrix = nullptr);
-	void Turn(const _fmatrix & vRotationMatrix);
+	void Turn(const _fmatrix & vRotationMatrix, _float4x4* RotationMatrix = nullptr);
 
 	void Rotation(const _fvector & vAxis, _float fRadian);
 	void Rotation(_float fX, _float fY, _float fZ);

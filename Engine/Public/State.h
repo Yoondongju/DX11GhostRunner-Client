@@ -19,7 +19,7 @@ public:
     _uint		Get_StateIndex() { return m_iStateIndex; }
 
 public:
-    virtual HRESULT Initialize() = 0;
+    virtual HRESULT Initialize() { return S_OK; }
     virtual HRESULT Start_State() = 0;
     virtual void    Update(_float fTimeDelta) = 0;
     virtual void    End_State() = 0;

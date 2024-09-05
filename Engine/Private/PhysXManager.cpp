@@ -29,30 +29,38 @@ HRESULT CPhysXManager::Ready_PhysX()
 		MSG_BOX(TEXT("PxCreateFoundation failed!"));
 		return E_FAIL;
 	}
-	
 
 	
 	// PVD 설정
 	m_pPvd = PxCreatePvd(*m_pFoundation);
 	if (!m_pPvd) {
 		MSG_BOX(TEXT("PxCreatePvd failed!"));
-		return E_FAIL;
-	}
-	
-	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
-	if (!transport) {
-		MSG_BOX(TEXT("PxDefaultPvdSocketTransportCreate failed!"));
-		return E_FAIL;
-	}
-	
-	m_pPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
 
+		m_pFoundation->release();
+		return E_FAIL;
+	}
+	
+	m_pTransport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
+	if (!m_pTransport) {
+		MSG_BOX(TEXT("PxDefaultPvdSocketTransportCreate failed!"));
+		
+		m_pPvd->release();
+		m_pFoundation->release();
+		return E_FAIL;
+	}
+	
+	m_pPvd->connect(*m_pTransport, PxPvdInstrumentationFlag::eALL);
+
+	//transport->release();
 
 
 	// Physics 객체 생성
 	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), true, m_pPvd);
 	if (!m_pPhysics) {
 		MSG_BOX(TEXT("PxCreatePhysics  failed!"));
+
+		m_pPvd->release();
+		m_pFoundation->release();
 		return E_FAIL;
 	}
 
@@ -65,19 +73,33 @@ HRESULT CPhysXManager::Ready_PhysX()
 	m_pDispatcher = PxDefaultCpuDispatcherCreate(2);
 	if (!m_pDispatcher) {
 		MSG_BOX(TEXT("PxDefaultCpuDispatcherCreate failed!"));
+
+		m_pPhysics->release();
+		m_pPvd->release();
+		m_pFoundation->release();
 		return E_FAIL;
 	}
+
 	sceneDesc.cpuDispatcher = m_pDispatcher;
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
+
 	m_pScene = m_pPhysics->createScene(sceneDesc);
+
 	if (!m_pScene) {
 		MSG_BOX(TEXT("createScene failed!"));
+
+		m_pDispatcher->release();
+		m_pPhysics->release();
+		m_pPvd->release();
+		m_pFoundation->release();
 		return E_FAIL;
 	}
+
+	
 
 
 	PxPvdSceneClient* pPvdClient = m_pScene->getScenePvdClient();
-
+	
 
 	if (pPvdClient)
 	{
@@ -87,6 +109,7 @@ HRESULT CPhysXManager::Ready_PhysX()
 
 		pPvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true); // Scene 쿼리
 	}
+	
 
 
 
@@ -96,8 +119,15 @@ HRESULT CPhysXManager::Ready_PhysX()
 	m_pMaterial = m_pPhysics->createMaterial(0.5f, 0.5f, 0.6f);
 	if (!m_pMaterial) {
 		MSG_BOX(TEXT("createMaterial failed!"));
+
+		m_pScene->release();
+		m_pDispatcher->release();
+		m_pPhysics->release();
+		m_pPvd->release();
+		m_pFoundation->release();
 		return E_FAIL;
 	}
+
 
 
 
@@ -105,8 +135,14 @@ HRESULT CPhysXManager::Ready_PhysX()
 	return S_OK;
 }
 
+HRESULT	CPhysXManager::Add_WalkAble_Mesh(const PLAYER_WALKABLE_MESH& WalkAbleMesh)
+{
+	m_Player_WalkAble_Mesh.emplace_back(WalkAbleMesh);
 
-_bool CPhysXManager::CollisionUpdate_PlayerToTriangleMeshGeometry(PxVec3* pOutDir, PxReal* pOutDepth, PxShape* pPlayerShape, PxTransform* pPlayerTransform)
+	return S_OK;
+}
+
+_bool CPhysXManager::CollisionUpdate_PlayerToTriangleMeshGeometry(PxVec3* pOutDir, PxReal* pOutDepth, PxShape* pPlayerShape, PxTransform* pPlayerTransform, CGameObject** pCollTarget)
 {
 	for (_uint i = 0; i < m_Player_WalkAble_Mesh.size(); i++)
 	{
@@ -120,15 +156,19 @@ _bool CPhysXManager::CollisionUpdate_PlayerToTriangleMeshGeometry(PxVec3* pOutDi
 			m_Player_WalkAble_Mesh[i].PxTransform,
 			4);
 
+		
 
 		if (*pOutDepth > 0.f)	// 플레이어가 안으로 들어갔니
 		{
+			*pCollTarget = m_Player_WalkAble_Mesh[i].pOnwer;
 
 			return true;
 		}
+		
 
 	}
 	
+
 	return false;
 }
 
@@ -167,24 +207,60 @@ void CPhysXManager::Free()
 
 	m_Player_WalkAble_Mesh.clear();
 
+
+	// 내가 씌운 rigid스태틱, 머시기 삭제하고  지오메트리 삭제하고
+
+	// 머테리얼이 엑터->attachShape에
+	// shpae만들때 필요하니가
+
+	// 액터를 지우면 머테리얼이삭제안해도 액터지울때 지가 지운다?
+	// 
+
+
+	if (m_pMaterial)
+	{
+		m_pMaterial->release();
+		m_pMaterial = nullptr;
+	}
+		
+
 	if (m_pScene)
 		m_pScene->release();
+	m_pScene = nullptr;
+	
+
+	PxCloseExtensions();
+
 
 	if (m_pDispatcher)
 		m_pDispatcher->release();
+	m_pDispatcher = nullptr;
 
-	if (m_pMaterial)
-		m_pMaterial->release();
-
+	
 	if (m_pPhysics)
+	{
 		m_pPhysics->release();
+		
+	}
+		
+	m_pPhysics = nullptr;
+
+
+	if (m_pTransport)
+	{
+		m_pTransport->release();
+		m_pTransport = nullptr;
+	}
 
 	if (m_pPvd)
 	{
 		m_pPvd->disconnect();  // PVD 연결 해제
 		m_pPvd->release();
 	}
+	m_pPvd = nullptr;
+
 
 	if (m_pFoundation)
 		m_pFoundation->release();
+	m_pFoundation = nullptr;
 }

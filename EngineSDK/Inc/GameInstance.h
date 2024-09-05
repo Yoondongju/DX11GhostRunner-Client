@@ -31,6 +31,15 @@ public:
 
 	HRESULT Draw_Engine();
 	HRESULT Clear(_uint iLevelIndex);
+
+	_float Get_Random_Normal() const {
+		return (_float)rand() / RAND_MAX;
+	}
+
+	_float Get_Random(_float fMin, _float fMax) const {
+		return fMin + Get_Random_Normal() * (fMax - fMin);
+	}
+
 	
 #pragma region GRAPHIC_DEVICE
 public:
@@ -54,8 +63,10 @@ public:
 	class CComponent* Find_Component(_uint iLevelIndex, const _wstring& strLayerTag, const _wstring& strComponentTag, _uint iIndex = 0);
 	class CGameObject* Clone_GameObject(const _wstring & strPrototypeTag, void* pArg = nullptr);
 
-	class CGameObject* Find_Player();
-	class CGameObject* Find_Camera();
+
+	class CGameObject* Find_Object(_uint iLevelIndex, const _wstring& strLayerTag, _uint iIndex);
+	class CGameObject* Find_Player(_uint iLevelIndex);
+	class CGameObject* Find_Camera(_uint iLevelIndex);
 
 	list<class CGameObject*>& Get_GameObjects(_uint iLevelIndx, const _wstring & strLayerTag);
 
@@ -100,6 +111,18 @@ public:
 	_vector Get_CamPosition_Vector() const;
 #pragma endregion
 
+
+#pragma region LIGHT_MANAGER
+	HRESULT Add_Light(const LIGHT_DESC& LightDesc);
+	const LIGHT_DESC* Get_LightDesc(_uint iIndex) const;
+#pragma endregion
+
+#pragma region FONT_MANAGER
+	HRESULT Add_Font(const _wstring& strFontTag, const _tchar* pFontFilePath);
+	HRESULT Render_Text(const _wstring& strFontTag, const _tchar* pText, _fvector vPosition, _fvector vColor = XMVectorSet(1.f, 1.f, 1.f, 1.f), _float fRadian = 0.f, _fvector vPivot = XMVectorSet(0.f, 0.f, 0.f, 1.f), _float fScale = 1.f);
+#pragma endregion
+
+
 #pragma region PICKING
 	//void Transform_MouseRay_ToLocalSpace(const _float4x4& WorldMatrix);	
 	//_bool isPicked_InLocalSpace(const _float3& vPointA, const _float3& vPointB, const _float3& vPointC, _float3* pOut);
@@ -112,7 +135,7 @@ public:
 	PxMaterial* Get_Material();
 
 	HRESULT	Add_WalkAble_Mesh(const CPhysXManager::PLAYER_WALKABLE_MESH & WalkAbleMesh);
-	_bool CollisionUpdate_PlayerToTriangleMeshGeometry(PxVec3 * pOutDir, PxReal * pOutDepth, PxShape * pPlayerShape, PxTransform * pPlayerTransform);
+	_bool CollisionUpdate_PlayerToTriangleMeshGeometry(PxVec3 * pOutDir, PxReal * pOutDepth, PxShape * pPlayerShape, PxTransform * pPlayerTransform, class CGameObject **pCollTarget);
 #pragma endregion
 
 
@@ -128,17 +151,19 @@ private:
 	class CTimer_Manager*			m_pTimer_Manager = { nullptr };
 	class CRenderer*				m_pRenderer = { nullptr };
 	class CPipeLine*				m_pPipeLine = { nullptr };
-
+	class CLight_Manager*			m_pLight_Manager = { nullptr };
+	class CFont_Manager*			m_pFont_Manager = { nullptr };
 
 
 	/* 여기서부터 우리가 추가한 기능들*/
 	class CKeyManager*				m_pKey_Manager = { nullptr };
 	class CEvent_Manager*			m_pEvent_Manager = { nullptr };
 	class CUI_Manager*				m_pUI_Manager = { nullptr };
-	//class CPickingManager*			m_pPicking_Manager = { nullptr };
 
 	class CPhysXManager*			m_pPhysX_Manager = { nullptr };
 
+
+	//class CPickingManager*		m_pPicking_Manager = { nullptr };
 
 public:	
 	void Release_Engine();

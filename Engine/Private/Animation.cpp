@@ -10,7 +10,9 @@ HRESULT CAnimation::Initialize(ANIMATION_DESC* pDesc, const class CModel* pModel
 	strcpy_s(m_szName, pDesc->szName);
 
 	m_Duration = pDesc->Duration;				// 이 애니메이션의 전체길이
+
 	m_SpeedPerSec = pDesc->SpeedPerSec;			// 이 애니메이션의 초당 속도
+	m_OriginSpeedPerSec = m_SpeedPerSec;
 
 	/* 이 애니메이션이 사용하는 뼈의 갯수저장한다. */
 	m_iNumChannels = pDesc->iNumChannels;		// 걷는 애니메이션이라 가정하면 이 애니메이션이 동작할때 영향을 받는 뼈의갯수
@@ -48,7 +50,7 @@ _bool CAnimation::Update_TransformationMatrices(const vector<CBone*>& Bones, _do
 	for (auto& pChannel : m_Channels)
 	{												// 내 걷기 애니메이션에 사용하는 채널이 106개 잇꼬 거기서 0번째 채널
 		// 마지막인자 : 몇초에 걸쳐 변환시키라
-		pChannel->Update_TransformationMatrix(Bones, &CurrentKeyFrameIndices[iChannelIndex], NextAniChannels[iChannelIndex], pCurrentTrackPosition, isTransitioning, fTimeDelta, 0.25f);
+		pChannel->Update_TransformationMatrix(Bones, &CurrentKeyFrameIndices[iChannelIndex], NextAniChannels[iChannelIndex], pCurrentTrackPosition, isTransitioning, fTimeDelta, 0.2f);
 		iChannelIndex++;
 	}
 

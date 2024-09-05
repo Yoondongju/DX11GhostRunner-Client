@@ -20,6 +20,8 @@ public:
 
 		_float4x4   vWorldMatrix = {};
 
+		MODEL_CHECK_LIST eModelType = {MODEL_CHECK_LIST::MODEL_CHECK_TYPE_END };
+
 	}LOADING_OBJECT_INFO;
 
 	typedef struct
@@ -43,8 +45,18 @@ public:
 	}
 
 
-	const LOADING_OBJECT_INFO* Get_Loading_Object_Info(LEVELID eLevelID) { return m_pLoadingObjectInfo[eLevelID]; }
-	const _uint				   Get_Loading_Object_Size(LEVELID eLevelID) { return m_iNumLoadingObject[eLevelID]; }
+	const LOADING_OBJECT_INFO* Get_Loading_DecorativeObject_Info(LEVELID eLevelID) { return m_pLoadingDecorativeObjectInfo[eLevelID]; }
+	const _uint				   Get_Loading_DecorativeObject_Size(LEVELID eLevelID) { return m_iNumLoadingDecorativeObject[eLevelID]; }
+
+	const LOADING_OBJECT_INFO* Get_Loading_StaticObject_Info(LEVELID eLevelID) { return m_pLoadingStaticObjectInfo[eLevelID]; }
+	const _uint				   Get_Loading_StaticObject_Size(LEVELID eLevelID) { return m_iNumLoadingStaticObject[eLevelID]; }
+
+	const LOADING_OBJECT_INFO* Get_Loading_DynamicObject_Info(LEVELID eLevelID) { return m_pLoadingDynamicObjectInfo[eLevelID]; }
+	const _uint				   Get_Loading_DynamicObject_Size(LEVELID eLevelID) { return m_iNumLoadingDynamicObject[eLevelID]; }
+
+
+
+
 
 	const LOADING_OBJECT_INFO* Get_Loading_AnimObject_Info(LEVELID eLevelID) { return m_pLoadingAnimObjectInfo[eLevelID]; }
 	const _uint				   Get_Loading_AnimObject_Size(LEVELID eLevelID) { return m_iNumLoadingAnimObject[eLevelID]; }
@@ -75,8 +87,17 @@ private:
 
 
 						
-	_uint						m_iNumLoadingObject[LEVELID::LEVEL_END] = { 0 };
-	LOADING_OBJECT_INFO*		m_pLoadingObjectInfo[LEVELID::LEVEL_END] = { nullptr };  // 내가 지정한레벨에 로딩될 오브젝트 갯수만큼 Info를 들고있는다.
+	_uint						m_iNumLoadingDecorativeObject[LEVELID::LEVEL_END] = { 0 };
+	LOADING_OBJECT_INFO*		m_pLoadingDecorativeObjectInfo[LEVELID::LEVEL_END] = { nullptr };  
+
+	_uint						m_iNumLoadingStaticObject[LEVELID::LEVEL_END] = { 0 };
+	LOADING_OBJECT_INFO*		m_pLoadingStaticObjectInfo[LEVELID::LEVEL_END] = { nullptr };
+
+	_uint						m_iNumLoadingDynamicObject[LEVELID::LEVEL_END] = { 0 };
+	LOADING_OBJECT_INFO*		m_pLoadingDynamicObjectInfo[LEVELID::LEVEL_END] = { nullptr };
+
+
+
 
 	_uint						m_iNumLoadingAnimObject[LEVELID::LEVEL_END] = { 0 };
 	LOADING_OBJECT_INFO*		m_pLoadingAnimObjectInfo[LEVELID::LEVEL_END] = { nullptr };  // 내가 지정한레벨에 로딩될 애니오브젝트 갯수만큼 Info를 들고있는다.
@@ -102,12 +123,12 @@ private:
 	HRESULT Load_Player();
 
 
-
-	HRESULT Create_PrototypeObject(_uint iObjectType, const _wstring& strPrototypeName , const _wstring& strLayerName);
-
-	HRESULT Create_PrototypeAnimObject(const _wstring& strPrototypeName, const _wstring& strLayerName);
-
+	HRESULT Create_PrototypeObject();
+	HRESULT Create_PrototypeAnimObject();
 	HRESULT Create_PrototypePlayer(const _wstring& strPrototypeName, const _wstring& strLayerName);
+
+	HRESULT Create_UI();
+
 
 private:
 	void	ReadString(FILE* file, string& str);

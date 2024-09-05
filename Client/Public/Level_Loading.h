@@ -16,8 +16,16 @@ class CLevel_Loading final : public CLevel
 public:
 	typedef struct
 	{
-		_uint								  iDataSize = { 0 };
-		const CLoader::LOADING_OBJECT_INFO*   pData = { nullptr };
+		_uint								  iDecorativeDataSize = { 0 };
+		const CLoader::LOADING_OBJECT_INFO*   pDecorativeData = { nullptr };
+
+		_uint								  iStaticDataSize = { 0 };
+		const CLoader::LOADING_OBJECT_INFO*   pStaticData = { nullptr };
+
+		_uint								  iDynamicDataSize = { 0 };
+		const CLoader::LOADING_OBJECT_INFO*   pDynamicData = { nullptr };
+
+
 
 		_uint								  iAnimDataSize = { 0 };
 		const CLoader::LOADING_OBJECT_INFO*	  pAnimData = { nullptr };

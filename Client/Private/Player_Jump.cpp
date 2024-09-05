@@ -4,7 +4,10 @@
 #include "Player.h"
 #include "Body_Player.h"
 
+#include "Animation.h"
+
 #include "GameInstance.h"
+#include "GrapplingPointUI.h"
 
 CPlayer_Jump::CPlayer_Jump(class CGameObject* pOwner)
 	: CState{ CPlayer::PLAYER_ANIMATIONID::JUMP_START , pOwner }
@@ -31,7 +34,6 @@ HRESULT CPlayer_Jump::Start_State()
 
 
 	// 내가 Space로누른 의도한 점프라면 Force를 주고
-
 	_vector vJumpDirection = _vector{ 0.f, 1.f, 0.f };
 	if (m_pGameInstance->Get_KeyState(KEY::W) == KEY_STATE::HOLD)
 	{
@@ -66,25 +68,40 @@ HRESULT CPlayer_Jump::Start_State()
 	vJumpDirection = XMVector3Normalize(vJumpDirection);
 
 	if (m_pGameInstance->Get_KeyState(KEY::SPACE) == KEY_STATE::TAP)
-		pRigidBody->Add_Force_Direction(vJumpDirection, 2700, Engine::CRigidBody::VELOCITYCHANGE);
+		pRigidBody->Add_Force_Direction(vJumpDirection, 1500, Engine::CRigidBody::VELOCITYCHANGE);
 
 	return S_OK;
 }
 
 void CPlayer_Jump::Update(_float fTimeDelta)
 {
-	m_fAccTime += fTimeDelta;
+	m_fAccTime += fTimeDelta;		// 점프 진행시간으로 쓰자
+
+	CBody_Player* pBody_Player = static_cast<CBody_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY));
+
+	if (pBody_Player->IsClimbing())
+	{
+		if(Check_Climb())
+			return;
+	}
+		
+
+
+
 
 	CTransform* pTransform = m_pOwner->Get_Transform();
 	CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
+
+	pPlayer->Set_JumpProgressTime(m_fAccTime);	// 점프 진행시간이 누적된걸 던져
+
 
 
 	_float fLandY = pPlayer->Get_LandPosY();
 	_float fOffSetY = pPlayer->Get_OffsetY();
 
-
-	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
-
+	  
+	CModel* pModel = pBody_Player->Get_Model();
+	
 	if ((fLandY + fOffSetY) * 4 > XMVectorGetY(pTransform->Get_State(CTransform::STATE_POSITION)))
 	{
 		if (m_pGameInstance->Get_KeyState(KEY::W) == KEY_STATE::HOLD ||
@@ -101,6 +118,9 @@ void CPlayer_Jump::Update(_float fTimeDelta)
 			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::JUMP_END, false, CPlayer::PLAYER_ANIMATIONID::IDLE);
 		
 	}
+
+
+
 	if (CPlayer::PLAYER_ANIMATIONID::JUMP_END == pModel->Get_CurAnimationIndex() &&
 		0.1f >= fabs((fLandY + fOffSetY) - XMVectorGetY(pTransform->Get_State(CTransform::STATE_POSITION))) )
 	{
@@ -117,15 +137,21 @@ void CPlayer_Jump::Update(_float fTimeDelta)
 				pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::WALK);	
 		}
 		else
-			pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);	
+		{
+			pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);			
+		}
+			
 	}
 
 
+	if (Check_Dash())
+		return;
 
+	if (Check_HookUp())
+		return;
 
-	Check_Dash();
-	Check_HookUp();
 }
+
 
 void CPlayer_Jump::End_State()
 {
@@ -134,13 +160,16 @@ void CPlayer_Jump::End_State()
 	m_fLastKeyPressTimeW = -1.f;
 	m_fLastKeyPressTimeS = -1.f;
 	m_fLastKeyPressTimeA = -1.f;
-	m_fLastKeyPressTimeD = -1.f;
-
+	m_fLastKeyPressTimeD = -1.f;	
+	
 }
 
 
-void CPlayer_Jump::Check_HookUp()
+_bool CPlayer_Jump::Check_HookUp()
 {
+	if (false == static_cast<CPlayer*>(m_pOwner)->Get_GrapplingPoint()->Get_FindPlayer())
+		return false;
+
 	if (m_pGameInstance->Get_KeyState(KEY::F) == KEY_STATE::TAP)
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
@@ -149,11 +178,18 @@ void CPlayer_Jump::Check_HookUp()
 
 		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::HOOK_UP, false, CPlayer::PLAYER_ANIMATIONID::IDLE);	// Change_State보다 먼저 세팅해줘야함 Hook이나 Attack같은 같은 State를 공유하는녀석일 경우
 		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::HOOK_UP);
+
+		return true;
 	}
+
+	return false;
 }
 
-void CPlayer_Jump::Check_Dash()
+_bool CPlayer_Jump::Check_Dash()
 {
+	if (true == static_cast<CBody_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY))->IsLandingWall())
+		return false;
+
 	_bool bWTap = m_pGameInstance->Get_KeyState(KEY::W) == KEY_STATE::TAP;
 	_bool bSTap = m_pGameInstance->Get_KeyState(KEY::S) == KEY_STATE::TAP;
 	_bool bATap = m_pGameInstance->Get_KeyState(KEY::A) == KEY_STATE::TAP;
@@ -220,8 +256,24 @@ void CPlayer_Jump::Check_Dash()
 			}
 			m_fLastKeyPressTimeD = m_fAccTime;
 		}
+
+		return true;
 	}
+
+	return false;
 }
+
+_bool CPlayer_Jump::Check_Climb()
+{
+	CFsm* pFsm = m_pOwner->Get_Fsm();
+	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+
+	pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::CLIMB, false);
+	pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::CLIMB);
+
+	return true;
+}
+
 
 CPlayer_Jump* CPlayer_Jump::Create(class CGameObject* pOwner)
 {

@@ -32,8 +32,8 @@ public:
 
 public:
 	class CGameObject* Find_Object(_uint iLevelIndex, const _wstring& strLayerTag, _uint iIndex);
-	class CGameObject* Find_Player();
-	class CGameObject* Find_Camera();
+	class CGameObject* Find_Player(_uint iLevelIndex);
+	class CGameObject* Find_Camera(_uint iLevelIndex);
 
 
 

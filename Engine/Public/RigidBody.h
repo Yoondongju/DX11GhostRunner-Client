@@ -53,7 +53,7 @@ public:
 public:
     virtual HRESULT Initialize_Prototype();
     virtual HRESULT Initialize(void* pArg) override;
-    void Update(_float fTimeDelta, _float fTargetY);
+    void Update(_float fTimeDelta, _float fTargetY , _bool isColl);
 
 public:
     void Add_Force(FORCEMODE eForceMode, _fvector vForce);   // 힘을 주는 함수

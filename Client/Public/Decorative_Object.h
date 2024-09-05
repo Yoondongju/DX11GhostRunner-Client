@@ -16,12 +16,12 @@ END
 
 BEGIN(Client)
 
-class CAid_props final : public CGameObject
+class CDecorative_Object final : public CGameObject
 {
 private:
-	CAid_props(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
-	CAid_props(const CAid_props& Prototype);
-	virtual ~CAid_props() = default;
+	CDecorative_Object(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
+	CDecorative_Object(const CDecorative_Object& Prototype);
+	virtual ~CDecorative_Object() = default;
 
 
 public:
@@ -47,7 +47,7 @@ private:
 
 
 public:
-	static CAid_props* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
+	static CDecorative_Object* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg);
 	virtual void Free() override;
 };

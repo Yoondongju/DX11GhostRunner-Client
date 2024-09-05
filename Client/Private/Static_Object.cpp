@@ -1,29 +1,30 @@
 #include "stdafx.h"
-#include "Building.h"
+#include "Static_Object.h"
 #include "GameInstance.h"
 
 
 #include "Terrain.h"
 #include "Mesh.h"
+#include "GrapplingPointUI.h"
 
-CBuilding::CBuilding(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
+CStatic_Object::CStatic_Object(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CGameObject{ pDevice, pContext }
 {
 
 }
 
-CBuilding::CBuilding(const CBuilding& Prototype)
+CStatic_Object::CStatic_Object(const CStatic_Object& Prototype)
     : CGameObject(Prototype)
 {
 
 }
 
-HRESULT CBuilding::Initialize_Prototype()
+HRESULT CStatic_Object::Initialize_Prototype()
 {
     return S_OK;
 }
 
-HRESULT CBuilding::Initialize(void* pArg)
+HRESULT CStatic_Object::Initialize(void* pArg)
 {
     __super::Initialize(pArg);
 
@@ -33,40 +34,38 @@ HRESULT CBuilding::Initialize(void* pArg)
     if (FAILED(Ready_PhysX()))
         return E_FAIL;
 
+    if (FAILED(Ready_HandleModelTypeTasks()))
+        return E_FAIL;
 
     return S_OK;
 }
 
-void CBuilding::Priority_Update(_float fTimeDelta)
+void CStatic_Object::Priority_Update(_float fTimeDelta)
 {
 
 }
 
-void CBuilding::Update(_float fTimeDelta)
+void CStatic_Object::Update(_float fTimeDelta)
 {
     __super::Update(fTimeDelta);
 
-    //_vector vUp = m_pTransformCom->Get_State(CTransform::STATE_UP);
     _vector vPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
-    //
-    //PxVec3 vStartPos = { XMVectorGetX(vUp), XMVectorGetY(vUp), XMVectorGetZ(vUp) };
-    //PxVec3 vEndPos = { -XMVectorGetX(vUp), -XMVectorGetY(vUp), -XMVectorGetZ(vUp) };
-    
-    //m_PxTransform = PxTransformFromSegment(vStartPos, vEndPos);
-
+   
     m_PxTransform.p = { XMVectorGetX(vPos), XMVectorGetY(vPos), XMVectorGetZ(vPos) };
 
     m_pPxRigidStatic->setGlobalPose(m_PxTransform);
 
+
+   
 }
 
-void CBuilding::Late_Update(_float fTimeDelta)
+void CStatic_Object::Late_Update(_float fTimeDelta)
 {
       
      m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 }
 
-HRESULT CBuilding::Render()
+HRESULT CStatic_Object::Render()
 {
     if (FAILED(m_pTransformCom->Bind_ShaderResource(m_pShaderCom, "g_WorldMatrix")))
         return E_FAIL;
@@ -76,6 +75,23 @@ HRESULT CBuilding::Render()
         return E_FAIL;
 
     if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
+        return E_FAIL;
+
+
+    const LIGHT_DESC* pLightDesc = m_pGameInstance->Get_LightDesc(0);
+    if (nullptr == pLightDesc)
+        return E_FAIL;
+
+    if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightDir", &pLightDesc->vDirection, sizeof(_float4))))
+        return E_FAIL;
+    if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightDiffuse", &pLightDesc->vDiffuse, sizeof(_float4))))
+        return E_FAIL;
+    if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightAmbient", &pLightDesc->vAmbient, sizeof(_float4))))
+        return E_FAIL;
+    if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightSpecular", &pLightDesc->vSpecular, sizeof(_float4))))
+        return E_FAIL;
+
+    if (FAILED(m_pShaderCom->Bind_RawValue("g_vCamPosition", &m_pGameInstance->Get_CamPosition_Float4(), sizeof(_float4))))
         return E_FAIL;
 
 
@@ -97,7 +113,7 @@ HRESULT CBuilding::Render()
     return S_OK;
 }
 
-HRESULT CBuilding::Ready_Component()
+HRESULT CStatic_Object::Ready_Component()
 {
     /* FOR.Com_Shader */
     if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxModel"),
@@ -106,19 +122,41 @@ HRESULT CBuilding::Ready_Component()
 
 
   
-
     /* For.Com_Model*/
     if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, m_strModelPrototypeName,
         TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModel), nullptr)))
         return E_FAIL;
 
 
+
+
     return S_OK;
 }
 
-HRESULT CBuilding::Ready_PhysX()
+HRESULT CStatic_Object::Ready_PhysX()
 {
-    m_PxTransform = PxTransform(PxMat44(m_pTransformCom->Get_WorldMatrix_Ptr()->_11));
+    const _float4x4* pWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+
+    PxVec3 position(pWorldMatrix->_41, pWorldMatrix->_42, pWorldMatrix->_43);
+
+    // 스케일 값을 추출
+    PxVec3 scale;
+    scale.x = PxVec3(pWorldMatrix->_11, pWorldMatrix->_12, pWorldMatrix->_13).magnitude();
+    scale.y = PxVec3(pWorldMatrix->_21, pWorldMatrix->_22, pWorldMatrix->_23).magnitude();
+    scale.z = PxVec3(pWorldMatrix->_31, pWorldMatrix->_32, pWorldMatrix->_33).magnitude();
+
+    // 스케일을 제거한 회전 벡터
+    PxVec3 rotationX = PxVec3(pWorldMatrix->_11, pWorldMatrix->_12, pWorldMatrix->_13) / scale.x;
+    PxVec3 rotationY = PxVec3(pWorldMatrix->_21, pWorldMatrix->_22, pWorldMatrix->_23) / scale.y;
+    PxVec3 rotationZ = PxVec3(pWorldMatrix->_31, pWorldMatrix->_32, pWorldMatrix->_33) / scale.z;
+
+    // 정규화된 회전 벡터로 회전 행렬을 생성.
+    PxMat33 rotationMatrix(rotationX, rotationY, rotationZ);
+
+    PxQuat rotation = PxQuat(rotationMatrix);
+
+    // PxTransform을 위치와 회전으로 초기화합니다.
+    m_PxTransform = PxTransform(position, rotation);
 
     m_pPxRigidStatic = m_pGameInstance->Get_Physics()->createRigidStatic(m_PxTransform);
 
@@ -126,7 +164,8 @@ HRESULT CBuilding::Ready_PhysX()
 
     vector<CMesh*>& Meshs = m_pModel->Get_Meshes();
 
-    m_pMeshGeometry = new PxTriangleMeshGeometry[Meshs.size()];
+    m_MeshGeometry.resize(Meshs.size());
+  
 
     for (_uint i = 0; i < Meshs.size(); i++)
     {
@@ -175,9 +214,9 @@ HRESULT CBuilding::Ready_PhysX()
 
         // 4. Triangle Mesh 기반 Shape 생성
 
-        m_pMeshGeometry[i] = PxTriangleMeshGeometry(pTriangleMesh);
+        m_MeshGeometry[i] = PxTriangleMeshGeometry(pTriangleMesh);
 
-        m_pShape = m_pGameInstance->Get_Physics()->createShape(m_pMeshGeometry[i], *Material);
+        m_pShape = m_pGameInstance->Get_Physics()->createShape(m_MeshGeometry[i], *Material);
         if (!m_pShape) {
             MSG_BOX(TEXT("createShape failed!"));
             return E_FAIL;
@@ -190,7 +229,7 @@ HRESULT CBuilding::Ready_PhysX()
 
         m_pPxRigidStatic->attachShape(*m_pShape);
 
-        CPhysXManager::PLAYER_WALKABLE_MESH Desc = { m_pMeshGeometry[i] , m_PxTransform };
+        CPhysXManager::PLAYER_WALKABLE_MESH Desc = { m_MeshGeometry[i] , m_PxTransform, this };
   
         m_pGameInstance->Add_WalkAble_Mesh(Desc);
     }
@@ -200,33 +239,72 @@ HRESULT CBuilding::Ready_PhysX()
     return S_OK;
 }
 
-CBuilding* CBuilding::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
+HRESULT CStatic_Object::Ready_HandleModelTypeTasks()
 {
-    CBuilding* pInstance = new CBuilding(pDevice, pContext);
+    switch (m_iObjectType)
+    {
+    case MODEL_CHECK_LIST::BILLBOARD:
+    {
+        m_bLandWall = true;
+        m_strChangeLayerName = L"Layer_LandWall_Object";
+    }
+        break;
+
+    case MODEL_CHECK_LIST::CRANE:
+    {
+        if (TEXT("Prototype_Component_Model_Crane2") == m_strModelPrototypeName)
+        {
+            CGrapplingPointUI::GRAPPLINGPOINT_DESC Desc = { CGrapplingPointUI::GRAPPLINGPOINT_TYPE::TYPE_OUTRING , this };
+            if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_UI"),
+                TEXT("Prototype_GameObject_GrapplingPointUI"), TEXT("안 넣어도댐"), &Desc)))
+                return E_FAIL;
+        }
+    }
+        break;
+
+    case MODEL_CHECK_LIST::CLIMBOBJECT:
+    {
+        m_bClimbing = true;
+        m_strChangeLayerName = L"Layer_Climb_Object";
+    }
+    break;
+
+
+    default:
+        break;
+    }
+
+
+    return S_OK;
+}
+
+CStatic_Object* CStatic_Object::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
+{
+    CStatic_Object* pInstance = new CStatic_Object(pDevice, pContext);
 
     if (FAILED(pInstance->Initialize_Prototype()))
     {
-        MSG_BOX(TEXT("Failed to Created : CBuilding"));
+        MSG_BOX(TEXT("Failed to Created : CStatic_Object"));
         Safe_Release(pInstance);
     }
 
     return pInstance;
 }
 
-CGameObject* CBuilding::Clone(void* pArg)
+CGameObject* CStatic_Object::Clone(void* pArg)
 {
-    CBuilding* pInstance = new CBuilding(*this);
+    CStatic_Object* pInstance = new CStatic_Object(*this);
 
     if (FAILED(pInstance->Initialize(pArg)))
     {
-        MSG_BOX(TEXT("Failed to Cloned : CBuilding"));
+        MSG_BOX(TEXT("Failed to Cloned : CStatic_Object"));
         Safe_Release(pInstance);
     }
 
     return pInstance;
 }
 
-void CBuilding::Free()
+void CStatic_Object::Free()
 {
     __super::Free();
 
@@ -236,8 +314,14 @@ void CBuilding::Free()
     if (m_pShape)
         m_pShape->release();
 
-    if (m_pMeshGeometry)
-        Safe_Delete_Array(m_pMeshGeometry);
+
+    for (_uint i = 0; i < m_MeshGeometry.size(); i++)
+    {
+        m_MeshGeometry[i].triangleMesh->release();
+    }
+    m_MeshGeometry.clear();
+
+        
 
     Safe_Release(m_pShaderCom);
     Safe_Release(m_pModel);

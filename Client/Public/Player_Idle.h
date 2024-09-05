@@ -26,10 +26,15 @@ private:
     _float m_fLastKeyPressTimeD = -1.f;  
 
 private:
-    void Check_RunAndWalk();
-    void Check_Dash();
-    void Check_HookUp();
-    void Check_Jump();
+    _bool Check_RunAndWalk();
+    _bool Check_Dash();
+    _bool Check_HookUp();
+    _bool Check_Jump();
+
+    _bool Check_Attack1();
+    _bool Check_Attack2();
+    _bool Check_Attack3();
+        
 
 
 public:

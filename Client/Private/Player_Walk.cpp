@@ -5,6 +5,7 @@
 #include "Body_Player.h"
 
 #include "GameInstance.h"
+#include "GrapplingPointUI.h"
 
 CPlayer_Walk::CPlayer_Walk(class CGameObject* pOwner)
 	: CState{ CPlayer::PLAYER_ANIMATIONID::WALK ,pOwner }
@@ -50,8 +51,11 @@ void CPlayer_Walk::Update(_float fTimeDelta)
 	}
 
 
-	Check_HookUp();
-	Check_Jump();
+	if (Check_HookUp())
+		return;
+
+	if (Check_Jump())
+		return;
 
 }
 
@@ -61,8 +65,11 @@ void CPlayer_Walk::End_State()
 }
 
 
-void CPlayer_Walk::Check_HookUp()
+_bool CPlayer_Walk::Check_HookUp()
 {
+	if (false == static_cast<CPlayer*>(m_pOwner)->Get_GrapplingPoint()->Get_FindPlayer())
+		return false;
+
 	if (m_pGameInstance->Get_KeyState(KEY::F) == KEY_STATE::TAP)
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
@@ -71,11 +78,18 @@ void CPlayer_Walk::Check_HookUp()
 
 		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::HOOK_UP, false, CPlayer::PLAYER_ANIMATIONID::IDLE);	// Change_State보다 먼저 세팅해줘야함 Hook이나 Attack같은 같은 State를 공유하는녀석일 경우
 		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::HOOK_UP);
+
+		return true;
 	}
+
+	return false;
 }
 
-void CPlayer_Walk::Check_Jump()
+_bool CPlayer_Walk::Check_Jump()
 {
+	if (true == static_cast<CBody_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY))->IsLandingWall())
+		return false;
+
 	if (m_pGameInstance->Get_KeyState(KEY::SPACE) == KEY_STATE::TAP)
 	{
 		CTransform* pTransform = m_pOwner->Get_Transform();
@@ -95,8 +109,13 @@ void CPlayer_Walk::Check_Jump()
 			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::JUMP_LOOP, false);	// Change_State보다 먼저 세팅해줘야함 Hook이나 Attack같은 같은 State를 공유하는녀석일 경우
 			pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::JUMP_START);
 		}
+
+		return true;
 	}
+	
+	return false;
 }
+
 
 
 CPlayer_Walk* CPlayer_Walk::Create(class CGameObject* pOwner)

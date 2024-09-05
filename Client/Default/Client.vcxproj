@@ -165,13 +165,16 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Public\Aid_props.h" />
+    <ClInclude Include="..\Public\Decorative_Object.h" />
     <ClInclude Include="..\public\BackGround.h" />
     <ClInclude Include="..\Public\Body_Player.h" />
-    <ClInclude Include="..\Public\Building.h" />
+    <ClInclude Include="..\Public\GrapplingPointUI.h" />
+    <ClInclude Include="..\Public\Player_Attack2.h" />
+    <ClInclude Include="..\Public\Player_Attack3.h" />
+    <ClInclude Include="..\Public\Sky.h" />
+    <ClInclude Include="..\Public\Static_Object.h" />
     <ClInclude Include="..\Public\Client_Defines.h" />
     <ClInclude Include="..\public\FreeCamera.h" />
-    <ClInclude Include="..\Public\LandObject.h" />
     <ClInclude Include="..\Public\Level_GamePlay.h" />
     <ClInclude Include="..\Public\Level_Loading.h" />
     <ClInclude Include="..\Public\Level_Logo.h" />
@@ -179,7 +182,7 @@
     <ClInclude Include="..\Public\MainApp.h" />
     <ClInclude Include="..\Public\Monster.h" />
     <ClInclude Include="..\Public\Player.h" />
-    <ClInclude Include="..\Public\Player_Attack.h" />
+    <ClInclude Include="..\Public\Player_Attack1.h" />
     <ClInclude Include="..\Public\Player_Block.h" />
     <ClInclude Include="..\Public\Player_Climb.h" />
     <ClInclude Include="..\Public\Player_Dash.h" />
@@ -197,12 +200,15 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Private\Aid_props.cpp" />
+    <ClCompile Include="..\Private\Decorative_Object.cpp" />
     <ClCompile Include="..\private\BackGround.cpp" />
     <ClCompile Include="..\Private\Body_Player.cpp" />
-    <ClCompile Include="..\Private\Building.cpp" />
+    <ClCompile Include="..\Private\GrapplingPointUI.cpp" />
+    <ClCompile Include="..\Private\Player_Attack2.cpp" />
+    <ClCompile Include="..\Private\Player_Attack3.cpp" />
+    <ClCompile Include="..\Private\Sky.cpp" />
+    <ClCompile Include="..\Private\Static_Object.cpp" />
     <ClCompile Include="..\private\FreeCamera.cpp" />
-    <ClCompile Include="..\Private\LandObject.cpp" />
     <ClCompile Include="..\Private\Level_GamePlay.cpp" />
     <ClCompile Include="..\Private\Level_Loading.cpp" />
     <ClCompile Include="..\Private\Level_Logo.cpp" />
@@ -210,7 +216,7 @@
     <ClCompile Include="..\Private\MainApp.cpp" />
     <ClCompile Include="..\Private\Monster.cpp" />
     <ClCompile Include="..\Private\Player.cpp" />
-    <ClCompile Include="..\Private\Player_Attack.cpp" />
+    <ClCompile Include="..\Private\Player_Attack1.cpp" />
     <ClCompile Include="..\Private\Player_Block.cpp" />
     <ClCompile Include="..\Private\Player_Climb.cpp" />
     <ClCompile Include="..\Private\Player_Dash.cpp" />
@@ -239,6 +245,7 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxAnimModel.hlsl" />
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxCubeTex.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxModel.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxNorTex.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxPosTex.hlsl" />

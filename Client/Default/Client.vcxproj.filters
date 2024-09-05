@@ -43,12 +43,6 @@
     <Filter Include="02.GameObjects\02.Monster">
       <UniqueIdentifier>{0083e25f-5f57-4f81-8604-c0d79a304e39}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\Aid_props">
-      <UniqueIdentifier>{b5048262-c551-4dfa-8192-a9be64636056}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="02.GameObjects\Building">
-      <UniqueIdentifier>{29df4f49-079c-45ee-baa0-0831eb959bbc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="02.GameObjects\Player">
       <UniqueIdentifier>{8f883c94-a0eb-4a1f-8c6b-7d6ad9306137}</UniqueIdentifier>
     </Filter>
@@ -90,6 +84,30 @@
     </Filter>
     <Filter Include="02.GameObjects\Player\PlayerState\Jump">
       <UniqueIdentifier>{384c5d59-f92f-480e-983b-902d1c3fc775}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Decorative_Object">
+      <UniqueIdentifier>{b5048262-c551-4dfa-8192-a9be64636056}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Static_Object">
+      <UniqueIdentifier>{29df4f49-079c-45ee-baa0-0831eb959bbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI">
+      <UniqueIdentifier>{ee254118-f533-4660-b70a-71af5e88c114}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI\GrapplingPointUI">
+      <UniqueIdentifier>{dedc00da-88af-4007-82af-4fdf1ad46dfb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\PlayerState\Attack\Attack1">
+      <UniqueIdentifier>{4d06ac44-1fc2-4ff3-a3f0-5bf7ae812c36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\PlayerState\Attack\Attack2">
+      <UniqueIdentifier>{265aa86f-56d9-4428-ab7f-d79d7c90d906}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\PlayerState\Attack\Attack3">
+      <UniqueIdentifier>{402500e7-8451-44e2-a100-fb847f788807}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\03.Sky">
+      <UniqueIdentifier>{e527a503-48a3-4bbf-a086-1346ac1dce6f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -135,14 +153,11 @@
     <ClInclude Include="..\Public\Monster.h">
       <Filter>02.GameObjects\02.Monster</Filter>
     </ClInclude>
-    <ClInclude Include="..\Public\LandObject.h">
-      <Filter>02.GameObjects</Filter>
+    <ClInclude Include="..\Public\Decorative_Object.h">
+      <Filter>02.GameObjects\Decorative_Object</Filter>
     </ClInclude>
-    <ClInclude Include="..\Public\Aid_props.h">
-      <Filter>02.GameObjects\Aid_props</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Public\Building.h">
-      <Filter>02.GameObjects\Building</Filter>
+    <ClInclude Include="..\Public\Static_Object.h">
+      <Filter>02.GameObjects\Static_Object</Filter>
     </ClInclude>
     <ClInclude Include="..\Public\Player.h">
       <Filter>02.GameObjects\Player</Filter>
@@ -155,9 +170,6 @@
     </ClInclude>
     <ClInclude Include="..\Public\Weapon_Player.h">
       <Filter>02.GameObjects\Player\Weapon</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Public\Player_Attack.h">
-      <Filter>02.GameObjects\Player\PlayerState\Attack</Filter>
     </ClInclude>
     <ClInclude Include="..\Public\Player_Block.h">
       <Filter>02.GameObjects\Player\PlayerState\Block</Filter>
@@ -182,6 +194,21 @@
     </ClInclude>
     <ClInclude Include="..\Public\Player_Jump.h">
       <Filter>02.GameObjects\Player\PlayerState\Jump</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\GrapplingPointUI.h">
+      <Filter>02.GameObjects\GameUI\GrapplingPointUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Player_Attack1.h">
+      <Filter>02.GameObjects\Player\PlayerState\Attack\Attack1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Player_Attack2.h">
+      <Filter>02.GameObjects\Player\PlayerState\Attack\Attack2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Player_Attack3.h">
+      <Filter>02.GameObjects\Player\PlayerState\Attack\Attack3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Sky.h">
+      <Filter>02.GameObjects\03.Sky</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -218,14 +245,11 @@
     <ClCompile Include="..\Private\Monster.cpp">
       <Filter>02.GameObjects\02.Monster</Filter>
     </ClCompile>
-    <ClCompile Include="..\Private\LandObject.cpp">
-      <Filter>02.GameObjects</Filter>
+    <ClCompile Include="..\Private\Decorative_Object.cpp">
+      <Filter>02.GameObjects\Decorative_Object</Filter>
     </ClCompile>
-    <ClCompile Include="..\Private\Aid_props.cpp">
-      <Filter>02.GameObjects\Aid_props</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Private\Building.cpp">
-      <Filter>02.GameObjects\Building</Filter>
+    <ClCompile Include="..\Private\Static_Object.cpp">
+      <Filter>02.GameObjects\Static_Object</Filter>
     </ClCompile>
     <ClCompile Include="..\Private\Player.cpp">
       <Filter>02.GameObjects\Player</Filter>
@@ -238,9 +262,6 @@
     </ClCompile>
     <ClCompile Include="..\Private\Weapon_Player.cpp">
       <Filter>02.GameObjects\Player\Weapon</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Private\Player_Attack.cpp">
-      <Filter>02.GameObjects\Player\PlayerState\Attack</Filter>
     </ClCompile>
     <ClCompile Include="..\Private\Player_Block.cpp">
       <Filter>02.GameObjects\Player\PlayerState\Block</Filter>
@@ -265,6 +286,21 @@
     </ClCompile>
     <ClCompile Include="..\Private\Player_Jump.cpp">
       <Filter>02.GameObjects\Player\PlayerState\Jump</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\GrapplingPointUI.cpp">
+      <Filter>02.GameObjects\GameUI\GrapplingPointUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Player_Attack1.cpp">
+      <Filter>02.GameObjects\Player\PlayerState\Attack\Attack1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Player_Attack2.cpp">
+      <Filter>02.GameObjects\Player\PlayerState\Attack\Attack2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Player_Attack3.cpp">
+      <Filter>02.GameObjects\Player\PlayerState\Attack\Attack3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Sky.cpp">
+      <Filter>02.GameObjects\03.Sky</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -296,6 +332,9 @@
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxAnimModel.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxCubeTex.hlsl">
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
   </ItemGroup>
