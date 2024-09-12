@@ -6,11 +6,11 @@
 
 BEGIN(Client)
 
-class CPlayer_Block final : public CState
+class CPlayer_Block1 final : public CState
 {
 private:
-    CPlayer_Block(class CGameObject* pOwner);
-    virtual ~CPlayer_Block() = default;
+    CPlayer_Block1(class CGameObject* pOwner);
+    virtual ~CPlayer_Block1() = default;
 
 public:
     virtual HRESULT Initialize();
@@ -23,7 +23,7 @@ private:
 
 
 public:
-    static CPlayer_Block* Create(class CGameObject* pOwner);
+    static CPlayer_Block1* Create(class CGameObject* pOwner);
     virtual void Free() override;
 };
 

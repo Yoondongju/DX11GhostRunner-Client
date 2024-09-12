@@ -65,7 +65,7 @@ void CRigidBody::Calculate_Tranform(_float fTimeDelta, _float fTargetY)
 
 
 	if (nullptr == m_pOwnerTransform)
-		return;
+		MSG_BOX(TEXT("RigidBody 주인설정해라"));
 
 	_vector vCurrentPosition = m_pOwnerTransform->Get_State(CTransform::STATE_POSITION);
 

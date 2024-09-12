@@ -9,6 +9,7 @@ BEGIN(Engine)
 class CShader;
 class CTexture;
 class CModel;
+class CCollider;
 END
 
 
@@ -33,15 +34,22 @@ public:
 	virtual HRESULT Render() override;
 
 
+public:
+	void		Check_Collision();
+
+
 private:
 	CShader* m_pShaderCom = { nullptr };
 	CModel*  m_pModel = { nullptr };
 
-
-
+private:
+	CCollider*  m_pPlayerWeaponCollider = { nullptr };
+	_bool		m_isDead = { false };
 
 private:
 	HRESULT		Ready_Component();
+	HRESULT		Ready_Change_Layer();
+
 
 
 public:

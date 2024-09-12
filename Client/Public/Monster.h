@@ -24,8 +24,6 @@ public:
 	virtual HRESULT Render() override;
 
 
-protected:
-	class CPlayer*	m_pPlayer = { nullptr };
 
 
 public:

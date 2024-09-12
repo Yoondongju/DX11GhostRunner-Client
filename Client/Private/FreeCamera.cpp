@@ -30,7 +30,7 @@ HRESULT CFreeCamera::Initialize(void * pArg)
 		return E_FAIL;
 
 
-	XMStoreFloat4(&m_OffsetByPlayer, XMVectorSet(0.f, 15.42215824f, 2.0040216f, 1.f));
+	XMStoreFloat4(&m_OffsetByPlayer, XMVectorSet(0.f, 16.12215824f, 2.2040216f, 1.f));
 	
 
 

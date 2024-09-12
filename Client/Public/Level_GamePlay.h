@@ -27,6 +27,7 @@ public:
 	HRESULT Ready_Layer_Effect();
 
 	HRESULT Ready_Layer_MapObject(void *pArg);
+	HRESULT Ready_Layer_Monster(void* pArg);
 
 	HRESULT Ready_Layer_Player(void* pArg);
 

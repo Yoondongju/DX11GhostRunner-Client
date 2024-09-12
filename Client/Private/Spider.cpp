@@ -33,7 +33,17 @@ HRESULT CSpider::Initialize(void* pArg)
     if (FAILED(Ready_Component()))
         return E_FAIL;
 
-    m_pModel->SetUp_Animation(0, true);
+    if (FAILED(Ready_Change_Layer()))
+        return E_FAIL;
+
+    m_pModel->SetUp_Animation(0, true,0);
+
+    m_pTransformCom->Scaling(2.f, 2.f, 2.f);
+
+    CCollider* pCollider = static_cast<CWeapon_Player*>(static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY))->Get_Part(CPlayer::PART_WEAPON))->Get_Collider();
+
+    m_pPlayerWeaponCollider = pCollider;
+    Safe_AddRef(m_pPlayerWeaponCollider);
 
     return S_OK;
 }
@@ -41,22 +51,22 @@ HRESULT CSpider::Initialize(void* pArg)
 void CSpider::Priority_Update(_float fTimeDelta)
 {
 
-    _vector vPlayerPos = m_pPlayer->Get_Transform()->Get_State(CTransform::STATE_POSITION);
-    _vector vMyPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
-
-    _float fPlayerPosX = XMVectorGetX(vPlayerPos);
-    _float fPlayerPosZ = XMVectorGetZ(vPlayerPos);
-
-    _float fMyPosX = XMVectorGetX(vMyPos);
-    _float fMyPosZ = XMVectorGetZ(vMyPos);
-
-
-    if (fabs(fPlayerPosX - fMyPosX) < 7.f && fabs(fPlayerPosZ - fMyPosZ) < 80.f)
-    {
-        m_pModel->SetUp_Animation(5, true);
-    }
-    else
-        m_pModel->SetUp_Animation(0, true);
+    //_vector vPlayerPos = m_pPlayer->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+    //_vector vMyPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+    //
+    //_float fPlayerPosX = XMVectorGetX(vPlayerPos);
+    //_float fPlayerPosZ = XMVectorGetZ(vPlayerPos);
+    //
+    //_float fMyPosX = XMVectorGetX(vMyPos);
+    //_float fMyPosZ = XMVectorGetZ(vMyPos);
+    //
+    //
+    //if (fabs(fPlayerPosX - fMyPosX) < 7.f && fabs(fPlayerPosZ - fMyPosZ) < 80.f)
+    //{
+    //    m_pModel->SetUp_Animation(5, true);
+    //}
+    //else
+    //    m_pModel->SetUp_Animation(0, true);
 
 
 }
@@ -127,6 +137,16 @@ HRESULT CSpider::Render()
     return S_OK;
 }
 
+void CSpider::Check_Collision()
+{
+    //m_pColliderCom->Intersect(m_pPlayerWeaponCollider);
+    //if (m_pColliderCom->IsBoundingCollisionEnter())
+    //{
+    //    m_pModel->SetUp_Animation(CSniper::SNIPER_ANIMATION::DEATH_1, true);
+    //    m_pFsm->Change_State(CSniper::SNIPER_ANIMATION::DEATH_1);
+    //}
+}
+
 HRESULT CSpider::Ready_Component()
 {
     /* FOR.Com_Shader */
@@ -143,6 +163,13 @@ HRESULT CSpider::Ready_Component()
         TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModel), nullptr)))
         return E_FAIL;
 
+
+    return S_OK;
+}
+
+HRESULT CSpider::Ready_Change_Layer()
+{
+    m_strChangeLayerName = L"Layer_Spider";
 
     return S_OK;
 }
@@ -177,7 +204,7 @@ void CSpider::Free()
 {
     __super::Free();
 
-
+    Safe_Release(m_pPlayerWeaponCollider);
 
     Safe_Release(m_pShaderCom);
     Safe_Release(m_pModel);

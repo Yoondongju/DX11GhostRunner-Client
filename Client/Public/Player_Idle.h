@@ -20,21 +20,42 @@ public:
 
 
 private:
-    _float m_fLastKeyPressTimeW = -1.f;  
-    _float m_fLastKeyPressTimeS = -1.f;  
-    _float m_fLastKeyPressTimeA = -1.f;  
-    _float m_fLastKeyPressTimeD = -1.f;  
+    _float m_fLastKeyPressTimeW = 0.f;  
+    _float m_fLastKeyPressTimeS = 0.f;  
+    _float m_fLastKeyPressTimeA = 0.f;  
+    _float m_fLastKeyPressTimeD = 0.f;  
+    
+    _float  m_fSwordSpinTime = { 5.f };
+    _bool   m_fFristSpinCall = { true };
+
 
 private:
     _bool Check_RunAndWalk();
+
     _bool Check_Dash();
+    _bool Check_Sh_Dash();
+
     _bool Check_HookUp();
     _bool Check_Jump();
+
+
+    _bool Check_Block1();
+    _bool Check_Block2();
+    _bool Check_Block3();
 
     _bool Check_Attack1();
     _bool Check_Attack2();
     _bool Check_Attack3();
+
+    _bool Check_Sh_Attack1();
         
+    _bool Check_SwapWeapon();
+
+private:
+    _bool Check_CutAll();
+    _bool Check_Nami();
+    _bool Check_MindControl();
+    _bool Check_TimeStop();
 
 
 public:

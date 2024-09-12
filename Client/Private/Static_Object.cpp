@@ -161,7 +161,6 @@ HRESULT CStatic_Object::Ready_PhysX()
     m_pPxRigidStatic = m_pGameInstance->Get_Physics()->createRigidStatic(m_PxTransform);
 
     PxMaterial* Material = m_pGameInstance->Get_Material();
-
     vector<CMesh*>& Meshs = m_pModel->Get_Meshes();
 
     m_MeshGeometry.resize(Meshs.size());

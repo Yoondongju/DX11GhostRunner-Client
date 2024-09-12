@@ -99,6 +99,8 @@ public:
 	void Go_Right(_float fTimeDelta);
 	void Go_Left(_float fTimeDelta);
 
+	void Go_Dir(_fvector vDirection , _float fTimeDelta);
+
 
 	void Go_Straight_FreeWalk(_float fTimeDelta);
 	void Go_Backward_FreeWalk(_float fTimeDelta);
@@ -115,7 +117,7 @@ public:
 	void Rotation(_float fX, _float fY, _float fZ);
 
 	void LookAt(const _fvector & vAt);
-
+	void LookAt_XZ(const _fvector& vAt);
 
 
 private:

@@ -134,6 +134,19 @@ HRESULT CModel::Render(_uint iMeshIndex)
 	return S_OK;
 }
 
+void CModel::SetUp_Animation(_uint iAnimationIndex, _bool isLoop,  _float fNextLerp)
+{
+	if (-1.f != fNextLerp)
+	{
+		m_Animations[m_iCurrentAnimIndex]->Set_NextAnimLerpDuration(fNextLerp);
+	}
+	
+	m_iNextAnimIndex = iAnimationIndex;
+
+	m_isLoop = isLoop;
+}
+
+
 _bool CModel::Play_Animation(_float fTimeDelta)
 {
 	/* 뼈를 움직인다.(CBone`s m_TransformationMatrix행렬을 갱신한다.) */
@@ -152,8 +165,7 @@ _bool CModel::Play_Animation(_float fTimeDelta)
 		isTransitioning,
 		m_Animations[m_iNextAnimIndex]);
 
-
-	if (m_CurrentTrackPosition == 0.f)	// 다음 애니로 변환 끗!
+	if (m_CurrentTrackPosition == 0.0)	// 다음 애니로 변환 끗!
 	{
 		m_iCurrentAnimIndex = m_iNextAnimIndex;
 	}

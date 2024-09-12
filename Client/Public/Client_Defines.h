@@ -44,6 +44,12 @@ namespace Client
 
 
 		SPIDER,
+		ELITE,
+		JETPACK,
+		MIRA,
+		PISTOL,
+		SNIPER,
+
 
 		ETC,
 		MODEL_CHECK_TYPE_END

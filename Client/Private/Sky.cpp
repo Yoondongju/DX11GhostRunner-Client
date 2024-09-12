@@ -2,6 +2,7 @@
 #include "..\Public\Sky.h"
 
 #include "GameInstance.h"
+#include "FreeCamera.h"
 
 CSky::CSky(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CGameObject{ pDevice, pContext }
@@ -21,11 +22,16 @@ HRESULT CSky::Initialize_Prototype()
 HRESULT CSky::Initialize(void* pArg)
 {
 	/* 직교퉁여을 위한 데이터들을 모두 셋하낟. */
-	if (FAILED(__super::Initialize()))
+	if (FAILED(__super::Initialize(pArg)))
 		return E_FAIL;
 
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
+
+
+	m_pFreeCameraTransform = m_pGameInstance->Find_Camera(LEVEL_GAMEPLAY)->Get_Transform();
+	Safe_AddRef(m_pFreeCameraTransform);
+
 
 	return S_OK;
 }
@@ -37,20 +43,21 @@ void CSky::Priority_Update(_float fTimeDelta)
 
 void CSky::Update(_float fTimeDelta)
 {
-	m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pGameInstance->Get_CamPosition_Vector());
+	
 }
 
 void CSky::Late_Update(_float fTimeDelta)
 {
-	/* 직교투영을 위한 월드행렬까지 셋팅하게 된다. */
-	__super::Late_Update(fTimeDelta);
 
+	m_fTime += fTimeDelta * 0.5f;
 
-	m_pGameInstance->Add_RenderObject(CRenderer::RG_PRIORITY, this);
+	//m_pGameInstance->Add_RenderObject(CRenderer::RG_PRIORITY, this);
 }
 
 HRESULT CSky::Render()
 {
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pFreeCameraTransform->Get_State(CTransform::STATE_POSITION));
+
 
 	if (FAILED(m_pTransformCom->Bind_ShaderResource(m_pShaderCom, "g_WorldMatrix")))
 		return E_FAIL;
@@ -58,7 +65,10 @@ HRESULT CSky::Render()
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
 		return E_FAIL;
-	if (FAILED(m_pTextureCom->Bind_ShadeResource(m_pShaderCom, "g_Texture", 3)))
+	if (FAILED(m_pTextureCom->Bind_ShadeResource(m_pShaderCom, "g_Texture", 0)))
+		return E_FAIL;
+
+	if (FAILED(m_pShaderCom->Bind_RawValue("g_fTime", &m_fTime, sizeof(_float))))
 		return E_FAIL;
 
 	if (FAILED(m_pShaderCom->Begin(0)))
@@ -81,7 +91,7 @@ HRESULT CSky::Ready_Components()
 		return E_FAIL;
 
 	/* FOR.Com_Texture */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Sky"),
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Sky_Red"),
 		TEXT("Com_Texture"), reinterpret_cast<CComponent**>(&m_pTextureCom))))
 		return E_FAIL;
 
@@ -128,4 +138,6 @@ void CSky::Free()
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pTextureCom);
 	Safe_Release(m_pVIBufferCom);
+
+	Safe_Release(m_pFreeCameraTransform);
 }

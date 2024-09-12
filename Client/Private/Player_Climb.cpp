@@ -6,6 +6,8 @@
 
 
 #include "Body_Player.h"
+#include "Animation.h"
+
 
 CPlayer_Climb::CPlayer_Climb(class CGameObject* pOwner)
 	: CState{ CPlayer::PLAYER_ANIMATIONID::CLIMB , pOwner }
@@ -61,10 +63,21 @@ void CPlayer_Climb::Update(_float fTimeDelta)
 {
 	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 	
-	if (CPlayer::PLAYER_ANIMATIONID::CLIMB != pModel->Get_NextAnimationIndex())
+	if (CPlayer::PLAYER_ANIMATIONID::CLIMB == pModel->Get_CurAnimationIndex())
 	{
-		CFsm* pFsm = m_pOwner->Get_Fsm();
-		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);
+		_double Duration = pModel->Get_CurAnimation()->Get_Duration();
+		const _double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
+
+		if (0.8f <= (TrackPos / Duration))
+		{
+			CFsm* pFsm = m_pOwner->Get_Fsm();
+
+			_double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
+			TrackPos = 0.0;
+
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::IDLE, true);
+			pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);
+		}
 	}
 }
 

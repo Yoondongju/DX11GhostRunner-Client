@@ -27,9 +27,7 @@ HRESULT CMonster::Initialize(void* pArg)
 {
     __super::Initialize(pArg);
 
-    m_pPlayer = static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY));
-    Safe_AddRef(m_pPlayer);
-
+   
     return S_OK;
 }
 
@@ -61,5 +59,4 @@ void CMonster::Free()
 {
     __super::Free();
 
-    Safe_Release(m_pPlayer);
 }

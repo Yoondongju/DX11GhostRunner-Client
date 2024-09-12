@@ -35,6 +35,7 @@ public:
 	class CGameObject* Find_Player(_uint iLevelIndex);
 	class CGameObject* Find_Camera(_uint iLevelIndex);
 
+	HRESULT			   Delete_Layer(_uint iLevelIndex, const _wstring& strLayerTag);
 
 
 private:

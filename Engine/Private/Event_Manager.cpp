@@ -6,9 +6,10 @@
 
 #include "../Public/Level.h"
 
-CEvent_Manager::CEvent_Manager()
+CEvent_Manager::CEvent_Manager(CObject_Manager* pObject_Manager)
+	: m_pObject_Manager { pObject_Manager }
 {
-
+	Safe_AddRef(m_pObject_Manager);
 }
 
 HRESULT CEvent_Manager::Initialize()
@@ -18,13 +19,6 @@ HRESULT CEvent_Manager::Initialize()
 
 void CEvent_Manager::update()
 {
-	for (auto& pDeadObject : m_Deadlist)
-	{
-		Safe_Release(pDeadObject);
-	}
-	m_Deadlist.clear();
-
-
 	for (auto Event = m_Eventlist.begin(); Event != m_Eventlist.end();)
 	{
 		Excute(*Event);
@@ -53,13 +47,29 @@ void CEvent_Manager::Excute(const EVENT tEvent)
 
 	case (UINT)EVENT_TYPE::DELETE_OBJECT:
 	{
-		// lParam : Object adress
-		// wParam: Group Type
-		// Object를 Dead상태로 변경
-		// 삭제예정 오브젝트들을 모아둔다.
-
 		CGameObject* pDeadObj = (CGameObject*)tEvent.lParam;
-		m_Deadlist.push_back(pDeadObj);
+		_uint		 iLevelIndex = (_uint)tEvent.wParam;
+
+
+		_wstring LayerTag = pDeadObj->Get_FinalLayerName();
+
+		list<CGameObject*>& GameObjectList = m_pObject_Manager->Get_GameObjects(iLevelIndex, LayerTag);
+		for (auto iter = GameObjectList.begin(); iter != GameObjectList.end();)
+		{
+			if (*iter == pDeadObj) // 단순 객체의 주소 비교
+			{
+				iter = GameObjectList.erase(iter);			// 객체를 삭제 하진않고 리스트에서 빼주기만 할거야
+
+				if (FAILED(m_pObject_Manager->Delete_Layer(iLevelIndex, LayerTag)))
+				{
+					_wstring Error = LayerTag + L"삭제 불가";
+					MSG_BOX(Error.c_str());
+				}
+			}
+			else
+				++iter;
+		}
+		Safe_Release(pDeadObj);
 
 	}
 	break;
@@ -85,9 +95,9 @@ void CEvent_Manager::Excute(const EVENT tEvent)
 
 
 
-CEvent_Manager* CEvent_Manager::Create()
+CEvent_Manager* CEvent_Manager::Create(CObject_Manager* pObject_Manager)
 {
-	CEvent_Manager* pInstance = new CEvent_Manager();
+	CEvent_Manager* pInstance = new CEvent_Manager(pObject_Manager);
 
 	if (FAILED(pInstance->Initialize()))
 	{
@@ -102,6 +112,8 @@ void CEvent_Manager::Free()
 {
 	__super::Free();
 
+
+	Safe_Release(m_pObject_Manager);
 
 	for (auto pDeadObject : m_Deadlist)
 		Safe_Release(pDeadObject);

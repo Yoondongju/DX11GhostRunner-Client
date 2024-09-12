@@ -22,6 +22,9 @@ HRESULT CTransform::Initialize_Prototype()
 
 HRESULT CTransform::Initialize(void* pArg)
 {
+	if (nullptr == pArg)
+		return S_OK;
+
 	TRANSFORM_DESC* pDesc = static_cast<TRANSFORM_DESC*>(pArg);
 
 	XMStoreFloat4x4(&m_WorldMatrix, pDesc->InitWorldMatrix);
@@ -124,6 +127,19 @@ void CTransform::Go_Left(_float fTimeDelta)
 	vPosition.m128_f32[0] = vPosition.m128_f32[0] - vCompute_Result.m128_f32[0];		// x
 	vPosition.m128_f32[2] = vPosition.m128_f32[2] - vCompute_Result.m128_f32[2];		// z
 
+
+	Set_State(STATE_POSITION, vPosition);
+}
+
+void CTransform::Go_Dir(_fvector vDirection, _float fTimeDelta)
+{
+	_vector vPosition = Get_State(STATE_POSITION);
+
+
+	_vector vCompute_Result = XMVector3Normalize(vDirection) * m_fSpeedPerSec * fTimeDelta;
+
+
+	vPosition += vCompute_Result;
 
 	Set_State(STATE_POSITION, vPosition);
 }
@@ -283,12 +299,36 @@ void CTransform::LookAt(const _fvector& vAt)
 	_vector vLook = vAt - vPosition;
 	_vector vRight{}, vUp{};
 
-
+	
 
 
 	//_float3 vMyup = Get_State(STATE_UP);
 	//D3DXVec3Cross(&vRight, &vMyup, &vLook);// << 여기의 업벡터가 0,1,0이 아니라 본인의 업벡터로 하면?
 	// 확인해봐야함 아직해결 X
+
+	_float3 vUpSample = { 0.f, 1.f, 0.f };
+
+	vRight = XMVector3Cross(XMLoadFloat3(&vUpSample), vLook);
+	vUp = XMVector3Cross(vLook, vRight);
+
+	Set_State(STATE_RIGHT, XMVector3Normalize(vRight) * vScaled.x);
+	Set_State(STATE_UP, XMVector3Normalize(vUp) * vScaled.y);
+	Set_State(STATE_LOOK, XMVector3Normalize(vLook) * vScaled.z);
+}
+
+void CTransform::LookAt_XZ(const _fvector& vAt)
+{
+	_float3 vScaled = Get_Scaled();
+
+	_vector vPosition = Get_State(STATE_POSITION);
+
+
+
+	_vector vLook = vAt - vPosition;
+	_vector vRight{}, vUp{};
+
+
+	vLook = XMVectorSetY(vLook, 0.f);
 
 	_float3 vUpSample = { 0.f, 1.f, 0.f };
 

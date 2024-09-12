@@ -85,7 +85,7 @@ HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, cons
 		return E_FAIL;
 
 
-	m_pEvent_Manager = CEvent_Manager::Create();
+	m_pEvent_Manager = CEvent_Manager::Create(m_pObject_Manager);
 	if (nullptr == m_pEvent_Manager)
 		return E_FAIL;
 
@@ -161,7 +161,7 @@ HRESULT CGameInstance::Clear(_uint iLevelIndex)
 void CGameInstance::Render_Begin()
 {
 	/*m_pGraphic_Device->Render_Begin();*/
-	m_pGraphic_Device->Clear_BackBuffer_View(_float4(0.1f, 0.1f, 0.1f, 1.f));
+	m_pGraphic_Device->Clear_BackBuffer_View(_float4(0.f, 0.f, 0.5f, 1.f));
 	m_pGraphic_Device->Clear_DepthStencil_View();
 	
 
@@ -308,34 +308,9 @@ void CGameInstance::Delete(_uint iLevelIndex, CRenderer::RENDERGROUP eRenderGrou
 	CEvent_Manager::EVENT eEvent{};
 	eEvent.eEven = CEvent_Manager::EVENT_TYPE::DELETE_OBJECT;
 	eEvent.lParam = (DWORD_PTR)pObj;
-
-
-	list<CGameObject*>& RenderObjectList = m_pRenderer->Get_RenderList(eRenderGroup);
-	for (auto iter = RenderObjectList.begin(); iter != RenderObjectList.end();)
-	{
-		if (*iter == pObj) // 단순 객체의 주소 비교
-		{
-			iter = RenderObjectList.erase(iter);		// 객체를 삭제 하진않고 리스트에서 빼주기만 할거야
-		}
-		else
-			++iter;
-	}
-
-
-	list<CGameObject*>& GameObjectList = m_pObject_Manager->Get_GameObjects(iLevelIndex, pObj->Get_FinalLayerName());
-	for (auto iter = GameObjectList.begin(); iter != GameObjectList.end();)
-	{
-		if (*iter == pObj) // 단순 객체의 주소 비교
-		{
-			iter = GameObjectList.erase(iter);			// 객체를 삭제 하진않고 리스트에서 빼주기만 할거야
-		}
-		else
-			++iter;
-	}
-
+	eEvent.wParam = iLevelIndex;
 
 	m_pEvent_Manager->AddEvent(eEvent);
-
 }
 
 

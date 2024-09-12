@@ -11,14 +11,15 @@ public:
 	typedef struct
 	{
 		EVENT_TYPE				eEven;
+
 		DWORD_PTR				lParam;
-		DWORD_PTR				wParam;
+		_uint					wParam;
 
 	}EVENT;
 
 
 private:
-	CEvent_Manager();
+	CEvent_Manager(class CObject_Manager* pObject_Manager);
 	virtual ~CEvent_Manager() = default;
 
 public:
@@ -34,7 +35,7 @@ private:
 	list<EVENT>				  m_Eventlist;
 	list<class CGameObject*>  m_Deadlist;
 
-	class CObject_Manager* m_pObejct_Manager = { nullptr };
+	class CObject_Manager*	  m_pObject_Manager = { nullptr };
 
 
 
@@ -43,7 +44,7 @@ private:
 
 
 public:
-	static CEvent_Manager* Create();
+	static CEvent_Manager* Create(class CObject_Manager* pObject_Manager);
 	virtual void Free() override;
 };
 

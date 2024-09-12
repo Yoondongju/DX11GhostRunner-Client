@@ -19,6 +19,8 @@ public:
 	HRESULT	Initialize();
 	void Update(_float fTimeDelta);
 	HRESULT Render();
+	void Final_Update();
+
 
 private:
 	CGameInstance*			m_pGameInstance = { nullptr };

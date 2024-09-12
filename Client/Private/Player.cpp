@@ -8,18 +8,37 @@
 #include "Weapon_Player.h"
 
 #include "Player_Idle.h"
+
 #include "Player_Dash.h"
-#include "Player_Block.h"
+#include "Player_Sh_Dash.h"
+
+#include "Player_Block1.h"
+#include "Player_Block2.h"
+#include "Player_Block3.h"
 
 #include "Player_Attack1.h"
 #include "Player_Attack2.h"
 #include "Player_Attack3.h"
 
+#include "Player_CutAll.h"
+#include "Player_DashCutAll.h"
+
+#include "Player_Nami.h"
+#include "Player_MindControl.h"
+#include "Player_TimeStop.h"
+
+#include "Player_Sh_Attack1.h"
+
 #include "Player_Hook.h"
 #include "Player_Climb.h"
+
 #include "Player_Walk.h"
 #include "Player_Run.h"
+#include "Player_SH_Walk.h"
+#include "Player_SH_Run.h"
+
 #include "Player_Jump.h"
+#include "Player_JumpFall.h"
 
 #include "GrapplingPointUI.h"
 
@@ -34,6 +53,8 @@ CPlayer::CPlayer(const CPlayer& Prototype)
 {
 
 }
+
+
 
 HRESULT CPlayer::Initialize_Prototype()
 {
@@ -196,6 +217,13 @@ void CPlayer::Update(_float fTimeDelta)
 {
     CBody_Player* pBodyPart = static_cast<CBody_Player*>(m_Parts[PARTID::PART_BODY]);
     
+
+    Compute_DashCoolTime(fTimeDelta);
+    Compute_BlockCoolTime(fTimeDelta);
+    Compute_CutAllCoolTime(fTimeDelta);
+
+
+
     m_pFsm->Update(fTimeDelta);
     m_pRigidBody->Update(fTimeDelta, m_fLandPosY + m_fOffsetY, pBodyPart->Get_Collider()->Get_CurPhysXCollision());
 
@@ -221,26 +249,28 @@ void CPlayer::Late_Update(_float fTimeDelta)
 {
     // 공중에 떠있니? 
     if (m_pGameInstance->Get_KeyState(KEY::SPACE) == KEY_STATE::NONE &&
-        XMVectorGetY(m_pTransformCom->Get_State(CTransform::STATE_POSITION)) > (m_fLandPosY + m_fOffsetY) * 3)
+        XMVectorGetY(m_pTransformCom->Get_State(CTransform::STATE_POSITION)) > (m_fLandPosY + m_fOffsetY) * 4)
     {
         if (false == static_cast<CBody_Player*>(m_Parts[PARTID::PART_BODY])->IsLandingWall())
         {
             _uint iCurStateIndex = m_pFsm->Get_CurStateIndex();
-   
+       
             if (PLAYER_ANIMATIONID::JUMP_START != iCurStateIndex &&
                 PLAYER_ANIMATIONID::JUMP_LOOP != iCurStateIndex &&
                 PLAYER_ANIMATIONID::JUMP_END != iCurStateIndex &&
-                PLAYER_ANIMATIONID::HOOK_UP != iCurStateIndex)
+                PLAYER_ANIMATIONID::HOOK_UP != iCurStateIndex &&   
+                PLAYER_ANIMATIONID::SH_ATTACK != iCurStateIndex &&
+                PLAYER_ANIMATIONID::CLIMB != iCurStateIndex)
             {
                 // 점프할때 포물선방정식이용한 점프 구현해야하고 
                 // 무조건 착지 전이면 점프 상태로 돌입 -> 점프상태일때 이동이 안되야하나?
                 // 점프할때 이동 돼 안돼 여부 랑 점프할때 애니메이션 여부
-   
-                m_Parts[PARTID::PART_BODY]->Get_Model()->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::JUMP_START, false, CPlayer::PLAYER_ANIMATIONID::JUMP_LOOP);
-                m_pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::JUMP_START);
+    
+                m_Parts[PARTID::PART_BODY]->Get_Model()->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::JUMP_START, false);
+                m_pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::JUMP_LOOP);
             }
         }
-   
+    
     }
 
 
@@ -290,7 +320,16 @@ HRESULT	CPlayer::Ready_State()
     if (FAILED(m_pFsm->Add_State(CPlayer_Dash::Create(this))))
         return E_FAIL;
 
-    if (FAILED(m_pFsm->Add_State(CPlayer_Block::Create(this))))
+    if (FAILED(m_pFsm->Add_State(CPlayer_Sh_Dash::Create(this))))
+        return E_FAIL;
+
+    if (FAILED(m_pFsm->Add_State(CPlayer_Block1::Create(this))))
+        return E_FAIL;
+
+    if (FAILED(m_pFsm->Add_State(CPlayer_Block2::Create(this))))
+        return E_FAIL;
+
+    if (FAILED(m_pFsm->Add_State(CPlayer_Block3::Create(this))))
         return E_FAIL;
 
     if (FAILED(m_pFsm->Add_State(CPlayer_Attack1::Create(this))))
@@ -301,6 +340,28 @@ HRESULT	CPlayer::Ready_State()
 
     if (FAILED(m_pFsm->Add_State(CPlayer_Attack3::Create(this))))
         return E_FAIL;
+
+
+    if (FAILED(m_pFsm->Add_State(CPlayer_CutAll::Create(this))))
+        return E_FAIL;
+
+    if (FAILED(m_pFsm->Add_State(CPlayer_DashCutAll::Create(this))))
+        return E_FAIL;
+
+
+    if (FAILED(m_pFsm->Add_State(CPlayer_Nami::Create(this))))
+        return E_FAIL;
+
+    if (FAILED(m_pFsm->Add_State(CPlayer_MindControl::Create(this))))
+        return E_FAIL;
+
+    if (FAILED(m_pFsm->Add_State(CPlayer_TimeStop::Create(this))))
+        return E_FAIL;
+
+
+    if (FAILED(m_pFsm->Add_State(CPlayer_Sh_Attack1::Create(this))))
+        return E_FAIL;
+
 
     if (FAILED(m_pFsm->Add_State(CPlayer_Hook::Create(this))))
         return E_FAIL;
@@ -314,7 +375,16 @@ HRESULT	CPlayer::Ready_State()
     if (FAILED(m_pFsm->Add_State(CPlayer_Run::Create(this))))
         return E_FAIL;
 
+    if (FAILED(m_pFsm->Add_State(CPlayer_Sh_Walk::Create(this))))
+        return E_FAIL;
+
+    if (FAILED(m_pFsm->Add_State(CPlayer_Sh_Run::Create(this))))
+        return E_FAIL;
+
     if (FAILED(m_pFsm->Add_State(CPlayer_Jump::Create(this))))
+        return E_FAIL;
+
+    if (FAILED(m_pFsm->Add_State(CPlayer_JumpFall::Create(this))))
         return E_FAIL;
 
     return S_OK;
@@ -327,6 +397,42 @@ HRESULT CPlayer::Ready_PlayerUI()
    
 
     return S_OK;
+}
+
+void CPlayer::Compute_DashCoolTime(_float fTimeDelta)
+{
+    if (true == m_bStartCountDashTime)
+        m_fDashRemainingTime += fTimeDelta;
+
+
+    if (m_fDashCoolTime <= m_fDashRemainingTime)
+        m_bDashActive = true;
+    else if (m_fDashCoolTime > m_fDashRemainingTime)
+        m_bDashActive = false;
+}
+
+void CPlayer::Compute_BlockCoolTime(_float fTimeDelta)
+{
+    if (true == m_bStartCountBlockTime)
+        m_fBlockRemainingTime += fTimeDelta;
+
+
+    if (m_fBlockCoolTime <= m_fBlockRemainingTime)
+        m_bBlockActive = true;
+    else if (m_fBlockCoolTime > m_fBlockRemainingTime)
+        m_bBlockActive = false;
+}
+
+void CPlayer::Compute_CutAllCoolTime(_float fTimeDelta)
+{
+    if (true == m_bStartCountCutAllTime)
+        m_fCutAllRemainingTime += fTimeDelta;
+
+
+    if (m_fCutAllCoolTime <= m_fCutAllRemainingTime)
+        m_bCutAllActive = true;
+    else if (m_fCutAllCoolTime > m_fCutAllRemainingTime)
+        m_bCutAllActive = false;
 }
 
 
@@ -350,6 +456,8 @@ HRESULT CPlayer::Ready_PartObjects()
     WeaponDesc.pSocketBoneMatrix = dynamic_cast<CBody_Player*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Weapon_r");
     WeaponDesc.pOwner = this;
     WeaponDesc.InitWorldMatrix = XMMatrixIdentity();
+    WeaponDesc.fRotationPerSec = 30.f;
+    WeaponDesc.fSpeedPerSec = 30.f;
 
 
     if (FAILED(__super::Add_PartObject(PART_WEAPON, TEXT("Prototype_GameObject_Weapon_Player"), &WeaponDesc)))

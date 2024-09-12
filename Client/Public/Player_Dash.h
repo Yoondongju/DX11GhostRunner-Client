@@ -20,7 +20,7 @@ public:
 
 
 private:
-    _bool Check_Jump();
+
 
 public:
     static CPlayer_Dash* Create(class CGameObject* pOwner);

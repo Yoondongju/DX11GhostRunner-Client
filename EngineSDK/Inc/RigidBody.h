@@ -25,10 +25,10 @@ public:
 
     void                Set_ZeroTimer() { m_fTime = 0.f; }
 
-    _float3             Get_Force() { return m_vForce; }
+    _vector             Get_Force() { return XMLoadFloat3(&m_vForce); }
     void                Set_Accel(_float3 vAccel) { m_vAccel = vAccel; }
 
-    _float3             Get_Velocity() { return m_vVelocity; }
+    _vector             Get_Velocity() { return XMLoadFloat3(&m_vVelocity); }
     void                Set_Velocity(_float3 _vVelocity) { m_vVelocity = _vVelocity; }
 
     void                AddVelocity(_float3 _vAddV)

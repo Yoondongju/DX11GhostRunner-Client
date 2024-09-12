@@ -21,6 +21,8 @@ protected:
 	virtual ~CPartObject() = default;
 
 
+public:
+	_float4x4*    Get_PartObjectComBindWorldMatrixPtr() { return &m_WorldMatrix; }
 	
 public:
 	virtual HRESULT Initialize_Prototype();

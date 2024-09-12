@@ -22,7 +22,7 @@ public:
 	HRESULT Draw();
 
 public:
-	list<class CGameObject*>& Get_RenderList(RENDERGROUP eGroup) { return m_RenderObjects[RG_UI]; }
+	list<class CGameObject*>& Get_RenderList(RENDERGROUP eGroup) { return m_RenderObjects[eGroup]; }
 
 
 private:

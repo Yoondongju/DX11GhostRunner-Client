@@ -58,9 +58,6 @@
     <Filter Include="01.Utility\03.Components\Shader">
       <UniqueIdentifier>{6c110ce0-705f-438f-b674-7320aa8c12d8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="01.Utility\03.Components\Texture">
-      <UniqueIdentifier>{3db8fcb7-2c50-4de5-8be2-1e504ed789fd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="01.Utility\03.Components\VIBuffer\Terrain">
       <UniqueIdentifier>{3f848cd1-8794-40c9-849d-e85faffde3e8}</UniqueIdentifier>
     </Filter>
@@ -174,6 +171,9 @@
     </Filter>
     <Filter Include="01.Utility\03.Components\VIBuffer\Cube">
       <UniqueIdentifier>{76c334f3-d250-48c6-9168-fe2f71983f61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\03.Components\Texture">
+      <UniqueIdentifier>{3db8fcb7-2c50-4de5-8be2-1e504ed789fd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

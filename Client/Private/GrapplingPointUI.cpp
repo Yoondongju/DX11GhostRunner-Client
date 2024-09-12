@@ -34,7 +34,6 @@ HRESULT CGrapplingPointUI::Initialize(void* pArg)
 	}
 	
 
-
 	UI_DESC			Desc{};
 
 	Desc.fX = 0.f;
@@ -333,6 +332,15 @@ CGameObject* CGrapplingPointUI::Clone(void* pArg)
 
 void CGrapplingPointUI::Free()
 {
+	// 레이어 에서 얘의 Free 들어왓고
+	// 자식들이 자기 부모를 계속 지운단말이야
+
+	for (auto& pUI : m_childUI_List)
+	{
+		Safe_Release(pUI);
+	}
+	m_childUI_List.clear();
+
 	__super::Free();
 
 	Safe_Release(m_pShaderCom);
@@ -342,12 +350,4 @@ void CGrapplingPointUI::Free()
 	Safe_Release(m_pVIBufferCom);
 
 	Safe_Release(m_pCrane);
-
-
-	for (auto& pUI : m_childUI_List)
-	{
-		Safe_Release(pUI);
-	}
-	m_childUI_List.clear();
-
 }

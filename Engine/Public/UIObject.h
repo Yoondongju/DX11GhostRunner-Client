@@ -36,6 +36,7 @@ public:
 	_float				Get_fSizeX() { return m_fSizeX; }
 	_float				Get_fSizeY() { return m_fSizeY; }
 
+	void				Set_Active(_bool b) { m_bActivate = b; }
 
 public:
 	virtual HRESULT Initialize_Prototype() override;
@@ -81,7 +82,10 @@ protected:
 	virtual void MouseOn();
 	virtual void MouseOut();
 
-	void		 SetParentUI(CUIObject* _p) { m_pParentUI = _p; }
+	void		 SetParentUI(CUIObject* _p) 
+	{
+		m_pParentUI = _p;
+	}
 
 
 

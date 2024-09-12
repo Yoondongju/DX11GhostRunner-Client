@@ -12,13 +12,18 @@ BEGIN(Client)
 class CLoader final : public CBase
 {
 public:
-	typedef struct
+	typedef struct LOADING_OBJECT_INFO
 	{
 		_wstring	strPrototypeName = L"";
 		_wstring	strLayerName = L"";
 		_wstring	strModelPrototypeName = L"";
 
 		_float4x4   vWorldMatrix = {};
+
+		
+
+		vector<LOADING_OBJECT_INFO> PartsInfo;
+
 
 		MODEL_CHECK_LIST eModelType = {MODEL_CHECK_LIST::MODEL_CHECK_TYPE_END };
 
@@ -103,7 +108,7 @@ private:
 	LOADING_OBJECT_INFO*		m_pLoadingAnimObjectInfo[LEVELID::LEVEL_END] = { nullptr };  // 내가 지정한레벨에 로딩될 애니오브젝트 갯수만큼 Info를 들고있는다.
 
 	_uint						m_iNumLoadingTerrain[LEVELID::LEVEL_END] = { 0 };
-	LOADING_TERRAIN_INFO*		m_pLoadingTerrainInfo[LEVELID::LEVEL_END] = { nullptr };  // 내가 지정한레벨에 로딩될 터레인 갯수만큼 Info를 들고있는다.
+	LOADING_TERRAIN_INFO*		m_pLoadingTerrainInfo[LEVELID::LEVEL_END] = { nullptr };	 // 내가 지정한레벨에 로딩될 터레인 갯수만큼 Info를 들고있는다.
 
 	LOADING_OBJECT_INFO*		m_pLoadingPlayerInfo[LEVELID::LEVEL_END] = { nullptr };
 
@@ -128,6 +133,8 @@ private:
 	HRESULT Create_PrototypePlayer(const _wstring& strPrototypeName, const _wstring& strLayerName);
 
 	HRESULT Create_UI();
+
+	HRESULT	Create_Sky();
 
 
 private:

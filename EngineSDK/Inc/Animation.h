@@ -34,11 +34,15 @@ public:
 	_uint					 Get_NumChannel() { return m_iNumChannels; }
 	_double					 Get_Duration() { return m_Duration; }
 
+	void					 Set_Duration(_double d) { m_Duration = d; }
 
 	_double					 Get_OriginSpeedPerSec() { return m_OriginSpeedPerSec; }
 	_double					 Get_SpeedPerSec() { return m_SpeedPerSec; }
 
 	void					 Set_SpeedPerSec(_double SpeedPersec) { m_SpeedPerSec = SpeedPersec; }
+
+public:
+	void					 Set_NextAnimLerpDuration(_float fLerp) { m_fNextAnimLerpDuration = fLerp; }	// 다음애니메이션으로 가기위한 선보시간 기본 0.2f세팅
 
 
 public:
@@ -62,6 +66,7 @@ private:
 	_double						m_SpeedPerSec = {};
 
 
+	_float						m_fNextAnimLerpDuration = { 0.2f };		// 공격같은애들은 다하고 돌아올때 선보시간을 더 줄여
 
 
 public:

@@ -7,6 +7,7 @@
 #include "Level_Loading.h"
 
 #include "GrapplingPointUI.h"
+#include "IconUI.h"
 
 CLevel_GamePlay::CLevel_GamePlay(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CLevel{ pDevice, pContext }
@@ -19,24 +20,34 @@ HRESULT CLevel_GamePlay::Initialize(void *pArg)
 	if (FAILED(Ready_Lights()))
 		return E_FAIL;
 
+
 	if (FAILED(Ready_Layer_Camera()))
 		return E_FAIL;
+
+
 	if (FAILED(Ready_Layer_BackGround(pArg)))
 		return E_FAIL;
+
 	if (FAILED(Ready_Layer_Effect()))
 		return E_FAIL;
 
 
- 	if (FAILED(Ready_Layer_MapObject(pArg)))
+
+	if (FAILED(Ready_Layer_MapObject(pArg)))			// 그랩UI가 만들어져 있어야 플레이어를 만들수있는데 그랩UI는 크래인이 만들고
+		return E_FAIL;									// 플레이어를 만들고 나서 몬스터들을 만들어야하기에 여기서 나눠야겟다
+
+
+	if (FAILED(Ready_Layer_Player(pArg)))			
 		return E_FAIL;
 
+
+	if (FAILED(Ready_Layer_Monster(pArg)))
+		return E_FAIL;
+	
 
 	if (FAILED(Ready_Layer_UI()))
 		return E_FAIL;
 
-
-	if (FAILED(Ready_Layer_Player(pArg)))			// 플레이어는 Hook에서 Grap을 알아야하기에 늦게생성해야한다.
-		return E_FAIL;
 
 	return S_OK;
 }
@@ -191,9 +202,13 @@ HRESULT CLevel_GamePlay::Ready_Layer_MapObject(void* pArg)
 	}
 
 
+	
+	return S_OK;
+}
 
-
-
+HRESULT CLevel_GamePlay::Ready_Layer_Monster(void* pArg)
+{
+	CLevel_Loading::LOAD_DATA_DESC* pDesc = static_cast<CLevel_Loading::LOAD_DATA_DESC*>(pArg);
 
 	_uint iAnimDataSize = pDesc->iAnimDataSize;
 	const CLoader::LOADING_OBJECT_INFO* pAnimData = pDesc->pAnimData;
@@ -212,8 +227,6 @@ HRESULT CLevel_GamePlay::Ready_Layer_MapObject(void* pArg)
 			return E_FAIL;
 	}
 
-
-	
 	return S_OK;
 }
 
@@ -236,7 +249,88 @@ HRESULT CLevel_GamePlay::Ready_Layer_Player(void* pArg)
 
 HRESULT CLevel_GamePlay::Ready_Layer_UI()
 {
-	
+	CIconUI::ICON_DESC Desc = {};
+
+	Desc.eType = CIconUI::ICON_TYPE::CUTALL;
+	Desc.fX = 80;
+	Desc.fY = g_iWinSizeY - 100;
+	Desc.fSizeX = 70;
+	Desc.fSizeY = 70;
+	Desc.fSpeedPerSec = 10.f;
+	Desc.fRotationPerSec = XMConvertToRadians(90.0f);
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, L"Layer_UI", L"Prototype_GameObject_IconUI", L"No Model", &Desc)))
+		return E_FAIL;
+
+
+	Desc.eType = CIconUI::ICON_TYPE::BLOCK;
+	Desc.fX = Desc.fX + 100;
+	Desc.fY = g_iWinSizeY - 60;
+	Desc.fSizeX = 70;
+	Desc.fSizeY = 70;
+	Desc.fSpeedPerSec = 10.f;
+	Desc.fRotationPerSec = XMConvertToRadians(90.0f);
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, L"Layer_UI", L"Prototype_GameObject_IconUI", L"No Model", &Desc)))
+		return E_FAIL;
+
+
+	Desc.eType = CIconUI::ICON_TYPE::DASH;
+	Desc.fX = Desc.fX + 100;
+	Desc.fY = g_iWinSizeY - 100;
+	Desc.fSizeX = 70;
+	Desc.fSizeY = 70;
+	Desc.fSpeedPerSec = 10.f;
+	Desc.fRotationPerSec = XMConvertToRadians(90.0f);
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, L"Layer_UI", L"Prototype_GameObject_IconUI", L"No Model", &Desc)))
+		return E_FAIL;
+
+
+	// up UI
+	Desc.eType = CIconUI::ICON_TYPE::MINDCONTROL;
+	Desc.fX = Desc.fX;
+	Desc.fY = g_iWinSizeY - 180;
+	Desc.fSizeX = 70;
+	Desc.fSizeY = 70;
+	Desc.fSpeedPerSec = 10.f;
+	Desc.fRotationPerSec = XMConvertToRadians(90.0f);
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, L"Layer_UI", L"Prototype_GameObject_IconUI", L"No Model", &Desc)))
+		return E_FAIL;
+
+
+	Desc.eType = CIconUI::ICON_TYPE::TIMESTOP;
+	Desc.fX = Desc.fX - 100;
+	Desc.fY = g_iWinSizeY - 220;
+	Desc.fSizeX = 70;
+	Desc.fSizeY = 70;
+	Desc.fSpeedPerSec = 10.f;
+	Desc.fRotationPerSec = XMConvertToRadians(90.0f);
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, L"Layer_UI", L"Prototype_GameObject_IconUI", L"No Model", &Desc)))
+		return E_FAIL;
+
+
+	Desc.eType = CIconUI::ICON_TYPE::NAMI;
+	Desc.fX = Desc.fX - 100;
+	Desc.fY = g_iWinSizeY - 180;
+	Desc.fSizeX = 70;
+	Desc.fSizeY = 70;
+	Desc.fSpeedPerSec = 10.f;
+	Desc.fRotationPerSec = XMConvertToRadians(90.0f);
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, L"Layer_UI", L"Prototype_GameObject_IconUI", L"No Model", &Desc)))
+		return E_FAIL;
+
+
+	// 마지막
+	Desc.eType = CIconUI::ICON_TYPE::SHURIKEN;
+	Desc.fX = Desc.fX + 100;
+	Desc.fY = g_iWinSizeY - 140;
+	Desc.fSizeX = 80;
+	Desc.fSizeY = 80;
+	Desc.fSpeedPerSec = 10.f;
+	Desc.fRotationPerSec = XMConvertToRadians(90.0f);
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, L"Layer_UI", L"Prototype_GameObject_IconUI", L"No Model", &Desc)))
+		return E_FAIL;
+
+
+
 
 	return S_OK;
 }

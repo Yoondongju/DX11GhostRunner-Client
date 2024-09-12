@@ -39,7 +39,11 @@ namespace Engine
 
 		LBUTTON,
 		RBUTTON,
+
 		ONE,
+		TWO,
+		THIRD,
+		FOWR,
 
 		LAST,
 	};

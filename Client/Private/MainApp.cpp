@@ -67,6 +67,11 @@ HRESULT CMainApp::Render()
 	return S_OK;
 }
 
+void CMainApp::Final_Update()
+{
+	m_pGameInstance->FinalUpdate_Engine();
+}
+
 
 HRESULT CMainApp::Ready_Prototype_Component_Static()
 {

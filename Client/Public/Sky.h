@@ -26,10 +26,15 @@ public:
 	virtual void Late_Update(_float fTimeDelta) override;
 	virtual HRESULT Render() override;
 
-public:
-	class CShader* m_pShaderCom = { nullptr };
-	class CTexture* m_pTextureCom = { nullptr };
-	class CVIBuffer_Cube* m_pVIBufferCom = { nullptr };
+private:
+	CShader*		  m_pShaderCom = { nullptr };
+	CTexture*		  m_pTextureCom = { nullptr };
+	CVIBuffer_Cube*	  m_pVIBufferCom = { nullptr };
+
+	CTransform*		  m_pFreeCameraTransform = { nullptr };
+
+private:
+	_float				m_fTime = {};
 
 private:
 	HRESULT Ready_Components();

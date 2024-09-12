@@ -99,6 +99,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 #endif
 			pMainApp->Update(fTimeDelta);
 			pMainApp->Render();
+            pMainApp->Final_Update();
 		}
 	}
 

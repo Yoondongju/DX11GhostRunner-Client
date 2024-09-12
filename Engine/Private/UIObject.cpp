@@ -132,8 +132,6 @@ void CUIObject::MouseOut()
 void CUIObject::Free()
 {
 	__super::Free();
-
-	Safe_Release(m_pParentUI);
 }
 
 

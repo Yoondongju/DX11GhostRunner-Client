@@ -30,6 +30,12 @@ public:
 		return m_Bones[Get_BoneIndex(pBoneName)]->Get_CombinedTransformationMatrix_Ptr();
 	}
 
+	const _matrix Get_BoneTransformationMatrix_Ptr(const _char* pBoneName) const {
+		return m_Bones[Get_BoneIndex(pBoneName)]->Get_TransformationMatrix();
+	}
+
+
+
 	vector<class CBone*>& Get_Bones() { return m_Bones; }
 
 	_uint						Get_MaterialsCount() { return m_iNumMaterials; }
@@ -40,8 +46,11 @@ public:
 
 	_uint						Get_NumAnimations() { return m_iNumAnimations; }
 	_uint						Get_CurAnimationIndex() { return m_iCurrentAnimIndex; }
+
+	void						Set_NextAnimationIndex(_uint iNextAnimIndex) { m_iNextAnimIndex = iNextAnimIndex; }
 	_uint						Get_NextAnimationIndex() { return m_iNextAnimIndex; }
-	_uint						Get_EndNextAnimationIndex() { return m_iEndNextAnimIndex; }
+
+
 
 
 public:
@@ -54,15 +63,8 @@ public:
 	virtual HRESULT Render(_uint iMeshIndex);
 
 public:
-	void SetUp_Animation(_uint iAnimationIndex, _bool isLoop = false, _uint iEndNextAnimationIndex = 13) // 종료되면 실행될 다음애니메이션은 ?
-	{
-		m_iNextAnimIndex = iAnimationIndex;
+	void SetUp_Animation(_uint iAnimationIndex, _bool isLoop, _float fNextLerp = -1.f);  // 종료되면 실행될 다음애니메이션은 ?
 
-		if (false == isLoop)
-			m_iEndNextAnimIndex = iEndNextAnimationIndex;
-
-		m_isLoop = isLoop;
-	}
 
 	/* 뼈를 움직인다.(CBone`s m_TransformationMatrix행렬을 갱신한다.) */
 	/* 모든 뼈가 가지고 있는 m_CombinedTransformationMatrix를 갱신한다. */
@@ -99,7 +101,6 @@ private:
 	_uint							m_iNextAnimIndex = { 0 };		// 다음 애니메이션 인덱스
 	_uint							m_iCurrentAnimIndex = { 0 };	// 현재 내 애니 인덱스
 
-	_uint							m_iEndNextAnimIndex = { 9999 };	// 반복재생이 아닌 애니가 끝나면 다음에 실행해야할 애니
 
 
 	_uint							m_iNumAnimations = { 0 };		// 내 애니메이션 총갯수

@@ -29,7 +29,7 @@ HRESULT CChannel::Initialize(CHANNEL_DESC* pDesc, const CModel* pModel)
 void CChannel::Update_TransformationMatrix(const vector<class CBone*>& Bones, _uint* pCurrentKeyFrameIndex, CChannel* pNextAniChannel, _double* pCurrentTrackPosition, _bool isTransitioning, _float fTimeDelta, _double TransitionTime)
 {
 	if (0.0 == *pCurrentTrackPosition)
-		*pCurrentKeyFrameIndex = 0;					// *pCurrentKeyFrameIndex 이녀석은 실제 그애니메이션의 키 프레임중 어디를 가르키니?하는 인덱스
+		*pCurrentKeyFrameIndex = 0;		// *pCurrentKeyFrameIndex 이녀석은 실제 그애니메이션의 키 프레임중 어디를 가르키니?하는 인덱스
 
 	KEYFRAME	LastKeyFrame = m_KeyFrames.back();		// 제일 뒤 키 프레임
 
@@ -61,11 +61,17 @@ void CChannel::Update_TransformationMatrix(const vector<class CBone*>& Bones, _u
 		//매 프레임에는 
 
 		if (m_fTransitionTime < 1.f)
-			m_fTransitionTime += (fTimeDelta / TransitionTime);
+			m_fTransitionTime += (fTimeDelta / (_float)TransitionTime);
+
+		else if (TransitionTime == 0.0)
+		{
+			m_fTransitionTime = 1.f;
+			*pCurrentTrackPosition = 0.0;
+		}
 		else
 		{
 			m_fTransitionTime = 1.f;
-			*pCurrentTrackPosition = 0.f;
+			*pCurrentTrackPosition = 0.0;
 		}
 
 		// 보간 계산
@@ -106,6 +112,8 @@ void CChannel::Update_TransformationMatrix(const vector<class CBone*>& Bones, _u
 
 			/* 그거 내가 설명한거. */
 			_double		Ratio = (*pCurrentTrackPosition - m_KeyFrames[*pCurrentKeyFrameIndex].TrackPosition) / (m_KeyFrames[*pCurrentKeyFrameIndex + 1].TrackPosition - m_KeyFrames[*pCurrentKeyFrameIndex].TrackPosition);
+			
+
 
 			vScale = XMVectorLerp(vSourScale, vDestScale, (_float)Ratio);
 			vRotation = XMQuaternionSlerp(vSourRotation, vDestRotation, (_float)Ratio);

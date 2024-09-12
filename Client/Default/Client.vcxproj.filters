@@ -106,8 +106,149 @@
     <Filter Include="02.GameObjects\Player\PlayerState\Attack\Attack3">
       <UniqueIdentifier>{402500e7-8451-44e2-a100-fb847f788807}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\Player\PlayerState\Attack\Sh_Attack1">
+      <UniqueIdentifier>{4f34139f-b57c-46f2-aaa7-1d0506dcdc70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\PlayerState\Block\Block1">
+      <UniqueIdentifier>{f6ba3f0f-3c01-4503-babc-0a09296282a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\PlayerState\Block\Block2">
+      <UniqueIdentifier>{c5562cbe-d9cc-4c70-814d-56e0ef30f484}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\PlayerState\Block\Block3">
+      <UniqueIdentifier>{2f12d336-69ba-4456-a2f4-5c004edaaa53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI\IconUI">
+      <UniqueIdentifier>{973f3f99-8013-4ce8-b120-7255b2e72c51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI\NumberUI">
+      <UniqueIdentifier>{62536c95-02ec-4f1f-adc4-cc9307d00b33}</UniqueIdentifier>
+    </Filter>
     <Filter Include="02.GameObjects\03.Sky">
       <UniqueIdentifier>{e527a503-48a3-4bbf-a086-1346ac1dce6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\PlayerState\CutAll">
+      <UniqueIdentifier>{69a645c9-217b-4d76-9e2c-b9d9fa19bd75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\PlayerState\Nami">
+      <UniqueIdentifier>{886c6ae7-39c6-494b-aadf-3dd3a3291025}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\PlayerState\TimeStop">
+      <UniqueIdentifier>{c812e6f3-d0c6-4579-b130-3b1734a01609}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\PlayerState\MindControl">
+      <UniqueIdentifier>{91e142da-da0f-4e59-b856-d969e44d53da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Dynamic_Object">
+      <UniqueIdentifier>{fd43cab8-f8a3-435c-ad62-d8e9638d0a13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Elite">
+      <UniqueIdentifier>{36a92eb3-5ebe-4063-bd64-aa0df6099b4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Jetpack">
+      <UniqueIdentifier>{9ff09746-8bfc-4bc0-9309-5fb7c7193297}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Mira">
+      <UniqueIdentifier>{972c7019-0cc3-437b-bfb5-fb3154986778}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Sniper">
+      <UniqueIdentifier>{b5db6737-1e0b-4a12-b36a-7359f46326e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Pistol">
+      <UniqueIdentifier>{9600e59e-6c6e-4b07-bcce-460f1a60168e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Elite\Weapon">
+      <UniqueIdentifier>{571b8dda-7fac-4ebb-870d-3853f505b984}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Jetpack\Weapon">
+      <UniqueIdentifier>{a0403622-fb12-49af-aae3-5936fa783128}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Jetpack\BackPack">
+      <UniqueIdentifier>{a9cee5b3-7568-45fd-bde5-3832769a9c75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Pistol\Weapon">
+      <UniqueIdentifier>{859b5cac-3244-4411-b74c-cc6b3dd9f818}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Sniper\Weapon">
+      <UniqueIdentifier>{f0b550f4-52a9-4cdf-9253-31328e5b491f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Elite\EliteState">
+      <UniqueIdentifier>{a2727ce3-dc04-49ef-a54d-831de6a117a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Sniper\SniperState">
+      <UniqueIdentifier>{31c34d04-662d-4ac3-9fc8-2bb36640b7aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Spider\SpiderState">
+      <UniqueIdentifier>{e38541cc-caae-4ef1-9c26-a10df426ae02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Sniper\SniperState\Idle">
+      <UniqueIdentifier>{8466de78-b2b5-434d-8a8e-9e88440d4461}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Sniper\SniperState\Attack">
+      <UniqueIdentifier>{49eb9755-4519-47cc-83dc-5b1149e4b93e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Sniper\SniperState\Death">
+      <UniqueIdentifier>{6828700f-03a8-4bdb-8363-e725a8f4f7a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\PlayerState\Death">
+      <UniqueIdentifier>{f99c2356-b12f-4dd5-92d7-8673434af436}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\PlayerState\Jump\JumpFall">
+      <UniqueIdentifier>{411765bb-7e3c-45fc-9500-98d9eb6feca9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Pistol\PistolState">
+      <UniqueIdentifier>{483ec6df-0505-4cb6-9b6e-2d7af060281d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Pistol\PistolState\Attack">
+      <UniqueIdentifier>{ec713a32-4253-478c-8c84-82fdee8738a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Pistol\PistolState\Death">
+      <UniqueIdentifier>{3c4c239c-1597-455b-8f3a-b0eb635493ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Pistol\PistolState\Idle">
+      <UniqueIdentifier>{234b7ad0-2919-4750-accb-e94a23a5d48f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Pistol\PistolState\Walk">
+      <UniqueIdentifier>{7ac98922-165a-44ec-a0de-54db12fb50e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Mira\MiraState">
+      <UniqueIdentifier>{e2c7c4c6-19bf-4edc-b0dd-e1489cfda0ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Mira\MiraState\Attack">
+      <UniqueIdentifier>{7795f0ce-b2e3-4626-98aa-31507c586c12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Mira\MiraState\Idle">
+      <UniqueIdentifier>{9db7ce1f-2fc5-4122-bc38-8246ac71952b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Mira\MiraState\Death">
+      <UniqueIdentifier>{504bd969-992d-4f51-af4b-fbf2bfae1ad7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Mira\MiraState\WalkIn">
+      <UniqueIdentifier>{a16b3356-852f-420e-9910-42a518944410}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Mira\MiraState\Suiside">
+      <UniqueIdentifier>{d128e28f-8504-40a6-bef9-b3cc974b5376}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Jetpack\JetpackState">
+      <UniqueIdentifier>{5ed2b6c3-3d75-4769-956f-f5ddcf87978c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Jetpack\JetpackState\Attack">
+      <UniqueIdentifier>{13845713-31fb-445e-b3ea-93503c284462}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Jetpack\JetpackState\Fly">
+      <UniqueIdentifier>{ca19f98f-22ba-4c15-ba0f-6e0b1e915221}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Jetpack\JetpackState\Idle">
+      <UniqueIdentifier>{438c7a85-0eaf-49f8-9180-91ab421399a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Jetpack\JetpackState\Scared">
+      <UniqueIdentifier>{51e2b38e-910f-4b01-b828-62bba71ca1ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Jetpack\JetpackState\Death">
+      <UniqueIdentifier>{eac7da9d-b15d-494a-bb27-cc4ee884615b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\Weapon\SubShuriken">
+      <UniqueIdentifier>{c05645f8-2b05-43ab-aedb-da75d05ba4da}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -171,9 +312,6 @@
     <ClInclude Include="..\Public\Weapon_Player.h">
       <Filter>02.GameObjects\Player\Weapon</Filter>
     </ClInclude>
-    <ClInclude Include="..\Public\Player_Block.h">
-      <Filter>02.GameObjects\Player\PlayerState\Block</Filter>
-    </ClInclude>
     <ClInclude Include="..\Public\Player_Climb.h">
       <Filter>02.GameObjects\Player\PlayerState\Climb</Filter>
     </ClInclude>
@@ -188,9 +326,6 @@
     </ClInclude>
     <ClInclude Include="..\Public\Player_Run.h">
       <Filter>02.GameObjects\Player\PlayerState\Run</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Public\Player_Walk.h">
-      <Filter>02.GameObjects\Player\PlayerState\Walk</Filter>
     </ClInclude>
     <ClInclude Include="..\Public\Player_Jump.h">
       <Filter>02.GameObjects\Player\PlayerState\Jump</Filter>
@@ -209,6 +344,141 @@
     </ClInclude>
     <ClInclude Include="..\Public\Sky.h">
       <Filter>02.GameObjects\03.Sky</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Player_Sh_Run.h">
+      <Filter>02.GameObjects\Player\PlayerState\Run</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Player_Sh_Walk.h">
+      <Filter>02.GameObjects\Player\PlayerState\Walk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Player_Sh_Attack1.h">
+      <Filter>02.GameObjects\Player\PlayerState\Attack\Sh_Attack1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Player_Walk.h">
+      <Filter>02.GameObjects\Player\PlayerState\Walk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Player_Sh_Dash.h">
+      <Filter>02.GameObjects\Player\PlayerState\Dash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Player_Block1.h">
+      <Filter>02.GameObjects\Player\PlayerState\Block\Block1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Player_Block2.h">
+      <Filter>02.GameObjects\Player\PlayerState\Block\Block2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Player_Block3.h">
+      <Filter>02.GameObjects\Player\PlayerState\Block\Block3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\IconUI.h">
+      <Filter>02.GameObjects\GameUI\IconUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\NumberUI.h">
+      <Filter>02.GameObjects\GameUI\NumberUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Player_CutAll.h">
+      <Filter>02.GameObjects\Player\PlayerState\CutAll</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Player_Nami.h">
+      <Filter>02.GameObjects\Player\PlayerState\Nami</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Player_TimeStop.h">
+      <Filter>02.GameObjects\Player\PlayerState\TimeStop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Player_MindControl.h">
+      <Filter>02.GameObjects\Player\PlayerState\MindControl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Player_DashCutAll.h">
+      <Filter>02.GameObjects\Player\PlayerState\CutAll</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Elite.h">
+      <Filter>02.GameObjects\02.Monster\Elite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\BackPack_Jetpack.h">
+      <Filter>02.GameObjects\02.Monster\Jetpack\BackPack</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Dynamic_Object.h">
+      <Filter>02.GameObjects\Dynamic_Object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Jetpack.h">
+      <Filter>02.GameObjects\02.Monster\Jetpack</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Mira.h">
+      <Filter>02.GameObjects\02.Monster\Mira</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Pistol.h">
+      <Filter>02.GameObjects\02.Monster\Pistol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Sniper.h">
+      <Filter>02.GameObjects\02.Monster\Sniper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Weapon_Elite.h">
+      <Filter>02.GameObjects\02.Monster\Elite\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Weapon_Jetpack.h">
+      <Filter>02.GameObjects\02.Monster\Jetpack\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Weapon_Pistol.h">
+      <Filter>02.GameObjects\02.Monster\Pistol\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Weapon_Sniper.h">
+      <Filter>02.GameObjects\02.Monster\Sniper\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Sniper_Idle.h">
+      <Filter>02.GameObjects\02.Monster\Sniper\SniperState\Idle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Sniper_Attack.h">
+      <Filter>02.GameObjects\02.Monster\Sniper\SniperState\Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Sniper_Death.h">
+      <Filter>02.GameObjects\02.Monster\Sniper\SniperState\Death</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Player_JumpFall.h">
+      <Filter>02.GameObjects\Player\PlayerState\Jump\JumpFall</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Pistol_Attack.h">
+      <Filter>02.GameObjects\02.Monster\Pistol\PistolState\Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Pistol_Death.h">
+      <Filter>02.GameObjects\02.Monster\Pistol\PistolState\Death</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Pistol_Idle.h">
+      <Filter>02.GameObjects\02.Monster\Pistol\PistolState\Idle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Pistol_Walk.h">
+      <Filter>02.GameObjects\02.Monster\Pistol\PistolState\Walk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Mira_Attack.h">
+      <Filter>02.GameObjects\02.Monster\Mira\MiraState\Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Mira_Death.h">
+      <Filter>02.GameObjects\02.Monster\Mira\MiraState\Death</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Mira_Idle.h">
+      <Filter>02.GameObjects\02.Monster\Mira\MiraState\Idle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Mira_WalkIn.h">
+      <Filter>02.GameObjects\02.Monster\Mira\MiraState\WalkIn</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Mira_Suiside.h">
+      <Filter>02.GameObjects\02.Monster\Mira\MiraState\Suiside</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Jetpack_Attack.h">
+      <Filter>02.GameObjects\02.Monster\Jetpack\JetpackState\Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Jetpack_Death.h">
+      <Filter>02.GameObjects\02.Monster\Jetpack\JetpackState\Death</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Jetpack_Fly.h">
+      <Filter>02.GameObjects\02.Monster\Jetpack\JetpackState\Fly</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Jetpack_Idle.h">
+      <Filter>02.GameObjects\02.Monster\Jetpack\JetpackState\Idle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Jetpack_Scared.h">
+      <Filter>02.GameObjects\02.Monster\Jetpack\JetpackState\Scared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\SubShuriken.h">
+      <Filter>02.GameObjects\Player\Weapon\SubShuriken</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -263,9 +533,6 @@
     <ClCompile Include="..\Private\Weapon_Player.cpp">
       <Filter>02.GameObjects\Player\Weapon</Filter>
     </ClCompile>
-    <ClCompile Include="..\Private\Player_Block.cpp">
-      <Filter>02.GameObjects\Player\PlayerState\Block</Filter>
-    </ClCompile>
     <ClCompile Include="..\Private\Player_Climb.cpp">
       <Filter>02.GameObjects\Player\PlayerState\Climb</Filter>
     </ClCompile>
@@ -280,9 +547,6 @@
     </ClCompile>
     <ClCompile Include="..\Private\Player_Run.cpp">
       <Filter>02.GameObjects\Player\PlayerState\Run</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Private\Player_Walk.cpp">
-      <Filter>02.GameObjects\Player\PlayerState\Walk</Filter>
     </ClCompile>
     <ClCompile Include="..\Private\Player_Jump.cpp">
       <Filter>02.GameObjects\Player\PlayerState\Jump</Filter>
@@ -301,6 +565,141 @@
     </ClCompile>
     <ClCompile Include="..\Private\Sky.cpp">
       <Filter>02.GameObjects\03.Sky</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Player_Sh_Run.cpp">
+      <Filter>02.GameObjects\Player\PlayerState\Run</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Player_Sh_Walk.cpp">
+      <Filter>02.GameObjects\Player\PlayerState\Walk</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Player_Sh_Attack1.cpp">
+      <Filter>02.GameObjects\Player\PlayerState\Attack\Sh_Attack1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Player_Walk.cpp">
+      <Filter>02.GameObjects\Player\PlayerState\Walk</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Player_Sh_Dash.cpp">
+      <Filter>02.GameObjects\Player\PlayerState\Dash</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Player_Block1.cpp">
+      <Filter>02.GameObjects\Player\PlayerState\Block\Block1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Player_Block2.cpp">
+      <Filter>02.GameObjects\Player\PlayerState\Block\Block2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Player_Block3.cpp">
+      <Filter>02.GameObjects\Player\PlayerState\Block\Block3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\IconUI.cpp">
+      <Filter>02.GameObjects\GameUI\IconUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\NumberUI.cpp">
+      <Filter>02.GameObjects\GameUI\NumberUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Player_CutAll.cpp">
+      <Filter>02.GameObjects\Player\PlayerState\CutAll</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Player_Nami.cpp">
+      <Filter>02.GameObjects\Player\PlayerState\Nami</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Player_TimeStop.cpp">
+      <Filter>02.GameObjects\Player\PlayerState\TimeStop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Player_MindControl.cpp">
+      <Filter>02.GameObjects\Player\PlayerState\MindControl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Player_DashCutAll.cpp">
+      <Filter>02.GameObjects\Player\PlayerState\CutAll</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Jetpack.cpp">
+      <Filter>02.GameObjects\02.Monster\Jetpack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\BackPack_Jetpack.cpp">
+      <Filter>02.GameObjects\02.Monster\Jetpack\BackPack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Dynamic_Object.cpp">
+      <Filter>02.GameObjects\Dynamic_Object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Elite.cpp">
+      <Filter>02.GameObjects\02.Monster\Elite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Mira.cpp">
+      <Filter>02.GameObjects\02.Monster\Mira</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Pistol.cpp">
+      <Filter>02.GameObjects\02.Monster\Pistol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Sniper.cpp">
+      <Filter>02.GameObjects\02.Monster\Sniper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Weapon_Elite.cpp">
+      <Filter>02.GameObjects\02.Monster\Elite\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Weapon_Jetpack.cpp">
+      <Filter>02.GameObjects\02.Monster\Jetpack\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Weapon_Pistol.cpp">
+      <Filter>02.GameObjects\02.Monster\Pistol\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Weapon_Sniper.cpp">
+      <Filter>02.GameObjects\02.Monster\Sniper\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Sniper_Idle.cpp">
+      <Filter>02.GameObjects\02.Monster\Sniper\SniperState\Idle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Sniper_Attack.cpp">
+      <Filter>02.GameObjects\02.Monster\Sniper\SniperState\Attack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Sniper_Death.cpp">
+      <Filter>02.GameObjects\02.Monster\Sniper\SniperState\Death</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Player_JumpFall.cpp">
+      <Filter>02.GameObjects\Player\PlayerState\Jump\JumpFall</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Pistol_Attack.cpp">
+      <Filter>02.GameObjects\02.Monster\Pistol\PistolState\Attack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Pistol_Death.cpp">
+      <Filter>02.GameObjects\02.Monster\Pistol\PistolState\Death</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Pistol_Idle.cpp">
+      <Filter>02.GameObjects\02.Monster\Pistol\PistolState\Idle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Pistol_Walk.cpp">
+      <Filter>02.GameObjects\02.Monster\Pistol\PistolState\Walk</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Mira_Attack.cpp">
+      <Filter>02.GameObjects\02.Monster\Mira\MiraState\Attack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Mira_Death.cpp">
+      <Filter>02.GameObjects\02.Monster\Mira\MiraState\Death</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Mira_Idle.cpp">
+      <Filter>02.GameObjects\02.Monster\Mira\MiraState\Idle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Mira_WalkIn.cpp">
+      <Filter>02.GameObjects\02.Monster\Mira\MiraState\WalkIn</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Mira_Suiside.cpp">
+      <Filter>02.GameObjects\02.Monster\Mira\MiraState\Suiside</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Jetpack_Attack.cpp">
+      <Filter>02.GameObjects\02.Monster\Jetpack\JetpackState\Attack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Jetpack_Death.cpp">
+      <Filter>02.GameObjects\02.Monster\Jetpack\JetpackState\Death</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Jetpack_Fly.cpp">
+      <Filter>02.GameObjects\02.Monster\Jetpack\JetpackState\Fly</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Jetpack_Idle.cpp">
+      <Filter>02.GameObjects\02.Monster\Jetpack\JetpackState\Idle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Jetpack_Scared.cpp">
+      <Filter>02.GameObjects\02.Monster\Jetpack\JetpackState\Scared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\SubShuriken.cpp">
+      <Filter>02.GameObjects\Player\Weapon\SubShuriken</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -335,6 +734,12 @@
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxCubeTex.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_IconUI.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_NumberUI.hlsl">
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
   </ItemGroup>

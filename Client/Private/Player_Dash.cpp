@@ -50,6 +50,8 @@ HRESULT CPlayer_Dash::Start_State()
 		break;
 	}
 
+	
+
 	return S_OK;
 }
 
@@ -63,53 +65,28 @@ void CPlayer_Dash::Update(_float fTimeDelta)
 		CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
  
 
-		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);
 		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::IDLE, true);
+		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);
+		
 
 		m_fAccTime = 0.f;
 	}
 
-	if (Check_Jump())
-		return;
+	
 
 }
 
 void CPlayer_Dash::End_State()
 {
 	m_fAccTime = 0.f;
+
+	CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
+	pPlayer->Set_StartCountDashTime(false);
+	pPlayer->Set_DashRemainingTime(0.f);
 }
 
 
-_bool CPlayer_Dash::Check_Jump()
-{
-	if (true == static_cast<CBody_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY))->IsLandingWall())
-		return false;
 
-	if (m_pGameInstance->Get_KeyState(KEY::SPACE) == KEY_STATE::TAP)
-	{
-		CTransform* pTransform = m_pOwner->Get_Transform();
-		CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
-
-		_float fLandY = pPlayer->Get_LandPosY();
-		_float fOffSetY = pPlayer->Get_OffsetY();
-		CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
-
-		if (CPlayer::PLAYER_ANIMATIONID::JUMP_END != pModel->Get_CurAnimationIndex() &&
-			0.1f >= fabs((fLandY + fOffSetY) - XMVectorGetY(pTransform->Get_State(CTransform::STATE_POSITION))))
-		{
-			CFsm* pFsm = m_pOwner->Get_Fsm();
-			CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
-
-
-			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::JUMP_LOOP, false);	// Change_State보다 먼저 세팅해줘야함 Hook이나 Attack같은 같은 State를 공유하는녀석일 경우
-			pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::JUMP_START);
-		}
-
-		return true;
-	}
-
-	return false;
-}
 
 CPlayer_Dash* CPlayer_Dash::Create(class CGameObject* pOwner)
 {

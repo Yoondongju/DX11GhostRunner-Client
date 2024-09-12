@@ -21,18 +21,22 @@ public:
 
 
 private:
-    _float  m_fLastKeyPressTimeW = -1.f;
-    _float  m_fLastKeyPressTimeS = -1.f;
-    _float  m_fLastKeyPressTimeA = -1.f;
-    _float  m_fLastKeyPressTimeD = -1.f;
+    _float  m_fLastKeyPressTimeSpace = 0.f;
+    _bool   m_isCanDoubleJump = { true };
 
-    
 
 
 private:
     _bool Check_HookUp();
-    _bool Check_Dash();
+
+
+
     _bool Check_Climb();
+
+    _bool Check_DoubleJump();
+
+    _bool Check_Sh_Attack1();
+
 
 public:
     static CPlayer_Jump* Create(class CGameObject* pOwner);

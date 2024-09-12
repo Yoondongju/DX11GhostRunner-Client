@@ -4,7 +4,7 @@
 #include "Client_Defines.h"
 #include "ContainerObject.h"
 
-
+#include "Weapon_Player.h"
 
 BEGIN(Engine)
 class CShader;
@@ -27,27 +27,69 @@ public:
 		DASH_B,
 		DASH_L,
 		DASH_R,
-		BLOCK_1,
-		BLOCK_2,
-		BLOCK_3,
+		BLOCK_R1,
+		BLOCK_R2,
+		BLOCK_R3,
 		HOOK_UP,
-		HOOK_DOWN,
-		ATTACK_1,
-		ATTACK_2,
-		ATTACK_3,
+
+		BLOCK_L1,
+		BLOCK_L2,
+		BLOCK_L3,
+
+		ATTACK_R1,
+		ATTACK_R2,
+		ATTACK_R3,
+
+		ATTACK_L1,
+		ATTACK_L2,
+		ATTACK_L3,
+
+		JUMP_IDLE,
+
 		DASH_F,
 		IDLE,
+
+		JUMP_START,
+		JUMP_LOOP,
+		JUMP_END,
+
 		RUN,
 		RUN_WALL_L,
 		RUN_WALL_R,
+
 		SLIDE,
 		WALK,
+
+		FORCE_PUSH,
+
+		FURR_AIM_LOOP,							// 정신집중
+		FURR_AIM_TO_IDLE,
+		FURR_IDLE_TO_AIM,
+
+		RIFT_PICKUP,							// 이거 어따쓰지 ?
+
+		FURR_AIM_TRICUT,
+
+		MIND_CONTROL_START_START,				// 마인드컨트롤
+
+		NAMI_AIM_ATTACK_TO_IDLE,				// 나미동작후에 가로로 한번 쫙 베는거 
+
+		MIND_CONTROL_START_TO_IDLE,				// 마인드컨트롤 해제하는거? 왼쪽손으로 바스라지는 느낌의 애니
+
+		DUMMY,
+
+		NAMI_IDLE_TO_AIM,						// 왼손 쫙 펴는거 
+
+		DUMMY2,
+
+
 		SH_ATTACK,
-		SH_BLOCK,
+
 		SH_DASH_B,
 		SH_DASH_F,
 		SH_DASH_L,
 		SH_DASH_R,
+
 		SH_IDLE,
 		SH_RUN,
 		SH_WALK,
@@ -55,23 +97,22 @@ public:
 		SH_RUN_WALL_R,
 		SH_KAT_TO_SHUR,				// 카타나에서 수리켄
 		SH_SHUR_TO_KAT,				// 수리켄에서 카타나
-		SCAN_START,
-		SCAN_END,
+
+		HACK_AIM_LOOP,
+
+		TIME_STOP,					// 시간정지
+
+		DUMMY3,						// 대쉬하면서 한번 베기 (쓰지말자 이상함)
+		FURR_DASH_TRICUT,			// 대쉬하면서 여러번 베기
+
 		DEATH_1,
 		DEATH_2,
-		JUMP_START,
-		JUMP_LOOP,
-		JUMP_END,
-		FURR_AIM_LOOP,				// 정신집중
-		FURR_AIM_TO_IDLE,
-		FURR_IDLE_TO_AIM,
-		FURR_AIM_TRICUT,			// 정신집중하고 슥삭
-		NAMI_AIM_ATTACK_TO_IDLE,
-		NAMI_IDLE_TO_AIM,			// 왼손 쫙 펴는거 
-		SH_ZIPLINE_ATTACK,
-		SH_ZIPLINE_END,				// 탄창 갈기 애니메이션  
-		SH_ZIPLINE_LOOP,			// 탄창 갈기 애니메이션  
-		SH_ZIPLINE_START,			// 탄창 갈기 애니메이션  
+
+		DRAW_SWORD,
+		LOOKAT_HAND,
+		SPIN_A,
+		SPIN_B,
+
 
 		PLAYER_ANIMATION_END
 	};
@@ -82,14 +123,13 @@ private:
 	virtual ~CPlayer() = default;
 
 public:
-	class CFsm* Get_Fsm() override { return m_pFsm; }
-	class CRigidBody* Get_RigidBody() override { return m_pRigidBody; }
+	class CFsm*		   Get_Fsm() override { return m_pFsm; }
+	class CRigidBody*  Get_RigidBody() override { return m_pRigidBody; }
 
 	PLAYER_ANIMATIONID	Get_CurAnimationID() { return m_eCurAnimationID; }
 
 	const _float4x4& Get_RotationMatrix() { return m_RotationMatrix; }
 	_float4x4*		 Get_RotationMatrixPtr() { return &m_RotationMatrix; }
-
 
 public:
 	_float				Get_OffsetY() { return m_fOffsetY; }
@@ -102,8 +142,48 @@ public:
 	void				Set_JumpProgressTime(_float fTime) { m_fJumpProgressTime = fTime; }
 	_float				Get_JumpProgressTime() { return m_fJumpProgressTime; }
 
+public: // DASH
+	void				Set_DashActive(_bool b) { m_bDashActive = b; }
+	_bool				IsDashActive() { return m_bDashActive; }
 
+	const _float&		Get_DashCoolTime() { return m_fDashCoolTime; }
+	const _float&		Get_DashRemainingTime() { return m_fDashRemainingTime; }
+
+	void				Set_DashRemainingTime(_float fTime) { m_fDashRemainingTime = fTime; }
+	void				Set_StartCountDashTime(_bool b) { m_bStartCountDashTime = b; }
+	
+
+public: // BLOCK
+	void				Set_BlockActive(_bool b) { m_bBlockActive = b; }
+	_bool				IsBlockActive() { return m_bBlockActive; }
+
+	const _float&		Get_BlockCoolTime() { return m_fBlockCoolTime; }
+	const _float&		Get_BlockRemainingTime() { return m_fBlockRemainingTime; }
+
+	void				Set_BlockRemainingTime(_float fTime) { m_fBlockRemainingTime = fTime; }
+	void				Set_StartCountBlockTime(_bool b) { m_bStartCountBlockTime = b; }
+
+
+public: // CUTALL
+	void				Set_CutAllActive(_bool b) { m_bCutAllActive = b; }
+	_bool				IsCutAllActive() { return m_bCutAllActive; }
+
+	const _float&		Get_CutAllCoolTime() { return m_fCutAllCoolTime; }
+	const _float&		Get_CutAllRemainingTime() { return m_fCutAllRemainingTime; }
+
+	void				Set_CutAllRemainingTime(_float fTime) { m_fCutAllRemainingTime = fTime; }
+	void				Set_StartCountCutAllTime(_bool b) { m_bStartCountCutAllTime = b; }
+
+
+
+
+public:
 	class CGrapplingPointUI*		Get_GrapplingPoint()  { return m_pGrapplingPoint; }
+
+	CWeapon_Player::WEAPON_TYPE		Get_CurWeaponType()
+	{
+		return static_cast<CWeapon_Player*>(m_Parts[PARTID::PART_WEAPON])->Get_CurType();
+	}
 
 
 public:
@@ -137,8 +217,8 @@ public:
 
 
 private:
-	CFsm*		m_pFsm = { nullptr };
-	CRigidBody* m_pRigidBody = { nullptr };
+	CFsm*					m_pFsm = { nullptr };
+	CRigidBody*				m_pRigidBody = { nullptr };
 
 	PLAYER_ANIMATIONID		m_eCurAnimationID = { PLAYER_ANIMATION_END };
 
@@ -169,9 +249,29 @@ private:
 	_float				m_fJumpProgressTime = { 0.f };	// 점프 진행시간
 
 
+private:		// DASH
+	_float				m_fDashCoolTime = { 3.f };			// 대쉬 쿨타임
+	_float				m_fDashRemainingTime = { 3.f };		// 대쉬 활성화까지 남은 시간
+	_bool				m_bDashActive = { true };
+	_bool				m_bStartCountDashTime = { false };	// 대쉬 시간을 재야하는 시점
+
+
+private:		// BLOCK
+	_float				m_fBlockCoolTime = { 2.f };			// 막기 쿨타임
+	_float				m_fBlockRemainingTime = { 2.f };	// 막기 활성화까지 남은 시간
+	_bool				m_bBlockActive = { true };
+	_bool				m_bStartCountBlockTime = { false };	// 막기 시간을 재야하는 시점
+
+
+private:		// CUTALL
+	_float				m_fCutAllCoolTime = { 3.f };		// 컷올 쿨타임
+	_float				m_fCutAllRemainingTime = { 3.f };	// 컷올 활성화까지 남은 시간
+	_bool				m_bCutAllActive = { true };
+	_bool				m_bStartCountCutAllTime = { false };	// 컷올 시간을 재야하는 시점
+
+
 private:
 	class CGrapplingPointUI*		m_pGrapplingPoint = { nullptr };
-
 
 	_bool							m_bFreeWalk = { false };
 
@@ -185,8 +285,10 @@ private:
 
 	HRESULT		Ready_PlayerUI();
 
-
-
+private:
+	void		Compute_DashCoolTime(_float fTimeDelta);
+	void		Compute_BlockCoolTime(_float fTimeDelta);
+	void		Compute_CutAllCoolTime(_float fTimeDelta);
 
 public:
 	static CPlayer* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

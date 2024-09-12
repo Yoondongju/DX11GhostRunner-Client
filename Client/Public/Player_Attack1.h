@@ -20,7 +20,7 @@ public:
 
 
 private:
-
+    void        Check_Collision();
 
 public:
     static CPlayer_Attack1* Create(class CGameObject* pOwner);

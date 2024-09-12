@@ -2,6 +2,8 @@
 #include "..\Public\Body_Player.h"
 
 #include "Player.h"
+#include "Weapon_Player.h"
+
 #include "FreeCamera.h"
 
 #include "GameInstance.h"
@@ -67,31 +69,31 @@ void CBody_Player::Update(_float fTimeDelta)
 
 	if (true == m_pModelCom->Play_Animation(fTimeDelta))			// 애니메이션이 끝났으면 걍 무조건 Idle
 	{
-		m_pModelCom->SetUp_Animation(m_pModelCom->Get_EndNextAnimationIndex(), true);
+
 	}
 
-	if (CPlayer::PLAYER_ANIMATIONID::JUMP_END == m_pModelCom->Get_CurAnimationIndex())	// 내 점프 시간이 길었을때
+
+	// 내 점프 시간이 길었을때
+	_float fJumpProgresstime = pPlayer->Get_JumpProgressTime();
+
+	if (fJumpProgresstime > 1.5f)
 	{
-		_float fJumpProgresstime = pPlayer->Get_JumpProgressTime();
+		_double CurTrackPosition = m_pModelCom->Get_Referene_CurrentTrackPosition();
+		_double Duration = m_pModelCom->Get_CurAnimation()->Get_Duration();
 
-		if (fJumpProgresstime > 2.f)
+		if (0.6 <= CurTrackPosition / Duration)
 		{
-			_float fCurTrackPosition = m_pModelCom->Get_Referene_CurrentTrackPosition();
-			_float fDuration = m_pModelCom->Get_CurAnimation()->Get_Duration();
-
-			if (0.6 <= fCurTrackPosition / fDuration)
+			if (false == pPlayer->Get_Shaking())
 			{
-				if (false == pPlayer->Get_Shaking())
-				{
-					_vector vRightVector = pPlayerTransform->Get_State(CTransform::STATE_RIGHT);
-					vRightVector = XMVector3Normalize(vRightVector);
+				_vector vRightVector = pPlayerTransform->Get_State(CTransform::STATE_RIGHT);
+				vRightVector = XMVector3Normalize(vRightVector);
 
-					pPlayer->Set_Shake(fJumpProgresstime * 3.f / 60.f, fJumpProgresstime * 3.f / 60.f, vRightVector);
-				}
+				pPlayer->Set_Shake(fJumpProgresstime * 3.f / 60.f, fJumpProgresstime * 3.f / 60.f, vRightVector);
 			}
 		}
-
 	}
+
+
 
 
 	m_PxTransform.p = { m_WorldMatrix.m[3][0], m_WorldMatrix.m[3][1] + pPlayer->Get_OffsetY() * 0.5f  , m_WorldMatrix.m[3][2] };
@@ -103,10 +105,11 @@ void CBody_Player::Update(_float fTimeDelta)
 
 	if (m_pGameInstance->Get_KeyState(KEY::SPACE) == KEY_STATE::TAP)
 		ProcessInRange();		// 어떤 범위안에 들어왔을때 처리
-	
+
 
 
 	XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * XMLoadFloat4x4(m_pParentMatrix));
+
 }
 
 
@@ -193,18 +196,45 @@ void CBody_Player::Ready_Modify_Animation()
 {
 	vector<CAnimation*>& Animations = m_pModelCom->Get_Animations();
 
-
-	Animations[CPlayer::PLAYER_ANIMATIONID::JUMP_START]->Set_SpeedPerSec(70.f);
-	Animations[CPlayer::PLAYER_ANIMATIONID::JUMP_END]->Set_SpeedPerSec(35.f);
-
-
-	Animations[CPlayer::PLAYER_ANIMATIONID::HOOK_UP]->Set_SpeedPerSec(40.f);
-
-
-	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_1]->Set_SpeedPerSec(50.f);
-	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_2]->Set_SpeedPerSec(50.f);
-	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_3]->Set_SpeedPerSec(60.f);
-
+	//Animations[CPlayer::PLAYER_ANIMATIONID::JUMP_START]->Set_SpeedPerSec(70.f);
+	//Animations[CPlayer::PLAYER_ANIMATIONID::JUMP_END]->Set_SpeedPerSec(35.f);
+	//
+	//
+	//Animations[CPlayer::PLAYER_ANIMATIONID::HOOK_UP]->Set_SpeedPerSec(40.f);
+	//
+	//
+	//
+	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R1]->Set_SpeedPerSec(50.f);
+	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R2]->Set_SpeedPerSec(50.f);
+	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R3]->Set_SpeedPerSec(60.f);
+	
+	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L1]->Set_SpeedPerSec(50.f);
+	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L2]->Set_SpeedPerSec(50.f);
+	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L3]->Set_SpeedPerSec(60.f);
+	//
+	//
+	Animations[CPlayer::PLAYER_ANIMATIONID::SH_ATTACK]->Set_SpeedPerSec(26.f);
+	//
+	//
+	//Animations[CPlayer::PLAYER_ANIMATIONID::CLIMB]->Set_NextAnimLerpDuration(0.1f);
+	//
+	//
+	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R1]->Set_NextAnimLerpDuration(0.08f);
+	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R2]->Set_NextAnimLerpDuration(0.1f);
+	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R3]->Set_NextAnimLerpDuration(0.1f);
+	
+	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L1]->Set_NextAnimLerpDuration(0.08f);
+	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L2]->Set_NextAnimLerpDuration(0.1f);
+	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L3]->Set_NextAnimLerpDuration(0.1f);
+	//
+	//
+	//Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R1]->Set_Duration(25.0);
+	//Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R2]->Set_Duration(25.0);
+	//Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R3]->Set_Duration(25.0);
+	//
+	//Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L1]->Set_Duration(25.0);
+	//Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L2]->Set_Duration(25.0);
+	//Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L3]->Set_Duration(25.0);
 
 }
 
@@ -312,13 +342,21 @@ void CBody_Player::PhysXComputeCollision()
 
 					if (m_pGameInstance->Get_KeyState(KEY::A) == KEY_STATE::HOLD)
 					{
-						m_pModelCom->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::JUMP_LOOP, true);
+						if(CWeapon_Player::WEAPON_TYPE::KATANA ==  pPlayer->Get_CurWeaponType())
+							m_pModelCom->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::JUMP_LOOP, true);
+						else if (CWeapon_Player::WEAPON_TYPE::SHURIKEN == pPlayer->Get_CurWeaponType())
+							m_pModelCom->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::SH_RUN_WALL_L, true);
+
 						m_iLandWallDir = -1;
 						rayDirection *= -1.f; // 반대방향으로 바꾸고
 					}
 					else
 					{
-						m_pModelCom->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::RUN_WALL_R, true);
+						if (CWeapon_Player::WEAPON_TYPE::KATANA == pPlayer->Get_CurWeaponType())
+							m_pModelCom->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::RUN_WALL_R, true);
+						else if (CWeapon_Player::WEAPON_TYPE::SHURIKEN == pPlayer->Get_CurWeaponType())
+							m_pModelCom->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::SH_RUN_WALL_R, true);
+
 						m_iLandWallDir = 1;
 					}
 
