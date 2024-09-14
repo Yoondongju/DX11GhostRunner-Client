@@ -165,6 +165,7 @@ void CPlayer_Jump::Update(_float fTimeDelta)
 			}
 			else
 			{				
+				pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::SH_IDLE, true);
 				pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);
 			}
 		}

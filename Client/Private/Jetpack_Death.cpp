@@ -32,10 +32,12 @@ void CJetpack_Death::Update(_float fTimeDelta)
 	_double Duration = pModel->Get_CurAnimation()->Get_Duration();
 	const _double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
 
-	if (0.9 <= TrackPos / Duration)
-	{
-		static_cast<CJetpack*>(m_pOwner)->SetDead();
-	}
+	CRigidBody* pRigidBody = m_pOwner->Get_RigidBody();
+
+	_vector fDirY = XMVectorSet(0.f, 1.f, 0.f, 0.f);
+	pRigidBody->Add_Force_Direction(fDirY, -20.f, Engine::CRigidBody::VELOCITYCHANGE);
+
+	static_cast<CJetpack*>(m_pOwner)->SetDead();
 }
 
 void CJetpack_Death::End_State()

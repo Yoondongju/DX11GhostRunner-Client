@@ -55,10 +55,6 @@ HRESULT CPistol::Initialize(void* pArg)
 
     m_pTransformCom->Scaling(2.3f, 2.3f, 2.3f);
 
-    CCollider* pCollider = static_cast<CWeapon_Player*>(static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY))->Get_Part(CPlayer::PART_WEAPON))->Get_Collider();
-
-    m_pPlayerWeaponCollider = pCollider;
-    Safe_AddRef(m_pPlayerWeaponCollider);
 
     return S_OK;
 }
@@ -78,12 +74,11 @@ void CPistol::Update(_float fTimeDelta)
             m_pGameInstance->Delete(LEVEL_GAMEPLAY, CRenderer::RG_NONBLEND, this);
 
         m_fDiscard += fTimeDelta * 0.4f;
-        return;
     }
 
     m_pFsm->Update(fTimeDelta);
-
     m_pModel->Play_Animation(fTimeDelta);
+
 
     for (auto& pPartObject : m_Parts)
         pPartObject->Update(fTimeDelta);
@@ -176,8 +171,38 @@ HRESULT CPistol::Render()
 
 void CPistol::Check_Collision()
 {
-    m_pColliderCom->Intersect(m_pPlayerWeaponCollider);
-    if (m_pColliderCom->IsBoundingCollisionEnter())
+    CWeapon_Player* pPlayerWeapon = static_cast<CWeapon_Player*>(static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY))->Get_Part(CPlayer::PART_WEAPON));
+    CCollider* pCollider = pPlayerWeapon->Get_Collider();
+
+
+    if (CWeapon_Player::WEAPON_TYPE::SHURIKEN == pPlayerWeapon->Get_CurType())
+    {
+        CSubShuriken** ppSubShuriken = pPlayerWeapon->Get_SubShuriken();
+
+        _bool isCollEvenOnce = false;
+        // 한번이라도 충돌했니? 체크하는이유: 어떤표창이 충돌했다고 이야기해도 
+        // 다른표창이 충돌안했으면 동일한 프레임에서 Coll체크가 false가 떨어져버림 그래서 기록해야해 
+
+        isCollEvenOnce = m_pColliderCom->Intersect(pCollider);
+        for (_uint i = 0; i < 2; i++)
+        {
+            if (false == isCollEvenOnce)
+            {
+                m_pColliderCom->Intersect(ppSubShuriken[i]->Get_Collider());
+                break;
+            }
+        }
+
+    }
+    else if (CWeapon_Player::WEAPON_TYPE::KATANA == pPlayerWeapon->Get_CurType())
+    {
+        m_pColliderCom->Intersect(pCollider);
+    }
+
+
+
+    
+    if (CPistol::PISTOL_ANIMATION::DEATH_2 != m_pModel->Get_CurAnimationIndex() && m_pColliderCom->IsBoundingCollisionEnter())
     {
         _double& TrackPos = m_pModel->Get_Referene_CurrentTrackPosition();
         TrackPos = 0.0;
@@ -298,7 +323,6 @@ void CPistol::Free()
     __super::Free();
 
     Safe_Release(m_pDeadNoiseTexture);
-    Safe_Release(m_pPlayerWeaponCollider);
 
     Safe_Release(m_pShaderCom);
     Safe_Release(m_pModel);

@@ -19,8 +19,9 @@ public:
     virtual void    End_State();
 
 
-private:
 
+private:
+ 
 
 
 public:

@@ -45,10 +45,11 @@ HRESULT CPlayer_Hook::Start_State()
 
 
 
-	pRigidBody->Add_Force_Direction(vDir, 1100, Engine::CRigidBody::ACCELERATION);
-	pRigidBody->Add_Force_Direction(vDir, 100, Engine::CRigidBody::VELOCITYCHANGE);
+	pRigidBody->Add_Force_Direction(vDir, 700, Engine::CRigidBody::ACCELERATION);
+	pRigidBody->Add_Force_Direction(vDir, 60, Engine::CRigidBody::VELOCITYCHANGE);
 	
 
+	
 
 	return S_OK;
 }
@@ -68,7 +69,19 @@ void CPlayer_Hook::Update(_float fTimeDelta)
 
 	_vector vAbsDistance = XMVectorAbs(XMVectorSubtract(vGrapPointPos, vPlayerPos));
 	
-	
+
+
+
+	if (300.f >= XMVectorGetX(XMVector3Length(vAbsDistance)))
+	{
+		_vector vDir = XMVector3Normalize(vGrapPointPos - vPlayerPos);
+
+		_vector vCurVelocity = pRigidBody->Get_Velocity();
+
+		vCurVelocity -= vCurVelocity * 0.2f;
+
+		pRigidBody->Set_Velocity(_float3(vCurVelocity.m128_f32[0] , vCurVelocity.m128_f32[1], vCurVelocity.m128_f32[2]));
+	}
 
 	if (60.f >= XMVectorGetX(XMVector3Length(vAbsDistance)))
 	{

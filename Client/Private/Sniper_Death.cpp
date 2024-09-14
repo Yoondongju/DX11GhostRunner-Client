@@ -26,16 +26,7 @@ HRESULT CSniper_Death::Start_State()
 
 void CSniper_Death::Update(_float fTimeDelta)
 {
-	CModel* pModel = m_pOwner->Get_Model();
-
-	_double Duration = pModel->Get_CurAnimation()->Get_Duration();
-	const _double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
-
-	if (0.9 <= TrackPos / Duration)
-	{
-		static_cast<CSniper*>(m_pOwner)->SetDead();
-	}
-
+	static_cast<CSniper*>(m_pOwner)->SetDead();
 }
 
 void CSniper_Death::End_State()

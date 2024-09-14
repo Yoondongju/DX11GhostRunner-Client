@@ -67,7 +67,6 @@ private:
 	CFsm*		m_pFsm = { nullptr };
 
 private:
-	CCollider*  m_pPlayerWeaponCollider = { nullptr };
 	_bool		m_isDead = { false };
 	CTexture*	m_pDeadNoiseTexture = { nullptr };
 	_float		m_fDiscard = { 0.f };

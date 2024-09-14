@@ -36,7 +36,8 @@ void CPlayer_Attack2::Update(_float fTimeDelta)
 
 	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 
-	if (CPlayer::PLAYER_ANIMATIONID::ATTACK_R2 == pModel->Get_CurAnimationIndex())
+	if (CPlayer::PLAYER_ANIMATIONID::ATTACK_R2 == pModel->Get_CurAnimationIndex() ||
+		CPlayer::PLAYER_ANIMATIONID::ATTACK_L2 == pModel->Get_CurAnimationIndex())
 	{
 		_double Duration = pModel->Get_CurAnimation()->Get_Duration();
 		const _double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
@@ -64,9 +65,6 @@ void CPlayer_Attack2::End_State()
 
 void CPlayer_Attack2::Check_Collision()
 {
-	CWeapon_Player* pWeapon = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON));
-	CCollider* pWeaponCollider = pWeapon->Get_Collider();
-
 	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Sniper");
 	for (auto& Sniper : Snipers)
 	{
@@ -83,6 +81,12 @@ void CPlayer_Attack2::Check_Collision()
 	for (auto& Mira : Miras)
 	{
 		static_cast<CMira*>(Mira)->Check_Collision();
+	}
+
+	list<CGameObject*>& Jetpacks = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Jetpack");
+	for (auto& Jetpack : Jetpacks)
+	{
+		static_cast<CJetpack*>(Jetpack)->Check_Collision();
 	}
 
 }

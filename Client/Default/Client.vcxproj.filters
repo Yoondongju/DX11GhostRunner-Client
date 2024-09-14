@@ -250,6 +250,18 @@
     <Filter Include="02.GameObjects\Player\Weapon\SubShuriken">
       <UniqueIdentifier>{c05645f8-2b05-43ab-aedb-da75d05ba4da}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\Player\WeaponParticle">
+      <UniqueIdentifier>{4599fddd-dc82-426e-b6c6-dfc8437fb298}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Particle">
+      <UniqueIdentifier>{a60899b4-94dc-49be-885a-a2ff7ef389d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Particle\Snow">
+      <UniqueIdentifier>{dd494f3e-8d8e-4551-a4b0-366fd6ac09ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Particle\Blood">
+      <UniqueIdentifier>{efd15152-5461-41ff-a5d5-9a011e08b41e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -480,6 +492,15 @@
     <ClInclude Include="..\Public\SubShuriken.h">
       <Filter>02.GameObjects\Player\Weapon\SubShuriken</Filter>
     </ClInclude>
+    <ClInclude Include="..\Public\WeaponParticle.h">
+      <Filter>02.GameObjects\Player\WeaponParticle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Particle_Snow.h">
+      <Filter>02.GameObjects\04.Particle\Snow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Particle_Blood.h">
+      <Filter>02.GameObjects\04.Particle\Blood</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -701,6 +722,15 @@
     <ClCompile Include="..\Private\SubShuriken.cpp">
       <Filter>02.GameObjects\Player\Weapon\SubShuriken</Filter>
     </ClCompile>
+    <ClCompile Include="..\Private\WeaponParticle.cpp">
+      <Filter>02.GameObjects\Player\WeaponParticle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Particle_Snow.cpp">
+      <Filter>02.GameObjects\04.Particle\Snow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Particle_Blood.cpp">
+      <Filter>02.GameObjects\04.Particle\Blood</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">
@@ -740,6 +770,12 @@
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_NumberUI.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxPointInstance.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxRectInstance.hlsl">
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
   </ItemGroup>

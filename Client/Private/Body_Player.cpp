@@ -196,14 +196,7 @@ void CBody_Player::Ready_Modify_Animation()
 {
 	vector<CAnimation*>& Animations = m_pModelCom->Get_Animations();
 
-	//Animations[CPlayer::PLAYER_ANIMATIONID::JUMP_START]->Set_SpeedPerSec(70.f);
-	//Animations[CPlayer::PLAYER_ANIMATIONID::JUMP_END]->Set_SpeedPerSec(35.f);
-	//
-	//
-	//Animations[CPlayer::PLAYER_ANIMATIONID::HOOK_UP]->Set_SpeedPerSec(40.f);
-	//
-	//
-	//
+	
 	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R1]->Set_SpeedPerSec(50.f);
 	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R2]->Set_SpeedPerSec(50.f);
 	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R3]->Set_SpeedPerSec(60.f);
@@ -211,14 +204,13 @@ void CBody_Player::Ready_Modify_Animation()
 	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L1]->Set_SpeedPerSec(50.f);
 	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L2]->Set_SpeedPerSec(50.f);
 	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L3]->Set_SpeedPerSec(60.f);
-	//
-	//
+
+
 	Animations[CPlayer::PLAYER_ANIMATIONID::SH_ATTACK]->Set_SpeedPerSec(26.f);
-	//
-	//
-	//Animations[CPlayer::PLAYER_ANIMATIONID::CLIMB]->Set_NextAnimLerpDuration(0.1f);
-	//
-	//
+	
+	Animations[CPlayer::PLAYER_ANIMATIONID::CLIMB]->Set_NextAnimLerpDuration(0.1f);
+
+
 	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R1]->Set_NextAnimLerpDuration(0.08f);
 	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R2]->Set_NextAnimLerpDuration(0.1f);
 	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R3]->Set_NextAnimLerpDuration(0.1f);
@@ -226,15 +218,7 @@ void CBody_Player::Ready_Modify_Animation()
 	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L1]->Set_NextAnimLerpDuration(0.08f);
 	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L2]->Set_NextAnimLerpDuration(0.1f);
 	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L3]->Set_NextAnimLerpDuration(0.1f);
-	//
-	//
-	//Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R1]->Set_Duration(25.0);
-	//Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R2]->Set_Duration(25.0);
-	//Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R3]->Set_Duration(25.0);
-	//
-	//Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L1]->Set_Duration(25.0);
-	//Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L2]->Set_Duration(25.0);
-	//Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L3]->Set_Duration(25.0);
+;
 
 }
 

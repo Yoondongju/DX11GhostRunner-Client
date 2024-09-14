@@ -40,10 +40,7 @@ HRESULT CSpider::Initialize(void* pArg)
 
     m_pTransformCom->Scaling(2.f, 2.f, 2.f);
 
-    CCollider* pCollider = static_cast<CWeapon_Player*>(static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY))->Get_Part(CPlayer::PART_WEAPON))->Get_Collider();
 
-    m_pPlayerWeaponCollider = pCollider;
-    Safe_AddRef(m_pPlayerWeaponCollider);
 
     return S_OK;
 }
@@ -204,7 +201,6 @@ void CSpider::Free()
 {
     __super::Free();
 
-    Safe_Release(m_pPlayerWeaponCollider);
 
     Safe_Release(m_pShaderCom);
     Safe_Release(m_pModel);

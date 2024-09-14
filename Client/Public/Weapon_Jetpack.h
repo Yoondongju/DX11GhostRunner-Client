@@ -6,6 +6,7 @@
 BEGIN(Engine)
 class CShader;
 class CModel;
+class CCollider;
 END
 
 BEGIN(Client)
@@ -28,7 +29,9 @@ private:
 public:
 	class CModel* Get_Model() override { return m_pModelCom; }
 	
+	void		  Set_Attacking(_bool b) { m_isAttacking = b; }
 
+	const _float4x4& Get_OriginMatrix() { return m_OriginMatrix; }
 
 public:
 	virtual HRESULT Initialize_Prototype() override;
@@ -39,9 +42,9 @@ public:
 	virtual HRESULT Render() override;
 
 private:
-	class CShader* m_pShaderCom = { nullptr };
-	class CModel* m_pModelCom = { nullptr };
-
+	CShader*		m_pShaderCom = { nullptr };
+	CModel*			m_pModelCom = { nullptr };
+	CCollider*      m_pColliderCom = { nullptr };
 
 private:
 	CTexture*	m_pDeadNoiseTexture = { nullptr };
@@ -50,6 +53,9 @@ private:
 private:
 	const _float4x4* m_pSocketMatrix = { nullptr };
 
+private:
+	_bool		m_isAttacking = { false };
+	_float4x4   m_OriginMatrix = {};
 
 private:
 	HRESULT Ready_Components();

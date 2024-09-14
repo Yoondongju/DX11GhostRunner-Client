@@ -22,6 +22,7 @@
 #include "Player.h"
 #include "Body_Player.h"
 #include "Weapon_Player.h"
+#include "SubShuriken.h"
 
 #include "Mesh.h"
 #include "Bone.h"
@@ -51,6 +52,8 @@
 #include "IconUI.h"
 #include "NumberUI.h"
 
+#include "WeaponParticle.h"
+#include "Particle_Snow.h"
 
 
 #pragma warning (disable : 4996)
@@ -1082,6 +1085,114 @@ HRESULT CLoader::Load_Player()
 	return S_OK;
 }
 
+HRESULT CLoader::Load_OtherModel()
+{
+	FILE* fin = fopen("../Bin/Ohter_Model_Data.bin", "rb");
+	if (!fin)    // 파일 열기에 실패했다면
+	{
+		MSG_BOX(TEXT("파일 읽기를 실패했어요.."));
+		return E_FAIL;
+	}
+
+	CModel* pModel = nullptr;
+
+	_uint iModelSize = 0;
+	fread(&iModelSize, sizeof(iModelSize), 1, fin);
+
+	for (_uint i = 1; i < iModelSize + 1; i++)
+	{
+		// PreTransformMatrix 읽기
+		_float4x4 PreTransformMatrix;
+		fread(&PreTransformMatrix, sizeof(PreTransformMatrix), 1, fin);
+
+		// Prototype Name 크기 읽기
+		_uint modelPrototypeNameSize = 0;
+		fread(&modelPrototypeNameSize, sizeof(modelPrototypeNameSize), 1, fin);
+
+		// Prototype Name 읽기
+		std::string modelPrototypeName(modelPrototypeNameSize, '\0');
+		fread(&modelPrototypeName[0], modelPrototypeNameSize, 1, fin);
+
+		// Model File Path 크기 읽기
+		_uint modelFilePathSize = 0;
+		fread(&modelFilePathSize, sizeof(modelFilePathSize), 1, fin);
+
+		// Model File Path 읽기
+		std::string modelFilePath(modelFilePathSize, '\0');
+		fread(&modelFilePath[0], modelFilePathSize, 1, fin);
+
+		// Mesh 및 Material 정보 읽기
+		_uint meshCount = 0;
+		_uint materialsCount = 0;
+		fread(&meshCount, sizeof(meshCount), 1, fin);
+		fread(&materialsCount, sizeof(materialsCount), 1, fin);
+
+		string					strMaterialTexturePath = "";
+		_wstring				wstrMaterialTexturePath[15][AI_TEXTURE_TYPE_MAX] = { L"" };
+
+		// Material Texture Path 읽기
+		for (size_t i = 0; i < materialsCount; i++)
+		{
+			for (size_t j = 0; j < AI_TEXTURE_TYPE_MAX; j++)
+			{
+				ReadString(fin, strMaterialTexturePath);
+				wstrMaterialTexturePath[i][j] = stringToWstring(strMaterialTexturePath); // 머테리얼 경로
+			}
+		}
+
+
+		CMesh::MESH_DESC* pDesc = new CMesh::MESH_DESC[meshCount];
+		//ZeroMemory(pDesc, sizeof(CMesh::MESH_DESC) * iMeshesCount);
+
+		for (size_t i = 0; i < meshCount; i++)
+		{
+			fread(&pDesc[i].iMaterialIndex, sizeof(pDesc[i].iMaterialIndex), 1, fin);
+			fread(&pDesc[i].iNumVertices, sizeof(pDesc[i].iNumVertices), 1, fin);
+			fread(&pDesc[i].iVertexStride, sizeof(pDesc[i].iVertexStride), 1, fin);
+
+			pDesc[i].pVertices = new VTXMESH[pDesc[i].iNumVertices];
+			fread(pDesc[i].pVertices, sizeof(VTXMESH) * pDesc[i].iNumVertices, 1, fin);
+
+			fread(&pDesc[i].iNumIndices, sizeof(pDesc[i].iNumIndices), 1, fin);
+			fread(&pDesc[i].iIndexStride, sizeof(pDesc[i].iIndexStride), 1, fin);
+
+			pDesc[i].pIndices = new _uint[pDesc[i].iNumIndices];
+			fread(pDesc[i].pIndices, sizeof(_uint) * pDesc[i].iNumIndices, 1, fin);
+
+			fread(&pDesc[i].eIndexFormat, sizeof(pDesc[i].eIndexFormat), 1, fin);
+			fread(&pDesc[i].eTopology, sizeof(pDesc[i].eTopology), 1, fin);
+
+			fread(&pDesc[i].vMinPos, sizeof(pDesc[i].vMinPos), 1, fin);
+			fread(&pDesc[i].vMaxPos, sizeof(pDesc[i].vMaxPos), 1, fin);
+		}
+
+		if (true == m_pGameInstance->IsFind_Model(LEVEL_GAMEPLAY, stringToWstring(modelPrototypeName))) // 내가 불러오고자 하는 모델이 이미 불러왔어?
+		{
+			// 모델을 찾았을 때의 처리
+		}
+		else
+		{
+			if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, stringToWstring(modelPrototypeName), // 모델 프로토타입 이름
+				CModel::Create(m_pDevice, m_pContext, CModel::TYPE::TYPE_NONANIM, // 모델타입
+					modelFilePath.c_str(), // 모델 fbx 경로
+					*wstrMaterialTexturePath, // 머테리얼 텍스쳐 경로
+					meshCount, // 메쉬 갯수
+					materialsCount, // 머테리얼 갯수
+					XMLoadFloat4x4(&PreTransformMatrix), // 더미
+					pDesc)))) // 메쉬를 이루기 위한 정보
+			{
+				_wstring msg = to_wstring(i) + L"번째" + L"모델이 로드가 안댐";
+				MSG_BOX(msg.c_str());
+				return E_FAIL;
+			}
+		}
+	}
+
+	fclose(fin);
+
+	return S_OK;
+}
+
 HRESULT CLoader::Load_NonAnim_GameObject()
 {
 	lstrcpy(m_szLoadingText, TEXT("NonAnim Object를 로딩중.."));
@@ -1553,22 +1664,18 @@ HRESULT CLoader::Create_PrototypePlayer(const _wstring& strPrototypeName, const 
 	CGameObject* pPrototype = nullptr;
 
 	pPrototype = CPlayer::Create(m_pDevice, m_pContext);
-	
-
 	m_pGameInstance->Add_Prototype(strPrototypeName, pPrototype);
 
 
 	pPrototype = CBody_Player::Create(m_pDevice, m_pContext);
-
-
 	m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Body_Player"), pPrototype);
 
 
 	pPrototype = CWeapon_Player::Create(m_pDevice, m_pContext);
-	
-
 	m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Weapon_Player"), pPrototype);
 
+	pPrototype = CSubShuriken::Create(m_pDevice, m_pContext);
+	m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_SubShuriken"), pPrototype);
 
 	return S_OK;
 }
@@ -1682,6 +1789,79 @@ HRESULT CLoader::Create_Sky()
 	return S_OK;
 }
 
+HRESULT CLoader::Create_Particle()
+{
+	CVIBuffer_Instancing::INSTANCE_DESC			ParticleDesc{};
+	/* For. Prototype_Component_VIBuffer_Particle_Explosion */
+	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
+
+	ParticleDesc.iNumInstance = 300;
+	ParticleDesc.vCenter = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vRange = _float3(10.f, 10.f, 10.f);
+	ParticleDesc.vSize = _float2(1.f, 3.f);
+	ParticleDesc.vPivot = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vSpeed = _float2(1.f, 3.f);
+	ParticleDesc.vLifeTime = _float2(0.4f, 0.6f);
+	ParticleDesc.isLoop = true;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Explosion"),
+		CVIBuffer_Rect_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Texture_Particle */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Player/Particle/T_Star_Bright.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Shader_VtxRectInstance */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxRectInstance"),
+		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxRectInstance.hlsl"), VTXRECTINSTANCE::Elements, VTXRECTINSTANCE::iNumElements))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_Particle_Explosion */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Explosion"),
+		CWeaponParticle::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+
+
+
+	/////////////////////////////////////////////// 아래는 Point 임다
+	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
+
+	ParticleDesc.iNumInstance = 5000;
+	ParticleDesc.vCenter = _float3(64.f, 20.f, 64.f);
+	ParticleDesc.vRange = _float3(200.f, 1.f, 200.f);
+	ParticleDesc.vSize = _float2(3.f, 5.f);
+	ParticleDesc.vPivot = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vSpeed = _float2(10.f, 20.f);
+	ParticleDesc.vLifeTime = _float2(5.f, 10.f);
+	ParticleDesc.isLoop = true;
+
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Snow"),
+		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_WaterDrop"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Particle/T_Water_Drops_Sheet_Alpha.png"), 1))))
+		return E_FAIL;
+
+	/* For. Prototype_Component_Shader_VtxPointInstance */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxPointInstance"),
+		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxPointInstance.hlsl"), VTXPOINTINSTANCE::Elements, VTXPOINTINSTANCE::iNumElements))))
+		return E_FAIL;
+
+	/* For. Prototype_GameObject_Particle_Explosion */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_WaterDrop"),
+		CParticle_Snow::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+
+
+	return S_OK;
+}
+
 
 void CLoader::ReadString(FILE* file, string& str)
 {
@@ -1763,6 +1943,8 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(Load_Player()))
 		return E_FAIL;
 	
+	if(FAILED(Load_OtherModel()))
+		return E_FAIL;
 
 	lstrcpy(m_szLoadingText, TEXT("객체원형을(를) 로딩중입니다."));
 	if (FAILED(Create_PrototypeObject()))
@@ -1789,7 +1971,9 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 
 		
 	
-	
+	lstrcpy(m_szLoadingText, TEXT("파티클을 로딩중입니다."));
+	if(FAILED(Create_Particle()))
+		return E_FAIL;
 
 	
 	lstrcpy(m_szLoadingText, TEXT("FSM을(를) 로딩중입니다."));

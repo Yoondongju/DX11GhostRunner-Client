@@ -24,6 +24,7 @@ private:
 
 private:
     _bool   Check_Jump();
+    void    Check_Collision();
 
 
 public:

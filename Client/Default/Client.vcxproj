@@ -186,6 +186,8 @@
     <ClInclude Include="..\Public\Mira_Suiside.h" />
     <ClInclude Include="..\Public\Mira_WalkIn.h" />
     <ClInclude Include="..\Public\NumberUI.h" />
+    <ClInclude Include="..\Public\Particle_Blood.h" />
+    <ClInclude Include="..\Public\Particle_Snow.h" />
     <ClInclude Include="..\Public\Pistol.h" />
     <ClInclude Include="..\Public\Pistol_Attack.h" />
     <ClInclude Include="..\Public\Pistol_Death.h" />
@@ -232,6 +234,7 @@
     <ClInclude Include="..\Public\Spider.h" />
     <ClInclude Include="..\Public\SubShuriken.h" />
     <ClInclude Include="..\Public\Terrain.h" />
+    <ClInclude Include="..\Public\WeaponParticle.h" />
     <ClInclude Include="..\Public\Weapon_Elite.h" />
     <ClInclude Include="..\Public\Weapon_Jetpack.h" />
     <ClInclude Include="..\Public\Weapon_Pistol.h" />
@@ -264,6 +267,8 @@
     <ClCompile Include="..\Private\Mira_Suiside.cpp" />
     <ClCompile Include="..\Private\Mira_WalkIn.cpp" />
     <ClCompile Include="..\Private\NumberUI.cpp" />
+    <ClCompile Include="..\Private\Particle_Blood.cpp" />
+    <ClCompile Include="..\Private\Particle_Snow.cpp" />
     <ClCompile Include="..\Private\Pistol.cpp" />
     <ClCompile Include="..\Private\Pistol_Attack.cpp" />
     <ClCompile Include="..\Private\Pistol_Death.cpp" />
@@ -309,6 +314,7 @@
     <ClCompile Include="..\Private\Spider.cpp" />
     <ClCompile Include="..\Private\SubShuriken.cpp" />
     <ClCompile Include="..\Private\Terrain.cpp" />
+    <ClCompile Include="..\Private\WeaponParticle.cpp" />
     <ClCompile Include="..\Private\Weapon_Elite.cpp" />
     <ClCompile Include="..\Private\Weapon_Jetpack.cpp" />
     <ClCompile Include="..\Private\Weapon_Pistol.cpp" />
@@ -336,7 +342,9 @@
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxCubeTex.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxModel.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxNorTex.hlsl" />
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxPointInstance.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxPosTex.hlsl" />
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxRectInstance.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

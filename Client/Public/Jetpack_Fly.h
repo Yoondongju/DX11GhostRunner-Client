@@ -20,7 +20,7 @@ public:
 
 
 private:
-    _float      m_fCanFindPlayerDistance = {200.f};
+    _float      m_fCanFindPlayerDistance = {160.f};
 
     _bool       m_isFindPlayer = { false };
     

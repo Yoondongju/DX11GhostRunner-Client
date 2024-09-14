@@ -190,19 +190,23 @@ CGameObject* CObject_Manager::Find_Camera(_uint iLevelIndex)
 	return pCamera;
 }
 
-HRESULT CObject_Manager::Delete_Layer(_uint iLevelIndex ,const _wstring& strLayerTag)
+class CLayer* CObject_Manager::Delete_Layer(_uint iLevelIndex ,const _wstring& strLayerTag)
 {
 	auto iter = m_pLayers[iLevelIndex].find(strLayerTag);
 	if (iter == m_pLayers[iLevelIndex].end())
-		return E_FAIL;
+		return nullptr;
 
 	if(0 < iter->second->Get_GamObjectSize())
-		return E_FAIL;
+		return nullptr;
+
+
+	CLayer* pTempLayer = iter->second;
 
 
 	m_pLayers[iLevelIndex].erase(iter->first);
 
-	return S_OK;
+
+	return pTempLayer;
 }
 
 

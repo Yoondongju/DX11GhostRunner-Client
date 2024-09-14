@@ -6,6 +6,8 @@
 
 #include "Body_Player.h"
 #include "Weapon_Player.h"
+#include "WeaponParticle.h"
+#include "SubShuriken.h"
 
 #include "Player_Idle.h"
 
@@ -142,21 +144,34 @@ void CPlayer::Priority_Update(_float fTimeDelta)
     
     if (false == static_cast<CBody_Player*>(m_Parts[PARTID::PART_BODY])->IsLandingWall())
     {
+         // 디버그용
         if (g_hWnd == GetFocus() && m_pGameInstance->Get_KeyState(KEY::RBUTTON) == KEY_STATE::HOLD)
         {
             _long	MouseMove = {};
            
-
+        
             if (MouseMove = ptMousePos.x - m_ptOldMousePos.x)
             {
                 m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), fTimeDelta * MouseMove * 0.07f, &m_RotationMatrix);
             }
-
+        
             if (MouseMove = ptMousePos.y - m_ptOldMousePos.y)
             {
                 m_pTransformCom->Turn(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), fTimeDelta * MouseMove * 0.07f, &m_RotationMatrix);
             }
         }
+
+        //_long	MouseMove = {};
+        //
+        //if (MouseMove = ptMousePos.x - m_ptOldMousePos.x)
+        //{
+        //    m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), fTimeDelta * MouseMove * 0.2f, &m_RotationMatrix);
+        //}
+        //
+        //if (MouseMove = ptMousePos.y - m_ptOldMousePos.y)
+        //{
+        //    m_pTransformCom->Turn(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), fTimeDelta * MouseMove * 0.2f, &m_RotationMatrix);
+        //}
     }
    
     m_ptOldMousePos = ptMousePos;
@@ -460,8 +475,32 @@ HRESULT CPlayer::Ready_PartObjects()
     WeaponDesc.fSpeedPerSec = 30.f;
 
 
+
+    CSubShuriken::SUBSHURIKEN_DESC  SubShurikenDesc = {};
+    SubShurikenDesc.fRotationPerSec = 30.f;
+    SubShurikenDesc.fSpeedPerSec = 30.f;
+    SubShurikenDesc.MyOffSet = _float3{ -0.3f ,0.f,-0.3f };
+    WeaponDesc.pSubShuriSken[0] = static_cast<CSubShuriken*>(m_pGameInstance->Clone_GameObject(L"Prototype_GameObject_SubShuriken", &SubShurikenDesc));
+
+    SubShurikenDesc.MyOffSet = _float3{ 0.05f, -0.3f, -0.6f };
+    WeaponDesc.pSubShuriSken[1] = static_cast<CSubShuriken*>(m_pGameInstance->Clone_GameObject(L"Prototype_GameObject_SubShuriken", &SubShurikenDesc));
+    
     if (FAILED(__super::Add_PartObject(PART_WEAPON, TEXT("Prototype_GameObject_Weapon_Player"), &WeaponDesc)))
         return E_FAIL;
+
+
+
+
+    CWeaponParticle::EFFECT_DESC		EffectDesc{};
+    EffectDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    EffectDesc.pSocketBoneMatrix = dynamic_cast<CBody_Player*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Weapon_r");
+    EffectDesc.pOwner = this;
+
+    if (FAILED(__super::Add_PartObject(PART_PARTICLE, TEXT("Prototype_GameObject_Particle_Explosion"), &EffectDesc)))
+        return E_FAIL;
+
+
+
 
 
     return S_OK;

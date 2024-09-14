@@ -39,14 +39,14 @@ HRESULT CWeapon_Jetpack::Initialize(void* pArg)
 
 	//m_pTransformCom->Scaling(1.5f, 1.5f, 1.5f);
 
-	_float4x4 InitWorldMatrix = {
+	m_OriginMatrix = {
 		0.375464141, -0.0646902099, 0.0703297928, 0.00000000,
 		-0.0494608544, 0.178602383, 0.428333551, 0.00000000,
 		-0.0996612236, -0.406619579, 0.158040211, 0.00000000,
 		-1.11516476, -4.24499321, 2.04884958, 1.00000000
 	};
 
-	m_pTransformCom->Set_WorldMatrix(InitWorldMatrix);
+	m_pTransformCom->Set_WorldMatrix(m_OriginMatrix);
 
 	
 
@@ -60,21 +60,24 @@ void CWeapon_Jetpack::Priority_Update(_float fTimeDelta)
 
 void CWeapon_Jetpack::Update(_float fTimeDelta)
 {
+	if (false == m_isAttacking)
+	{
+		_matrix		SocketMatrix = XMLoadFloat4x4(m_pSocketMatrix);
 
+		for (size_t i = 0; i < 3; i++)
+		{
+			SocketMatrix.r[i] = XMVector3Normalize(SocketMatrix.r[i]);
+		}
+		XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
+	}
+
+	m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
 }
 
 void CWeapon_Jetpack::Late_Update(_float fTimeDelta)
 {
-	_matrix		SocketMatrix = XMLoadFloat4x4(m_pSocketMatrix);
-
-	for (size_t i = 0; i < 3; i++)
-	{
-		SocketMatrix.r[i] = XMVector3Normalize(SocketMatrix.r[i]);
-	}
-
 	
-
-	XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
+	
 	
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 }
@@ -136,6 +139,10 @@ HRESULT CWeapon_Jetpack::Render()
 			return E_FAIL;
 	}
 
+#ifdef _DEBUG
+	m_pColliderCom->Render();
+#endif
+
 	return S_OK;
 }
 
@@ -150,6 +157,16 @@ HRESULT CWeapon_Jetpack::Ready_Components()
 	/* FOR.Com_Model */
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Jetpack_Roket"),
 		TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModelCom))))
+		return E_FAIL;
+
+	
+	/* For.Com_Collider */
+	CBounding_OBB::BOUNDING_OBB_DESC			ColliderDesc{};
+	ColliderDesc.vExtents = _float3(3.f, 10.f, 3.f);
+	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vExtents.y, 0.f);
+	ColliderDesc.vAngles = _float3(0.f, 0.f, 0.f);
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_CCollider_OBB"),
+		TEXT("Com_Collider"), reinterpret_cast<CComponent**>(&m_pColliderCom), &ColliderDesc)))
 		return E_FAIL;
 
 
@@ -198,4 +215,6 @@ void CWeapon_Jetpack::Free()
 	Safe_Release(m_pShaderCom);
 
 	Safe_Release(m_pModelCom);
+
+	Safe_Release(m_pColliderCom);
 }

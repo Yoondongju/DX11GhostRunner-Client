@@ -5,6 +5,7 @@
 
 #include "GameInstance.h"
 
+
 CWeapon_Player::CWeapon_Player(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CPartObject{ pDevice, pContext }
 {
@@ -25,6 +26,13 @@ HRESULT CWeapon_Player::Initialize(void* pArg)
 	WEAPON_DESC* pDesc = static_cast<WEAPON_DESC*>(pArg);
 
 	m_pSocketMatrix = pDesc->pSocketBoneMatrix;
+
+
+	m_pSubShuriken[0] = pDesc->pSubShuriSken[0];
+	m_pSubShuriken[1] = pDesc->pSubShuriSken[1];
+
+
+
 
 	/* 직교퉁여을 위한 데이터들을 모두 셋하낟. */
 	if (FAILED(__super::Initialize(pDesc)))
@@ -66,12 +74,29 @@ void CWeapon_Player::Update(_float fTimeDelta)
 
 
 	m_pColliderCom[m_eCurType]->Update(&m_WorldMatrix);
+
+
+	if (m_eCurType == SHURIKEN)
+	{
+		for (_uint i = 0; i < 2; i++)
+		{
+			m_pSubShuriken[i]->Update(&m_WorldMatrix , m_isAttacking, fTimeDelta);
+		}
+	}
+
 }
 
 void CWeapon_Player::Late_Update(_float fTimeDelta)
 {
-	
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+
+	if (m_eCurType == SHURIKEN)
+	{
+		for (_uint i = 0; i < 2; i++)
+		{
+			m_pSubShuriken[i]->Late_Update(fTimeDelta);
+		}
+	}
 }
 
 HRESULT CWeapon_Player::Render()
@@ -156,7 +181,7 @@ HRESULT CWeapon_Player::Ready_Components()
 
 
 	/* FOR.Com_Collider */
-	ColliderDesc.vExtents = _float3(2.f, 2.f, 2.f);
+	ColliderDesc.vExtents = _float3(3.f, 3.f, 3.f);
 	ColliderDesc.vCenter = _float3(0.f, 0.f, ColliderDesc.vExtents.z);
 	ColliderDesc.vAngles = _float3(0.f, 0.f, 0.f);
 
@@ -169,13 +194,7 @@ HRESULT CWeapon_Player::Ready_Components()
 	return S_OK;
 }
 
-HRESULT CWeapon_Player::Ready_SubShuriken()
-{
 
-
-
-	return E_NOTIMPL;
-}
 
 CWeapon_Player* CWeapon_Player::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {
@@ -219,6 +238,11 @@ void CWeapon_Player::Free()
 	for (_uint i = 0; i < WEAPON_TYPE::WEAPON_TYPE_END; i++)
 	{
 		Safe_Release(m_pColliderCom[i]);
+	}
+
+	for (_uint i = 0; i < 2; i++)
+	{
+		Safe_Release(m_pSubShuriken[i]);
 	}
 	
 }

@@ -3,6 +3,8 @@
 
 
 #include "Jetpack.h"
+#include "Weapon_Jetpack.h"
+
 #include "GameInstance.h"
 #include "Animation.h"
 
@@ -52,12 +54,44 @@ void CJetpack_Attack::Update(_float fTimeDelta)
 			pModel->SetUp_Animation(CJetpack::JETPACK_ANIMATION::IDLE, true);
 			pFsm->Change_State(CJetpack::JETPACK_ANIMATION::IDLE);
 		}
+
+		if (0.1f <= (TrackPos / Duration))
+		{
+			CWeapon_Jetpack* JetpackWeapon = static_cast<CWeapon_Jetpack*>(static_cast<CJetpack*>(m_pOwner)->Get_Part(CJetpack::PARTID::PART_WEAPON));
+
+			JetpackWeapon->Set_Attacking(true);
+
+			_float4x4* pWorldMatrix = JetpackWeapon->Get_PartObjectComBindWorldMatrixPtr();
+
+
+			_matrix ComBindMatrix = XMLoadFloat4x4(pWorldMatrix);
+
+			_vector vLookNor = XMVector3Normalize(pJetpackTransform->Get_State(CTransform::STATE_LOOK));
+			vLookNor = XMVectorSetY(vLookNor, XMVectorGetY(vLookNor) - 0.2f);  // 0.2f 만큼 아래로 내림
+
+			_vector vCompute_Result = (vLookNor) * 300.f * fTimeDelta;
+
+			ComBindMatrix.r[3] += vCompute_Result;
+			XMStoreFloat4x4(pWorldMatrix, ComBindMatrix);
+		}
+
 	}
+
+
+	
+
+
+
 }
 
 void CJetpack_Attack::End_State()
 {
+	CWeapon_Jetpack* JetpackWeapon = static_cast<CWeapon_Jetpack*>(static_cast<CJetpack*>(m_pOwner)->Get_Part(CJetpack::PARTID::PART_WEAPON));
 
+	_float4x4 OriginMatrix = JetpackWeapon->Get_OriginMatrix();
+	JetpackWeapon->Get_Transform()->Set_WorldMatrix(OriginMatrix);
+
+	JetpackWeapon->Set_Attacking(false);
 }
 
 

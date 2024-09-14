@@ -6,6 +6,8 @@
 
 #include "../Public/Level.h"
 
+#include "../Public/Layer.h"
+
 CEvent_Manager::CEvent_Manager(CObject_Manager* pObject_Manager)
 	: m_pObject_Manager { pObject_Manager }
 {
@@ -54,22 +56,29 @@ void CEvent_Manager::Excute(const EVENT tEvent)
 		_wstring LayerTag = pDeadObj->Get_FinalLayerName();
 
 		list<CGameObject*>& GameObjectList = m_pObject_Manager->Get_GameObjects(iLevelIndex, LayerTag);
+
+		CLayer* pLayer = nullptr;
+
 		for (auto iter = GameObjectList.begin(); iter != GameObjectList.end();)
 		{
 			if (*iter == pDeadObj) // 단순 객체의 주소 비교
 			{
 				iter = GameObjectList.erase(iter);			// 객체를 삭제 하진않고 리스트에서 빼주기만 할거야
 
-				if (FAILED(m_pObject_Manager->Delete_Layer(iLevelIndex, LayerTag)))
+				pLayer = m_pObject_Manager->Delete_Layer(iLevelIndex, LayerTag);
+
+				if (nullptr == pLayer)
 				{
 					_wstring Error = LayerTag + L"삭제 불가";
 					MSG_BOX(Error.c_str());
 				}
+				
 			}
 			else
 				++iter;
 		}
 		Safe_Release(pDeadObj);
+		Safe_Release(pLayer);
 
 	}
 	break;

@@ -43,7 +43,6 @@ private:
 	CModel*  m_pModel = { nullptr };
 
 private:
-	CCollider*  m_pPlayerWeaponCollider = { nullptr };
 	_bool		m_isDead = { false };
 
 private:

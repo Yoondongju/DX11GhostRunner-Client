@@ -126,6 +126,8 @@ private:
 	HRESULT Load_Anim_GameObject();
 
 	HRESULT Load_Player();
+	HRESULT	Load_OtherModel();
+
 
 
 	HRESULT Create_PrototypeObject();
@@ -136,6 +138,8 @@ private:
 
 	HRESULT	Create_Sky();
 
+	HRESULT Create_Particle();
+	
 
 private:
 	void	ReadString(FILE* file, string& str);

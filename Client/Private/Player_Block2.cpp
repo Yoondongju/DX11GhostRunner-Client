@@ -28,7 +28,8 @@ void CPlayer_Block2::Update(_float fTimeDelta)
 {
 	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 
-	if (CPlayer::PLAYER_ANIMATIONID::BLOCK_R2 == pModel->Get_CurAnimationIndex())
+	if (CPlayer::PLAYER_ANIMATIONID::BLOCK_R2 == pModel->Get_CurAnimationIndex() ||
+		CPlayer::PLAYER_ANIMATIONID::BLOCK_L2 == pModel->Get_CurAnimationIndex())
 	{
 		_double Duration = pModel->Get_CurAnimation()->Get_Duration();
 		const _double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();

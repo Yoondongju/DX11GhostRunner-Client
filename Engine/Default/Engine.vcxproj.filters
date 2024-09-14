@@ -175,6 +175,18 @@
     <Filter Include="01.Utility\03.Components\Texture">
       <UniqueIdentifier>{3db8fcb7-2c50-4de5-8be2-1e504ed789fd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01.Utility\03.Components\VIBuffer\Instancing">
+      <UniqueIdentifier>{ca8dac3d-48c4-473b-bbbe-fcf1916410cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\03.Components\VIBuffer\Instancing\Point">
+      <UniqueIdentifier>{ba5e815e-dbef-4ba1-83f1-0a07ffd06515}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\03.Components\VIBuffer\Instancing\Rect">
+      <UniqueIdentifier>{0e2aee67-6d25-427c-8df9-efc937beb83a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\03.Components\VIBuffer\Instancing\Mesh">
+      <UniqueIdentifier>{09c7b82d-088c-42dc-871c-84b3f1ba44e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Private\Base.cpp">
@@ -338,6 +350,18 @@
     </ClCompile>
     <ClCompile Include="..\Private\VIBuffer_Cube.cpp">
       <Filter>01.Utility\03.Components\VIBuffer\Cube</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\VIBuffer_Rect_Instance.cpp">
+      <Filter>01.Utility\03.Components\VIBuffer\Instancing\Rect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\VIBuffer_Instancing.cpp">
+      <Filter>01.Utility\03.Components\VIBuffer\Instancing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\VIBuffer_Point_Instance.cpp">
+      <Filter>01.Utility\03.Components\VIBuffer\Instancing\Point</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\VIBufeer_Mesh_Instance.cpp">
+      <Filter>01.Utility\03.Components\VIBuffer\Instancing\Mesh</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -517,6 +541,18 @@
     </ClInclude>
     <ClInclude Include="..\Public\VIBuffer_Cube.h">
       <Filter>01.Utility\03.Components\VIBuffer\Cube</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\VIBuffer_Rect_Instance.h">
+      <Filter>01.Utility\03.Components\VIBuffer\Instancing\Rect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\VIBuffer_Instancing.h">
+      <Filter>01.Utility\03.Components\VIBuffer\Instancing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\VIBuffer_Point_Instance.h">
+      <Filter>01.Utility\03.Components\VIBuffer\Instancing\Point</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\VIBufeer_Mesh_Instance.h">
+      <Filter>01.Utility\03.Components\VIBuffer\Instancing\Mesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

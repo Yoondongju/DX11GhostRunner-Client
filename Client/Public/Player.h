@@ -20,7 +20,7 @@ BEGIN(Client)
 class CPlayer final : public CContainerObject
 {
 public:
-	enum PARTID { PART_BODY, PART_WEAPON, PART_END };
+	enum PARTID { PART_BODY, PART_WEAPON, PART_PARTICLE, PART_END };
 	enum PLAYER_ANIMATIONID
 	{
 		CLIMB,

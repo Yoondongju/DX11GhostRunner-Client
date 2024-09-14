@@ -7,6 +7,12 @@
 #include "Body_Player.h"
 
 #include "Animation.h"
+#include "SubShuriken.h"
+
+#include "Sniper.h"
+#include "Pistol.h"
+#include "Mira.h"
+#include "Jetpack.h"
 
 CPlayer_Sh_Attack1::CPlayer_Sh_Attack1(class CGameObject* pOwner)
 	: CState{ CPlayer::PLAYER_ANIMATIONID::SH_ATTACK , pOwner }
@@ -28,6 +34,7 @@ HRESULT CPlayer_Sh_Attack1::Start_State()
 
 void CPlayer_Sh_Attack1::Update(_float fTimeDelta)
 {
+
 	m_fAccTime += fTimeDelta;
 
 	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
@@ -39,23 +46,45 @@ void CPlayer_Sh_Attack1::Update(_float fTimeDelta)
 
 
 	CWeapon_Player* pShuiKen = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON));
+	CSubShuriken** pSubShuriken = pShuiKen->Get_SubShuriken();
+
+	CTransform* pSubTransform1 = pSubShuriken[0]->Get_Transform();
+	CTransform* pSubTransform2 = pSubShuriken[1]->Get_Transform();
+
 
 	if (0.1f <= (TrackPos / Duration))
 	{
-		_vector vPlayerDir = static_cast<CPlayer*>(m_pOwner)->Get_Transform()->Get_State(CTransform::STATE_LOOK);
+		Check_Collision();
+
+		_vector vLookNor = XMVector3Normalize(static_cast<CPlayer*>(m_pOwner)->Get_Transform()->Get_State(CTransform::STATE_LOOK));
+		_vector vUpNor = XMVector3Normalize(static_cast<CPlayer*>(m_pOwner)->Get_Transform()->Get_State(CTransform::STATE_UP));
 
 		pShuiKen->Set_Attacking(true);
 		
 		_float4x4* pComBindWMatrix = pShuiKen->Get_PartObjectComBindWorldMatrixPtr();
 		_matrix ComBindMatrix = XMLoadFloat4x4(pComBindWMatrix);
-
-
-		_vector vCompute_Result = XMVector3Normalize(vPlayerDir) * 100 * fTimeDelta;
+		_vector vCompute_Result = (vLookNor) * 700.f * fTimeDelta;
 
 		ComBindMatrix.r[3] += vCompute_Result;
-	
 		XMStoreFloat4x4(pComBindWMatrix, ComBindMatrix);
 
+
+
+		_matrix RoatationL =  XMMatrixRotationAxis(vUpNor, XMConvertToRadians(10.f));
+		vLookNor = XMVector3TransformCoord(vLookNor, RoatationL);
+
+		_vector vPos = pSubTransform1->Get_State(CTransform::STATE_POSITION);
+		vCompute_Result = (vLookNor) * 700.f * fTimeDelta;
+		pSubTransform1->Set_State(CTransform::STATE_POSITION, vPos + vCompute_Result);
+
+
+		_matrix RoatationR = XMMatrixRotationAxis(vUpNor, XMConvertToRadians(-20.f));
+		vLookNor = XMVector3TransformCoord(vLookNor, RoatationR);
+
+		_vector vPos1 = pSubTransform2->Get_State(CTransform::STATE_POSITION);
+		vCompute_Result = (vLookNor) * 700.f * fTimeDelta;
+		pSubTransform2->Set_State(CTransform::STATE_POSITION, vPos1 + vCompute_Result);
+	
 	}
 
 
@@ -132,6 +161,34 @@ _bool CPlayer_Sh_Attack1::Check_Jump()
 	}
 
 	return false;
+}
+
+void CPlayer_Sh_Attack1::Check_Collision()
+{
+
+	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Sniper");
+	for (auto& Sniper : Snipers)
+	{
+		static_cast<CSniper*>(Sniper)->Check_Collision();
+	}
+
+	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Pistol");
+	for (auto& Pistol : Pistols)
+	{
+		static_cast<CPistol*>(Pistol)->Check_Collision();
+	}
+
+	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Mira");
+	for (auto& Mira : Miras)
+	{
+		static_cast<CMira*>(Mira)->Check_Collision();
+	}
+
+	list<CGameObject*>& Jetpacks = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Jetpack");
+	for (auto& Jetpack : Jetpacks)
+	{
+		static_cast<CJetpack*>(Jetpack)->Check_Collision();
+	}
 }
 
 CPlayer_Sh_Attack1* CPlayer_Sh_Attack1::Create(class CGameObject* pOwner)

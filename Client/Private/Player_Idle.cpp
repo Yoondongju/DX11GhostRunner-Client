@@ -418,12 +418,26 @@ _bool CPlayer_Idle::Check_Block1()
 	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 
 	if (CPlayer::PLAYER_ANIMATIONID::BLOCK_R1 != pModel->Get_CurAnimationIndex() &&
+		CPlayer::PLAYER_ANIMATIONID::BLOCK_L1 != pModel->Get_CurAnimationIndex() &&
 		m_pGameInstance->Get_KeyState(KEY::E) == KEY_STATE::TAP)
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 
 
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::BLOCK_R1, false);
+		_uint iRandomValue = static_cast<_uint>(m_pGameInstance->Get_Random(0, 2));
+
+		switch (iRandomValue)
+		{
+		case 0:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::BLOCK_R1, false);
+			break;
+		case 1:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::BLOCK_L1, false);
+			break;
+		default:
+			break;
+		}
+
 		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::BLOCK_R1);
 
 		return true;
@@ -439,12 +453,25 @@ _bool CPlayer_Idle::Check_Block2()
 	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 
 	if (CPlayer::PLAYER_ANIMATIONID::BLOCK_R2 != pModel->Get_CurAnimationIndex() &&
+		CPlayer::PLAYER_ANIMATIONID::BLOCK_L2 != pModel->Get_CurAnimationIndex() &&
 		m_pGameInstance->Get_KeyState(KEY::E) == KEY_STATE::TAP)
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 
+		_uint iRandomValue = static_cast<_uint>(m_pGameInstance->Get_Random(0, 2));
 
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::BLOCK_R2, false);
+		switch (iRandomValue)
+		{
+		case 0:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::BLOCK_R2, false);
+			break;
+		case 1:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::BLOCK_L2, false);
+			break;
+		default:
+			break;
+		}
+		
 		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::BLOCK_R2);
 
 		return true;
@@ -460,12 +487,26 @@ _bool CPlayer_Idle::Check_Block3()
 	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 
 	if (CPlayer::PLAYER_ANIMATIONID::BLOCK_R3 != pModel->Get_CurAnimationIndex() &&
+		CPlayer::PLAYER_ANIMATIONID::BLOCK_L3 != pModel->Get_CurAnimationIndex() &&
 		m_pGameInstance->Get_KeyState(KEY::E) == KEY_STATE::TAP)
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 
+		_uint iRandomValue = static_cast<_uint>(m_pGameInstance->Get_Random(0, 2));
 
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::BLOCK_R3, false);
+		switch (iRandomValue)
+		{
+		case 0:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::BLOCK_R3, false);
+			break;
+		case 1:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::BLOCK_L3, false);
+			break;
+		default:
+			break;
+		}
+
+		
 		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::BLOCK_R3);
 
 		return true;
@@ -481,12 +522,25 @@ _bool CPlayer_Idle::Check_Attack1()
 	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 	
 	if (CPlayer::PLAYER_ANIMATIONID::ATTACK_R1 != pModel->Get_CurAnimationIndex() &&
+		CPlayer::PLAYER_ANIMATIONID::ATTACK_L1 != pModel->Get_CurAnimationIndex() &&
 		m_pGameInstance->Get_KeyState(KEY::LBUTTON) == KEY_STATE::TAP)
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 		
+		_uint iRandomValue = static_cast<_uint>(m_pGameInstance->Get_Random(0, 2));
 
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_R1, false);	// Change_State보다 먼저 세팅해줘야함 Hook이나 Attack같은 같은 State를 공유하는녀석일 경우
+		switch (iRandomValue)
+		{
+		case 0:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_R1, false);	
+			break;
+		case 1:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_L1, false);
+			break;
+		default:
+			break;
+		}
+	
 		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::ATTACK_R1);
 
 		return true;
@@ -505,13 +559,25 @@ _bool CPlayer_Idle::Check_Attack2()
 
 
 	if (CPlayer::PLAYER_ANIMATIONID::ATTACK_R2 != pModel->Get_CurAnimationIndex() && 
+		CPlayer::PLAYER_ANIMATIONID::ATTACK_L2 != pModel->Get_CurAnimationIndex() &&
 		m_pGameInstance->Get_KeyState(KEY::LBUTTON) == KEY_STATE::TAP)
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 		
+		_uint iRandomValue = static_cast<_uint>(m_pGameInstance->Get_Random(0, 2));
 
+		switch (iRandomValue)
+		{
+		case 0:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_R2, false);
+			break;
+		case 1:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_L2, false);
+			break;
+		default:
+			break;
+		}
 
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_R2, false);	// Change_State보다 먼저 세팅해줘야함 Hook이나 Attack같은 같은 State를 공유하는녀석일 경우
 		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::ATTACK_R2);
 
 		return true;
@@ -528,12 +594,25 @@ _bool CPlayer_Idle::Check_Attack3()
 	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 
 	if (CPlayer::PLAYER_ANIMATIONID::ATTACK_R3 != pModel->Get_CurAnimationIndex() &&
+		CPlayer::PLAYER_ANIMATIONID::ATTACK_L3 != pModel->Get_CurAnimationIndex() &&
 		m_pGameInstance->Get_KeyState(KEY::LBUTTON) == KEY_STATE::TAP)
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 		
+		_uint iRandomValue = static_cast<_uint>(m_pGameInstance->Get_Random(0, 2));
 
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_R3, false);	// Change_State보다 먼저 세팅해줘야함 Hook이나 Attack같은 같은 State를 공유하는녀석일 경우
+		switch (iRandomValue)
+		{
+		case 0:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_R3, false);
+			break;
+		case 1:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_L3, false);
+			break;
+		default:
+			break;
+		}
+
 		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::ATTACK_R3);
 
 		return true;

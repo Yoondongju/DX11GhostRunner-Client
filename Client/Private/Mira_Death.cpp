@@ -13,10 +13,12 @@ CMira_Death::CMira_Death(class CGameObject* pOwner)
 
 }
 
+
 HRESULT CMira_Death::Initialize()
 {
 	return S_OK;
 }
+
 
 HRESULT CMira_Death::Start_State()
 {
@@ -25,19 +27,12 @@ HRESULT CMira_Death::Start_State()
 	return S_OK;
 }
 
+
 void CMira_Death::Update(_float fTimeDelta)
 {
-	CModel* pModel = m_pOwner->Get_Model();
-
-	_double Duration = pModel->Get_CurAnimation()->Get_Duration();
-	const _double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
-
-	if (0.9 <= TrackPos / Duration)
-	{
-		static_cast<CMira*>(m_pOwner)->SetDead();
-	}
-
+	static_cast<CMira*>(m_pOwner)->SetDead();
 }
+
 
 void CMira_Death::End_State()
 {

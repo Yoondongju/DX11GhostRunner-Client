@@ -39,7 +39,8 @@ void CPlayer_Attack1::Update(_float fTimeDelta)
 
 	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 
-	if (CPlayer::PLAYER_ANIMATIONID::ATTACK_R1 == pModel->Get_CurAnimationIndex())
+	if (CPlayer::PLAYER_ANIMATIONID::ATTACK_R1 == pModel->Get_CurAnimationIndex() ||
+		CPlayer::PLAYER_ANIMATIONID::ATTACK_L1 == pModel->Get_CurAnimationIndex())
 	{
 		_double Duration = pModel->Get_CurAnimation()->Get_Duration();
 		const _double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
@@ -69,9 +70,6 @@ void CPlayer_Attack1::Check_Collision()
 	// 일단 몬스터종류를 체크해야하고 , 그다음 그 종류의 몬스터중 (여러마리 있을때) 어떤놈인지 체크해야해
 	// 몬스터가 내 레벨에 따라 나오는 몬스터 종류에 대한 이야기를 안해놔서 일단 고민되네
 
-	CWeapon_Player* pWeapon = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON));
-	CCollider* pWeaponCollider = pWeapon->Get_Collider();
-
 	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Sniper");
 	for (auto& Sniper : Snipers)
 	{
@@ -90,6 +88,11 @@ void CPlayer_Attack1::Check_Collision()
 		static_cast<CMira*>(Mira)->Check_Collision();
 	}
 
+	list<CGameObject*>& Jetpacks = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Jetpack");
+	for (auto& Jetpack : Jetpacks)
+	{
+		static_cast<CJetpack*>(Jetpack)->Check_Collision();
+	}
 }
 
 CPlayer_Attack1* CPlayer_Attack1::Create(class CGameObject* pOwner)
