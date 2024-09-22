@@ -18,7 +18,7 @@ HRESULT CJetpack_Scared::Initialize()
 	return S_OK;
 }
 
-HRESULT CJetpack_Scared::Start_State()
+HRESULT CJetpack_Scared::Start_State(void* pArg)
 {
 
 

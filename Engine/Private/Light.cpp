@@ -1,5 +1,9 @@
 #include "..\Public\Light.h"
 
+#include "Shader.h"
+#include "VIBuffer_Rect.h"
+
+
 CLight::CLight()
 {
 }
@@ -7,6 +11,38 @@ CLight::CLight()
 HRESULT CLight::Initialize(const LIGHT_DESC& LightDesc)
 {
 	m_LightDesc = LightDesc;
+
+	return S_OK;
+}
+
+HRESULT CLight::Render(CShader* pShader, CVIBuffer_Rect* pVIBuffer)
+{
+	_uint		iPassIndex = { 0 };
+
+	if (LIGHT_DESC::TYPE_DIRECTIONAL == m_LightDesc.eType)
+	{
+		if (FAILED(pShader->Bind_RawValue("g_vLightDir", &m_LightDesc.vDirection, sizeof(_float4))))
+			return E_FAIL;
+
+		iPassIndex = 1;
+	}
+	else
+	{
+		/*pShader->Bind_RawValue("g_vLightDir", &m_LightDesc.vDirection, sizeof(_float4));
+		pShader->Bind_RawValue("g_vLightDir", &m_LightDesc.vDirection, sizeof(_float4));*/
+
+		iPassIndex = 2;
+	}
+
+	if (FAILED(pShader->Bind_RawValue("g_vLightDiffuse", &m_LightDesc.vDiffuse, sizeof(_float4))))
+		return E_FAIL;
+	if (FAILED(pShader->Bind_RawValue("g_vLightAmbient", &m_LightDesc.vAmbient, sizeof(_float4))))
+		return E_FAIL;
+
+	pShader->Begin(iPassIndex);
+
+	pVIBuffer->Bind_Buffers();
+	pVIBuffer->Render();
 
 	return S_OK;
 }

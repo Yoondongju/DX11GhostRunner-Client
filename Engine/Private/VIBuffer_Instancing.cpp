@@ -17,6 +17,7 @@ CVIBuffer_Instancing::CVIBuffer_Instancing(const CVIBuffer_Instancing& Prototype
 	, m_vCenterPos{ Prototype.m_vCenterPos }
 	, m_vPivotPos{ Prototype.m_vPivotPos }
 	, m_vRange{ Prototype.m_vRange }
+	, m_vSize{ Prototype.m_vSize }
 	, m_pInstanceVertices{ Prototype.m_pInstanceVertices }
 	, m_pSpeed{ Prototype.m_pSpeed }
 	, m_vLifeTime{ Prototype.m_vLifeTime }
@@ -49,6 +50,9 @@ HRESULT CVIBuffer_Instancing::Initialize(void* pArg)
 	if (FAILED(m_pDevice->CreateBuffer(&m_InstanceBufferDesc, &m_InstanceInitialData, &m_pVBInstance)))
 		return E_FAIL;
 
+
+
+
 	return S_OK;
 }
 
@@ -68,7 +72,8 @@ HRESULT CVIBuffer_Instancing::Bind_Buffers()
 		0,
 		0,
 	};
-
+		
+	
 	m_pContext->IASetVertexBuffers(0, m_iNumVertexBuffers, pVertexBuffers, iVertexStrides, iOffsets);
 	m_pContext->IASetIndexBuffer(m_pIB, m_eIndexFormat, 0);
 	m_pContext->IASetPrimitiveTopology(m_eTopology);

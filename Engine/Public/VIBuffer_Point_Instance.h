@@ -17,7 +17,15 @@ public:
 
 public:
 	virtual void Spread(_float fTimeDelta) override;
+
+
 	virtual void Drop(_float fTimeDelta) override;
+
+public:
+	void		 DirectionSpread(_float fTimeDelta, _fvector vDir);
+	void		 ResetTranslation();
+
+
 
 public:
 	static CVIBuffer_Point_Instance* Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, const CVIBuffer_Instancing::INSTANCE_DESC & Desc);

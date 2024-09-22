@@ -14,7 +14,7 @@ private:
 
 public:
     virtual HRESULT Initialize();
-    virtual HRESULT Start_State();
+    virtual HRESULT Start_State(void *pArg);
     virtual void    Update(_float fTimeDelta);
     virtual void    End_State();
 

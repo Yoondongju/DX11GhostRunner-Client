@@ -5,6 +5,12 @@
 #include "GameInstance.h"
 
 #include "Body_Player.h"
+#include "Animation.h"
+
+
+#include "Sniper.h"
+#include "Pistol.h"
+#include "Mira.h"
 
 CPlayer_MindControl::CPlayer_MindControl(class CGameObject* pOwner)
 	: CState{ CPlayer::PLAYER_ANIMATIONID::MIND_CONTROL_START_START , pOwner }
@@ -17,28 +23,174 @@ HRESULT CPlayer_MindControl::Initialize()
 	return S_OK;
 }
 
-HRESULT CPlayer_MindControl::Start_State()
+HRESULT CPlayer_MindControl::Start_State(void* pArg)
 {
-
+	if( 0 == m_VisibleEnemy.capacity())
+		m_VisibleEnemy.reserve(10);
 
 	return S_OK;
 }
 
 void CPlayer_MindControl::Update(_float fTimeDelta)
 {
-	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
-
-	if (CPlayer::PLAYER_ANIMATIONID::NAMI_AIM_ATTACK_TO_IDLE != pModel->Get_NextAnimationIndex())
+	if (true == m_isOrderCommand ||
+		m_VisibleEnemy.size() < m_iCanVisibleNum)
 	{
-		CFsm* pFsm = m_pOwner->Get_Fsm();
-		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);
+		CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::MIND_CONTROL_START_TO_IDLE, true);
+		
+		_double TrackPos = pModel->Get_Referene_CurrentTrackPosition();
+		_double Duration = pModel->Get_CurAnimation()->Get_Duration();
+
+		m_pGameInstance->Set_TimeDelayActive(true);
+
+		if (0.9f <= TrackPos / (_float)Duration)
+		{
+			CFsm* pFsm = m_pOwner->Get_Fsm();
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::IDLE, true);
+			pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);
+			
+			m_pGameInstance->Set_TimeDelayActive(false);
+			return;
+		}
 	}
+
+
+	if (true == m_isFirstFind)
+		FindVisiableEnemy();
+	if(m_VisibleEnemy.size() >= m_iCanVisibleNum)
+		CommandToAttackEachEnemy();
 }
 
 void CPlayer_MindControl::End_State()
 {
+	for (_uint i = 0; i < m_VisibleEnemy.size(); i++)
+	{
+		Safe_Release(m_VisibleEnemy[i]);
+	}
+	m_VisibleEnemy.clear();
 
+
+	m_isOrderCommand = false;
+	m_isFirstFind = true;
 }
+
+
+void CPlayer_MindControl::FindVisiableEnemy()
+{
+	CTransform* pPlayerTransform = m_pOwner->Get_Transform();
+
+	_vector vPlayerLookNor = XMVector3Normalize(pPlayerTransform->Get_State(CTransform::STATE_LOOK));
+	_vector vPlayerPos = pPlayerTransform->Get_State(CTransform::STATE_POSITION);
+
+	_float fVisiableAngle = m_fVisibleAngle * 0.5f;
+
+	// m_VisibleEnemy여기에 자기자신을 3번 들어가는것 문제가됨 예외처리해야하고 
+	// 위에를 해결하고 갑자기 몬터 사라지는현상수정해야함
+
+	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Sniper");
+	for (auto& Sniper : Snipers)
+	{
+		if (m_VisibleEnemy.size() >= m_iCanVisibleNum)
+			return;
+
+		static_cast<CSniper*>(Sniper)->Check_Collision();
+
+		_vector vSniperPos = Sniper->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+
+		_vector vDifference = XMVectorSubtract(vSniperPos, vPlayerPos);		// 벡터의 차이
+		_float fDistacne = XMVectorGetX(XMVector3Length(vDifference));		// 그 차이난 벡터의 길이
+
+		_vector vDir = XMVector3Normalize(vDifference);
+		_float fDot = XMVectorGetX(XMVector3Dot(vPlayerLookNor, vDir));		// 내적의 결과고
+
+		_float fAngle = XMConvertToDegrees(acos(fDot));
+
+		if (fVisiableAngle >= fAngle &&
+			m_fVisiableDistance >= fDistacne)	// 시야각 안에있고 거리도 만족하니
+		{
+			m_VisibleEnemy.push_back(Sniper);
+			Safe_AddRef(Sniper);
+		}
+	}
+
+	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Pistol");
+	for (auto& Pistol : Pistols)
+	{
+		if (m_VisibleEnemy.size() >= m_iCanVisibleNum)
+			return;
+
+		static_cast<CPistol*>(Pistol)->Check_Collision();
+
+		_vector vPistolPos = Pistol->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+
+		_vector vDifference = XMVectorSubtract(vPistolPos, vPlayerPos);		// 벡터의 차이
+		_float fDistacne = XMVectorGetX(XMVector3Length(vDifference));		// 그 차이난 벡터의 길이
+
+		_vector vDir = XMVector3Normalize(vDifference);
+		_float fDot = XMVectorGetX(XMVector3Dot(vPlayerLookNor, vDir));		// 내적의 결과고
+
+		_float fAngle = XMConvertToDegrees(acos(fDot));
+
+		if (fVisiableAngle >= fAngle &&
+			m_fVisiableDistance >= fDistacne)	// 시야각 안에 잇니
+		{
+			m_VisibleEnemy.push_back(Pistol);
+			Safe_AddRef(Pistol);
+		}
+	}
+
+	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Mira");
+	for (auto& Mira : Miras)
+	{
+		if (m_VisibleEnemy.size() >= m_iCanVisibleNum)
+			return;
+
+		static_cast<CMira*>(Mira)->Check_Collision();
+
+		_vector vMiraPos = Mira->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+
+		_vector vDifference = XMVectorSubtract(vMiraPos, vPlayerPos);		// 벡터의 차이
+		_float fDistacne = XMVectorGetX(XMVector3Length(vDifference));		// 그 차이난 벡터의 길이
+
+		_vector vDir = XMVector3Normalize(vDifference);
+		_float fDot = XMVectorGetX(XMVector3Dot(vPlayerLookNor, vDir));		// 내적의 결과고
+
+		_float fAngle = XMConvertToDegrees(acos(fDot));
+
+		if (fVisiableAngle >= fAngle &&
+			m_fVisiableDistance >= fDistacne)	// 시야각 안에 잇니
+		{
+			m_VisibleEnemy.push_back(Mira);
+			Safe_AddRef(Mira);
+		}
+	}
+
+	m_isFirstFind = false;
+}
+
+
+void CPlayer_MindControl::CommandToAttackEachEnemy()
+{
+	if (true == m_isOrderCommand)	// 명령을 이미 내렸으면
+		return;
+
+	_uint iSize = m_VisibleEnemy.size();
+	for (_uint i = 0; i < iSize; i++)
+	{
+		CEnemy*  pEnemy =	static_cast<CEnemy*>(m_VisibleEnemy[i]);
+		CEnemy*  pTargetEnemy = static_cast<CEnemy*>(m_VisibleEnemy[(i + 1) % iSize]);
+
+		// 각자의 Idle에서 Attack으로 변경해주고있는데 
+		// 마인드컨트롤 상태면 강제로 Attack으로 변경하되 방향도 지들이 지들을 바라봐야한다.
+		 
+		pEnemy->Set_MindControling(true , pTargetEnemy);
+	}
+
+	m_isOrderCommand = true;
+}
+
+
 
 
 CPlayer_MindControl* CPlayer_MindControl::Create(class CGameObject* pOwner)

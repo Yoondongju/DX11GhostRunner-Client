@@ -20,7 +20,17 @@ BEGIN(Client)
 class CPlayer final : public CContainerObject
 {
 public:
-	enum PARTID { PART_BODY, PART_WEAPON, PART_PARTICLE, PART_END };
+	enum PARTID
+	{ 
+		PART_BODY, 
+		PART_WEAPON,  
+		PART_WIRE ,
+		PART_PARTICLE_SWORDTRAIL,
+		PART_PARTICLE_BLOCK,
+		PART_PARTICLE_CUTALL,
+		PART_PARTICLE_NAMI,
+		PART_END 
+	};
 	enum PLAYER_ANIMATIONID
 	{
 		CLIMB,
@@ -175,6 +185,16 @@ public: // CUTALL
 	void				Set_StartCountCutAllTime(_bool b) { m_bStartCountCutAllTime = b; }
 
 
+public: // TIMESTOP
+	void				Set_TimeStopActive(_bool b) { m_bTimeStopActive = b; }
+	_bool				IsTimeStopActive() { return m_bTimeStopActive; }
+
+	const _float&		Get_TimeStopCoolTime() { return m_fTimeStopCoolTime; }
+	const _float&		Get_TimeStopRemainingTime() { return m_fTimeStopRemainingTime; }
+
+	void				Set_TimeStopRemainingTime(_float fTime) { m_fTimeStopRemainingTime = fTime; }
+	void				Set_StartCountTimeStopTime(_bool b) { m_bStartCountTimeStopTime = b; }
+
 
 
 public:
@@ -270,6 +290,17 @@ private:		// CUTALL
 	_bool				m_bStartCountCutAllTime = { false };	// 컷올 시간을 재야하는 시점
 
 
+private:		// TimeStop
+	_float				m_fTimeStopCoolTime = { 5.f };		
+	_float				m_fTimeStopRemainingTime = { 5.f };
+	_bool				m_bTimeStopActive = { true };
+	_bool				m_bStartCountTimeStopTime = { false };
+
+	_float				m_fTimeDelayLerpRatio = {4.f};		// 게임인스턴스에서 0.1만큼 델타타임에 곱햇으니 얜 절반은 복구시키자
+
+
+
+
 private:
 	class CGrapplingPointUI*		m_pGrapplingPoint = { nullptr };
 
@@ -289,6 +320,7 @@ private:
 	void		Compute_DashCoolTime(_float fTimeDelta);
 	void		Compute_BlockCoolTime(_float fTimeDelta);
 	void		Compute_CutAllCoolTime(_float fTimeDelta);
+	void		Compute_TimeStopCoolTime(_float fTimeDelta);
 
 public:
 	static CPlayer* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

@@ -42,7 +42,14 @@ HRESULT CWeapon_Player::Initialize(void* pArg)
 		return E_FAIL;
 
 
-	m_OriginMatrix = {
+	m_KatanaOriginMatrix = {
+		0.181342006, 0.655698836, 0.207122847, 0.00000000,
+		-0.963511229, 0.238839343, 0.0874769986, 0.00000000,
+		0.0110353436, -0.301334143, 0.944287121, 0.00000000,
+		0.0750860050, -0.0355550535, 0.0480655581, 1.00000000
+	};
+
+	m_ShurikenOriginMatrix = {
 		0.181342006, 0.655698836, 0.207122847, 0.00000000,
 		-0.963511229, 0.238839343, 0.0874769986, 0.00000000,
 		0.0110353436, -0.301334143, 0.944287121, 0.00000000,
@@ -50,7 +57,10 @@ HRESULT CWeapon_Player::Initialize(void* pArg)
 	};
 
 
-	m_pTransformCom->Set_WorldMatrix(m_OriginMatrix);
+
+	XMStoreFloat4x4(&m_KatanaOriginMatrix, XMMatrixMultiply( XMLoadFloat4x4(&m_KatanaOriginMatrix), XMMatrixRotationZ(XMConvertToRadians(90.0f))));
+
+	m_pTransformCom->Set_WorldMatrix(m_KatanaOriginMatrix);
 
 	return S_OK;
 }
@@ -69,12 +79,44 @@ void CWeapon_Player::Update(_float fTimeDelta)
 		SocketMatrix.r[i] = XMVector3Normalize(SocketMatrix.r[i]);
 	}
 
-	if (false == m_isAttacking)
+
+	if (m_eCurType == SHURIKEN)
+	{
+		m_pTransformCom->Set_WorldMatrix(m_ShurikenOriginMatrix);
+	
+		if (false == m_isAttacking)
+		{
+			XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
+
+			m_isActiveMyParticle = false;
+
+			m_pSubShuriken[0]->SetActiveMyParticle(false);
+			m_pSubShuriken[1]->SetActiveMyParticle(false);
+		}		
+		else
+		{
+			m_isActiveMyParticle = true;
+
+			m_pSubShuriken[0]->SetActiveMyParticle(true);
+			m_pSubShuriken[1]->SetActiveMyParticle(true);
+		}
+	}
+	else
+	{
+		m_pTransformCom->Set_WorldMatrix(m_KatanaOriginMatrix);
+		m_isActiveMyParticle = false;
+
+		m_pSubShuriken[0]->SetActiveMyParticle(false);
+		m_pSubShuriken[1]->SetActiveMyParticle(false);
+
 		XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
+	}
+		
+	
+
 
 
 	m_pColliderCom[m_eCurType]->Update(&m_WorldMatrix);
-
 
 	if (m_eCurType == SHURIKEN)
 	{
@@ -83,7 +125,6 @@ void CWeapon_Player::Update(_float fTimeDelta)
 			m_pSubShuriken[i]->Update(&m_WorldMatrix , m_isAttacking, fTimeDelta);
 		}
 	}
-
 }
 
 void CWeapon_Player::Late_Update(_float fTimeDelta)
@@ -97,6 +138,10 @@ void CWeapon_Player::Late_Update(_float fTimeDelta)
 			m_pSubShuriken[i]->Late_Update(fTimeDelta);
 		}
 	}
+
+#ifdef _DEBUG
+	m_pGameInstance->Add_DebugObject(m_pColliderCom[m_eCurType]);
+#endif
 }
 
 HRESULT CWeapon_Player::Render()
@@ -110,23 +155,7 @@ HRESULT CWeapon_Player::Render()
 		return E_FAIL;
 
 
-	const LIGHT_DESC* pLightDesc = m_pGameInstance->Get_LightDesc(0);
-	if (nullptr == pLightDesc)
-		return E_FAIL;
-
-	if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightDir", &pLightDesc->vDirection, sizeof(_float4))))
-		return E_FAIL;
-	if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightDiffuse", &pLightDesc->vDiffuse, sizeof(_float4))))
-		return E_FAIL;
-	if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightAmbient", &pLightDesc->vAmbient, sizeof(_float4))))
-		return E_FAIL;
-	if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightSpecular", &pLightDesc->vSpecular, sizeof(_float4))))
-		return E_FAIL;
-
-	if (FAILED(m_pShaderCom->Bind_RawValue("g_vCamPosition", &m_pGameInstance->Get_CamPosition_Float4(), sizeof(_float4))))
-		return E_FAIL;
-
-
+	
 
 	_uint		iNumMeshes = m_pModelCom[m_eCurType]->Get_NumMeshes();
 
@@ -142,9 +171,6 @@ HRESULT CWeapon_Player::Render()
 			return E_FAIL;
 	}
 
-#ifdef _DEBUG
-	m_pColliderCom[m_eCurType]->Render();
-#endif
 
 	return S_OK;
 }
@@ -189,6 +215,12 @@ HRESULT CWeapon_Player::Ready_Components()
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_CCollider_OBB"),
 		TEXT("Com_Collider_Shuriken"), reinterpret_cast<CComponent**>(&m_pColliderCom[WEAPON_TYPE::SHURIKEN]), &ColliderDesc)))
 		return E_FAIL;
+
+
+
+
+
+
 
 	
 	return S_OK;
@@ -245,4 +277,5 @@ void CWeapon_Player::Free()
 		Safe_Release(m_pSubShuriken[i]);
 	}
 	
+
 }

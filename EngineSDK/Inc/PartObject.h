@@ -25,6 +25,11 @@ public:
 	_float4x4*    Get_PartObjectComBindWorldMatrixPtr() { return &m_WorldMatrix; }
 	
 public:
+	void					SetActiveMyParticle(_bool b) { m_isActiveMyParticle = b; }
+	_bool					IsActiveMyParticle() { return m_isActiveMyParticle; }
+
+
+public:
 	virtual HRESULT Initialize_Prototype();
 	virtual HRESULT Initialize(void* pArg);
 	virtual void Priority_Update(_float fTimeDelta);
@@ -39,6 +44,7 @@ protected:
 
 	CGameObject*			m_pOwner = { nullptr };
 
+	_bool					m_isActiveMyParticle = { false };
 	
 
 protected:

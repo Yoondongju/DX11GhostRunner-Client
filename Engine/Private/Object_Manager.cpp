@@ -100,9 +100,11 @@ HRESULT CObject_Manager::Update(_float fTimeDelta)
 {
 	for (size_t i = 0; i < m_iNumLevels; i++)
 	{
-		/* LEVEL_STATIC용 레이어들과 현재 할당된 레벨용 레이어들만 유효하게 담겨있는 상황이 될꺼다. */
 		for (auto& Pair : m_pLayers[i])
+		{
 			Pair.second->Update(fTimeDelta);
+		}
+			
 	}
 
 	return S_OK;
@@ -112,7 +114,7 @@ HRESULT CObject_Manager::Late_Update(_float fTimeDelta)
 {
 	for (size_t i = 0; i < m_iNumLevels; i++)
 	{
-		/* LEVEL_STATIC용 레이어들과 현재 할당된 레벨용 레이어들만 유효하게 담겨있는 상황이 될꺼다. */
+		
 		for (auto& Pair : m_pLayers[i])
 			Pair.second->Late_Update(fTimeDelta);
 	}
@@ -194,7 +196,10 @@ class CLayer* CObject_Manager::Delete_Layer(_uint iLevelIndex ,const _wstring& s
 {
 	auto iter = m_pLayers[iLevelIndex].find(strLayerTag);
 	if (iter == m_pLayers[iLevelIndex].end())
+	{
+		assert(nullptr);
 		return nullptr;
+	}
 
 	if(0 < iter->second->Get_GamObjectSize())
 		return nullptr;

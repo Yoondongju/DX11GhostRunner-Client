@@ -158,10 +158,10 @@ _bool CPhysXManager::CollisionUpdate_PlayerToTriangleMeshGeometry(PxVec3* pOutDi
 
 		
 
+
 		if (*pOutDepth > 0.f)	// 플레이어가 안으로 들어갔니
 		{
 			*pCollTarget = m_Player_WalkAble_Mesh[i].pOnwer;
-
 			return true;
 		}
 		

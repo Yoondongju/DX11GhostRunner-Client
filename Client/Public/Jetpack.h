@@ -2,7 +2,7 @@
 
 
 #include "Client_Defines.h"
-#include "ContainerObject.h"
+#include "Enemy.h"
 
 
 BEGIN(Engine)
@@ -17,10 +17,10 @@ END
 
 BEGIN(Client)
 
-class CJetpack final : public CContainerObject
+class CJetpack final : public CEnemy
 {
 public:
-	enum PARTID{ PART_WEAPON , PART_BACKPACK , PART_END};
+	enum PARTID{ PART_WEAPON , PART_BACKPACK , PART_EFFECT , PART_END};
 	enum JETPACK_ANIMATION
 	{
 		ATTACK_1,
@@ -64,7 +64,7 @@ public:
 
 
 public:
-	void		Check_Collision();
+	_bool		Check_Collision();
 
 
 private:

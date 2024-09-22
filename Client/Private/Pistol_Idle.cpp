@@ -18,7 +18,7 @@ HRESULT CPistol_Idle::Initialize()
 	return S_OK;
 }
 
-HRESULT CPistol_Idle::Start_State()
+HRESULT CPistol_Idle::Start_State(void* pArg)
 {
 
 
@@ -29,6 +29,10 @@ void CPistol_Idle::Update(_float fTimeDelta)
 {
 	if (Check_Death())
 		return;
+
+	if (Check_MindControling())
+		return;
+
 
 	m_fAccTime += fTimeDelta;
 	CModel* pModel = m_pOwner->Get_Model();
@@ -128,6 +132,25 @@ _bool CPistol_Idle::Check_Detect()
 _bool CPistol_Idle::Check_Death()
 {
 	return _bool();
+}
+
+_bool CPistol_Idle::Check_MindControling()
+{
+	CPistol* pPistol = static_cast<CPistol*>(m_pOwner);
+	if (false == pPistol->IsMindControling())
+		return false;
+
+
+	CModel* pModel = m_pOwner->Get_Model();
+	CFsm* pFsm = m_pOwner->Get_Fsm();
+
+
+	_bool	isMindContorling = true;
+
+	pModel->SetUp_Animation(CPistol::PISTOL_ANIMATION::ATTACK, true);
+	pFsm->Change_State(CPistol::PISTOL_ANIMATION::ATTACK, -1, &isMindContorling);
+
+	return true;
 }
 
 

@@ -4,12 +4,12 @@
 #include "GameInstance.h"
 
 CParticle_Blood::CParticle_Blood(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
-	: CGameObject{ pDevice, pContext }
+	: CPartObject{ pDevice, pContext }
 {
 }
 
 CParticle_Blood::CParticle_Blood(const CParticle_Blood& Prototype)
-	: CGameObject{ Prototype }
+	: CPartObject{ Prototype }
 {
 }
 
@@ -20,12 +20,17 @@ HRESULT CParticle_Blood::Initialize_Prototype()
 
 HRESULT CParticle_Blood::Initialize(void* pArg)
 {
-	/* 직교퉁여을 위한 데이터들을 모두 셋하낟. */
-	if (FAILED(__super::Initialize(pArg)))
+	BLOOD_DESC* pDesc = static_cast<CParticle_Blood::BLOOD_DESC*>(pArg);
+
+	m_pSocketMatrix = pDesc->pSocketBoneMatrix;
+
+	if (FAILED(__super::Initialize(pDesc)))
 		return E_FAIL;
 
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
+
+	
 
 	return S_OK;
 }
@@ -37,34 +42,68 @@ void CParticle_Blood::Priority_Update(_float fTimeDelta)
 
 void CParticle_Blood::Update(_float fTimeDelta)
 {
-	m_pVIBufferCom->Drop(fTimeDelta);
+	if (m_isActiveMyParticle)
+	{
+		_matrix		SocketMatrix = XMLoadFloat4x4(m_pSocketMatrix);
 
+		for (size_t i = 0; i < 3; i++)
+		{
+			SocketMatrix.r[i] = XMVector3Normalize(SocketMatrix.r[i]);
+		}
+		XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
+
+	
+
+		_int iRandom = m_pGameInstance->Get_Random_Interger(0, 3);
+		switch (iRandom)
+		{
+		case 0:
+			m_pVIBufferCom->Spread(fTimeDelta);
+			break;
+		case 1:
+			m_pVIBufferCom->Spread2(fTimeDelta);
+			break;
+		case 2:
+			m_pVIBufferCom->Spread3(fTimeDelta);
+			break;
+		default:
+			break;
+		}		
+	}		
 }
 
 void CParticle_Blood::Late_Update(_float fTimeDelta)
 {
-	/* 직교투영을 위한 월드행렬까지 셋팅하게 된다. */
-	__super::Late_Update(fTimeDelta);
-
-
-	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+	if (m_isActiveMyParticle)
+		m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
 }
 
 HRESULT CParticle_Blood::Render()
 {
-
-	if (FAILED(m_pTransformCom->Bind_ShaderResource(m_pShaderCom, "g_WorldMatrix")))
+	if (FAILED(__super::Bind_WorldMatrix(m_pShaderCom, "g_WorldMatrix")))
 		return E_FAIL;
+
 	if (FAILED(m_pShaderCom->Bind_Matrix("g_ViewMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_VIEW))))
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
 		return E_FAIL;
 	if (FAILED(m_pTextureCom->Bind_ShadeResource(m_pShaderCom, "g_Texture", 0)))
 		return E_FAIL;
-	if (FAILED(m_pShaderCom->Bind_RawValue("g_vCamPosition", &m_pGameInstance->Get_CamPosition_Float4(), sizeof(_float4))))
+
+	_uint iRow = 3;
+	_uint iCol = 3;
+
+	_uint iRandomCoord = m_pGameInstance->Get_Random(0, iRow * iRow);
+
+	if (FAILED(m_pShaderCom->Bind_RawValue("g_iAtlasRow", &iRow, sizeof(iRow))))
+		return E_FAIL;
+	if (FAILED(m_pShaderCom->Bind_RawValue("g_iAtlasCol", &iCol, sizeof(iCol))))
+		return E_FAIL;
+	if (FAILED(m_pShaderCom->Bind_RawValue("g_iAtlasRandomIndex", &iRandomCoord, sizeof(iRandomCoord))))
 		return E_FAIL;
 
-	if (FAILED(m_pShaderCom->Begin(1)))
+
+	if (FAILED(m_pShaderCom->Begin(0)))
 		return E_FAIL;
 
 
@@ -79,17 +118,17 @@ HRESULT CParticle_Blood::Render()
 HRESULT CParticle_Blood::Ready_Components()
 {
 	/* FOR.Com_Shader */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxPointInstance"),
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxMeshInstance"),
 		TEXT("Com_Shader"), reinterpret_cast<CComponent**>(&m_pShaderCom))))
 		return E_FAIL;
 
 	/* FOR.Com_Texture */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_WaterDrop"),
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_Blood"),
 		TEXT("Com_Texture"), reinterpret_cast<CComponent**>(&m_pTextureCom))))
 		return E_FAIL;
 
 	/* FOR.Com_VIBuffer */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Snow"),
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Blood1Instance"),  // 1말고 다른 피들은 모델자체가 이상함
 		TEXT("Com_VIBuffer"), reinterpret_cast<CComponent**>(&m_pVIBufferCom))))
 		return E_FAIL;
 

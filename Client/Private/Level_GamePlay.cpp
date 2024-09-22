@@ -9,6 +9,13 @@
 #include "GrapplingPointUI.h"
 #include "IconUI.h"
 
+#include "Particle_ShurikenEffect.h"
+
+
+#include "Player.h"
+#include "SubShuriken.h"
+
+
 CLevel_GamePlay::CLevel_GamePlay(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CLevel{ pDevice, pContext }
 {
@@ -28,10 +35,6 @@ HRESULT CLevel_GamePlay::Initialize(void *pArg)
 	if (FAILED(Ready_Layer_BackGround(pArg)))
 		return E_FAIL;
 
-	if (FAILED(Ready_Layer_Effect()))
-		return E_FAIL;
-
-
 
 	if (FAILED(Ready_Layer_MapObject(pArg)))			// 그랩UI가 만들어져 있어야 플레이어를 만들수있는데 그랩UI는 크래인이 만들고
 		return E_FAIL;									// 플레이어를 만들고 나서 몬스터들을 만들어야하기에 여기서 나눠야겟다
@@ -46,6 +49,10 @@ HRESULT CLevel_GamePlay::Initialize(void *pArg)
 	
 
 	if (FAILED(Ready_Layer_UI()))
+		return E_FAIL;
+
+
+	if (FAILED(Ready_Layer_Effect()))
 		return E_FAIL;
 
 
@@ -76,7 +83,7 @@ HRESULT CLevel_GamePlay::Ready_Lights()
 	LightDesc.eType = LIGHT_DESC::TYPE_DIRECTIONAL;
 	LightDesc.vDirection = _float4(1.f, -1.f, 1.f, 0.f);	// 광원이 쏘는 방향 
 	LightDesc.vDiffuse = _float4(1.f, 1.f, 1.f, 1.f);
-	LightDesc.vAmbient = _float4(1.f, 1.f, 1.f, 1.f);
+	LightDesc.vAmbient = _float4(0.6f, 0.6f, 0.6f, 1.f);
 	LightDesc.vSpecular = _float4(1.f, 1.f, 1.f, 1.f);
 
 	if (FAILED(m_pGameInstance->Add_Light(LightDesc)))
@@ -138,8 +145,31 @@ HRESULT CLevel_GamePlay::Ready_Layer_BackGround(void* pArg)
 
 HRESULT CLevel_GamePlay::Ready_Layer_Effect()
 {
-	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_WaterDrop"), TEXT("No Model"))))
+	CParticle_ShurikenEffect::PARTICLE_SHURIKENEFFECT  Desc = {};
+	
+	CWeapon_Player* pWeapon = static_cast<CWeapon_Player*>(static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY))->Get_Part(CPlayer::PARTID::PART_WEAPON));
+	CSubShuriken** ppSubShuriken = pWeapon->Get_SubShuriken();
+
+
+	Desc.pShuriken = pWeapon;		// 카타나일지 수리켄일지 아직몰라
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_ShurikenEffect"), TEXT("No Model"), &Desc)))
 		return E_FAIL;
+
+
+	Desc.pShuriken = ppSubShuriken[0];		
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_ShurikenEffect"), TEXT("No Model"), &Desc)))
+		return E_FAIL;
+
+
+	Desc.pShuriken = ppSubShuriken[1];		
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_Particle"), TEXT("Prototype_GameObject_Particle_ShurikenEffect"), TEXT("No Model"), &Desc)))
+		return E_FAIL;
+
+
+
+	
+
+
 
 	return S_OK;
 }
@@ -233,7 +263,7 @@ HRESULT CLevel_GamePlay::Ready_Layer_Player(void* pArg)
 	const CLoader::LOADING_OBJECT_INFO* pPlayerData = pDesc->pPlayerData;
 
 	CGameObject::GAMEOBJECT_DESC Desc = {};
-	Desc.fRotationPerSec = XMConvertToRadians(90.0f);
+	Desc.fRotationPerSec = 1.f;
 	Desc.fSpeedPerSec = 80.f;
 	Desc.InitWorldMatrix = XMLoadFloat4x4(&pPlayerData[0].vWorldMatrix);	// 바디의 월드행렬이아니라 플레이어 본체의 월드행렬이여야 하잖아
 

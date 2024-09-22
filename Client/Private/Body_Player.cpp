@@ -66,11 +66,7 @@ void CBody_Player::Update(_float fTimeDelta)
 	CTransform* pPlayerTransform = pPlayer->Get_Transform();
 
 
-
-	if (true == m_pModelCom->Play_Animation(fTimeDelta))			// 애니메이션이 끝났으면 걍 무조건 Idle
-	{
-
-	}
+	m_pModelCom->Play_Animation(fTimeDelta);
 
 
 	// 내 점프 시간이 길었을때
@@ -94,8 +90,6 @@ void CBody_Player::Update(_float fTimeDelta)
 	}
 
 
-
-
 	m_PxTransform.p = { m_WorldMatrix.m[3][0], m_WorldMatrix.m[3][1] + pPlayer->Get_OffsetY() * 0.5f  , m_WorldMatrix.m[3][2] };
 	m_pPxRigidDynamic->setGlobalPose(m_PxTransform);
 
@@ -110,12 +104,18 @@ void CBody_Player::Update(_float fTimeDelta)
 
 	XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * XMLoadFloat4x4(m_pParentMatrix));
 
+
+	m_pColliderCom_OBB->Update(&m_WorldMatrix);
 }
 
 
 void CBody_Player::Late_Update(_float fTimeDelta)
 {
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+
+#ifdef _DEBUG
+	m_pGameInstance->Add_DebugObject(m_pColliderCom_OBB);
+#endif
 }
 
 HRESULT CBody_Player::Render()
@@ -128,22 +128,7 @@ HRESULT CBody_Player::Render()
 	if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
 		return E_FAIL;
 
-	const LIGHT_DESC* pLightDesc = m_pGameInstance->Get_LightDesc(0);
-	if (nullptr == pLightDesc)
-		return E_FAIL;
-
-	if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightDir", &pLightDesc->vDirection, sizeof(_float4))))
-		return E_FAIL;
-	if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightDiffuse", &pLightDesc->vDiffuse, sizeof(_float4))))
-		return E_FAIL;
-	if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightAmbient", &pLightDesc->vAmbient, sizeof(_float4))))
-		return E_FAIL;
-	if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightSpecular", &pLightDesc->vSpecular, sizeof(_float4))))
-		return E_FAIL;
-
-	if (FAILED(m_pShaderCom->Bind_RawValue("g_vCamPosition", &m_pGameInstance->Get_CamPosition_Float4(), sizeof(_float4))))
-		return E_FAIL;
-
+	
 
 	_uint		iNumMeshes = m_pModelCom->Get_NumMeshes();
 
@@ -186,7 +171,17 @@ HRESULT CBody_Player::Ready_Components()
 		return E_FAIL;
 
 
+	/* FOR.Com_Collider */
+	CBounding_OBB::BOUNDING_OBB_DESC			ColliderDesc{};
+	ColliderDesc.vExtents = _float3(3.f, 8.5f, 3.f);
+	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vExtents.y, 0.f);
+	ColliderDesc.vAngles = _float3(0.f, 0.f, 0.f);
 
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_CCollider_OBB"),
+		TEXT("Com_Collider_OBB"), reinterpret_cast<CComponent**>(&m_pColliderCom_OBB), &ColliderDesc)))
+		return E_FAIL;
+
+	
 
 	return S_OK;
 }
@@ -647,6 +642,7 @@ void CBody_Player::Free()
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pColliderCom);
+	Safe_Release(m_pColliderCom_OBB);
 
 	Safe_Release(m_pCollisionDestObject);
 }

@@ -13,6 +13,7 @@
 #include "Pistol.h"
 #include "Mira.h"
 #include "Jetpack.h"
+#include "Elite.h"
 
 CPlayer_Attack1::CPlayer_Attack1(class CGameObject* pOwner)
 	: CState{ CPlayer::PLAYER_ANIMATIONID::ATTACK_R1 , pOwner }
@@ -25,7 +26,7 @@ HRESULT CPlayer_Attack1::Initialize()
 	return S_OK;
 }
 
-HRESULT CPlayer_Attack1::Start_State()
+HRESULT CPlayer_Attack1::Start_State(void* pArg)
 {
 
 
@@ -38,6 +39,8 @@ void CPlayer_Attack1::Update(_float fTimeDelta)
 
 
 	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+	CWeapon_Player* pKanata = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON));
+	pKanata->Set_Attacking(true);
 
 	if (CPlayer::PLAYER_ANIMATIONID::ATTACK_R1 == pModel->Get_CurAnimationIndex() ||
 		CPlayer::PLAYER_ANIMATIONID::ATTACK_L1 == pModel->Get_CurAnimationIndex())
@@ -60,7 +63,8 @@ void CPlayer_Attack1::Update(_float fTimeDelta)
 
 void CPlayer_Attack1::End_State()
 {
-
+	CWeapon_Player* pKanata = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON));
+	pKanata->Set_Attacking(false);
 }
 
 
@@ -73,25 +77,31 @@ void CPlayer_Attack1::Check_Collision()
 	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Sniper");
 	for (auto& Sniper : Snipers)
 	{
-		static_cast<CSniper*>(Sniper)->Check_Collision();
+		_bool b = static_cast<CSniper*>(Sniper)->Check_Collision();
 	}
 
 	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Pistol");
 	for (auto& Pistol : Pistols)
 	{
-		static_cast<CPistol*>(Pistol)->Check_Collision();
+		_bool b = static_cast<CPistol*>(Pistol)->Check_Collision();
 	}
 
 	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Mira");
 	for (auto& Mira : Miras)
 	{
-		static_cast<CMira*>(Mira)->Check_Collision();
+		_bool b = static_cast<CMira*>(Mira)->Check_Collision();
 	}
 
 	list<CGameObject*>& Jetpacks = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Jetpack");
 	for (auto& Jetpack : Jetpacks)
 	{
-		static_cast<CJetpack*>(Jetpack)->Check_Collision();
+		_bool b = static_cast<CJetpack*>(Jetpack)->Check_Collision();
+	}
+
+	list<CGameObject*>& Elites = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Elite");
+	for (auto& Elite : Elites)
+	{
+		_bool b = static_cast<CElite*>(Elite)->Check_Collision();
 	}
 }
 

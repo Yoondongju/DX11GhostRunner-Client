@@ -18,7 +18,7 @@ HRESULT CMira_Idle::Initialize()
 	return S_OK;
 }
 
-HRESULT CMira_Idle::Start_State()
+HRESULT CMira_Idle::Start_State(void* pArg)
 {
 
 
@@ -30,16 +30,16 @@ void CMira_Idle::Update(_float fTimeDelta)
 	if (Check_Death())
 		return;
 
-	CModel* pModel = m_pOwner->Get_Model();
-
-
-
+	
+	if (Check_MindControling())
+		return;
 
 
 
 
 	if (Check_Detect())
 	{
+		CModel* pModel = m_pOwner->Get_Model();
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 
 		pModel->SetUp_Animation(CMira::MIRA_ANIMATION::ATTACK, true);
@@ -75,6 +75,28 @@ _bool CMira_Idle::Check_Detect()
 _bool CMira_Idle::Check_Death()
 {
 	return _bool();
+}
+
+
+_bool CMira_Idle::Check_MindControling()
+{
+	CMira* pMira = static_cast<CMira*>(m_pOwner);
+	if (false == pMira->IsMindControling())
+		return false;
+
+	
+	CModel* pModel = m_pOwner->Get_Model();
+	CFsm* pFsm = m_pOwner->Get_Fsm();
+
+	
+	_bool	isMindContorling = true;
+
+	pModel->SetUp_Animation(CMira::MIRA_ANIMATION::ATTACK, true);
+	pFsm->Change_State(CMira::MIRA_ANIMATION::ATTACK, -1 , &isMindContorling);
+
+
+
+	return true;
 }
 
 

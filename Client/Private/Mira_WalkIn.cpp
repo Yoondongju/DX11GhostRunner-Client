@@ -18,7 +18,7 @@ HRESULT CMira_WalkIn::Initialize()
 	return S_OK;
 }
 
-HRESULT CMira_WalkIn::Start_State()
+HRESULT CMira_WalkIn::Start_State(void* pArg)
 {
 
 

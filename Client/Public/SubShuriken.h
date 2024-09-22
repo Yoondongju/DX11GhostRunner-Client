@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Client_Defines.h"
-#include "GameObject.h"
+#include "PartObject.h"
 
 
 BEGIN(Engine)
@@ -13,7 +13,7 @@ END
 
 BEGIN(Client)
 
-class CSubShuriken final : public CGameObject
+class CSubShuriken final : public CPartObject
 {
 public:
 	typedef struct : public CGameObject::GAMEOBJECT_DESC

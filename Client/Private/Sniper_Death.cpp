@@ -17,7 +17,7 @@ HRESULT CSniper_Death::Initialize()
 	return S_OK;
 }
 
-HRESULT CSniper_Death::Start_State()
+HRESULT CSniper_Death::Start_State(void* pArg)
 {
 
 

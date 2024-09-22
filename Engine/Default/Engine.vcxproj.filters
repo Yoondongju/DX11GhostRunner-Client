@@ -187,6 +187,18 @@
     <Filter Include="01.Utility\03.Components\VIBuffer\Instancing\Mesh">
       <UniqueIdentifier>{09c7b82d-088c-42dc-871c-84b3f1ba44e6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01.Utility\03.Components\VIBuffer\Wire">
+      <UniqueIdentifier>{92aaafe9-5aad-475e-a5cb-bbe963ea49f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\03.Components\VIBuffer\Trail">
+      <UniqueIdentifier>{4154e348-e2dd-4838-ada9-8a8872f57c02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\08.RenderTargets">
+      <UniqueIdentifier>{66f5b926-17b9-4c21-a4a8-ac625b94dff6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\08.RenderTargets\Manager">
+      <UniqueIdentifier>{de8a7e84-2945-4a78-9a7e-697f596957d4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Private\Base.cpp">
@@ -360,8 +372,20 @@
     <ClCompile Include="..\Private\VIBuffer_Point_Instance.cpp">
       <Filter>01.Utility\03.Components\VIBuffer\Instancing\Point</Filter>
     </ClCompile>
-    <ClCompile Include="..\Private\VIBufeer_Mesh_Instance.cpp">
+    <ClCompile Include="..\Private\VIBuffer_Mesh_Instance.cpp">
       <Filter>01.Utility\03.Components\VIBuffer\Instancing\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\VIBuffer_Trail.cpp">
+      <Filter>01.Utility\03.Components\VIBuffer\Trail</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\VIBuffer_Wire.cpp">
+      <Filter>01.Utility\03.Components\VIBuffer\Wire</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\RenderTarget.cpp">
+      <Filter>01.Utility\08.RenderTargets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Target_Manager.cpp">
+      <Filter>01.Utility\08.RenderTargets\Manager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -551,12 +575,27 @@
     <ClInclude Include="..\Public\VIBuffer_Point_Instance.h">
       <Filter>01.Utility\03.Components\VIBuffer\Instancing\Point</Filter>
     </ClInclude>
-    <ClInclude Include="..\Public\VIBufeer_Mesh_Instance.h">
+    <ClInclude Include="..\Public\VIBuffer_Mesh_Instance.h">
       <Filter>01.Utility\03.Components\VIBuffer\Instancing\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\VIBuffer_Trail.h">
+      <Filter>01.Utility\03.Components\VIBuffer\Trail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\VIBuffer_Wire.h">
+      <Filter>01.Utility\03.Components\VIBuffer\Wire</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\RenderTarget.h">
+      <Filter>01.Utility\08.RenderTargets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Target_Manager.h">
+      <Filter>01.Utility\08.RenderTargets\Manager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_Cell.hlsl">
+      <Filter>01.Utility\98.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_Deferred.hlsl">
       <Filter>01.Utility\98.ShaderFiles</Filter>
     </FxCompile>
   </ItemGroup>

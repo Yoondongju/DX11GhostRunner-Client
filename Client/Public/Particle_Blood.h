@@ -1,22 +1,31 @@
 #pragma once
 
 #include "Client_Defines.h"
-#include "GameObject.h"
+#include "PartObject.h"
 
 BEGIN(Engine)
 class CShader;
 class CTexture;
-class CVIBuffer_Point_Instance;
+class CVIBuffer_Mesh_Instance;
 END
 
 BEGIN(Client)
 
-class CParticle_Blood final : public CGameObject
+class CParticle_Blood final : public CPartObject
 {
+public:
+	typedef struct : public CPartObject::PARTOBJ_DESC
+	{
+		const _float4x4* pSocketBoneMatrix = { nullptr };
+
+	}BLOOD_DESC;
+	
 private:
 	CParticle_Blood(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CParticle_Blood(const CParticle_Blood& Prototype);
 	virtual ~CParticle_Blood() = default;
+
+	
 
 public:
 	virtual HRESULT Initialize_Prototype() override;
@@ -26,10 +35,15 @@ public:
 	virtual void Late_Update(_float fTimeDelta) override;
 	virtual HRESULT Render() override;
 
-public:
+private:
 	CShader*					m_pShaderCom = { nullptr };
 	CTexture*					m_pTextureCom = { nullptr };
-	CVIBuffer_Point_Instance*	m_pVIBufferCom = { nullptr };
+	CVIBuffer_Mesh_Instance*	m_pVIBufferCom = { nullptr };
+
+
+private:
+	const _float4x4*			m_pSocketMatrix = { nullptr };
+
 
 private:
 	HRESULT Ready_Components();

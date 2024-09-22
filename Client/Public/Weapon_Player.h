@@ -9,6 +9,7 @@ BEGIN(Engine)
 class CShader;
 class CModel;
 class CCollider;
+
 END
 
 BEGIN(Client)
@@ -20,7 +21,6 @@ public:
 
 	typedef struct : public CPartObject::PARTOBJ_DESC
 	{
-		const _uint*     pParentState = { nullptr };
 		const _float4x4* pSocketBoneMatrix = { nullptr };
 
 		class CSubShuriken* pSubShuriSken[2] = {nullptr};
@@ -42,11 +42,16 @@ public:
 	CCollider*		Get_Collider() { return m_pColliderCom[m_eCurType]; }
 
 public:
-	const _float4x4& Get_OriginMatrix() { return m_OriginMatrix; }
+	const _float4x4& Get_ShurikenOriginMatrix() { return m_ShurikenOriginMatrix; }
+
 
 public:
+	_bool					IsAttacking() { return m_isAttacking; }
 	void					Set_Attacking(_bool b) { m_isAttacking = b; }
 	class CSubShuriken**	Get_SubShuriken() { return m_pSubShuriken; }
+
+
+
 
 
 public:
@@ -64,16 +69,23 @@ private:
 
 	WEAPON_TYPE		m_eCurType = { WEAPON_TYPE::KATANA };
 
-
 private:
 	const _float4x4* m_pSocketMatrix = { nullptr };
-	_float4x4		 m_OriginMatrix = {};
+
+	_float4x4		 m_KatanaOriginMatrix = {};
+	_float4x4		 m_ShurikenOriginMatrix = {};
+
+
 
 	_bool			 m_isAttacking = { false };		// 공격중이니 ?
 
-	
+
+
 private:
-	class CSubShuriken*		m_pSubShuriken[2] = { nullptr };
+	class CSubShuriken*			m_pSubShuriken[2] = { nullptr };
+	
+
+
 
 
 private:

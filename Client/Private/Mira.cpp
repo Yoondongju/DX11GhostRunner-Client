@@ -13,16 +13,18 @@
 #include "Mira_WalkIn.h"
 
 #include "Player.h"
+#include "Particle_Blood.h"
+#include "Monster_Bullet.h"
 
 CMira::CMira(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
-    : CMonster(pDevice, pContext)
+    : CEnemy(pDevice, pContext)
 {
 
 }
 
 
 CMira::CMira(const CMira& Prototype)
-    : CMonster(Prototype)
+    : CEnemy(Prototype)
 {
 
 }
@@ -47,6 +49,8 @@ HRESULT CMira::Initialize(void* pArg)
     if (FAILED(Ready_Change_Layer()))
         return E_FAIL;
 
+    if (FAILED(Reday_Parts()))
+        return E_FAIL;
 
     m_pModel->SetUp_Animation(WALKIN_AROUND, true);
     m_pFsm->Set_State(WALKIN_AROUND);
@@ -83,12 +87,17 @@ void CMira::Update(_float fTimeDelta)
     
 
     m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
+
+    for (auto& pPartObject : m_Parts)
+        pPartObject->Update(fTimeDelta);
 }
 
 void CMira::Late_Update(_float fTimeDelta)
 {
     m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 
+    for (auto& pPartObject : m_Parts)
+        pPartObject->Late_Update(fTimeDelta);
 }
 
 HRESULT CMira::Render()
@@ -104,21 +113,7 @@ HRESULT CMira::Render()
         return E_FAIL;
 
 
-    const LIGHT_DESC* pLightDesc = m_pGameInstance->Get_LightDesc(0);
-    if (nullptr == pLightDesc)
-        return E_FAIL;
-
-    if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightDir", &pLightDesc->vDirection, sizeof(_float4))))
-        return E_FAIL;
-    if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightDiffuse", &pLightDesc->vDiffuse, sizeof(_float4))))
-        return E_FAIL;
-    if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightAmbient", &pLightDesc->vAmbient, sizeof(_float4))))
-        return E_FAIL;
-    if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightSpecular", &pLightDesc->vSpecular, sizeof(_float4))))
-        return E_FAIL;
-
-    if (FAILED(m_pShaderCom->Bind_RawValue("g_vCamPosition", &m_pGameInstance->Get_CamPosition_Float4(), sizeof(_float4))))
-        return E_FAIL;
+   
 
 
     _uint iPassNum = 0;
@@ -161,7 +156,7 @@ HRESULT CMira::Render()
     return S_OK;
 }
 
-void CMira::Check_Collision()
+_bool CMira::Check_Collision()
 {
     CWeapon_Player* pPlayerWeapon = static_cast<CWeapon_Player*>(static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY))->Get_Part(CPlayer::PART_WEAPON));
     CCollider* pCollider = pPlayerWeapon->Get_Collider();
@@ -180,8 +175,7 @@ void CMira::Check_Collision()
         {
             if (false == isCollEvenOnce)
             {
-                m_pColliderCom->Intersect(ppSubShuriken[i]->Get_Collider());
-                break;
+                isCollEvenOnce = m_pColliderCom->Intersect(ppSubShuriken[i]->Get_Collider());
             }
         }
 
@@ -199,6 +193,26 @@ void CMira::Check_Collision()
 
         m_pModel->SetUp_Animation(CMira::MIRA_ANIMATION::DEATH, true);
         m_pFsm->Change_State(CMira::MIRA_ANIMATION::DEATH);
+
+        static_cast<CParticle_Blood*>(m_Parts[PART_EFFECT])->SetActiveMyParticle(true);
+
+        return true;
+    }
+
+    return false;
+}
+
+void CMira::Check_CollByTargetEnemy()
+{
+    if (CMira::MIRA_ANIMATION::DEATH != m_pModel->Get_CurAnimationIndex())
+    {
+        _double& TrackPos = m_pModel->Get_Referene_CurrentTrackPosition();
+        TrackPos = 0.0;
+
+        m_pModel->SetUp_Animation(CMira::MIRA_ANIMATION::DEATH, true);
+        m_pFsm->Change_State(CMira::MIRA_ANIMATION::DEATH);
+
+        static_cast<CParticle_Blood*>(m_Parts[PART_EFFECT])->SetActiveMyParticle(true);
     }
 }
 
@@ -266,6 +280,33 @@ HRESULT CMira::Ready_State()
 HRESULT CMira::Ready_Change_Layer()
 {
     m_strChangeLayerName = L"Layer_Mira";
+
+    return S_OK;
+}
+
+HRESULT CMira::Reday_Parts()
+{
+    m_Parts.resize(PART_END);
+
+    CParticle_Blood::BLOOD_DESC	BloodDesc{};
+
+    BloodDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    BloodDesc.pSocketBoneMatrix = m_pModel->Get_BoneCombindTransformationMatrix_Ptr("spine_01");
+    BloodDesc.pOwner = this;
+    BloodDesc.InitWorldMatrix = XMMatrixIdentity();
+    if (FAILED(__super::Add_PartObject(PART_EFFECT, TEXT("Prototype_GameObject_Particle_Blood"), &BloodDesc)))
+        return E_FAIL;
+
+    CMonster_Bullet::BULLET_DESC BulletDesc{};
+
+    BulletDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    BulletDesc.pSocketBoneMatrix = m_pModel->Get_BoneCombindTransformationMatrix_Ptr("Gun_r");
+    BulletDesc.pOwner = this;
+    BulletDesc.InitWorldMatrix = XMMatrixIdentity();
+    BulletDesc.fSpeedPerSec = 30.f;
+
+    if (FAILED(__super::Add_PartObject(PART_BULLET, TEXT("Prototype_GameObject_Monster_Bullet"), &BulletDesc)))
+        return E_FAIL;
 
     return S_OK;
 }

@@ -95,11 +95,23 @@ public:
 	void Go_Straight_TargetObject(_float fTimeDelta);
 
 	void Go_Straight(_float fTimeDelta);
+	void Go_Straight_All(_float fTimeDelta);
+
 	void Go_Backward(_float fTimeDelta);
+	void Go_Backward_All(_float fTimeDelta);
+
 	void Go_Right(_float fTimeDelta);
+	void Go_Right_All(_float fTimeDelta);
+
 	void Go_Left(_float fTimeDelta);
+	void Go_Left_All(_float fTimeDelta);
+
+
+
+
 
 	void Go_Dir(_fvector vDirection , _float fTimeDelta);
+	void Go_Dir_XZ(_fvector vDirection, _float fTimeDelta);
 
 
 	void Go_Straight_FreeWalk(_float fTimeDelta);
@@ -116,9 +128,11 @@ public:
 	void Rotation(const _fvector & vAxis, _float fRadian);
 	void Rotation(_float fX, _float fY, _float fZ);
 
-	void LookAt(const _fvector & vAt);
-	void LookAt_XZ(const _fvector& vAt);
+	void LookAt(const _fvector & vAt, _float4x4* RotationMatrix);
+	void LookAt_Smooth(const _fvector& vAt, _float fTimeDelta, _float4x4* RotationMatrix);
 
+	void LookAt_XZ(const _fvector& vAt);
+	void LookAt_XZSmooth(const _fvector& vAt, _float fTimeDelta, _float4x4* RotationMatrix);
 
 private:
 	_float4x4			m_WorldMatrix = {};
@@ -127,6 +141,7 @@ private:
 	_float				m_fSpeedPerSec = {};
 
 	_float				m_fRotationPerSec = {};
+
 
 
 

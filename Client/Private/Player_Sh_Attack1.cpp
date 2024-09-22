@@ -25,7 +25,7 @@ HRESULT CPlayer_Sh_Attack1::Initialize()
 	return S_OK;
 }
 
-HRESULT CPlayer_Sh_Attack1::Start_State()
+HRESULT CPlayer_Sh_Attack1::Start_State(void* pArg)
 {
 
 
@@ -34,7 +34,6 @@ HRESULT CPlayer_Sh_Attack1::Start_State()
 
 void CPlayer_Sh_Attack1::Update(_float fTimeDelta)
 {
-
 	m_fAccTime += fTimeDelta;
 
 	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
@@ -52,7 +51,7 @@ void CPlayer_Sh_Attack1::Update(_float fTimeDelta)
 	CTransform* pSubTransform2 = pSubShuriken[1]->Get_Transform();
 
 
-	if (0.1f <= (TrackPos / Duration))
+	if (0.05f <= (TrackPos / Duration))
 	{
 		Check_Collision();
 
@@ -126,7 +125,7 @@ void CPlayer_Sh_Attack1::End_State()
 {
 	CWeapon_Player* pShuiKen = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON));
 
-	_float4x4 OriginMatrix =  pShuiKen->Get_OriginMatrix();
+	_float4x4 OriginMatrix =  pShuiKen->Get_ShurikenOriginMatrix();
 	pShuiKen->Get_Transform()->Set_WorldMatrix(OriginMatrix);
 
 	pShuiKen->Set_Attacking(false);
@@ -165,29 +164,28 @@ _bool CPlayer_Sh_Attack1::Check_Jump()
 
 void CPlayer_Sh_Attack1::Check_Collision()
 {
-
 	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Sniper");
 	for (auto& Sniper : Snipers)
 	{
-		static_cast<CSniper*>(Sniper)->Check_Collision();
+		_bool b = static_cast<CSniper*>(Sniper)->Check_Collision();
 	}
 
 	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Pistol");
 	for (auto& Pistol : Pistols)
 	{
-		static_cast<CPistol*>(Pistol)->Check_Collision();
+		_bool b = static_cast<CPistol*>(Pistol)->Check_Collision();
 	}
 
 	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Mira");
 	for (auto& Mira : Miras)
 	{
-		static_cast<CMira*>(Mira)->Check_Collision();
+		_bool b = static_cast<CMira*>(Mira)->Check_Collision();
 	}
 
 	list<CGameObject*>& Jetpacks = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Jetpack");
 	for (auto& Jetpack : Jetpacks)
 	{
-		static_cast<CJetpack*>(Jetpack)->Check_Collision();
+		_bool b = static_cast<CJetpack*>(Jetpack)->Check_Collision();
 	}
 }
 

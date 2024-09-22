@@ -6,6 +6,7 @@
 BEGIN(Engine)
 class CShader;
 class CModel;
+class CCollider;
 END
 
 BEGIN(Client)
@@ -26,8 +27,8 @@ private:
 
 
 public:
-	class CModel* Get_Model() override { return m_pModelCom; }
-
+	virtual CModel*		Get_Model() override { return m_pModelCom; }
+	CCollider*			Get_Collider() { return m_pColliderCom; }
 
 
 public:
@@ -39,9 +40,9 @@ public:
 	virtual HRESULT Render() override;
 
 private:
-	class CShader* m_pShaderCom = { nullptr };
-	class CModel* m_pModelCom = { nullptr };
-
+	CShader* m_pShaderCom = { nullptr };
+	CModel* m_pModelCom = { nullptr };
+	CCollider* m_pColliderCom = { nullptr };
 
 
 private:

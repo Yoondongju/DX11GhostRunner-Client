@@ -18,7 +18,7 @@ HRESULT CSniper_Idle::Initialize()
 	return S_OK;
 }
 
-HRESULT CSniper_Idle::Start_State()
+HRESULT CSniper_Idle::Start_State(void* pArg)
 {
 
 
@@ -28,6 +28,9 @@ HRESULT CSniper_Idle::Start_State()
 void CSniper_Idle::Update(_float fTimeDelta)
 {
 	if (Check_Death())
+		return;
+
+	if (Check_MindControling())
 		return;
 
 	m_fAccTime += fTimeDelta;
@@ -101,6 +104,8 @@ void CSniper_Idle::Update(_float fTimeDelta)
 		return;
 	}
 
+	// 마인드 컨트롤 당했으면 Attack 상태로 변경하면서 pArg로 내가 공격할 대상을 넣어줄까
+
 }
 
 void CSniper_Idle::End_State()
@@ -129,6 +134,25 @@ _bool CSniper_Idle::Check_Detect()
 _bool CSniper_Idle::Check_Death()
 {
 	return _bool();
+}
+
+_bool CSniper_Idle::Check_MindControling()
+{
+	CSniper* pSniper = static_cast<CSniper*>(m_pOwner);
+	if (false == pSniper->IsMindControling())
+		return false;
+
+
+	CModel* pModel = m_pOwner->Get_Model();
+	CFsm* pFsm = m_pOwner->Get_Fsm();
+
+
+	_bool	isMindContorling = true;
+
+	pModel->SetUp_Animation(CSniper::SNIPER_ANIMATION::ATTACK, true);
+	pFsm->Change_State(CSniper::SNIPER_ANIMATION::ATTACK, -1, &isMindContorling);
+
+	return true;
 }
 
 

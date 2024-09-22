@@ -8,6 +8,11 @@
 
 #include "Animation.h"
 
+#include "Sniper.h"
+#include "Pistol.h"
+#include "Mira.h"
+#include "Jetpack.h"
+
 CPlayer_DashCutAll::CPlayer_DashCutAll(class CGameObject* pOwner)
 	: CState{ CPlayer::PLAYER_ANIMATIONID::FURR_DASH_TRICUT , pOwner }
 {
@@ -33,11 +38,15 @@ HRESULT CPlayer_DashCutAll::Start_State()
 	pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_LOOK), 140, Engine::CRigidBody::ACCELERATION);
 	pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_LOOK), 60, Engine::CRigidBody::VELOCITYCHANGE);
 
+	static_cast<CPlayer*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_PARTICLE_CUTALL)->SetActiveMyParticle(true);
+
 	return S_OK;
 }
 
 void CPlayer_DashCutAll::Update(_float fTimeDelta)
 {
+	Check_Collision();
+
 	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 
 
@@ -60,12 +69,40 @@ void CPlayer_DashCutAll::Update(_float fTimeDelta)
 void CPlayer_DashCutAll::End_State()
 {
 	m_fAccTime = 0.f;
+	
 
 	CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
 	pPlayer->Set_StartCountCutAllTime(false);
 	pPlayer->Set_CutAllRemainingTime(0.f);
 }
 
+
+void CPlayer_DashCutAll::Check_Collision()
+{
+	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Sniper");
+	for (auto& Sniper : Snipers)
+	{
+		static_cast<CSniper*>(Sniper)->Check_Collision();
+	}
+
+	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Pistol");
+	for (auto& Pistol : Pistols)
+	{
+		static_cast<CPistol*>(Pistol)->Check_Collision();
+	}
+
+	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Mira");
+	for (auto& Mira : Miras)
+	{
+		static_cast<CMira*>(Mira)->Check_Collision();
+	}
+
+	list<CGameObject*>& Jetpacks = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Jetpack");
+	for (auto& Jetpack : Jetpacks)
+	{
+		static_cast<CJetpack*>(Jetpack)->Check_Collision();
+	}
+}
 
 CPlayer_DashCutAll* CPlayer_DashCutAll::Create(class CGameObject* pOwner)
 {

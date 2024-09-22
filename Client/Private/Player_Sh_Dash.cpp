@@ -17,7 +17,7 @@ HRESULT CPlayer_Sh_Dash::Initialize()
 	return S_OK;
 }
 
-HRESULT CPlayer_Sh_Dash::Start_State()
+HRESULT CPlayer_Sh_Dash::Start_State(void* pArg)
 {
 	CTransform* pTransform = m_pOwner->Get_Transform();
 	CRigidBody* pRigidBody = m_pOwner->Get_RigidBody();

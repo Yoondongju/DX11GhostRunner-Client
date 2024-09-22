@@ -11,16 +11,18 @@
 #include "Sniper_Idle.h"
 
 #include "Player.h"
+#include "Particle_Blood.h"
+#include "Monster_Bullet.h"
 
 CSniper::CSniper(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
-    : CContainerObject(pDevice, pContext)
+    : CEnemy(pDevice, pContext)
 {
 
 }
 
 
 CSniper::CSniper(const CSniper& Prototype)
-    : CContainerObject(Prototype)
+    : CEnemy(Prototype)
 {
 
 }
@@ -91,6 +93,9 @@ void CSniper::Late_Update(_float fTimeDelta)
 {
     m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 
+#ifdef _DEBUG
+    m_pGameInstance->Add_DebugObject(m_pColliderCom);
+#endif
 
     for (auto& pPartObject : m_Parts)
         pPartObject->Late_Update(fTimeDelta);
@@ -109,22 +114,7 @@ HRESULT CSniper::Render()
         return E_FAIL;
 
 
-    const LIGHT_DESC* pLightDesc = m_pGameInstance->Get_LightDesc(0);
-    if (nullptr == pLightDesc)
-        return E_FAIL;
-
-    if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightDir", &pLightDesc->vDirection, sizeof(_float4))))
-        return E_FAIL;
-    if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightDiffuse", &pLightDesc->vDiffuse, sizeof(_float4))))
-        return E_FAIL;
-    if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightAmbient", &pLightDesc->vAmbient, sizeof(_float4))))
-        return E_FAIL;
-    if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightSpecular", &pLightDesc->vSpecular, sizeof(_float4))))
-        return E_FAIL;
-
-    if (FAILED(m_pShaderCom->Bind_RawValue("g_vCamPosition", &m_pGameInstance->Get_CamPosition_Float4(), sizeof(_float4))))
-        return E_FAIL;
-
+  
 
 
     _uint iPassNum = 0;
@@ -159,14 +149,12 @@ HRESULT CSniper::Render()
             return E_FAIL;
     }
 
-#ifdef _DEBUG
-    m_pColliderCom->Render();
-#endif
+
 
     return S_OK;
 }
 
-void CSniper::Check_Collision()
+_bool CSniper::Check_Collision()
 {
     CWeapon_Player* pPlayerWeapon = static_cast<CWeapon_Player*>(static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY))->Get_Part(CPlayer::PART_WEAPON));
     CCollider* pCollider = pPlayerWeapon->Get_Collider();
@@ -185,8 +173,7 @@ void CSniper::Check_Collision()
         {
             if (false == isCollEvenOnce)
             {
-                m_pColliderCom->Intersect(ppSubShuriken[i]->Get_Collider());
-                break;
+                isCollEvenOnce = m_pColliderCom->Intersect(ppSubShuriken[i]->Get_Collider());
             }
         }
            
@@ -207,6 +194,26 @@ void CSniper::Check_Collision()
 
         m_pModel->SetUp_Animation(CSniper::SNIPER_ANIMATION::DEATH_1, true);
         m_pFsm->Change_State(CSniper::SNIPER_ANIMATION::DEATH_1);
+
+        static_cast<CParticle_Blood*>(m_Parts[PART_EFFECT])->SetActiveMyParticle(true);
+
+        return true;
+    }
+
+    return false;
+}
+
+void CSniper::Check_CollByTargetEnemy()
+{
+    if (CSniper::SNIPER_ANIMATION::DEATH_1 != m_pModel->Get_CurAnimationIndex())
+    {
+        _double& TrackPos = m_pModel->Get_Referene_CurrentTrackPosition();
+        TrackPos = 0.0;
+
+        m_pModel->SetUp_Animation(CSniper::SNIPER_ANIMATION::DEATH_1, true);
+        m_pFsm->Change_State(CSniper::SNIPER_ANIMATION::DEATH_1);
+
+        static_cast<CParticle_Blood*>(m_Parts[PART_EFFECT])->SetActiveMyParticle(true);
     }
 }
 
@@ -263,6 +270,28 @@ HRESULT CSniper::Ready_Parts()
     WeaponDesc.InitWorldMatrix = XMMatrixIdentity();
     if (FAILED(__super::Add_PartObject(PART_WEAPON, TEXT("Prototype_GameObject_Weapon_Sniper"), &WeaponDesc)))
         return E_FAIL;
+
+    CParticle_Blood::BLOOD_DESC	BloodDesc{};
+
+    BloodDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    BloodDesc.pSocketBoneMatrix = m_pModel->Get_BoneCombindTransformationMatrix_Ptr("spine_01");
+    BloodDesc.pOwner = this;
+    BloodDesc.InitWorldMatrix = XMMatrixIdentity();
+    if (FAILED(__super::Add_PartObject(PART_EFFECT, TEXT("Prototype_GameObject_Particle_Blood"), &BloodDesc)))
+        return E_FAIL;
+
+
+    CMonster_Bullet::BULLET_DESC	BulletDesc{};
+
+    BulletDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    BulletDesc.pSocketBoneMatrix = m_pModel->Get_BoneCombindTransformationMatrix_Ptr("Gun_r");
+    BulletDesc.pOwner = this;
+    BulletDesc.InitWorldMatrix = XMMatrixIdentity();
+    BulletDesc.fSpeedPerSec = 20.f;
+
+    if (FAILED(__super::Add_PartObject(PART_BULLET, TEXT("Prototype_GameObject_Monster_Bullet"), &BulletDesc)))
+        return E_FAIL;
+
 
     return S_OK;
 }

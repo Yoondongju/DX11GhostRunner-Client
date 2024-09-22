@@ -27,10 +27,10 @@ private:
 
 
 public:
-	class CModel* Get_Model() override { return m_pModelCom; }
+	virtual CModel* Get_Model() override { return m_pModelCom; }
 	
-	void		  Set_Attacking(_bool b) { m_isAttacking = b; }
 
+	void		  Set_Attacking(_bool b) { m_isAttacking = b; }
 	const _float4x4& Get_OriginMatrix() { return m_OriginMatrix; }
 
 public:

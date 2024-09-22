@@ -17,7 +17,7 @@ HRESULT CPlayer_Block2::Initialize()
 	return S_OK;
 }
 
-HRESULT CPlayer_Block2::Start_State()
+HRESULT CPlayer_Block2::Start_State(void* pArg)
 {
 
 

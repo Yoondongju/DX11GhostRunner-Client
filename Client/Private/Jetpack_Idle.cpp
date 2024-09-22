@@ -18,7 +18,7 @@ HRESULT CJetpack_Idle::Initialize()
 	return S_OK;
 }
 
-HRESULT CJetpack_Idle::Start_State()
+HRESULT CJetpack_Idle::Start_State(void* pArg)
 {
 
 

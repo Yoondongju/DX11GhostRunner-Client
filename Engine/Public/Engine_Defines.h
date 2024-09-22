@@ -44,6 +44,8 @@ using namespace physx;
 #include <map>
 #include <list>
 #include <vector>
+#include <queue>
+
 #include <algorithm>
 #include <string>
 

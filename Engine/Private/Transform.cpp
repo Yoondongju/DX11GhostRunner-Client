@@ -83,6 +83,20 @@ void CTransform::Go_Straight(_float fTimeDelta)
 	Set_State(STATE_POSITION, vPosition);
 }
 
+void CTransform::Go_Straight_All(_float fTimeDelta)
+{
+	_vector vPosition = Get_State(STATE_POSITION);
+	_vector vLook = Get_State(STATE_LOOK);
+
+
+
+	_vector vCompute_Result = XMVector3Normalize(vLook) * m_fSpeedPerSec * fTimeDelta;
+
+	vPosition += vCompute_Result;
+
+	Set_State(STATE_POSITION, vPosition);
+}
+
 void CTransform::Go_Backward(_float fTimeDelta)
 {
 	_vector vPosition = Get_State(STATE_POSITION);
@@ -94,6 +108,21 @@ void CTransform::Go_Backward(_float fTimeDelta)
 
 	vPosition.m128_f32[0] = vPosition.m128_f32[0] - vCompute_Result.m128_f32[0];		// x
 	vPosition.m128_f32[2] = vPosition.m128_f32[2] - vCompute_Result.m128_f32[2];		// z
+
+
+	Set_State(STATE_POSITION, vPosition);
+}
+
+void CTransform::Go_Backward_All(_float fTimeDelta)
+{
+	_vector vPosition = Get_State(STATE_POSITION);
+	_vector vLook = Get_State(STATE_LOOK);
+
+
+
+	_vector vCompute_Result = XMVector3Normalize(vLook) * m_fSpeedPerSec * fTimeDelta;
+
+	vPosition -= vCompute_Result;
 
 
 	Set_State(STATE_POSITION, vPosition);
@@ -115,6 +144,21 @@ void CTransform::Go_Right(_float fTimeDelta)
 	Set_State(STATE_POSITION, vPosition);
 }
 
+void CTransform::Go_Right_All(_float fTimeDelta)
+{
+	_vector vPosition = Get_State(STATE_POSITION);
+	_vector vLook = Get_State(STATE_RIGHT);
+
+
+
+	_vector vCompute_Result = XMVector3Normalize(vLook) * m_fSpeedPerSec * fTimeDelta;
+
+	vPosition += vCompute_Result;
+
+
+	Set_State(STATE_POSITION, vPosition);
+}
+
 void CTransform::Go_Left(_float fTimeDelta)
 {
 	_vector vPosition = Get_State(STATE_POSITION);
@@ -131,6 +175,20 @@ void CTransform::Go_Left(_float fTimeDelta)
 	Set_State(STATE_POSITION, vPosition);
 }
 
+void CTransform::Go_Left_All(_float fTimeDelta)
+{
+	_vector vPosition = Get_State(STATE_POSITION);
+	_vector vLook = Get_State(STATE_RIGHT);
+
+
+	_vector vCompute_Result = XMVector3Normalize(vLook) * m_fSpeedPerSec * fTimeDelta;
+
+	vPosition -= vCompute_Result;
+
+	Set_State(STATE_POSITION, vPosition);
+
+}
+
 void CTransform::Go_Dir(_fvector vDirection, _float fTimeDelta)
 {
 	_vector vPosition = Get_State(STATE_POSITION);
@@ -143,6 +201,22 @@ void CTransform::Go_Dir(_fvector vDirection, _float fTimeDelta)
 
 	Set_State(STATE_POSITION, vPosition);
 }
+
+
+void CTransform::Go_Dir_XZ(_fvector vDirection, _float fTimeDelta)
+{
+	_vector vPosition = Get_State(STATE_POSITION);
+
+
+	_vector vCompute_Result = XMVector3Normalize(vDirection) * m_fSpeedPerSec * fTimeDelta;
+
+
+	vPosition.m128_f32[0] += vCompute_Result.m128_f32[0];
+	vPosition.m128_f32[2] += vCompute_Result.m128_f32[2];
+
+	Set_State(STATE_POSITION, vPosition);
+}
+
 
 void CTransform::Go_Straight_FreeWalk(_float fTimeDelta)
 {
@@ -288,7 +362,7 @@ void CTransform::Rotation(_float fX, _float fY, _float fZ)
 }
 
 
-void CTransform::LookAt(const _fvector& vAt)
+void CTransform::LookAt(const _fvector& vAt ,_float4x4* RotationMatrix)
 {
 	_float3 vScaled = Get_Scaled();
 
@@ -299,21 +373,101 @@ void CTransform::LookAt(const _fvector& vAt)
 	_vector vLook = vAt - vPosition;
 	_vector vRight{}, vUp{};
 
-	
-
-
-	//_float3 vMyup = Get_State(STATE_UP);
-	//D3DXVec3Cross(&vRight, &vMyup, &vLook);// << 여기의 업벡터가 0,1,0이 아니라 본인의 업벡터로 하면?
-	// 확인해봐야함 아직해결 X
 
 	_float3 vUpSample = { 0.f, 1.f, 0.f };
 
 	vRight = XMVector3Cross(XMLoadFloat3(&vUpSample), vLook);
 	vUp = XMVector3Cross(vLook, vRight);
 
-	Set_State(STATE_RIGHT, XMVector3Normalize(vRight) * vScaled.x);
-	Set_State(STATE_UP, XMVector3Normalize(vUp) * vScaled.y);
-	Set_State(STATE_LOOK, XMVector3Normalize(vLook) * vScaled.z);
+
+	vRight = XMVector3Normalize(vRight);
+	vUp = XMVector3Normalize(vUp);
+	vLook = XMVector3Normalize(vLook);
+
+
+	Set_State(STATE_RIGHT, vRight * vScaled.x);
+	Set_State(STATE_UP, vUp * vScaled.y);
+	Set_State(STATE_LOOK, vLook * vScaled.z);
+
+	if (nullptr != RotationMatrix)
+	{
+		_matrix mRotationMatrix = XMMatrixIdentity();
+
+		// RotationMatrix는 회전 행렬의 성분이므로 Right, Up, Look을 행렬의 각 열에 설정
+		mRotationMatrix.r[0] = XMVectorSetW(vRight, 0.f);  // Right 벡터
+		mRotationMatrix.r[1] = XMVectorSetW(vUp, 0.f);     // Up 벡터
+		mRotationMatrix.r[2] = XMVectorSetW(vLook, 0.f);   // Look 벡터
+
+		// 누적 회전 행렬로 저장
+		XMStoreFloat4x4(RotationMatrix, mRotationMatrix);
+	}
+
+}
+
+void CTransform::LookAt_Smooth(const _fvector& vAt, _float fTimeDelta, _float4x4* RotationMatrix)
+{
+	_float3 vScaled = Get_Scaled();
+
+
+	_vector vPosition = Get_State(STATE_POSITION);
+	_vector vTargetLook = vAt - vPosition;
+
+	// 현재 플레이어의 Look 벡터
+	_vector vCurrentLook = Get_State(STATE_LOOK);
+
+	// 벡터 정규화
+	vTargetLook = XMVector3Normalize(vTargetLook);
+	vCurrentLook = XMVector3Normalize(vCurrentLook);
+
+	// 현재 Look 벡터와 목표 Look 벡터 사이의 회전 각도 계산
+	_float fDot = XMVectorGetX(XMVector3Dot(vCurrentLook, vTargetLook));
+	_float fAngle = acosf(fDot); // 각도 (라디안)
+
+	
+	_float fRotationSpeed = 5.0f; // 기본 회전 속도
+	_float fRotationFactor = fAngle / XM_PIDIV2;  // 90도(XM_PIDIV2)에서 최대 속도, 0도에서 최소 속도
+	
+	_float fRotationAmount = fRotationSpeed * fRotationFactor * fTimeDelta; // 각도에 따라 조절된 회전 양
+
+	if (fRotationAmount > fAngle) // 목표까지의 각도보다 회전 양이 크면
+	{
+		fRotationAmount = fAngle; 
+	}
+
+
+	// 회전 축 계산 (현재 Look 벡터와 목표 Look 벡터의 외적)
+	_vector vRotationAxis = XMVector3Cross(vCurrentLook, vTargetLook);
+
+	// 회전 축이 0인 경우는 이미 타겟을 바라보고 있는 경우 (회전 불필요)
+	if (XMVector3Equal(vRotationAxis, XMVectorZero())) {
+		return;
+	}
+
+	// 회전 행렬 생성
+	_matrix vRotationMatrix = XMMatrixRotationAxis(XMVector3Normalize(vRotationAxis), fRotationAmount);
+
+	// 새로운 Look 벡터 계산
+	_vector vNewLook = XMVector3TransformNormal(vCurrentLook, vRotationMatrix);
+
+	// Right 벡터 및 Up 벡터 재계산
+	_float3 vUpSample = { 0.f, 1.f, 0.f };
+	_vector vRight = XMVector3Normalize(XMVector3Cross(XMLoadFloat3(&vUpSample), vNewLook));
+	_vector vUp = XMVector3Normalize(XMVector3Cross(vNewLook, vRight));
+
+	// 스케일을 고려하여 설정
+	Set_State(STATE_RIGHT, vRight * vScaled.x);
+	Set_State(STATE_UP, vUp * vScaled.y);
+	Set_State(STATE_LOOK, vNewLook * vScaled.z);
+
+	// 회전 행렬을 갱신하는 경우
+	if (RotationMatrix)
+	{
+		_matrix mRotationMatrix = XMMatrixIdentity();
+		mRotationMatrix.r[0] = XMVectorSetW(vRight, 0.f);  // Right 벡터
+		mRotationMatrix.r[1] = XMVectorSetW(vUp, 0.f);     // Up 벡터
+		mRotationMatrix.r[2] = XMVectorSetW(vNewLook, 0.f);   // Look 벡터
+		XMStoreFloat4x4(RotationMatrix, mRotationMatrix);
+	}
 }
 
 void CTransform::LookAt_XZ(const _fvector& vAt)
@@ -321,8 +475,6 @@ void CTransform::LookAt_XZ(const _fvector& vAt)
 	_float3 vScaled = Get_Scaled();
 
 	_vector vPosition = Get_State(STATE_POSITION);
-
-
 
 	_vector vLook = vAt - vPosition;
 	_vector vRight{}, vUp{};
@@ -338,6 +490,75 @@ void CTransform::LookAt_XZ(const _fvector& vAt)
 	Set_State(STATE_RIGHT, XMVector3Normalize(vRight) * vScaled.x);
 	Set_State(STATE_UP, XMVector3Normalize(vUp) * vScaled.y);
 	Set_State(STATE_LOOK, XMVector3Normalize(vLook) * vScaled.z);
+}
+
+void CTransform::LookAt_XZSmooth(const _fvector& vAt, _float fTimeDelta, _float4x4* RotationMatrix)
+{
+	_float3 vScaled = Get_Scaled();
+
+
+	_vector vPosition = Get_State(STATE_POSITION);
+	_vector vTargetLook = vAt - vPosition;
+	vTargetLook = XMVectorSetY(vTargetLook, 0.0f);
+
+	
+	_vector vCurrentLook = Get_State(STATE_LOOK);
+	vCurrentLook = XMVectorSetY(vCurrentLook, 0.0f);
+
+
+	vTargetLook = XMVector3Normalize(vTargetLook);
+	vCurrentLook = XMVector3Normalize(vCurrentLook);
+
+	// 현재 Look 벡터와 목표 Look 벡터 사이의 회전 각도 계산
+	_float fDot = XMVectorGetX(XMVector3Dot(vCurrentLook, vTargetLook));
+	_float fAngle = acosf(fDot); // 각도 (라디안)
+
+
+	_float fRotationSpeed = 5.0f; // 기본 회전 속도
+	_float fRotationFactor = fAngle / XM_PIDIV2;  // 90도(XM_PIDIV2)에서 최대 속도, 0도에서 최소 속도
+
+	_float fRotationAmount = fRotationSpeed * fRotationFactor * fTimeDelta; // 각도에 따라 조절된 회전 양
+
+	if (fRotationAmount > fAngle) // 목표까지의 각도보다 회전 양이 크면
+	{
+		fRotationAmount = fAngle;
+	}
+
+
+	// 회전 축 계산 (현재 Look 벡터와 목표 Look 벡터의 외적)
+	_vector vRotationAxis = XMVector3Cross(vCurrentLook, vTargetLook);
+
+	// 회전 축이 0인 경우는 이미 타겟을 바라보고 있는 경우 (회전 불필요)
+	if (XMVector3Equal(vRotationAxis, XMVectorZero())) {
+		return;
+	}
+
+	// 회전 행렬 생성
+	_matrix vRotationMatrix = XMMatrixRotationAxis(XMVector3Normalize(vRotationAxis), fRotationAmount);
+
+	// 새로운 Look 벡터 계산
+	_vector vNewLook = XMVector3TransformNormal(vCurrentLook, vRotationMatrix);
+
+
+	// Right 벡터 및 Up 벡터 재계산
+	_float3 vUpSample = { 0.f, 1.f, 0.f };
+	_vector vRight = XMVector3Normalize(XMVector3Cross(XMLoadFloat3(&vUpSample), vNewLook));
+	_vector vUp = XMVector3Normalize(XMVector3Cross(vNewLook, vRight));
+
+	// 스케일을 고려하여 설정
+	Set_State(STATE_RIGHT, vRight * vScaled.x);
+	Set_State(STATE_UP, vUp * vScaled.y);
+	Set_State(STATE_LOOK, vNewLook * vScaled.z);
+
+	// 회전 행렬을 갱신하는 경우
+	if (RotationMatrix)
+	{
+		_matrix mRotationMatrix = XMMatrixIdentity();
+		mRotationMatrix.r[0] = XMVectorSetW(vRight, 0.f);	  // Right 벡터
+		mRotationMatrix.r[1] = XMVectorSetW(vUp, 0.f);		  // Up 벡터
+		mRotationMatrix.r[2] = XMVectorSetW(vNewLook, 0.f);   // Look 벡터
+		XMStoreFloat4x4(RotationMatrix, mRotationMatrix);
+	}
 }
 
 CTransform* CTransform::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, void* pArg)

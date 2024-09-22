@@ -17,7 +17,7 @@ HRESULT CPistol_Walk::Initialize()
 	return S_OK;
 }
 
-HRESULT CPistol_Walk::Start_State()
+HRESULT CPistol_Walk::Start_State(void* pArg)
 {
 
 	return S_OK;

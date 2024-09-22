@@ -20,7 +20,7 @@ HRESULT CMira_Death::Initialize()
 }
 
 
-HRESULT CMira_Death::Start_State()
+HRESULT CMira_Death::Start_State(void* pArg)
 {
 
 

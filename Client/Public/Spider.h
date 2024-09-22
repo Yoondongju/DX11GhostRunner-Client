@@ -2,7 +2,7 @@
 
 
 #include "Client_Defines.h"
-#include "Monster.h"
+#include "Enemy.h"
 
 
 BEGIN(Engine)
@@ -15,7 +15,7 @@ END
 
 BEGIN(Client)
 
-class CSpider final : public CMonster
+class CSpider final : public CEnemy
 {
 private:
 	CSpider(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

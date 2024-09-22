@@ -5,6 +5,7 @@
 #include "GameInstance.h"
 
 #include "Body_Player.h"
+#include "Animation.h"
 
 CPlayer_TimeStop::CPlayer_TimeStop(class CGameObject* pOwner)
 	: CState{ CPlayer::PLAYER_ANIMATIONID::TIME_STOP , pOwner }
@@ -17,7 +18,7 @@ HRESULT CPlayer_TimeStop::Initialize()
 	return S_OK;
 }
 
-HRESULT CPlayer_TimeStop::Start_State()
+HRESULT CPlayer_TimeStop::Start_State(void* pArg)
 {
 
 
@@ -28,16 +29,39 @@ void CPlayer_TimeStop::Update(_float fTimeDelta)
 {
 	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 
-	if (CPlayer::PLAYER_ANIMATIONID::FURR_AIM_TO_IDLE != pModel->Get_NextAnimationIndex())
+	// 시간이 느려지게 되면 
+
+
+
+	if (CPlayer::PLAYER_ANIMATIONID::TIME_STOP == pModel->Get_CurAnimationIndex())
 	{
-		CFsm* pFsm = m_pOwner->Get_Fsm();
-		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);
+		_double Duration = pModel->Get_CurAnimation()->Get_Duration();
+		_double TrackPos = pModel->Get_Referene_CurrentTrackPosition();
+		
+
+		if (0.1f <= TrackPos / (_float)Duration)
+		{
+			m_pGameInstance->Set_TimeDelayActive(true);
+		}
+
+
+		if (0.95f <= TrackPos / (_float)Duration)
+		{
+			CFsm* pFsm = m_pOwner->Get_Fsm();
+
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::IDLE, true);
+			pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);
+		}
 	}
 }
 
 void CPlayer_TimeStop::End_State()
 {
+	CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
+	pPlayer->Set_StartCountTimeStopTime(false);
+	pPlayer->Set_TimeStopRemainingTime(0.f);
 
+	m_pGameInstance->Set_TimeDelayActive(false);
 }
 
 

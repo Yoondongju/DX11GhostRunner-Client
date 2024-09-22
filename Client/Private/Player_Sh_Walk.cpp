@@ -18,7 +18,7 @@ HRESULT CPlayer_Sh_Walk::Initialize()
 	return S_OK;
 }
 
-HRESULT CPlayer_Sh_Walk::Start_State()
+HRESULT CPlayer_Sh_Walk::Start_State(void* pArg)
 {
 	_float fSpeedPerSec = m_pOwner->Get_Transform()->Get_SpeedPerSec();
 

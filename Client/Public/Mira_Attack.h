@@ -14,7 +14,7 @@ private:
 
 public:
     virtual HRESULT Initialize();
-    virtual HRESULT Start_State();
+    virtual HRESULT Start_State(void* pArg = nullptr);
     virtual void    Update(_float fTimeDelta);
     virtual void    End_State();
 
@@ -27,10 +27,14 @@ private:
     _float3     m_OriginUp = {};
     _float3     m_OriginLook = {};
 
+    _bool       m_isMindContorling = { false };
+
+
 private:
     _bool   Check_DetectOut();
     _bool   Check_Death();
 
+    _bool   Check_MindControling();
 
 
 public:

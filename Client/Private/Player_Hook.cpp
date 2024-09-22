@@ -3,11 +3,13 @@
 
 #include "Player.h"
 #include "Body_Player.h"
+#include "Wire_Player.h"
 
 #include "GameInstance.h"
 
 #include "GrapplingPointUI.h"
 #include "Static_Object.h"
+
 
 CPlayer_Hook::CPlayer_Hook(class CGameObject* pOwner)
 	: CState{ CPlayer::PLAYER_ANIMATIONID::HOOK_UP , pOwner }
@@ -22,21 +24,23 @@ HRESULT CPlayer_Hook::Initialize()
 	return S_OK;
 }
 
-HRESULT CPlayer_Hook::Start_State()
+HRESULT CPlayer_Hook::Start_State(void* pArg)
 {
-	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+	CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
+
+	CModel* pModel = pPlayer->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 	_double& CurTrankPos = pModel->Get_Referene_CurrentTrackPosition();
 	CurTrankPos = 0.f;
 
-	CTransform* pTransform = m_pOwner->Get_Transform();
-	CRigidBody* pRigidBody = m_pOwner->Get_RigidBody();
+	CTransform* pTransform = pPlayer->Get_Transform();
+	CRigidBody* pRigidBody = pPlayer->Get_RigidBody();
 
 	pRigidBody->Set_Velocity(_float3(0.f, 0.f, 0.f));
 	pRigidBody->Set_Accel(_float3(0.f, 0.f, 0.f));
 	pRigidBody->Set_ZeroTimer();
 
 
-	CGrapplingPointUI* pGrapplingPoint = static_cast<CPlayer*>(m_pOwner)->Get_GrapplingPoint();
+	CGrapplingPointUI* pGrapplingPoint = pPlayer->Get_GrapplingPoint();
 
 	_vector vGrapPointPos = pGrapplingPoint->Get_Crane()->Get_Transform()->Get_State(CTransform::STATE_POSITION);
 	_vector vPlayerPos = pTransform->Get_State(CTransform::STATE_POSITION);
@@ -49,7 +53,8 @@ HRESULT CPlayer_Hook::Start_State()
 	pRigidBody->Add_Force_Direction(vDir, 60, Engine::CRigidBody::VELOCITYCHANGE);
 	
 
-	
+	static_cast<CWire_Player*>(pPlayer->Get_Part(CPlayer::PARTID::PART_WIRE))->Set_Active(true);
+
 
 	return S_OK;
 }
@@ -100,6 +105,7 @@ void CPlayer_Hook::Update(_float fTimeDelta)
 
 void CPlayer_Hook::End_State()
 {
+	static_cast<CWire_Player*>(static_cast<CPlayer*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WIRE))->Set_Active(false);
 	m_fAccTime = 0.f;
 }
 

@@ -37,6 +37,11 @@ public:
 
 		vector<_uint> vecIndices;
 		vector<_float4x4> vecOffsetMatrix;
+
+
+		_bool		isInstanceObject = { false };	// 인스턴싱 할 오브젝트니?
+		_wstring	InstanceBufferPrototypeTag = L"";
+
 	}MESH_DESC;
 
 
@@ -103,6 +108,8 @@ private:
 private:
 	HRESULT		Ready_VertexBuffer_NonAnim(void* pArg , _fmatrix PreTransformMatrix);
 	HRESULT		Ready_VertexBuffer_Anim(void* pArg , const CModel* pModel);
+	
+
 
 public:
 	static CMesh* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext , CModel* pModel ,CModel::TYPE eModelType , _fmatrix PreTransformMatrix , void* pArg);

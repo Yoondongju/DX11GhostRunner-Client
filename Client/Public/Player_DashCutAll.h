@@ -20,7 +20,7 @@ public:
 
 
 private:
-
+    void        Check_Collision();
 
 public:
     static CPlayer_DashCutAll* Create(class CGameObject* pOwner);

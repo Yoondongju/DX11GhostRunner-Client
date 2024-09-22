@@ -31,11 +31,11 @@ public:
 	virtual HRESULT Render() override;
 
 public:
-	virtual void Spread(_float fTimeDelta) = 0;
-	virtual void Drop(_float fTimeDelta) = 0;
+	virtual void Spread(_float fTimeDelta) {};
+	virtual void Drop(_float fTimeDelta) {};
 
 protected:
-	ID3D11Buffer* m_pVBInstance = { nullptr };
+	ID3D11Buffer*				m_pVBInstance = { nullptr };
 	D3D11_BUFFER_DESC			m_InstanceBufferDesc = {};
 	D3D11_SUBRESOURCE_DATA		m_InstanceInitialData = {};
 
@@ -48,6 +48,7 @@ protected:
 	_float2						m_vSize = {};
 	_float2						m_vLifeTime = {};
 	_bool						m_isLoop = {};
+
 	_float* m_pSpeed = { nullptr };
 
 

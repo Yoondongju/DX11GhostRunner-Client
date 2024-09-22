@@ -18,7 +18,7 @@ HRESULT CJetpack_Fly::Initialize()
 	return S_OK;
 }
 
-HRESULT CJetpack_Fly::Start_State()
+HRESULT CJetpack_Fly::Start_State(void* pArg)
 {
 	CTransform* pJetpackTransform = m_pOwner->Get_Transform();
 
@@ -152,7 +152,7 @@ void CJetpack_Fly::Update(_float fTimeDelta)
 	}	
 	else
 	{
-		pJetpackTransform->LookAt(vPlayerPos);
+		pJetpackTransform->LookAt(vPlayerPos , nullptr);
 		pJetpackTransform->Go_Straight(fTimeDelta * 6.f);
 	}
 		

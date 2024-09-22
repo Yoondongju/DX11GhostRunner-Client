@@ -18,7 +18,7 @@ HRESULT CPlayer_Sh_Run::Initialize()
 	return S_OK;
 }
 
-HRESULT CPlayer_Sh_Run::Start_State()
+HRESULT CPlayer_Sh_Run::Start_State(void* pArg)
 {
 	_float fSpeedPerSec = m_pOwner->Get_Transform()->Get_SpeedPerSec();
 

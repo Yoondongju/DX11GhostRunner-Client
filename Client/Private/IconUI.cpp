@@ -115,11 +115,8 @@ void CIconUI::Update(_float fTimeDelta)
 
 				_float fResult = (fBlockCoolTime - fRemainingTime);
 
-				if (fResult >= 2.0f)
-				{
-					fResult = 3.f;
-				}
-				else if (fResult >= 1.0f)
+
+				if (fResult >= 1.0f)
 				{
 					fResult = 2.f;
 				}
@@ -269,6 +266,86 @@ void CIconUI::Update(_float fTimeDelta)
 				_float fResult = (fCutAllCoolTime - fRemainingTime);
 
 				if (fResult >= 2.0f)
+				{
+					fResult = 3.f;
+				}
+				else if (fResult >= 1.0f)
+				{
+					fResult = 2.f;
+				}
+				else if (fResult >= 0.0f)
+				{
+					fResult = 1.f;
+				}
+				pNmuber->Set_Number((_int)fResult);
+
+
+				if (m_vOriginSize.x > m_fSizeX &&
+					m_vOriginSize.y > m_fSizeY)
+				{
+					m_fSizeX = m_vOriginSize.x;
+					m_fSizeY = m_vOriginSize.y;
+				}
+				else
+				{
+					m_fSizeX -= fTimeDelta * 40.f;
+					m_fSizeY -= fTimeDelta * 40.f;
+				}
+			}
+		}
+		else
+		{
+			m_bChangeEnter = false;
+			pNmuber->Set_Active(false);
+			return;
+		}
+	}
+	break;
+	case Client::CIconUI::TIMESTOP:
+	{
+		CNumberUI* pNmuber = static_cast<CNumberUI*>(m_childUI_List.back());
+
+		if (false == m_pPlayer->IsTimeStopActive())
+		{
+			if (!m_bChangeEnter && m_vTargetSize.x > m_fSizeX &&
+				m_vTargetSize.y > m_fSizeY)
+			{
+				m_fSizeX += fTimeDelta * 80.f;
+				m_fSizeY += fTimeDelta * 80.f;
+			}
+			else
+			{
+				m_pPlayer->Set_StartCountTimeStopTime(true);
+				m_bChangeEnter = true;
+
+				_float fTimeStopCoolTime = m_pPlayer->Get_TimeStopCoolTime();
+				_float fRemainingTime = m_pPlayer->Get_TimeStopRemainingTime();
+				pNmuber->Set_Active(true);
+
+				_float fResult = (fTimeStopCoolTime - fRemainingTime);
+
+
+				if (fResult >= 6.0f)
+				{
+					fResult = 7.f;
+				}
+
+				else if (fResult >= 5.0f)
+				{
+					fResult = 6.f;
+				}
+
+				else if (fResult >= 4.0f)
+				{
+					fResult = 5.f;
+				}
+
+				else if (fResult >= 3.0f)
+				{
+					fResult = 4.f;
+				}
+
+				else if (fResult >= 2.0f)
 				{
 					fResult = 3.f;
 				}

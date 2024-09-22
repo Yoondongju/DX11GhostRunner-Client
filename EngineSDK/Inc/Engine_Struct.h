@@ -56,6 +56,8 @@ namespace Engine
 		static const D3D11_INPUT_ELEMENT_DESC	Elements[iNumElements];
 	}VTXPOINT;
 
+
+
 	typedef struct   ENGINE_DLL
 	{
 		XMFLOAT3		vPosition;
@@ -139,4 +141,35 @@ namespace Engine
 		static const D3D11_INPUT_ELEMENT_DESC	Elements[iNumElements];
 
 	}VTXPOINTINSTANCE;
+
+	
+	typedef struct ENGINE_DLL
+	{
+		XMFLOAT4		vRight;     
+		XMFLOAT4		vUp;
+		XMFLOAT4		vLook;
+		XMFLOAT4		vTranslation;
+		XMFLOAT2		vLifeTime;
+
+		UINT			InstanceID;
+	
+
+		static const unsigned int	iNumElements = 8;
+		static const D3D11_INPUT_ELEMENT_DESC	Elements[iNumElements];
+
+	}VTXTRAILINSTANCE;
+
+	typedef struct ENGINE_DLL
+	{
+		XMFLOAT4		vRight;
+		XMFLOAT4		vUp;
+		XMFLOAT4		vLook;
+		XMFLOAT4		vTranslation;
+		XMFLOAT2		vLifeTime;
+
+
+		static const unsigned int	iNumElements = 9;
+		static const D3D11_INPUT_ELEMENT_DESC	Elements[iNumElements];
+
+	}VTXMESHINSTANCE;
 }

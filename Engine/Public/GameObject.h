@@ -71,6 +71,9 @@ protected:
 
 	_uint					m_iObjectType = {};
 
+
+
+
 protected:
 	map<const _wstring, class CComponent*>			m_Components;
 

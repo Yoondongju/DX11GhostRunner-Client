@@ -26,7 +26,7 @@ HRESULT CCamera::Initialize(void * pArg)
 	//XMVectorSetW(XMLoadFloat3(&pDesc->vEye), 1);
 
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMLoadFloat4(&pDesc->vEye));
-	m_pTransformCom->LookAt(XMLoadFloat4(&pDesc->vAt));
+	m_pTransformCom->LookAt(XMLoadFloat4(&pDesc->vAt), nullptr);
 
 	m_fFovy = pDesc->fFovy;
 	m_fAspect = pDesc->fAspect;

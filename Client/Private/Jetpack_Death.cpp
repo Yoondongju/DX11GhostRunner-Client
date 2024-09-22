@@ -18,7 +18,7 @@ HRESULT CJetpack_Death::Initialize()
 	return S_OK;
 }
 
-HRESULT CJetpack_Death::Start_State()
+HRESULT CJetpack_Death::Start_State(void* pArg)
 {
 
 

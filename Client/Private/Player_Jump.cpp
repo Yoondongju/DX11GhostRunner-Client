@@ -22,7 +22,7 @@ HRESULT CPlayer_Jump::Initialize()
 	return S_OK;
 }
 
-HRESULT CPlayer_Jump::Start_State()
+HRESULT CPlayer_Jump::Start_State(void* pArg)
 {
 	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 

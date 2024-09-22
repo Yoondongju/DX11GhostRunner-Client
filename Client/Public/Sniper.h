@@ -2,7 +2,7 @@
 
 
 #include "Client_Defines.h"
-#include "ContainerObject.h"
+#include "Enemy.h"
 
 
 BEGIN(Engine)
@@ -17,10 +17,10 @@ END
 
 BEGIN(Client)
 
-class CSniper final : public CContainerObject
+class CSniper final : public CEnemy
 {
 public:
-	enum PARTID { PART_WEAPON, PART_END };
+	enum PARTID { PART_WEAPON, PART_EFFECT, PART_BULLET, PART_END };
 
 	enum SNIPER_ANIMATION
 	{
@@ -43,13 +43,16 @@ private:
 public:	
 	virtual CModel*			Get_Model() override { return m_pModel; }
 	virtual CFsm*			Get_Fsm() override { return m_pFsm; }
-	CCollider*				Get_Collider() { return m_pColliderCom; }
+	virtual CCollider*		Get_Collider() override { return m_pColliderCom; }
 
 public:
 	void					SetDead() { m_isDead = true; }
 	_bool					IsDead() { return m_isDead; }
 
 	_float					Get_Discard() { return m_fDiscard; }
+
+
+
 
 public:
 	virtual HRESULT Initialize_Prototype() override;
@@ -60,8 +63,8 @@ public:
 	virtual HRESULT Render() override;
 
 public:
-	void		Check_Collision();
-
+	_bool		 Check_Collision();
+	virtual void Check_CollByTargetEnemy() override;
 
 private:
 	CShader*	m_pShaderCom = { nullptr };
@@ -75,6 +78,7 @@ private:
 	_bool		m_isDead = { false };
 	CTexture*	m_pDeadNoiseTexture = { nullptr };
 	_float		m_fDiscard = { 0.f };
+
 
 
 private:

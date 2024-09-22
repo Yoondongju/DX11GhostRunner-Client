@@ -20,7 +20,7 @@ HRESULT CPlayer_Walk::Initialize()
 	return S_OK;
 }
 
-HRESULT CPlayer_Walk::Start_State()
+HRESULT CPlayer_Walk::Start_State(void* pArg)
 {
 
 	return S_OK;
@@ -318,14 +318,14 @@ _bool CPlayer_Walk::Check_CutAll()
 
 	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 
-	if (CPlayer::PLAYER_ANIMATIONID::FURR_AIM_TRICUT != pModel->Get_CurAnimationIndex() &&
+	if (CPlayer::PLAYER_ANIMATIONID::FURR_AIM_LOOP != pModel->Get_CurAnimationIndex() &&
 		m_pGameInstance->Get_KeyState(KEY::Q) == KEY_STATE::TAP)
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 
 		
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::FURR_AIM_TRICUT, false);
-		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::FURR_AIM_TRICUT);
+		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::FURR_AIM_LOOP, true);
+		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::FURR_AIM_LOOP);
 
 		return true;
 	}

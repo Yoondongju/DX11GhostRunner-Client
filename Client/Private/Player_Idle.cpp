@@ -5,6 +5,7 @@
 
 #include "Body_Player.h"
 #include "Weapon_Player.h"
+#include "WeaponParticle.h"
 
 #include "GameInstance.h"
 #include "GrapplingPointUI.h"
@@ -22,7 +23,7 @@ HRESULT CPlayer_Idle::Initialize()
     return S_OK;
 }
 
-HRESULT CPlayer_Idle::Start_State()
+HRESULT CPlayer_Idle::Start_State(void* pArg)
 {
 	
 
@@ -109,7 +110,7 @@ void CPlayer_Idle::Update(_float fTimeDelta)
 			return;
 		if (Check_MindControl())
 			return;
-		if (Check_TimeStop())
+		if (pPlayer->IsTimeStopActive() && Check_TimeStop())
 			return;
 	}
 
@@ -636,7 +637,7 @@ _bool CPlayer_Idle::Check_Sh_Attack1()
 		TrackPos = 0.0;
 
 
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::SH_ATTACK, false, 0.f);
+		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::SH_ATTACK, true, 0.f);
 		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::SH_ATTACK);
 
 		return true;
@@ -658,12 +659,12 @@ _bool CPlayer_Idle::Check_SwapWeapon()
 
 		if (CWeapon_Player::WEAPON_TYPE::KATANA == pWeapon->Get_CurType())
 		{
-			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::SH_KAT_TO_SHUR, false);			
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::SH_KAT_TO_SHUR, true);
 		}
 
 		else if (CWeapon_Player::WEAPON_TYPE::SHURIKEN == pWeapon->Get_CurType())
 		{
-			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::SH_SHUR_TO_KAT,false);
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::SH_SHUR_TO_KAT, true);
 		}
 
 		return true;
@@ -681,11 +682,14 @@ _bool CPlayer_Idle::Check_SwapWeapon()
 		if (CPlayer::PLAYER_ANIMATIONID::SH_KAT_TO_SHUR == iAniIndex)
 		{
 			pWeapon->Set_CurType(CWeapon_Player::WEAPON_TYPE::SHURIKEN);
+
+
 			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::SH_IDLE, true);
 		}
 		else if (CPlayer::PLAYER_ANIMATIONID::SH_SHUR_TO_KAT == iAniIndex)
 		{
 			pWeapon->Set_CurType(CWeapon_Player::WEAPON_TYPE::KATANA);
+
 			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::IDLE, true);
 		}
 
@@ -708,8 +712,8 @@ _bool CPlayer_Idle::Check_CutAll()
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::FURR_AIM_TRICUT, false);
-		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::FURR_AIM_TRICUT);
+		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::FURR_AIM_LOOP, true);
+		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::FURR_AIM_LOOP);
 
 		return true;
 	}
@@ -725,11 +729,11 @@ _bool CPlayer_Idle::Check_Nami()
 
 	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 
-	if (m_pGameInstance->Get_KeyState(KEY::TWO) == KEY_STATE::TAP)
+	if (m_pGameInstance->Get_KeyState(KEY::ONE) == KEY_STATE::TAP)
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::NAMI_IDLE_TO_AIM, false);
+		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::NAMI_IDLE_TO_AIM, true);
 		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::NAMI_IDLE_TO_AIM);
 
 		return true;
@@ -740,12 +744,44 @@ _bool CPlayer_Idle::Check_Nami()
 
 _bool CPlayer_Idle::Check_MindControl()
 {
-	return _bool();
+	if (true == static_cast<CBody_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY))->IsLandingWall())
+		return false;
+
+	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+
+	if (m_pGameInstance->Get_KeyState(KEY::TWO) == KEY_STATE::TAP)
+	{
+		CFsm* pFsm = m_pOwner->Get_Fsm();
+
+		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::MIND_CONTROL_START_START, true);
+		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::MIND_CONTROL_START_START);
+
+		return true;
+	}
+
+	return false;
 }
 
 _bool CPlayer_Idle::Check_TimeStop()
 {
-	return _bool();
+	if (true == static_cast<CBody_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY))->IsLandingWall())
+		return false;
+
+	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+
+	if (m_pGameInstance->Get_KeyState(KEY::R) == KEY_STATE::TAP)
+	{
+		CFsm* pFsm = m_pOwner->Get_Fsm();
+
+		
+
+		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::TIME_STOP, true);
+		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::TIME_STOP);
+
+		return true;
+	}
+
+	return false;
 }
 
 

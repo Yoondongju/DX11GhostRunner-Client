@@ -61,7 +61,7 @@ HRESULT CVIBuffer_Point_Instance::Initialize_Prototype(const CVIBuffer_Instancin
 	/* 인덱스버퍼의 내용을 채워주곡 */
 	ZeroMemory(&m_BufferDesc, sizeof m_BufferDesc);
 	m_BufferDesc.ByteWidth = m_iIndexStride * m_iNumIndices;
-	m_BufferDesc.Usage = D3D11_USAGE_DEFAULT; /* 정적버퍼로 생성한다. */
+	m_BufferDesc.Usage = D3D11_USAGE_DEFAULT; 
 	m_BufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	m_BufferDesc.CPUAccessFlags = 0;
 	m_BufferDesc.MiscFlags = 0;
@@ -85,7 +85,7 @@ HRESULT CVIBuffer_Point_Instance::Initialize_Prototype(const CVIBuffer_Instancin
 
 	ZeroMemory(&m_InstanceBufferDesc, sizeof m_InstanceBufferDesc);
 	m_InstanceBufferDesc.ByteWidth = m_iInstanceStride * m_iNumInstance;
-	m_InstanceBufferDesc.Usage = D3D11_USAGE_DYNAMIC; /* 정적버퍼로 생성한다. */
+	m_InstanceBufferDesc.Usage = D3D11_USAGE_DYNAMIC; 
 	m_InstanceBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	m_InstanceBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	m_InstanceBufferDesc.MiscFlags = 0;
@@ -161,6 +161,8 @@ void CVIBuffer_Point_Instance::Spread(_float fTimeDelta)
 	m_pContext->Unmap(m_pVBInstance, 0);
 }
 
+
+
 void CVIBuffer_Point_Instance::Drop(_float fTimeDelta)
 {
 	D3D11_MAPPED_SUBRESOURCE	SubResource{};
@@ -187,6 +189,47 @@ void CVIBuffer_Point_Instance::Drop(_float fTimeDelta)
 
 	m_pContext->Unmap(m_pVBInstance, 0);
 }
+
+
+void CVIBuffer_Point_Instance::DirectionSpread(_float fTimeDelta, _fvector vDir)
+{
+	D3D11_MAPPED_SUBRESOURCE	SubResource{};
+
+	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
+
+	VTXPOINTINSTANCE* pVertices = static_cast<VTXPOINTINSTANCE*>(SubResource.pData);
+
+	for (size_t i = 0; i < m_iNumInstance; i++)
+	{
+		_vector vFinalDir =  XMVector3Normalize(vDir);
+
+		XMStoreFloat4(&pVertices[i].vTranslation,
+			XMLoadFloat4(&pVertices[i].vTranslation) + vFinalDir * m_pSpeed[i] * fTimeDelta);
+
+
+		if (true == m_isLoop && pVertices[i].vLifeTime.y >= pVertices[i].vLifeTime.x)
+		{
+			pVertices[i].vTranslation = static_cast<VTXPOINTINSTANCE*>(m_pInstanceVertices)[i].vTranslation;
+			pVertices[i].vLifeTime.y = 0.f;
+		}
+	}
+
+	m_pContext->Unmap(m_pVBInstance, 0);
+}
+
+void CVIBuffer_Point_Instance::ResetTranslation()
+{
+	D3D11_MAPPED_SUBRESOURCE	SubResource{};
+
+	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_DISCARD, 0, &SubResource);
+
+	VTXPOINTINSTANCE* pVertices = static_cast<VTXPOINTINSTANCE*>(SubResource.pData);
+
+	memcpy(pVertices, m_pInstanceVertices, sizeof(VTXPOINTINSTANCE)* m_iNumInstance);
+
+	m_pContext->Unmap(m_pVBInstance, 0);
+}
+
 
 CVIBuffer_Point_Instance* CVIBuffer_Point_Instance::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const CVIBuffer_Instancing::INSTANCE_DESC& Desc)
 {

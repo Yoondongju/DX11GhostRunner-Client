@@ -138,8 +138,18 @@ private:
 
 	HRESULT	Create_Sky();
 
+
+
 	HRESULT Create_Particle();
-	
+	HRESULT Create_SwordTrail();				// 소드트레일
+	HRESULT Create_ShurikenEffect();			// 수리켄 이펙트
+	HRESULT Create_KatanaBlockEffect();			// 막을때 이펙트
+	HRESULT Create_CutAllEffect();				// Cutall 이펙트
+	HRESULT Create_NamiEffect();
+
+
+	HRESULT Create_Blood();
+
 
 private:
 	void	ReadString(FILE* file, string& str);

@@ -20,7 +20,7 @@ HRESULT CJetpack_Attack::Initialize()
 	return S_OK;
 }
 
-HRESULT CJetpack_Attack::Start_State()
+HRESULT CJetpack_Attack::Start_State(void* pArg)
 {
 
 
@@ -33,7 +33,7 @@ void CJetpack_Attack::Update(_float fTimeDelta)
 	CTransform* pJetpackTransform = m_pOwner->Get_Transform();
 
 	_vector vPlayerPos = pPlayerTransform->Get_State(CTransform::STATE_POSITION);
-	pJetpackTransform->LookAt(vPlayerPos);
+	pJetpackTransform->LookAt(vPlayerPos , nullptr);
 
 
 	CModel* pModel = m_pOwner->Get_Model();

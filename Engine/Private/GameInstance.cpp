@@ -13,6 +13,7 @@
 #include "../Public/PhysXManager.h"
 #include "../Public/Light_Manager.h"
 #include "../Public/Font_Manager.h"
+#include "../Public/Target_Manager.h"
 
 
 IMPLEMENT_SINGLETON(CGameInstance)
@@ -45,6 +46,10 @@ HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, cons
 	if (nullptr == m_pTimer_Manager)
 		return E_FAIL;
 
+	m_pTarget_Manager = CTarget_Manager::Create(*ppDevice, *ppContext);
+	if (nullptr == m_pTarget_Manager)
+		return E_FAIL;
+
 	m_pRenderer = CRenderer::Create(*ppDevice, *ppContext);
 	if (nullptr == m_pRenderer)
 		return E_FAIL;
@@ -62,7 +67,7 @@ HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, cons
 		return E_FAIL;
 
 
-	/* 입력장치를 초기화하낟. */
+
 	m_pInput_Device = CInput_Device::Create(hInst, EngineDesc.hWnd);
 	if (nullptr == m_pInput_Device)
 		return E_FAIL;
@@ -119,13 +124,17 @@ void CGameInstance::Update_Engine(_float fTimeDelta)
 	m_pPipeLine->Update();
 
 
-	m_pObject_Manager->Priority_Update(fTimeDelta);	
-	m_pObject_Manager->Update(fTimeDelta);	
-	m_pObject_Manager->Late_Update(fTimeDelta);
+	_float fAdjustedDeltaTime = fTimeDelta;
+	
+	if (true == m_bTimeDelayActive)
+		fAdjustedDeltaTime *= 0.15f;
+
+	m_pObject_Manager->Priority_Update(fAdjustedDeltaTime);
+	m_pObject_Manager->Update(fAdjustedDeltaTime);
+	m_pObject_Manager->Late_Update(fAdjustedDeltaTime);
 	
 
 	m_pPhysX_Manager->Update(fTimeDelta);
-
 
 
 	m_pLevel_Manager->Update(fTimeDelta);
@@ -161,7 +170,7 @@ HRESULT CGameInstance::Clear(_uint iLevelIndex)
 void CGameInstance::Render_Begin()
 {
 	/*m_pGraphic_Device->Render_Begin();*/
-	m_pGraphic_Device->Clear_BackBuffer_View(_float4(0.f, 0.f, 0.5f, 1.f));
+	m_pGraphic_Device->Clear_BackBuffer_View(_float4(0.f, 0.f, 1.f, 1.f));
 	m_pGraphic_Device->Clear_DepthStencil_View();
 	
 
@@ -292,6 +301,12 @@ list<class CGameObject*>& CGameInstance::Get_RenderList(CRenderer::RENDERGROUP e
 {
 	return m_pRenderer->Get_RenderList(eGroup);
 }
+#ifdef _DEBUG
+HRESULT CGameInstance::Add_DebugObject(CComponent* pDebugObject)
+{
+	return m_pRenderer->Add_DebugObject(pDebugObject);
+}
+#endif
 #pragma endregion
 
 
@@ -358,6 +373,11 @@ const LIGHT_DESC* CGameInstance::Get_LightDesc(_uint iIndex) const
 	return m_pLight_Manager->Get_LightDesc(iIndex);
 }
 
+HRESULT CGameInstance::Render_Lights(CShader* pShader, CVIBuffer_Rect* pVIBuffer)
+{
+	return m_pLight_Manager->Render(pShader, pVIBuffer);
+}
+
 HRESULT CGameInstance::Add_Font(const _wstring& strFontTag, const _tchar* pFontFilePath)
 {
 	return m_pFont_Manager->Add_Font(strFontTag, pFontFilePath);
@@ -367,6 +387,42 @@ HRESULT CGameInstance::Render_Text(const _wstring& strFontTag, const _tchar* pTe
 {
 	return m_pFont_Manager->Render(strFontTag, pText, vPosition, vColor, fRadian, vPivot, fScale);
 }
+
+HRESULT CGameInstance::Add_RenderTarget(const _wstring& strTargetTag, _uint iWidth, _uint iHeight, DXGI_FORMAT ePixelFormat, const _float4& vClearColor)
+{
+	return m_pTarget_Manager->Add_RenderTarget(strTargetTag, iWidth, iHeight, ePixelFormat, vClearColor);
+}
+
+HRESULT CGameInstance::Add_MRT(const _wstring& strMRTTag, const _wstring& strTargetTag)
+{
+	return m_pTarget_Manager->Add_MRT(strMRTTag, strTargetTag);
+}
+
+HRESULT CGameInstance::Begin_MRT(const _wstring& strMRTTag)
+{
+	return m_pTarget_Manager->Begin_MRT(strMRTTag);
+}
+
+HRESULT CGameInstance::End_MRT()
+{
+	return m_pTarget_Manager->End_MRT();
+}
+
+HRESULT CGameInstance::Bind_RT_ShaderResource(CShader* pShader, const _wstring& strTargetTag, const _char* pConstantName)
+{
+	return m_pTarget_Manager->Bind_ShaderResource(pShader, strTargetTag, pConstantName);
+}
+
+#ifdef _DEBUG
+HRESULT CGameInstance::Ready_RT_Debug(const _wstring& strTargetTag, _float fX, _float fY, _float fSizeX, _float fSizeY)
+{
+	return m_pTarget_Manager->Ready_Debug(strTargetTag, fX, fY, fSizeX, fSizeY);
+}
+HRESULT CGameInstance::Render_MRT_Debug(const _wstring& strMRTTag, CShader* pShader, CVIBuffer_Rect* pVIBuffer)
+{
+	return m_pTarget_Manager->Render(strMRTTag, pShader, pVIBuffer);
+}
+#endif
 
 #pragma endregion
 
@@ -401,6 +457,7 @@ _bool CGameInstance::CollisionUpdate_PlayerToTriangleMeshGeometry(PxVec3* pOutDi
 void CGameInstance::Release_Engine()
 {		
 
+	Safe_Release(m_pTarget_Manager);
 	Safe_Release(m_pFont_Manager);
 	Safe_Release(m_pLight_Manager);
 

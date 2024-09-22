@@ -190,9 +190,6 @@
     <Filter Include="02.GameObjects\02.Monster\Sniper\SniperState\Death">
       <UniqueIdentifier>{6828700f-03a8-4bdb-8363-e725a8f4f7a9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\Player\PlayerState\Death">
-      <UniqueIdentifier>{f99c2356-b12f-4dd5-92d7-8673434af436}</UniqueIdentifier>
-    </Filter>
     <Filter Include="02.GameObjects\Player\PlayerState\Jump\JumpFall">
       <UniqueIdentifier>{411765bb-7e3c-45fc-9500-98d9eb6feca9}</UniqueIdentifier>
     </Filter>
@@ -256,11 +253,50 @@
     <Filter Include="02.GameObjects\04.Particle">
       <UniqueIdentifier>{a60899b4-94dc-49be-885a-a2ff7ef389d7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\04.Particle\Snow">
-      <UniqueIdentifier>{dd494f3e-8d8e-4551-a4b0-366fd6ac09ae}</UniqueIdentifier>
-    </Filter>
     <Filter Include="02.GameObjects\04.Particle\Blood">
       <UniqueIdentifier>{efd15152-5461-41ff-a5d5-9a011e08b41e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\Wire">
+      <UniqueIdentifier>{c74c553f-6962-4b71-b9e9-a6c6223ca3ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\PlayerState\Death">
+      <UniqueIdentifier>{f99c2356-b12f-4dd5-92d7-8673434af436}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Bullet">
+      <UniqueIdentifier>{917ded89-ab5f-49c5-a0d0-8db32ad74266}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\WeaponParticle\SwordTrail">
+      <UniqueIdentifier>{f3def41d-5e9d-4835-a131-b017d06c8785}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\WeaponParticle\Particle_Block">
+      <UniqueIdentifier>{5aaeaac3-7bb0-4999-b289-f10e3f11e8d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\WeaponParticle\Particle_Shuriken">
+      <UniqueIdentifier>{ccbfb894-7035-4135-911a-101112b86ca5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\WeaponParticle\Particle_CutAll">
+      <UniqueIdentifier>{bc05da34-cfef-410a-9aed-79c69c85c7ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\WeaponParticle\Particle_Nami">
+      <UniqueIdentifier>{54601e3a-e1a6-4678-96f1-7024be783f5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Elite\EliteState\Idle">
+      <UniqueIdentifier>{8f51d9b1-f164-4c71-afe8-70de524816d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Elite\EliteState\Walk">
+      <UniqueIdentifier>{76fc230c-c52c-4e46-a1a8-10d74318e02b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Elite\EliteState\Block">
+      <UniqueIdentifier>{9719ed9f-4333-4af7-8b39-11e2edf99716}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Elite\EliteState\Death">
+      <UniqueIdentifier>{cf6bbf33-d8aa-419e-ad88-dcce73aa9398}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Elite\EliteState\Turbo">
+      <UniqueIdentifier>{cc40398a-0132-40d6-916b-e0b2a4f4185b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Elite\EliteState\Alert">
+      <UniqueIdentifier>{7c14ab55-99b2-4f22-a384-9e5e88e271f6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -303,7 +339,7 @@
     <ClInclude Include="..\public\FreeCamera.h">
       <Filter>02.GameObjects\99.Camera</Filter>
     </ClInclude>
-    <ClInclude Include="..\Public\Monster.h">
+    <ClInclude Include="..\Public\Enemy.h">
       <Filter>02.GameObjects\02.Monster</Filter>
     </ClInclude>
     <ClInclude Include="..\Public\Decorative_Object.h">
@@ -399,9 +435,6 @@
     <ClInclude Include="..\Public\Player_MindControl.h">
       <Filter>02.GameObjects\Player\PlayerState\MindControl</Filter>
     </ClInclude>
-    <ClInclude Include="..\Public\Player_DashCutAll.h">
-      <Filter>02.GameObjects\Player\PlayerState\CutAll</Filter>
-    </ClInclude>
     <ClInclude Include="..\Public\Elite.h">
       <Filter>02.GameObjects\02.Monster\Elite</Filter>
     </ClInclude>
@@ -492,14 +525,47 @@
     <ClInclude Include="..\Public\SubShuriken.h">
       <Filter>02.GameObjects\Player\Weapon\SubShuriken</Filter>
     </ClInclude>
-    <ClInclude Include="..\Public\WeaponParticle.h">
-      <Filter>02.GameObjects\Player\WeaponParticle</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Public\Particle_Snow.h">
-      <Filter>02.GameObjects\04.Particle\Snow</Filter>
-    </ClInclude>
     <ClInclude Include="..\Public\Particle_Blood.h">
       <Filter>02.GameObjects\04.Particle\Blood</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Wire_Player.h">
+      <Filter>02.GameObjects\Player\Wire</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Monster_Bullet.h">
+      <Filter>02.GameObjects\02.Monster\Bullet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\WeaponParticle.h">
+      <Filter>02.GameObjects\Player\WeaponParticle\SwordTrail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Particle_ShurikenEffect.h">
+      <Filter>02.GameObjects\Player\WeaponParticle\Particle_Shuriken</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Particle_Block.h">
+      <Filter>02.GameObjects\Player\WeaponParticle\Particle_Block</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Particle_Nami.h">
+      <Filter>02.GameObjects\Player\WeaponParticle\Particle_Nami</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Particle_CutAll.h">
+      <Filter>02.GameObjects\Player\WeaponParticle\Particle_CutAll</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Elite_Idle.h">
+      <Filter>02.GameObjects\02.Monster\Elite\EliteState\Idle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Elite_Block.h">
+      <Filter>02.GameObjects\02.Monster\Elite\EliteState\Block</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Elite_Death.h">
+      <Filter>02.GameObjects\02.Monster\Elite\EliteState\Death</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Elite_Turbo.h">
+      <Filter>02.GameObjects\02.Monster\Elite\EliteState\Turbo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Elite_Walk.h">
+      <Filter>02.GameObjects\02.Monster\Elite\EliteState\Walk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Elite_Alert.h">
+      <Filter>02.GameObjects\02.Monster\Elite\EliteState\Alert</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -533,7 +599,7 @@
     <ClCompile Include="..\private\FreeCamera.cpp">
       <Filter>02.GameObjects\99.Camera</Filter>
     </ClCompile>
-    <ClCompile Include="..\Private\Monster.cpp">
+    <ClCompile Include="..\Private\Enemy.cpp">
       <Filter>02.GameObjects\02.Monster</Filter>
     </ClCompile>
     <ClCompile Include="..\Private\Decorative_Object.cpp">
@@ -550,9 +616,6 @@
     </ClCompile>
     <ClCompile Include="..\Private\Body_Player.cpp">
       <Filter>02.GameObjects\Player\Body</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Private\Weapon_Player.cpp">
-      <Filter>02.GameObjects\Player\Weapon</Filter>
     </ClCompile>
     <ClCompile Include="..\Private\Player_Climb.cpp">
       <Filter>02.GameObjects\Player\PlayerState\Climb</Filter>
@@ -628,9 +691,6 @@
     </ClCompile>
     <ClCompile Include="..\Private\Player_MindControl.cpp">
       <Filter>02.GameObjects\Player\PlayerState\MindControl</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Private\Player_DashCutAll.cpp">
-      <Filter>02.GameObjects\Player\PlayerState\CutAll</Filter>
     </ClCompile>
     <ClCompile Include="..\Private\Jetpack.cpp">
       <Filter>02.GameObjects\02.Monster\Jetpack</Filter>
@@ -722,14 +782,50 @@
     <ClCompile Include="..\Private\SubShuriken.cpp">
       <Filter>02.GameObjects\Player\Weapon\SubShuriken</Filter>
     </ClCompile>
-    <ClCompile Include="..\Private\WeaponParticle.cpp">
-      <Filter>02.GameObjects\Player\WeaponParticle</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Private\Particle_Snow.cpp">
-      <Filter>02.GameObjects\04.Particle\Snow</Filter>
-    </ClCompile>
     <ClCompile Include="..\Private\Particle_Blood.cpp">
       <Filter>02.GameObjects\04.Particle\Blood</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Weapon_Player.cpp">
+      <Filter>02.GameObjects\Player\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Wire_Player.cpp">
+      <Filter>02.GameObjects\Player\Wire</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Monster_Bullet.cpp">
+      <Filter>02.GameObjects\02.Monster\Bullet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\WeaponParticle.cpp">
+      <Filter>02.GameObjects\Player\WeaponParticle\SwordTrail</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Particle_ShurikenEffect.cpp">
+      <Filter>02.GameObjects\Player\WeaponParticle\Particle_Shuriken</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Particle_Block.cpp">
+      <Filter>02.GameObjects\Player\WeaponParticle\Particle_Block</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Particle_Nami.cpp">
+      <Filter>02.GameObjects\Player\WeaponParticle\Particle_Nami</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Particle_CutAll.cpp">
+      <Filter>02.GameObjects\Player\WeaponParticle\Particle_CutAll</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Elite_Idle.cpp">
+      <Filter>02.GameObjects\02.Monster\Elite\EliteState\Idle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Elite_Block.cpp">
+      <Filter>02.GameObjects\02.Monster\Elite\EliteState\Block</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Elite_Death.cpp">
+      <Filter>02.GameObjects\02.Monster\Elite\EliteState\Death</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Elite_Turbo.cpp">
+      <Filter>02.GameObjects\02.Monster\Elite\EliteState\Turbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Elite_Walk.cpp">
+      <Filter>02.GameObjects\02.Monster\Elite\EliteState\Walk</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Elite_Alert.cpp">
+      <Filter>02.GameObjects\02.Monster\Elite\EliteState\Alert</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -776,6 +872,15 @@
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxRectInstance.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxMeshInstance.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxTrailInstance.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxSwordTrail.hlsl">
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
   </ItemGroup>

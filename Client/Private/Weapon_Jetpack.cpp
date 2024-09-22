@@ -71,15 +71,16 @@ void CWeapon_Jetpack::Update(_float fTimeDelta)
 		XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
 	}
 
-	m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
+	m_pColliderCom->Update(&m_WorldMatrix);
 }
 
 void CWeapon_Jetpack::Late_Update(_float fTimeDelta)
 {
-	
-	
-	
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+
+#ifdef _DEBUG
+	m_pGameInstance->Add_DebugObject(m_pColliderCom);
+#endif
 }
 
 HRESULT CWeapon_Jetpack::Render()
@@ -92,21 +93,7 @@ HRESULT CWeapon_Jetpack::Render()
 	if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
 		return E_FAIL;
 
-	const LIGHT_DESC* pLightDesc = m_pGameInstance->Get_LightDesc(0);
-	if (nullptr == pLightDesc)
-		return E_FAIL;
-
-	if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightDir", &pLightDesc->vDirection, sizeof(_float4))))
-		return E_FAIL;
-	if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightDiffuse", &pLightDesc->vDiffuse, sizeof(_float4))))
-		return E_FAIL;
-	if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightAmbient", &pLightDesc->vAmbient, sizeof(_float4))))
-		return E_FAIL;
-	if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightSpecular", &pLightDesc->vSpecular, sizeof(_float4))))
-		return E_FAIL;
-
-	if (FAILED(m_pShaderCom->Bind_RawValue("g_vCamPosition", &m_pGameInstance->Get_CamPosition_Float4(), sizeof(_float4))))
-		return E_FAIL;
+	
 
 	_uint iPassNum = 0;
 	CJetpack* pJetpack = static_cast<CJetpack*>(m_pOwner);
@@ -139,9 +126,6 @@ HRESULT CWeapon_Jetpack::Render()
 			return E_FAIL;
 	}
 
-#ifdef _DEBUG
-	m_pColliderCom->Render();
-#endif
 
 	return S_OK;
 }
@@ -164,7 +148,7 @@ HRESULT CWeapon_Jetpack::Ready_Components()
 	CBounding_OBB::BOUNDING_OBB_DESC			ColliderDesc{};
 	ColliderDesc.vExtents = _float3(3.f, 10.f, 3.f);
 	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vExtents.y, 0.f);
-	ColliderDesc.vAngles = _float3(0.f, 0.f, 0.f);
+	ColliderDesc.vAngles = _float3(0.f,1.5f,0.1f);
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_CCollider_OBB"),
 		TEXT("Com_Collider"), reinterpret_cast<CComponent**>(&m_pColliderCom), &ColliderDesc)))
 		return E_FAIL;

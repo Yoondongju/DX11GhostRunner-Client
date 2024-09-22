@@ -42,7 +42,9 @@ void CRigidBody::Update(_float fTimeDelta, _float fTargetY, _bool isColl)
 
 	// 가속도가 있고 1초동안 속도를 증가시킨다.
 	if (m_fTime <= 0.5f && 
-		XMVectorGetX(XMLoadFloat3(&m_vAccel)) != 0.f)
+		(XMVectorGetX(XMLoadFloat3(&m_vAccel)) != 0.f || 
+		XMVectorGetY(XMLoadFloat3(&m_vAccel)) != 0.f || 
+		XMVectorGetZ(XMLoadFloat3(&m_vAccel)) != 0.f))
 	{
 		_vector AddAccel = XMLoadFloat3(&m_vAccel) * m_fTime * 4;
 		XMStoreFloat3(&m_vVelocity, XMLoadFloat3(&m_vVelocity) + AddAccel);

@@ -171,6 +171,12 @@
     <ClInclude Include="..\Public\Body_Player.h" />
     <ClInclude Include="..\Public\Dynamic_Object.h" />
     <ClInclude Include="..\Public\Elite.h" />
+    <ClInclude Include="..\Public\Elite_Alert.h" />
+    <ClInclude Include="..\Public\Elite_Block.h" />
+    <ClInclude Include="..\Public\Elite_Death.h" />
+    <ClInclude Include="..\Public\Elite_Idle.h" />
+    <ClInclude Include="..\Public\Elite_Turbo.h" />
+    <ClInclude Include="..\Public\Elite_Walk.h" />
     <ClInclude Include="..\Public\GrapplingPointUI.h" />
     <ClInclude Include="..\Public\IconUI.h" />
     <ClInclude Include="..\Public\Jetpack.h" />
@@ -185,9 +191,13 @@
     <ClInclude Include="..\Public\Mira_Idle.h" />
     <ClInclude Include="..\Public\Mira_Suiside.h" />
     <ClInclude Include="..\Public\Mira_WalkIn.h" />
+    <ClInclude Include="..\Public\Monster_Bullet.h" />
     <ClInclude Include="..\Public\NumberUI.h" />
+    <ClInclude Include="..\Public\Particle_Block.h" />
     <ClInclude Include="..\Public\Particle_Blood.h" />
-    <ClInclude Include="..\Public\Particle_Snow.h" />
+    <ClInclude Include="..\Public\Particle_CutAll.h" />
+    <ClInclude Include="..\Public\Particle_Nami.h" />
+    <ClInclude Include="..\Public\Particle_ShurikenEffect.h" />
     <ClInclude Include="..\Public\Pistol.h" />
     <ClInclude Include="..\Public\Pistol_Attack.h" />
     <ClInclude Include="..\Public\Pistol_Death.h" />
@@ -198,7 +208,6 @@
     <ClInclude Include="..\Public\Player_Block2.h" />
     <ClInclude Include="..\Public\Player_Block3.h" />
     <ClInclude Include="..\Public\Player_CutAll.h" />
-    <ClInclude Include="..\Public\Player_DashCutAll.h" />
     <ClInclude Include="..\Public\Player_JumpFall.h" />
     <ClInclude Include="..\Public\Player_MindControl.h" />
     <ClInclude Include="..\Public\Player_Nami.h" />
@@ -220,7 +229,7 @@
     <ClInclude Include="..\Public\Level_Logo.h" />
     <ClInclude Include="..\public\Loader.h" />
     <ClInclude Include="..\Public\MainApp.h" />
-    <ClInclude Include="..\Public\Monster.h" />
+    <ClInclude Include="..\Public\Enemy.h" />
     <ClInclude Include="..\Public\Player.h" />
     <ClInclude Include="..\Public\Player_Attack1.h" />
     <ClInclude Include="..\Public\Player_Block1.h" />
@@ -240,6 +249,7 @@
     <ClInclude Include="..\Public\Weapon_Pistol.h" />
     <ClInclude Include="..\Public\Weapon_Player.h" />
     <ClInclude Include="..\Public\Weapon_Sniper.h" />
+    <ClInclude Include="..\Public\Wire_Player.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -252,6 +262,12 @@
     <ClCompile Include="..\Private\Body_Player.cpp" />
     <ClCompile Include="..\Private\Dynamic_Object.cpp" />
     <ClCompile Include="..\Private\Elite.cpp" />
+    <ClCompile Include="..\Private\Elite_Alert.cpp" />
+    <ClCompile Include="..\Private\Elite_Block.cpp" />
+    <ClCompile Include="..\Private\Elite_Death.cpp" />
+    <ClCompile Include="..\Private\Elite_Idle.cpp" />
+    <ClCompile Include="..\Private\Elite_Turbo.cpp" />
+    <ClCompile Include="..\Private\Elite_Walk.cpp" />
     <ClCompile Include="..\Private\GrapplingPointUI.cpp" />
     <ClCompile Include="..\Private\IconUI.cpp" />
     <ClCompile Include="..\Private\Jetpack.cpp" />
@@ -266,9 +282,13 @@
     <ClCompile Include="..\Private\Mira_Idle.cpp" />
     <ClCompile Include="..\Private\Mira_Suiside.cpp" />
     <ClCompile Include="..\Private\Mira_WalkIn.cpp" />
+    <ClCompile Include="..\Private\Monster_Bullet.cpp" />
     <ClCompile Include="..\Private\NumberUI.cpp" />
+    <ClCompile Include="..\Private\Particle_Block.cpp" />
     <ClCompile Include="..\Private\Particle_Blood.cpp" />
-    <ClCompile Include="..\Private\Particle_Snow.cpp" />
+    <ClCompile Include="..\Private\Particle_CutAll.cpp" />
+    <ClCompile Include="..\Private\Particle_Nami.cpp" />
+    <ClCompile Include="..\Private\Particle_ShurikenEffect.cpp" />
     <ClCompile Include="..\Private\Pistol.cpp" />
     <ClCompile Include="..\Private\Pistol_Attack.cpp" />
     <ClCompile Include="..\Private\Pistol_Death.cpp" />
@@ -279,7 +299,6 @@
     <ClCompile Include="..\Private\Player_Block2.cpp" />
     <ClCompile Include="..\Private\Player_Block3.cpp" />
     <ClCompile Include="..\Private\Player_CutAll.cpp" />
-    <ClCompile Include="..\Private\Player_DashCutAll.cpp" />
     <ClCompile Include="..\Private\Player_JumpFall.cpp" />
     <ClCompile Include="..\Private\Player_MindControl.cpp" />
     <ClCompile Include="..\Private\Player_Nami.cpp" />
@@ -300,7 +319,7 @@
     <ClCompile Include="..\Private\Level_Logo.cpp" />
     <ClCompile Include="..\private\Loader.cpp" />
     <ClCompile Include="..\Private\MainApp.cpp" />
-    <ClCompile Include="..\Private\Monster.cpp" />
+    <ClCompile Include="..\Private\Enemy.cpp" />
     <ClCompile Include="..\Private\Player.cpp" />
     <ClCompile Include="..\Private\Player_Attack1.cpp" />
     <ClCompile Include="..\Private\Player_Block1.cpp" />
@@ -320,6 +339,7 @@
     <ClCompile Include="..\Private\Weapon_Pistol.cpp" />
     <ClCompile Include="..\Private\Weapon_Player.cpp" />
     <ClCompile Include="..\Private\Weapon_Sniper.cpp" />
+    <ClCompile Include="..\Private\Wire_Player.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -340,11 +360,14 @@
     <FxCompile Include="..\Bin\ShaderFiles\Shader_NumberUI.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxAnimModel.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxCubeTex.hlsl" />
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxMeshInstance.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxModel.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxNorTex.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxPointInstance.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxPosTex.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxRectInstance.hlsl" />
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxSwordTrail.hlsl" />
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxTrailInstance.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

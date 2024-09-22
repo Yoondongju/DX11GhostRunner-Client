@@ -2,7 +2,7 @@
 
 
 #include "Client_Defines.h"
-#include "Monster.h"
+#include "Enemy.h"
 
 
 BEGIN(Engine)
@@ -16,9 +16,10 @@ END
 
 BEGIN(Client)
 
-class CMira final : public CMonster
+class CMira final : public CEnemy
 {
 public:
+	enum PARTID { PART_EFFECT, PART_BULLET, PART_END};
 	enum MIRA_ANIMATION
 	{
 		WALKIN_AROUND,
@@ -40,7 +41,7 @@ private:
 public:
 	virtual  CModel*	Get_Model() override { return m_pModel; }
 	virtual  CFsm*		Get_Fsm() override { return m_pFsm; }
-	CCollider*			Get_Collider() { return m_pColliderCom; }
+	virtual  CCollider* Get_Collider() override { return m_pColliderCom; }
 
 public:
 	void				SetDead() { m_isDead = true; }
@@ -55,7 +56,8 @@ public:
 	virtual HRESULT Render() override;
 
 public:
-	void		Check_Collision();
+	_bool		 Check_Collision();
+	virtual void Check_CollByTargetEnemy() override;
 
 
 private:
@@ -72,10 +74,14 @@ private:
 	_float		m_fDiscard = { 0.f };
 
 
+
+
 private:
 	HRESULT		Ready_Component();
 	HRESULT		Ready_State();
 	HRESULT		Ready_Change_Layer();
+
+	HRESULT		Reday_Parts();
 
 public:
 	static CMira* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

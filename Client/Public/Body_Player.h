@@ -30,7 +30,12 @@ private:
 public:
 	const _float4x4* Get_BoneMatrix_Ptr(const _char* pBoneName) const;
 	virtual CModel* Get_Model() override { return m_pModelCom; }
+
 	virtual CCollider* Get_Collider() { return m_pColliderCom; }
+	CCollider*		   Get_Collider_OBB() { return m_pColliderCom_OBB; }
+
+
+
 
 	_bool	IsLandingWall() { return m_bLandingWall; }
 	_bool	IsClimbing() { return m_bClimbing; }
@@ -48,7 +53,10 @@ public:
 private:
 	CShader*		m_pShaderCom = { nullptr };
 	CModel*			m_pModelCom = { nullptr };
-	CCollider*		m_pColliderCom = { nullptr };
+	CCollider*		m_pColliderCom = { nullptr };	    // 피직스
+	
+private:
+	CCollider*		m_pColliderCom_OBB = { nullptr };   // 내가만든 OBB
 
 
 private:

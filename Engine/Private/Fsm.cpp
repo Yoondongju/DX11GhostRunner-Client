@@ -85,7 +85,7 @@ void CFsm::Change_State(_uint iStateIndex, _int iStateDir, void* pArg)
 	if (-1 != iStateDir)
 		m_pNowState->Set_Dir(CState::STATE_DIR(iStateDir));
 
-	m_pNowState->Start_State();
+	m_pNowState->Start_State(pArg);
 
 	return;
 }
@@ -98,7 +98,7 @@ void CFsm::Set_State(_uint iStateIndex, void* pArg)
 	//Safe_AddRef(m_pNowState);
 	//Safe_AddRef(m_pPreState);
 
-	m_pNowState->Start_State();
+	m_pNowState->Start_State(pArg);
 
 	return;
 }

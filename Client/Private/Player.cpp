@@ -8,6 +8,7 @@
 #include "Weapon_Player.h"
 #include "WeaponParticle.h"
 #include "SubShuriken.h"
+#include "Wire_Player.h"
 
 #include "Player_Idle.h"
 
@@ -23,7 +24,7 @@
 #include "Player_Attack3.h"
 
 #include "Player_CutAll.h"
-#include "Player_DashCutAll.h"
+
 
 #include "Player_Nami.h"
 #include "Player_MindControl.h"
@@ -43,6 +44,11 @@
 #include "Player_JumpFall.h"
 
 #include "GrapplingPointUI.h"
+
+#include "Particle_Block.h"
+#include "Particle_CutAll.h"
+#include "Particle_Nami.h"
+
 
 CPlayer::CPlayer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CContainerObject(pDevice, pContext)
@@ -97,6 +103,9 @@ HRESULT CPlayer::Initialize(void* pArg)
 
 void CPlayer::Priority_Update(_float fTimeDelta)
 {
+    if (true == m_pGameInstance->IsTimeDelayActive())
+        fTimeDelta *= m_fTimeDelayLerpRatio;
+
     if (m_pGameInstance->Get_KeyState(KEY::P) == KEY_STATE::TAP)
     {
         if (false == m_bFreeWalk)
@@ -105,6 +114,51 @@ void CPlayer::Priority_Update(_float fTimeDelta)
             m_bFreeWalk = false;
     }
 
+    static _bool asd = false; 
+    if (m_pGameInstance->Get_KeyState(KEY::O) == KEY_STATE::TAP)
+    {
+        asd = true;
+    }
+
+
+    POINT ptMousePos = {};
+    GetCursorPos(&ptMousePos);
+
+
+    if (true == asd)
+    {
+        CTransform* pTrans = m_pGameInstance->Find_Camera(LEVEL_GAMEPLAY)->Get_Transform();
+    
+        if (m_pGameInstance->Get_KeyState(KEY::W) == KEY_STATE::HOLD)
+            pTrans->Go_Straight_FreeWalk(fTimeDelta);
+        if (m_pGameInstance->Get_KeyState(KEY::S) == KEY_STATE::HOLD)
+            pTrans->Go_Backward_FreeWalk(fTimeDelta);
+    
+        if (m_pGameInstance->Get_KeyState(KEY::A) == KEY_STATE::HOLD)
+            pTrans->Go_Left_FreeWalk(fTimeDelta);
+        if (m_pGameInstance->Get_KeyState(KEY::D) == KEY_STATE::HOLD)
+            pTrans->Go_Right_FreeWalk(fTimeDelta);
+    
+        if (g_hWnd == GetFocus() && m_pGameInstance->Get_KeyState(KEY::RBUTTON) == KEY_STATE::HOLD)
+        {
+            _long	MouseMove = {};
+    
+    
+            if (MouseMove = ptMousePos.x - m_ptOldMousePos.x)
+            {
+                pTrans->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), fTimeDelta * MouseMove * 0.07f, &m_RotationMatrix);
+            }
+    
+            if (MouseMove = ptMousePos.y - m_ptOldMousePos.y)
+            {
+                pTrans->Turn(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), fTimeDelta * MouseMove * 0.07f, &m_RotationMatrix);
+            }
+        }
+        m_ptOldMousePos = ptMousePos;
+    
+        return;
+    }
+      
 
     if (false == m_bFreeWalk)
     {
@@ -138,9 +192,7 @@ void CPlayer::Priority_Update(_float fTimeDelta)
     
    
 
-    POINT ptMousePos = {};
-    GetCursorPos(&ptMousePos);
-
+  
     
     if (false == static_cast<CBody_Player*>(m_Parts[PARTID::PART_BODY])->IsLandingWall())
     {
@@ -181,8 +233,7 @@ void CPlayer::Priority_Update(_float fTimeDelta)
     if (m_bShaking)
     {
         if (m_iShakingCount >= 0)
-        {
-                         
+        {                      
             // 짝수일 때 오른쪽으로 회전
      
             // 짝수일때 이전프레임때 줫던힘 + 이번프레임의 힘의 강도
@@ -230,13 +281,17 @@ void CPlayer::Priority_Update(_float fTimeDelta)
 
 void CPlayer::Update(_float fTimeDelta)
 {
+    if (true == m_pGameInstance->IsTimeDelayActive())
+        fTimeDelta *= m_fTimeDelayLerpRatio;
+
+
     CBody_Player* pBodyPart = static_cast<CBody_Player*>(m_Parts[PARTID::PART_BODY]);
     
 
     Compute_DashCoolTime(fTimeDelta);
     Compute_BlockCoolTime(fTimeDelta);
     Compute_CutAllCoolTime(fTimeDelta);
-
+    Compute_TimeStopCoolTime(fTimeDelta);
 
 
     m_pFsm->Update(fTimeDelta);
@@ -262,6 +317,9 @@ void CPlayer::Update(_float fTimeDelta)
 
 void CPlayer::Late_Update(_float fTimeDelta)
 {
+    if (true == m_pGameInstance->IsTimeDelayActive())
+        fTimeDelta *= m_fTimeDelayLerpRatio;
+
     // 공중에 떠있니? 
     if (m_pGameInstance->Get_KeyState(KEY::SPACE) == KEY_STATE::NONE &&
         XMVectorGetY(m_pTransformCom->Get_State(CTransform::STATE_POSITION)) > (m_fLandPosY + m_fOffsetY) * 4)
@@ -275,7 +333,10 @@ void CPlayer::Late_Update(_float fTimeDelta)
                 PLAYER_ANIMATIONID::JUMP_END != iCurStateIndex &&
                 PLAYER_ANIMATIONID::HOOK_UP != iCurStateIndex &&   
                 PLAYER_ANIMATIONID::SH_ATTACK != iCurStateIndex &&
-                PLAYER_ANIMATIONID::CLIMB != iCurStateIndex)
+                PLAYER_ANIMATIONID::CLIMB != iCurStateIndex && 
+                PLAYER_ANIMATIONID::NAMI_AIM_ATTACK_TO_IDLE != iCurStateIndex &&
+                PLAYER_ANIMATIONID::NAMI_IDLE_TO_AIM != iCurStateIndex &&
+                PLAYER_ANIMATIONID::FURR_AIM_LOOP != iCurStateIndex )
             {
                 // 점프할때 포물선방정식이용한 점프 구현해야하고 
                 // 무조건 착지 전이면 점프 상태로 돌입 -> 점프상태일때 이동이 안되야하나?
@@ -358,9 +419,6 @@ HRESULT	CPlayer::Ready_State()
 
 
     if (FAILED(m_pFsm->Add_State(CPlayer_CutAll::Create(this))))
-        return E_FAIL;
-
-    if (FAILED(m_pFsm->Add_State(CPlayer_DashCutAll::Create(this))))
         return E_FAIL;
 
 
@@ -451,12 +509,25 @@ void CPlayer::Compute_CutAllCoolTime(_float fTimeDelta)
 }
 
 
+void CPlayer::Compute_TimeStopCoolTime(_float fTimeDelta)
+{
+    if (true == m_bStartCountTimeStopTime)
+        m_fTimeStopRemainingTime += fTimeDelta;
+
+
+    if (m_fTimeStopCoolTime <= m_fTimeStopRemainingTime)
+        m_bTimeStopActive = true;
+    else if (m_fTimeStopCoolTime > m_fTimeStopRemainingTime)
+        m_bTimeStopActive = false;
+}
+
+
 
 
 HRESULT CPlayer::Ready_PartObjects()
 {
     /* 실제 추가하고 싶은 파트오브젝트의 갯수만큼 밸류를 셋팅해놓자. */
-    m_Parts.resize(PART_END);
+    m_Parts.resize(PARTID::PART_END);
 
     CBody_Player::BODY_DESC		BodyDesc{};
     BodyDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
@@ -468,7 +539,7 @@ HRESULT CPlayer::Ready_PartObjects()
 
     CWeapon_Player::WEAPON_DESC		WeaponDesc{};
     WeaponDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
-    WeaponDesc.pSocketBoneMatrix = dynamic_cast<CBody_Player*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Weapon_r");
+    WeaponDesc.pSocketBoneMatrix = static_cast<CBody_Player*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Weapon_r");
     WeaponDesc.pOwner = this;
     WeaponDesc.InitWorldMatrix = XMMatrixIdentity();
     WeaponDesc.fRotationPerSec = 30.f;
@@ -489,16 +560,62 @@ HRESULT CPlayer::Ready_PartObjects()
         return E_FAIL;
 
 
+    CWire_Player::WIRE_DESC		WireDesc{};
+    WireDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    WireDesc.pSocketBoneMatrix = static_cast<CBody_Player*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Weapon_l");
+    WireDesc.pOwner = this;
+    WireDesc.InitWorldMatrix = XMMatrixIdentity();
+    WireDesc.fRotationPerSec = 30.f;
+    WireDesc.fSpeedPerSec = 30.f;
+
+    if (FAILED(__super::Add_PartObject(PART_WIRE, TEXT("Prototype_GameObject_Wire_Player"), &WireDesc)))
+        return E_FAIL;
+
 
 
     CWeaponParticle::EFFECT_DESC		EffectDesc{};
     EffectDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
-    EffectDesc.pSocketBoneMatrix = dynamic_cast<CBody_Player*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Weapon_r");
+    EffectDesc.pSocketBoneMatrix = static_cast<CBody_Player*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Weapon_r");
     EffectDesc.pOwner = this;
-
-    if (FAILED(__super::Add_PartObject(PART_PARTICLE, TEXT("Prototype_GameObject_Particle_Explosion"), &EffectDesc)))
+    if (FAILED(__super::Add_PartObject(PART_PARTICLE_SWORDTRAIL, TEXT("Prototype_GameObject_SwordTrail"), &EffectDesc)))
         return E_FAIL;
 
+
+
+
+    _float3				KatanaStartLocal = _float3(-0.0776796862, -0.202111647, 0.839834869);
+    _float3				KatanaEndLocal = _float3(0.0776796862, 1.43591797, 9.31558323);
+    _float3             KatanaMiddleLocal;
+
+    KatanaMiddleLocal.x = (KatanaStartLocal.x + KatanaEndLocal.x) * 0.5f;
+    KatanaMiddleLocal.y = (KatanaStartLocal.y + KatanaEndLocal.y) * 0.5f;
+    KatanaMiddleLocal.z = (KatanaStartLocal.z + KatanaEndLocal.z) * 0.5f;
+
+    CParticle_Block::PARTICLE_BLOCKEFFECT  BlockDesc = {};
+    BlockDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    BlockDesc.pOwner = this;
+    BlockDesc.SpwanPositionLocal = KatanaMiddleLocal;
+    if (FAILED(__super::Add_PartObject(PART_PARTICLE_BLOCK, TEXT("Prototype_GameObject_Particle_BlockEffect"), &BlockDesc)))
+        return E_FAIL;
+
+
+
+    CParticle_CutAll::PARTICLE_CUTALLEFFECT  CutAllDesc = {};
+    CutAllDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    CutAllDesc.pSocketMatrix = static_cast<CBody_Player*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Weapon_l");
+    CutAllDesc.pOwner = this;
+    CutAllDesc.SpwanPositionLocal = KatanaStartLocal;
+    if (FAILED(__super::Add_PartObject(PART_PARTICLE_CUTALL, TEXT("Prototype_GameObject_Particle_CutAllEffect"), &CutAllDesc)))
+        return E_FAIL;
+
+
+
+    CParticle_Nami::PARTICLE_NAMIEFFECT  NamiDesc = {};
+    NamiDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    NamiDesc.pSocketMatrix = static_cast<CBody_Player*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("pelvis");
+    NamiDesc.pOwner = this;
+    if (FAILED(__super::Add_PartObject(PART_PARTICLE_NAMI, TEXT("Prototype_GameObject_Particle_NamiEffect"), &NamiDesc)))
+        return E_FAIL;
 
 
 

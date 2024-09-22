@@ -14,7 +14,7 @@ private:
 
 public:
     virtual HRESULT Initialize();
-    virtual HRESULT Start_State();
+    virtual HRESULT Start_State(void* pArg = nullptr);
     virtual void    Update(_float fTimeDelta);
     virtual void    End_State();
 
@@ -27,7 +27,7 @@ private:
     _bool   Check_Detect();
     _bool   Check_Death();
 
-
+    _bool   Check_MindControling();
 
 public:
     static CPistol_Idle* Create(class CGameObject* pOwner);

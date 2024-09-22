@@ -18,7 +18,7 @@ HRESULT CPlayer_JumpFall::Initialize()
 	return S_OK;
 }
 
-HRESULT CPlayer_JumpFall::Start_State()
+HRESULT CPlayer_JumpFall::Start_State(void* pArg)
 {
 
 

@@ -18,7 +18,7 @@ HRESULT CPistol_Death::Initialize()
 	return S_OK;
 }
 
-HRESULT CPistol_Death::Start_State()
+HRESULT CPistol_Death::Start_State(void* pArg)
 {
 
 

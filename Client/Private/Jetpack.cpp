@@ -17,16 +17,17 @@
 #include "Animation.h"
 
 #include "Player.h"
+#include "Particle_Blood.h"
 
 CJetpack::CJetpack(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
-    : CContainerObject(pDevice, pContext)
+    : CEnemy(pDevice, pContext)
 {
 
 }
 
 
 CJetpack::CJetpack(const CJetpack& Prototype)
-    : CContainerObject(Prototype)
+    : CEnemy(Prototype)
 {
 
 }
@@ -99,11 +100,15 @@ void CJetpack::Update(_float fTimeDelta)
 
 void CJetpack::Late_Update(_float fTimeDelta)
 {
-
     m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+
+#ifdef _DEBUG
+    m_pGameInstance->Add_DebugObject(m_pColliderCom);
+#endif
 
     for (auto& pPartObject : m_Parts)
         pPartObject->Late_Update(fTimeDelta);
+
 }
 
 HRESULT CJetpack::Render()
@@ -119,21 +124,7 @@ HRESULT CJetpack::Render()
         return E_FAIL;
 
 
-    const LIGHT_DESC* pLightDesc = m_pGameInstance->Get_LightDesc(0);
-    if (nullptr == pLightDesc)
-        return E_FAIL;
-
-    if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightDir", &pLightDesc->vDirection, sizeof(_float4))))
-        return E_FAIL;
-    if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightDiffuse", &pLightDesc->vDiffuse, sizeof(_float4))))
-        return E_FAIL;
-    if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightAmbient", &pLightDesc->vAmbient, sizeof(_float4))))
-        return E_FAIL;
-    if (FAILED(m_pShaderCom->Bind_RawValue("g_vLightSpecular", &pLightDesc->vSpecular, sizeof(_float4))))
-        return E_FAIL;
-
-    if (FAILED(m_pShaderCom->Bind_RawValue("g_vCamPosition", &m_pGameInstance->Get_CamPosition_Float4(), sizeof(_float4))))
-        return E_FAIL;
+    
 
 
     _uint iPassNum = 0;
@@ -169,14 +160,12 @@ HRESULT CJetpack::Render()
             return E_FAIL;
     }
 
-#ifdef _DEBUG
-    m_pColliderCom->Render();
-#endif
+
 
     return S_OK;
 }
 
-void CJetpack::Check_Collision()
+_bool CJetpack::Check_Collision()
 {
     CWeapon_Player* pPlayerWeapon = static_cast<CWeapon_Player*>(static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY))->Get_Part(CPlayer::PART_WEAPON));
     CCollider* pCollider = pPlayerWeapon->Get_Collider();
@@ -195,8 +184,7 @@ void CJetpack::Check_Collision()
         {
             if (false == isCollEvenOnce)
             {
-                m_pColliderCom->Intersect(ppSubShuriken[i]->Get_Collider());
-                break;
+                isCollEvenOnce = m_pColliderCom->Intersect(ppSubShuriken[i]->Get_Collider());
             }
         }
 
@@ -214,7 +202,13 @@ void CJetpack::Check_Collision()
 
         m_pModel->SetUp_Animation(CJetpack::JETPACK_ANIMATION::FLY_FALL, true);
         m_pFsm->Change_State(CJetpack::JETPACK_ANIMATION::FLY_FALL);
+
+        static_cast<CParticle_Blood*>(m_Parts[PART_EFFECT])->SetActiveMyParticle(true);
+
+        return true;
     }
+
+    return false;
 }
 
 HRESULT CJetpack::Ready_Component()
@@ -286,6 +280,15 @@ HRESULT CJetpack::Ready_Parts()
     if (FAILED(__super::Add_PartObject(PART_BACKPACK, TEXT("Prototype_GameObject_BackPack_Jetpack"), &BackPackDesc)))
         return E_FAIL;
 
+
+    CParticle_Blood::BLOOD_DESC	BloodDesc{};
+
+    BloodDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    BloodDesc.pSocketBoneMatrix = m_pModel->Get_BoneCombindTransformationMatrix_Ptr("spine_01");
+    BloodDesc.pOwner = this;
+    BloodDesc.InitWorldMatrix = XMMatrixIdentity();
+    if (FAILED(__super::Add_PartObject(PART_EFFECT, TEXT("Prototype_GameObject_Particle_Blood"), &BloodDesc)))
+        return E_FAIL;
 
     return S_OK;
 }

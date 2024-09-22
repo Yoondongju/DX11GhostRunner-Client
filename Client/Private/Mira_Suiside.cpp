@@ -18,7 +18,7 @@ HRESULT CMira_Suiside::Initialize()
 	return S_OK;
 }
 
-HRESULT CMira_Suiside::Start_State()
+HRESULT CMira_Suiside::Start_State(void* pArg)
 {
 
 

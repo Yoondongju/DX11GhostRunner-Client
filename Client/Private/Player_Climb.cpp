@@ -20,7 +20,7 @@ HRESULT CPlayer_Climb::Initialize()
 	return S_OK;
 }
 
-HRESULT CPlayer_Climb::Start_State()
+HRESULT CPlayer_Climb::Start_State(void* pArg)
 {
 	// 방향에 대한건 고려안해도될것같고 
 	// 거리도 고려하지말고 
