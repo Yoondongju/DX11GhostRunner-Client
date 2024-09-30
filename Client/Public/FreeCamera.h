@@ -33,11 +33,14 @@ public:
 private:
 	_float				m_fSensor = { 0.f };
 
+private: 
+	_float4				m_OffsetByPlayer = {};
+	_float4				m_OffsetByShuriken = {};
 
 
 private:
-	// ¿ÀÇÁ¼Â BY Player 
-	_float4				m_OffsetByPlayer = {};
+	void				FollowPlayer(class CPlayer* pPlayer);
+
 
 
 

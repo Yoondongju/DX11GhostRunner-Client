@@ -18,6 +18,7 @@
 
 #include "Player.h"
 #include "Particle_Blood.h"
+#include "Particle_Explosion.h"
 
 CJetpack::CJetpack(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CEnemy(pDevice, pContext)
@@ -167,6 +168,9 @@ HRESULT CJetpack::Render()
 
 _bool CJetpack::Check_Collision()
 {
+    if (true == m_isDead)
+        return false;
+
     CWeapon_Player* pPlayerWeapon = static_cast<CWeapon_Player*>(static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY))->Get_Part(CPlayer::PART_WEAPON));
     CCollider* pCollider = pPlayerWeapon->Get_Collider();
 
@@ -195,7 +199,7 @@ _bool CJetpack::Check_Collision()
     }
 
 
-    if (CJetpack::JETPACK_ANIMATION::FLY_FALL != m_pModel->Get_CurAnimationIndex() && m_pColliderCom->IsBoundingCollisionEnter())
+    if (CJetpack::JETPACK_ANIMATION::FLY_FALL != m_pModel->Get_NextAnimationIndex() && m_pColliderCom->IsBoundingCollisionEnter())
     {
         _double& TrackPos = m_pModel->Get_Referene_CurrentTrackPosition();
         TrackPos = 0.0;
@@ -289,6 +293,15 @@ HRESULT CJetpack::Ready_Parts()
     BloodDesc.InitWorldMatrix = XMMatrixIdentity();
     if (FAILED(__super::Add_PartObject(PART_EFFECT, TEXT("Prototype_GameObject_Particle_Blood"), &BloodDesc)))
         return E_FAIL;
+
+
+    CParticle_Explosion::PARTICLE_EXPLOSION	 ExplosionDesc{};
+    ExplosionDesc.pOwner = this;
+    ExplosionDesc.InitWorldMatrix = XMMatrixIdentity();
+
+    if (FAILED(__super::Add_PartObject(PART_EXPLOSION, TEXT("Prototype_GameObject_Particle_Explosion"), &ExplosionDesc)))
+        return E_FAIL;
+
 
     return S_OK;
 }

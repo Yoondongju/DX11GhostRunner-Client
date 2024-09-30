@@ -49,6 +49,7 @@ public:
 
     void                Set_GravityAccel(_float fGravityAccel) { m_fGravityAccel = fGravityAccel; }
     void                Set_GravityLimit(_float fGravityLimit) { m_fGravityLimit = fGravityLimit; }
+    void                Set_GravityReduceRatio(_float fRatio) { m_fReducedGravity = fRatio; }
 
 public:
     virtual HRESULT Initialize_Prototype();
@@ -79,8 +80,10 @@ private:
 
 
 
+
     _bool                   m_isActive = { true };      // 활성화 되있어?
     _bool                   m_isGravity = { true };     // 중력 적용할거야?
+    _float                  m_fReducedGravity = { 1.f };   // 특정 상황에서 중력 줄이기위함
     _bool                   m_isGround = { false };     // 땅에 붙어있어?
     _bool                   m_isKinematic = { false };  // true면 물리효과를 안 줄 거야
 

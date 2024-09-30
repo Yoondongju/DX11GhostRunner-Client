@@ -5,6 +5,7 @@
 #include "GameInstance.h"
 
 
+
 CMainApp::CMainApp()
 	: m_pGameInstance { CGameInstance::Get_Instance() }
 {
@@ -60,7 +61,7 @@ HRESULT CMainApp::Render()
 
 	m_pGameInstance->Draw_Engine();
 
-	//m_pGameInstance->Render_Text(TEXT("Font_145"), TEXT("배예영 바보"), XMVectorSet(0.f, 0.f, 0.f, 1.f));
+	
 
 	m_pGameInstance->Render_End();
 

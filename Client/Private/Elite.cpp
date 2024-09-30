@@ -7,6 +7,7 @@
 
 #include "Weapon_Elite.h"
 #include "Particle_Blood.h"
+#include "Particle_EliteBlock.h"
 
 #include "Animation.h"
 
@@ -16,6 +17,7 @@
 #include "Elite_Turbo.h"
 #include "Elite_Walk.h"
 #include "Elite_Death.h"
+#include "Elite_Stun.h"
 
 CElite::CElite(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CEnemy(pDevice, pContext)
@@ -161,7 +163,6 @@ _bool CElite::Check_Collision()
 {
     CPlayer* pPlayer = static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY));
 
-
     CWeapon_Player* pPlayerWeapon = static_cast<CWeapon_Player*>(pPlayer->Get_Part(CPlayer::PART_WEAPON));
     CCollider* pCollider = pPlayerWeapon->Get_Collider();
     
@@ -195,32 +196,70 @@ _bool CElite::Check_Collision()
         // 90도 벗어나게 되면?     못막아 
 
 
-        if (135.f <= fAngle && 180.f >= fAngle)
+        if (110.f <= fAngle && 180.f >= fAngle)
         {
             m_pModel->SetUp_Animation(CElite::ELITE_ANIMATION::BLOCK_F, true);
+            m_pTransformCom->LookAt_XZ(pPlayerTransform->Get_State(CTransform::STATE_POSITION));
+            m_pFsm->Change_State(CElite::ELITE_ANIMATION::BLOCK_F);
         }
-        else if (90.f <= fAngle && 135.f >= fAngle)
+        else if (90.f <= fAngle && 109.f >= fAngle)
         {
             _vector vCross = XMVector3Cross(vPlayerLookNor, vEliteLookNor);
 
             // 외적의 z 성분을 확인하여 방향 판단
-            if (XMVectorGetY(vCross) > 0)
+            if (XMVectorGetY(vCross) < 0)
             {
                 // 왼쪽에서 막음
                 m_pModel->SetUp_Animation(CElite::ELITE_ANIMATION::BLOCK_L, true);
+                m_pFsm->Change_State(CElite::ELITE_ANIMATION::BLOCK_F);              
             }
             else
             {
                 // 오른쪽에서 막음
                 m_pModel->SetUp_Animation(CElite::ELITE_ANIMATION::BLOCK_R, true);
+                m_pFsm->Change_State(CElite::ELITE_ANIMATION::BLOCK_F);            
             }
         }
+        else
+        {
+            m_pModel->SetUp_Animation(CElite::ELITE_ANIMATION::BLOCK_F, true);
+            m_pTransformCom->LookAt_XZ(pPlayerTransform->Get_State(CTransform::STATE_POSITION));
+            m_pFsm->Change_State(CElite::ELITE_ANIMATION::BLOCK_F);
+        }
+       
 
-        m_pTransformCom->LookAt_XZ(pPlayerTransform->Get_State(CTransform::STATE_POSITION));
-        //m_pFsm->Change_State(CElite::ELITE_ANIMATION::DEATH_1);
-    
-        
- 
+        m_Parts[CElite::PARTID::PART_PARTICLE_BLOCK]->SetActiveMyParticle(true);
+        return true;
+    }
+
+    return false;
+}
+
+_bool CElite::Check_CollisionGroggy()       // 패링 3번 이상햇을때 켜짐
+{
+    if (true == m_isDead)
+        return false;
+
+    CWeapon_Player* pPlayerWeapon = static_cast<CWeapon_Player*>(static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY))->Get_Part(CPlayer::PART_WEAPON));
+    CCollider* pCollider = pPlayerWeapon->Get_Collider();
+
+
+    if (CWeapon_Player::WEAPON_TYPE::KATANA == pPlayerWeapon->Get_CurType())
+    {
+        m_pColliderCom->Intersect(pCollider);
+    }
+
+
+    if (CElite::ELITE_ANIMATION::DEATH_1 != m_pModel->Get_NextAnimationIndex() && m_pColliderCom->IsBoundingCollisionEnter())
+    {
+        _double& TrackPos = m_pModel->Get_Referene_CurrentTrackPosition();
+        TrackPos = 0.0;
+
+        m_pModel->SetUp_Animation(CElite::ELITE_ANIMATION::DEATH_1, true);
+        m_pFsm->Change_State(CElite::ELITE_ANIMATION::DEATH_1);
+
+        static_cast<CParticle_Blood*>(m_Parts[PART_EFFECT])->SetActiveMyParticle(true);
+
         return true;
     }
 
@@ -292,6 +331,29 @@ HRESULT CElite::Ready_Parts()
         return E_FAIL;
 
 
+
+
+
+    _float3				KatanaStartLocal = _float3(-0.0776796862, -0.202111647, 0.839834869);
+    _float3				KatanaEndLocal = _float3(0.0776796862, 1.43591797, 9.31558323);
+    _float3             KatanaMiddleLocal;
+
+    KatanaMiddleLocal.x = (KatanaStartLocal.x + KatanaEndLocal.x) * 0.5f;
+    KatanaMiddleLocal.y = (KatanaStartLocal.y + KatanaEndLocal.y) * 0.5f;
+    KatanaMiddleLocal.z = (KatanaStartLocal.z + KatanaEndLocal.z) * 0.5f;
+
+
+
+    CParticle_EliteBlock::PARTICLE_BLOCKEFFECT	EliteBlockDesc{};
+    
+    EliteBlockDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    EliteBlockDesc.pOwner = this;
+    EliteBlockDesc.SpwanPositionLocal = KatanaMiddleLocal;
+    if (FAILED(__super::Add_PartObject(PART_PARTICLE_BLOCK, TEXT("Prototype_GameObject_Particle_EliteBlockEffect"), &EliteBlockDesc)))
+        return E_FAIL;
+
+
+
     return S_OK;
 }
 
@@ -315,6 +377,9 @@ HRESULT CElite::Ready_State()
     if (FAILED(m_pFsm->Add_State(CElite_Walk::Create(this))))
         return E_FAIL;
 
+    if (FAILED(m_pFsm->Add_State(CElite_Stun::Create(this))))
+        return E_FAIL;
+    
     return S_OK;
 }
 
@@ -330,8 +395,7 @@ void CElite::Ready_Modify_Animation()
     vector<CAnimation*>& Animations = m_pModel->Get_Animations();
 
 
-    Animations[CElite::ELITE_ANIMATION::TURBO_TO_DASH]->Set_SpeedPerSec(10.f);
-
+    Animations[CElite::ELITE_ANIMATION::TURBO_TO_DASH]->Set_SpeedPerSec(15.f);
 }
 
 CElite* CElite::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)

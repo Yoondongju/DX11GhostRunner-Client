@@ -28,15 +28,19 @@ HRESULT CFont_Manager::Add_Font(const _wstring& strFontTag, const _tchar* pFontF
 	return S_OK;
 }
 
-HRESULT CFont_Manager::Render(const _wstring& strFontTag, const _tchar* pText, _fvector vPosition, _fvector vColor, _float fRadian, _fvector vPivot, _float fScale)
+HRESULT CFont_Manager::Render(const _wstring& strFontTag, const _tchar* pText, _fvector vPosition, _float fScale, _fvector vColor, _float fRadian, _fvector vPivot)
 {
 	CCustomFont* pFont = Find_Font(strFontTag);
 
 	if (nullptr == pFont)
 		return E_FAIL;
 
-	return pFont->Render(pText, vPosition, vColor, fRadian, vPivot, fScale);
+	m_pContext->GSSetShader(nullptr, nullptr, 0);
+
+	return pFont->Render(pText, vPosition, fScale , vColor, fRadian, vPivot);
 }
+
+
 
 CCustomFont* CFont_Manager::Find_Font(const _wstring& strFontTag)
 {

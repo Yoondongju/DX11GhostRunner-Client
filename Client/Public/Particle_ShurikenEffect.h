@@ -26,6 +26,10 @@ private:
 	virtual ~CParticle_ShurikenEffect() = default;
 
 public:
+	void		Set_Active(_bool b) { m_bActive = b; }
+
+
+public:
 	virtual HRESULT Initialize_Prototype() override;
 	virtual HRESULT Initialize(void* pArg) override;
 	virtual void Priority_Update(_float fTimeDelta) override;
@@ -35,17 +39,15 @@ public:
 
 	
 private:
-	CShader*					m_pShaderCom = { nullptr };
-	CTexture*					m_pTextureCom = { nullptr };
-	CVIBuffer_Point_Instance*	m_pVIBufferCom = { nullptr };
+	CShader*							m_pShaderCom = { nullptr };
+	CTexture*							m_pTextureCom = { nullptr };
+	CVIBuffer_Point_Instance*	        m_pVIBufferCom = { nullptr };
 
 private:
 	CGameObject*				m_pShuriken = { nullptr };
 
-	_bool						m_bActive = { false };			// 얜 파트오브젝트가 아니여서 이렇게.. 처리
-	_bool						m_bPreActive = { false };
-
-
+private:
+	_bool						m_bActive = { false };
 
 
 private:

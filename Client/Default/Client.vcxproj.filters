@@ -271,9 +271,6 @@
     <Filter Include="02.GameObjects\Player\WeaponParticle\Particle_Block">
       <UniqueIdentifier>{5aaeaac3-7bb0-4999-b289-f10e3f11e8d4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\Player\WeaponParticle\Particle_Shuriken">
-      <UniqueIdentifier>{ccbfb894-7035-4135-911a-101112b86ca5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="02.GameObjects\Player\WeaponParticle\Particle_CutAll">
       <UniqueIdentifier>{bc05da34-cfef-410a-9aed-79c69c85c7ec}</UniqueIdentifier>
     </Filter>
@@ -286,9 +283,6 @@
     <Filter Include="02.GameObjects\02.Monster\Elite\EliteState\Walk">
       <UniqueIdentifier>{76fc230c-c52c-4e46-a1a8-10d74318e02b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\02.Monster\Elite\EliteState\Block">
-      <UniqueIdentifier>{9719ed9f-4333-4af7-8b39-11e2edf99716}</UniqueIdentifier>
-    </Filter>
     <Filter Include="02.GameObjects\02.Monster\Elite\EliteState\Death">
       <UniqueIdentifier>{cf6bbf33-d8aa-419e-ad88-dcce73aa9398}</UniqueIdentifier>
     </Filter>
@@ -297,6 +291,39 @@
     </Filter>
     <Filter Include="02.GameObjects\02.Monster\Elite\EliteState\Alert">
       <UniqueIdentifier>{7c14ab55-99b2-4f22-a384-9e5e88e271f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Elite\EliteState\Block">
+      <UniqueIdentifier>{9719ed9f-4333-4af7-8b39-11e2edf99716}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Elite\EliteState\Stun">
+      <UniqueIdentifier>{776e0e0a-9bc2-40e0-afe7-607891874042}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Elite\WeaponParticle">
+      <UniqueIdentifier>{14dd3a0e-0771-4064-b29a-3d8cefb9a4f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Jetpack\Particle_Explosion">
+      <UniqueIdentifier>{216aab06-9609-4ca9-b5eb-95e6ed2148f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\WeaponParticle\Particle_Shuriken">
+      <UniqueIdentifier>{ccbfb894-7035-4135-911a-101112b86ca5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\WeaponParticle\ShurikenTrail">
+      <UniqueIdentifier>{a5525b90-d540-4e6d-b159-00adf257087f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\PlayerState\HomingShuriken">
+      <UniqueIdentifier>{41d8302b-ed23-4e79-ba9f-028b74cb86a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI\EnemyMarkerUI">
+      <UniqueIdentifier>{51f68f8c-592d-4a23-afd4-c193333dc59b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI\CrossHair">
+      <UniqueIdentifier>{134cf084-f57e-486b-92c4-93c1b1cac874}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI\EventNotify">
+      <UniqueIdentifier>{b4fc9405-7df5-459e-931e-a615c3247c6d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Particle\ShockWave">
+      <UniqueIdentifier>{2f26365e-73d1-4bd2-892f-a47be6327ffa}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -534,7 +561,7 @@
     <ClInclude Include="..\Public\Monster_Bullet.h">
       <Filter>02.GameObjects\02.Monster\Bullet</Filter>
     </ClInclude>
-    <ClInclude Include="..\Public\WeaponParticle.h">
+    <ClInclude Include="..\Public\SwordTrail.h">
       <Filter>02.GameObjects\Player\WeaponParticle\SwordTrail</Filter>
     </ClInclude>
     <ClInclude Include="..\Public\Particle_ShurikenEffect.h">
@@ -566,6 +593,33 @@
     </ClInclude>
     <ClInclude Include="..\Public\Elite_Alert.h">
       <Filter>02.GameObjects\02.Monster\Elite\EliteState\Alert</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Elite_Stun.h">
+      <Filter>02.GameObjects\02.Monster\Elite\EliteState\Stun</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Particle_EliteBlock.h">
+      <Filter>02.GameObjects\02.Monster\Elite\WeaponParticle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Particle_Explosion.h">
+      <Filter>02.GameObjects\02.Monster\Jetpack\Particle_Explosion</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\ShurikenTrail.h">
+      <Filter>02.GameObjects\Player\WeaponParticle\ShurikenTrail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\HomingShuriken.h">
+      <Filter>02.GameObjects\Player\PlayerState\HomingShuriken</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\EnemyMarkerUI.h">
+      <Filter>02.GameObjects\GameUI\EnemyMarkerUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\CrossHairUI.h">
+      <Filter>02.GameObjects\GameUI\CrossHair</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\EventNotify.h">
+      <Filter>02.GameObjects\GameUI\EventNotify</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Particle_ShockWave.h">
+      <Filter>02.GameObjects\04.Particle\ShockWave</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -794,7 +848,7 @@
     <ClCompile Include="..\Private\Monster_Bullet.cpp">
       <Filter>02.GameObjects\02.Monster\Bullet</Filter>
     </ClCompile>
-    <ClCompile Include="..\Private\WeaponParticle.cpp">
+    <ClCompile Include="..\Private\SwordTrail.cpp">
       <Filter>02.GameObjects\Player\WeaponParticle\SwordTrail</Filter>
     </ClCompile>
     <ClCompile Include="..\Private\Particle_ShurikenEffect.cpp">
@@ -826,6 +880,33 @@
     </ClCompile>
     <ClCompile Include="..\Private\Elite_Alert.cpp">
       <Filter>02.GameObjects\02.Monster\Elite\EliteState\Alert</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Elite_Stun.cpp">
+      <Filter>02.GameObjects\02.Monster\Elite\EliteState\Stun</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Particle_EliteBlock.cpp">
+      <Filter>02.GameObjects\02.Monster\Elite\WeaponParticle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Particle_Explosion.cpp">
+      <Filter>02.GameObjects\02.Monster\Jetpack\Particle_Explosion</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\ShurikenTrail.cpp">
+      <Filter>02.GameObjects\Player\WeaponParticle\ShurikenTrail</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\HomingShuriken.cpp">
+      <Filter>02.GameObjects\Player\PlayerState\HomingShuriken</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\EnemyMarkerUI.cpp">
+      <Filter>02.GameObjects\GameUI\EnemyMarkerUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\CrossHairUI.cpp">
+      <Filter>02.GameObjects\GameUI\CrossHair</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\EventNotify.cpp">
+      <Filter>02.GameObjects\GameUI\EventNotify</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Particle_ShockWave.cpp">
+      <Filter>02.GameObjects\04.Particle\ShockWave</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -875,9 +956,6 @@
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxMeshInstance.hlsl">
-      <Filter>97.ShaderFiles</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxTrailInstance.hlsl">
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxSwordTrail.hlsl">

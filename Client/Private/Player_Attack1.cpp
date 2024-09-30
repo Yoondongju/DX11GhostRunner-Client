@@ -15,6 +15,8 @@
 #include "Jetpack.h"
 #include "Elite.h"
 
+#include "SwordTrail.h"
+
 CPlayer_Attack1::CPlayer_Attack1(class CGameObject* pOwner)
 	: CState{ CPlayer::PLAYER_ANIMATIONID::ATTACK_R1 , pOwner }
 {
@@ -28,7 +30,8 @@ HRESULT CPlayer_Attack1::Initialize()
 
 HRESULT CPlayer_Attack1::Start_State(void* pArg)
 {
-
+	CSwordTrail* pSwordTrail = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON))->Get_SwordTrail();
+	pSwordTrail->Set_Active(true);
 
 	return S_OK;
 }
@@ -65,6 +68,9 @@ void CPlayer_Attack1::End_State()
 {
 	CWeapon_Player* pKanata = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON));
 	pKanata->Set_Attacking(false);
+
+CSwordTrail* pSwordTrail = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON))->Get_SwordTrail();
+	pSwordTrail->Set_Active(false);
 }
 
 
@@ -101,7 +107,13 @@ void CPlayer_Attack1::Check_Collision()
 	list<CGameObject*>& Elites = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Elite");
 	for (auto& Elite : Elites)
 	{
-		_bool b = static_cast<CElite*>(Elite)->Check_Collision();
+		CElite* pElite = static_cast<CElite*>(Elite);
+		_bool b = {};
+
+		if (true == pElite->IsGroggy())
+			b = pElite->Check_CollisionGroggy();
+		else
+			b = pElite->Check_Collision();		
 	}
 }
 

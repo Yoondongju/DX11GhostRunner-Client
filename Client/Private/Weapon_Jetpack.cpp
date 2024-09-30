@@ -146,9 +146,12 @@ HRESULT CWeapon_Jetpack::Ready_Components()
 	
 	/* For.Com_Collider */
 	CBounding_OBB::BOUNDING_OBB_DESC			ColliderDesc{};
-	ColliderDesc.vExtents = _float3(3.f, 10.f, 3.f);
+	ColliderDesc.vExtents = _float3(5.f, 10.f, 5.f);
 	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vExtents.y, 0.f);
-	ColliderDesc.vAngles = _float3(0.f,1.5f,0.1f);
+	ColliderDesc.vAngles = _float3(
+		XMConvertToRadians(-68.76f),  
+		XMConvertToRadians(14.74f),   
+		XMConvertToRadians(-7.50f));
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_CCollider_OBB"),
 		TEXT("Com_Collider"), reinterpret_cast<CComponent**>(&m_pColliderCom), &ColliderDesc)))
 		return E_FAIL;

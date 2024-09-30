@@ -19,7 +19,7 @@ BEGIN(Client)
 class CMira final : public CEnemy
 {
 public:
-	enum PARTID { PART_EFFECT, PART_BULLET, PART_END};
+	enum PARTID { PART_EFFECT, PART_BULLET,  PART_SHOCKWAVE , PART_END};
 	enum MIRA_ANIMATION
 	{
 		WALKIN_AROUND,
@@ -44,6 +44,7 @@ public:
 	virtual  CCollider* Get_Collider() override { return m_pColliderCom; }
 
 public:
+	virtual _bool		IsDead() override { return m_isDead; }
 	void				SetDead() { m_isDead = true; }
 
 
@@ -58,6 +59,7 @@ public:
 public:
 	_bool		 Check_Collision();
 	virtual void Check_CollByTargetEnemy() override;
+	virtual void Check_Collision_Me() override;
 
 
 private:

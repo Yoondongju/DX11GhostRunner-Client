@@ -20,7 +20,9 @@ public:
 
 
 private:
-    _float  m_fLastKeyPressTimeLBtn = 0.f;
+    _float      m_fLastKeyPressTimeLBtn = 0.f;
+
+
 
 private:
     _bool   Check_Jump();

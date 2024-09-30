@@ -19,7 +19,7 @@ BEGIN(Client)
 class CElite final : public CEnemy
 {
 public:
-	enum PARTID { PART_WEAPON, PART_EFFECT, PART_END };
+	enum PARTID { PART_WEAPON, PART_EFFECT, PART_PARTICLE_BLOCK, PART_END };
 	enum ELITE_ANIMATION
 	{
 		IDLE_TO_ALERT,
@@ -63,10 +63,16 @@ public:
 	virtual HRESULT Render() override;
 
 public:
+	_bool				IsDead() { return m_isDead; }
 	void				SetDead() { m_isDead = true; }
 
 public:
+	void				Set_Groggy(_bool b) { m_isGroggy = b; }
+	_bool				IsGroggy() { return m_isGroggy; }
+
+public:
 	_bool Check_Collision();
+	_bool Check_CollisionGroggy();
 
 
 private:
@@ -76,11 +82,13 @@ private:
 	CCollider*	m_pColliderCom = { nullptr };
 	CFsm*		m_pFsm = { nullptr };
 
-
 private:
 	_bool		m_isDead = { false };
 	CTexture*	m_pDeadNoiseTexture = { nullptr };
 	_float		m_fDiscard = { 0.f };
+
+private:
+	_bool		m_isGroggy = { false };
 
 
 private:

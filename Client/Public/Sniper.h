@@ -20,7 +20,7 @@ BEGIN(Client)
 class CSniper final : public CEnemy
 {
 public:
-	enum PARTID { PART_WEAPON, PART_EFFECT, PART_BULLET, PART_END };
+	enum PARTID { PART_WEAPON, PART_EFFECT, PART_BULLET, PART_SHOCKWAVE, PART_END };
 
 	enum SNIPER_ANIMATION
 	{
@@ -47,7 +47,7 @@ public:
 
 public:
 	void					SetDead() { m_isDead = true; }
-	_bool					IsDead() { return m_isDead; }
+	virtual _bool			IsDead() override { return m_isDead; }
 
 	_float					Get_Discard() { return m_fDiscard; }
 
@@ -65,6 +65,8 @@ public:
 public:
 	_bool		 Check_Collision();
 	virtual void Check_CollByTargetEnemy() override;
+	virtual void Check_Collision_Me() override;
+
 
 private:
 	CShader*	m_pShaderCom = { nullptr };

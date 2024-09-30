@@ -2,18 +2,18 @@
 
 #include "Client_Defines.h"
 #include "PartObject.h"
-#include "VIBuffer_Trail_Instance.h"
+
+#include "VIBuffer_Trail.h"
 
 BEGIN(Engine)
 class CShader;
 class CTexture;
-class CVIBuffer_Trail;
 END
 
 
 BEGIN(Client)
 
-class CWeaponParticle final : public CPartObject
+class CSwordTrail final : public CPartObject
 {
 public:
 	typedef struct : public CPartObject::PARTOBJ_DESC
@@ -23,10 +23,11 @@ public:
 	}EFFECT_DESC;
 
 
+
 private:
-	CWeaponParticle(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
-	CWeaponParticle(const CWeaponParticle& Prototype);
-	virtual ~CWeaponParticle() = default;
+	CSwordTrail(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
+	CSwordTrail(const CSwordTrail& Prototype);
+	virtual ~CSwordTrail() = default;
 
 
 public:
@@ -49,15 +50,12 @@ public:
 private:
 	const _float4x4*	m_pSocketMatrix = { nullptr };
 
-	_float3				m_CurStart = {};
-	_float3				m_CurEnd = {};
-
-	_float3				m_PreStart = {};
-	_float3				m_PreEnd = {};
+	deque<CVIBuffer_Trail::TRAIL_INFO>	m_Trail;
 
 
+private:
 	_bool				m_bActive = { false };
-
+	_float3				m_StartPos = {};		// 처음 활성화되고 켜진 거리
 
 	_float3				m_KatanaStartLocal = _float3(-0.0776796862, -0.202111647, 0.839834869);
 	_float3				m_KatanaEndLocal = _float3(0.0776796862, 1.43591797, 9.31558323);
@@ -68,11 +66,14 @@ private:
 
 	_float				m_fAccTime = { 0.f };
 
+
+
+
 private:
 	HRESULT Ready_Components();
 
 public:
-	static CWeaponParticle* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
+	static CSwordTrail* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg);
 	virtual void Free() override;
 

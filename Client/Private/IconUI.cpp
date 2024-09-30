@@ -8,6 +8,9 @@
 
 #include "NumberUI.h"
 
+
+_bool* CIconUI::m_NextIconArrive[ICON_TYPE::ICON_TYPE_END] = { nullptr };
+
 CIconUI::CIconUI(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CUIObject{ pDevice, pContext }
 {
@@ -45,7 +48,6 @@ HRESULT CIconUI::Initialize(void* pArg)
 	Safe_AddRef(m_pPlayer);
 
 
-
 	m_vOriginSize.x = m_fSizeX;
 	m_vOriginSize.y = m_fSizeY;
 
@@ -55,6 +57,16 @@ HRESULT CIconUI::Initialize(void* pArg)
 
 
 
+	m_vTargetPos.x = m_fX;
+	m_vTargetPos.y = m_fY;
+
+	m_vInSidePos.x = - m_fSizeX;		// 안에 박혀있는 위치
+	m_vInSidePos.y = m_fY;				// 안에 박혀있는 위치
+
+
+	m_NextIconArrive[m_eType] = &m_isArrive;
+	if (HOMING_SH == m_eType)
+		m_bActivate = false;
 
 
 
@@ -71,7 +83,6 @@ HRESULT CIconUI::Initialize(void* pArg)
 	if (FAILED(Add_Child(pDotUI)))
 		return E_FAIL;
 
-
 	return S_OK;
 }
 
@@ -87,8 +98,33 @@ void CIconUI::Priority_Update(_float fTimeDelta)
 
 void CIconUI::Update(_float fTimeDelta)
 {
+	CWeapon_Player::WEAPON_TYPE eCurType = m_pPlayer->Get_CurWeaponType();
+	CWeapon_Player::WEAPON_TYPE ePreType = m_pPlayer->Get_PreWeaponType();
+
+	if (eCurType != ePreType)
+	{
+		for (_uint i = 0; i < CIconUI::ICON_TYPE::ICON_TYPE_END; i++)
+		{
+			*m_NextIconArrive[i] = false;
+		}
+		m_fAccTime = 0.f;
+	}
+
+	if (CWeapon_Player::WEAPON_TYPE::SHURIKEN == eCurType)
+	{		
+		Go_InSide(fTimeDelta);
+	}
+	else
+	{
+		Go_Out(fTimeDelta);		
+	}
+
+
+
 	if (false == m_bActivate)
 		return;
+
+
 
 	switch (m_eType)
 	{
@@ -381,18 +417,254 @@ void CIconUI::Update(_float fTimeDelta)
 		}
 	}
 	break;
+	case Client::CIconUI::NAMI:
+	{
+		CNumberUI* pNmuber = static_cast<CNumberUI*>(m_childUI_List.back());
+
+		if (false == m_pPlayer->IsNamiActive())
+		{
+			if (!m_bChangeEnter && m_vTargetSize.x > m_fSizeX &&
+				m_vTargetSize.y > m_fSizeY)
+			{
+				m_fSizeX += fTimeDelta * 80.f;
+				m_fSizeY += fTimeDelta * 80.f;
+			}
+			else
+			{
+				m_pPlayer->Set_StartCountNamiTime(true);
+				m_bChangeEnter = true;
+
+				_float fCoolTime = m_pPlayer->Get_NamiCoolTime();
+				_float fRemainingTime = m_pPlayer->Get_NamiRemainingTime();
+				pNmuber->Set_Active(true);
+
+				_float fResult = (fCoolTime - fRemainingTime);
+
+
+				if (fResult >= 6.0f)
+				{
+					fResult = 7.f;
+				}
+
+				else if (fResult >= 5.0f)
+				{
+					fResult = 6.f;
+				}
+
+				else if (fResult >= 4.0f)
+				{
+					fResult = 5.f;
+				}
+
+				else if (fResult >= 3.0f)
+				{
+					fResult = 4.f;
+				}
+
+				else if (fResult >= 2.0f)
+				{
+					fResult = 3.f;
+				}
+				else if (fResult >= 1.0f)
+				{
+					fResult = 2.f;
+				}
+				else if (fResult >= 0.0f)
+				{
+					fResult = 1.f;
+				}
+				pNmuber->Set_Number((_int)fResult);
+
+
+				if (m_vOriginSize.x > m_fSizeX &&
+					m_vOriginSize.y > m_fSizeY)
+				{
+					m_fSizeX = m_vOriginSize.x;
+					m_fSizeY = m_vOriginSize.y;
+				}
+				else
+				{
+					m_fSizeX -= fTimeDelta * 40.f;
+					m_fSizeY -= fTimeDelta * 40.f;
+				}
+			}
+		}
+		else
+		{
+			m_bChangeEnter = false;
+			pNmuber->Set_Active(false);
+			return;
+		}
+	}
+	break;
+	case Client::CIconUI::MINDCONTROL:
+	{
+		CNumberUI* pNmuber = static_cast<CNumberUI*>(m_childUI_List.back());
+
+		if (false == m_pPlayer->IsMindControlActive())
+		{
+			if (!m_bChangeEnter && m_vTargetSize.x > m_fSizeX &&
+				m_vTargetSize.y > m_fSizeY)
+			{
+				m_fSizeX += fTimeDelta * 80.f;
+				m_fSizeY += fTimeDelta * 80.f;
+			}
+			else
+			{
+				m_pPlayer->Set_StartCountMindControlTime(true);
+				m_bChangeEnter = true;
+
+				_float fCoolTime = m_pPlayer->Get_MindControlCoolTime();
+				_float fRemainingTime = m_pPlayer->Get_MindControlRemainingTime();
+				pNmuber->Set_Active(true);
+
+				_float fResult = (fCoolTime - fRemainingTime);
+
+
+				if (fResult >= 6.0f)
+				{
+					fResult = 7.f;
+				}
+
+				else if (fResult >= 5.0f)
+				{
+					fResult = 6.f;
+				}
+
+				else if (fResult >= 4.0f)
+				{
+					fResult = 5.f;
+				}
+
+				else if (fResult >= 3.0f)
+				{
+					fResult = 4.f;
+				}
+
+				else if (fResult >= 2.0f)
+				{
+					fResult = 3.f;
+				}
+				else if (fResult >= 1.0f)
+				{
+					fResult = 2.f;
+				}
+				else if (fResult >= 0.0f)
+				{
+					fResult = 1.f;
+				}
+				pNmuber->Set_Number((_int)fResult);
+
+
+				if (m_vOriginSize.x > m_fSizeX &&
+					m_vOriginSize.y > m_fSizeY)
+				{
+					m_fSizeX = m_vOriginSize.x;
+					m_fSizeY = m_vOriginSize.y;
+				}
+				else
+				{
+					m_fSizeX -= fTimeDelta * 40.f;
+					m_fSizeY -= fTimeDelta * 40.f;
+				}
+			}
+		}
+		else
+		{
+			m_bChangeEnter = false;
+			pNmuber->Set_Active(false);
+			return;
+		}
+	}
+	break;
+	case Client::CIconUI::HOMING_SH:
+	{
+		CNumberUI* pNmuber = static_cast<CNumberUI*>(m_childUI_List.back());
+
+		if (false == m_pPlayer->IsHomingShActive())
+		{
+			if (!m_bChangeEnter && m_vTargetSize.x > m_fSizeX &&
+				m_vTargetSize.y > m_fSizeY)
+			{
+				m_fSizeX += fTimeDelta * 80.f;
+				m_fSizeY += fTimeDelta * 80.f;
+			}
+			else
+			{
+				m_pPlayer->Set_StartCountHomingShTime(true);
+				m_bChangeEnter = true;
+
+				_float fCoolTime = m_pPlayer->Get_HomingShCoolTime();
+				_float fRemainingTime = m_pPlayer->Get_HomingShRemainingTime();
+				pNmuber->Set_Active(true);
+
+				_float fResult = (fCoolTime - fRemainingTime);
+
+
+				if (fResult >= 6.0f)
+				{
+					fResult = 7.f;
+				}
+
+				else if (fResult >= 5.0f)
+				{
+					fResult = 6.f;
+				}
+
+				else if (fResult >= 4.0f)
+				{
+					fResult = 5.f;
+				}
+
+				else if (fResult >= 3.0f)
+				{
+					fResult = 4.f;
+				}
+
+				else if (fResult >= 2.0f)
+				{
+					fResult = 3.f;
+				}
+				else if (fResult >= 1.0f)
+				{
+					fResult = 2.f;
+				}
+				else if (fResult >= 0.0f)
+				{
+					fResult = 1.f;
+				}
+				pNmuber->Set_Number((_int)fResult);
+
+
+				if (m_vOriginSize.x > m_fSizeX &&
+					m_vOriginSize.y > m_fSizeY)
+				{
+					m_fSizeX = m_vOriginSize.x;
+					m_fSizeY = m_vOriginSize.y;
+				}
+				else
+				{
+					m_fSizeX -= fTimeDelta * 40.f;
+					m_fSizeY -= fTimeDelta * 40.f;
+				}
+			}
+		}
+		else
+		{
+			m_bChangeEnter = false;
+			pNmuber->Set_Active(false);
+			return;
+		}
+	}
+	break;
 	case Client::CIconUI::ICON_TYPE_END:
 		break;
 	default:
 		break;
 	}
-
-
-
-
 	
 
-
+	
 	for (auto& pChildUI : m_childUI_List)
 		pChildUI->Update(fTimeDelta);
 }
@@ -457,9 +729,6 @@ HRESULT CIconUI::Render()
 
 	return S_OK;
 }
-
-
-
 
 HRESULT CIconUI::Ready_Components()
 {
@@ -526,7 +795,13 @@ HRESULT CIconUI::Ready_Components()
 			return E_FAIL;
 	}
 		break;
-
+	case Client::CIconUI::HOMING_SH:
+	{
+		if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Icon_Sh_Skill"),
+			TEXT("Com_Texture_Frame"), reinterpret_cast<CComponent**>(&m_pTextureCom))))
+			return E_FAIL;
+	}
+	break;
 
 	case Client::CIconUI::ICON_TYPE_END:
 		break;
@@ -534,10 +809,8 @@ HRESULT CIconUI::Ready_Components()
 		break;
 	}
 	
-	
-	
 
-	
+
 
 	/* FOR.Com_VIBuffer */
 	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_VIBuffer_Rect"),
@@ -545,6 +818,172 @@ HRESULT CIconUI::Ready_Components()
 		return E_FAIL;
 
 	return S_OK;
+}
+
+
+
+
+void CIconUI::Go_InSide(_float fTimeDelta)
+{
+	if (CIconUI::DASH == m_eType ||
+		CIconUI::SHURIKEN == m_eType)
+		return;
+
+
+	_float fSpeed = { 5.f };
+
+	switch (m_eType)
+	{
+	case Client::CIconUI::BLOCK:
+		break;
+	case Client::CIconUI::CUTALL:
+		if (false == *m_NextIconArrive[BLOCK])
+			return;
+		break;
+	case Client::CIconUI::NAMI:
+		if (false == *m_NextIconArrive[CUTALL])
+			return;
+		break;
+	case Client::CIconUI::TIMESTOP:
+		if (false == *m_NextIconArrive[NAMI])
+			return;
+		break;
+	case Client::CIconUI::MINDCONTROL:
+		if (false == *m_NextIconArrive[TIMESTOP])
+			return;
+		break;
+	case Client::CIconUI::HOMING_SH:
+		if (true == *m_NextIconArrive[MINDCONTROL])
+		{
+			m_bActivate = true;
+
+			if (m_vTargetPos.x <= m_fX)	// 목표를 넘었음을 기록
+			{
+				m_pPlayer->Set_CanSwapWeapon(true);
+			}
+			
+			m_fAccTime += fTimeDelta * 30.f;
+			m_fX += m_fAccTime * ((m_vTargetPos.x - m_fX) / m_vTargetPos.x);
+			return;
+		}
+		break;
+	case Client::CIconUI::ICON_TYPE_END:
+		break;
+	default:
+		break;
+	}
+	
+
+
+	if (m_vInSidePos.x < m_fX)
+	{
+		if (60 >= fabs(m_fX - m_vInSidePos.x))
+			m_isArrive = true;
+
+		m_fAccTime += fTimeDelta * 30.f;
+		m_fX -= m_fAccTime;
+	}
+	else
+	{
+		m_fX = m_vInSidePos.x;		
+	}		
+}
+
+
+void CIconUI::Go_Out(_float fTimeDelta)
+{
+	switch (m_eType)
+	{
+	case Client::CIconUI::BLOCK:
+	{
+		if (false == *m_NextIconArrive[CUTALL])
+			return;
+
+		if(true == m_isArrive)
+			m_pPlayer->Set_CanSwapWeapon(true);	
+	}
+		
+		break;
+	case Client::CIconUI::CUTALL:
+		if (false == *m_NextIconArrive[NAMI])
+			return;
+		break;
+	case Client::CIconUI::NAMI:
+		if (false == *m_NextIconArrive[TIMESTOP])
+			return;
+		break;
+	case Client::CIconUI::TIMESTOP:
+		if (false == *m_NextIconArrive[MINDCONTROL])
+			return;
+		break;
+	case Client::CIconUI::MINDCONTROL:
+		if (false == *m_NextIconArrive[HOMING_SH])
+			return;
+		break;
+	case Client::CIconUI::HOMING_SH:
+	{
+		if (m_vInSidePos.x < m_fX)
+		{
+			if (60 >= fabs(m_fX - m_vInSidePos.x))
+				m_isArrive = true;
+
+			m_fAccTime += fTimeDelta * 30.f;
+			m_fX -= m_fAccTime;
+		}
+		else
+		{
+			m_fX = m_vInSidePos.x;
+			m_bActivate = false;
+		}
+		return;
+	}
+		break;
+	case Client::CIconUI::SHURIKEN:
+		return;
+		break;
+	case Client::CIconUI::DASH:
+		return;
+		break;
+	case Client::CIconUI::ICON_TYPE_END:
+		break;
+	default:
+		break;
+	}
+
+
+	if (m_fX == m_vTargetPos.x)
+	{
+		m_isArrive = true;
+		return;
+	}
+	else if (false == m_isOverShoot)
+	{ 
+		if (60 >= fabs(m_fX - m_vTargetPos.x))
+			m_isArrive = true;
+
+		if (m_vTargetPos.x + m_fOverShoot <= m_fX)   // 목표를 넘었음을 기록
+			m_isOverShoot = true; 
+
+		m_fAccTime += fTimeDelta * 30.f;
+		m_fX += m_fAccTime * ((m_vTargetPos.x - m_fX) / m_vTargetPos.x);
+	}
+	else
+	{
+		if (m_vTargetPos.x < m_fX)
+		{
+			m_fAccTime -= fTimeDelta * 10.f; // 반대로 감속
+			m_fX -= m_fAccTime * ((m_vTargetPos.x - m_fX) / m_vTargetPos.x);
+
+			// 목표에 도착했을 때
+			if (m_fX <= m_vTargetPos.x)
+			{
+				m_fX = m_vTargetPos.x;
+				m_isOverShoot = false; // 초기화
+			}
+		}
+	}
+
+	
 }
 
 

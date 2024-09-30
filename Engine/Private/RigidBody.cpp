@@ -143,7 +143,7 @@ void CRigidBody::Calculate_Gravity(_float fTargetY)
 	}
 
 	// 중력 가속도를 속도에 반영
-	XMStoreFloat3(&m_vVelocity, XMLoadFloat3(&m_vVelocity) - vGravity);
+	XMStoreFloat3(&m_vVelocity, XMLoadFloat3(&m_vVelocity) - vGravity * m_fReducedGravity);
 }
 
 

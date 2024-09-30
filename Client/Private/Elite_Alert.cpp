@@ -33,7 +33,7 @@ void CElite_Alert::Update(_float fTimeDelta)
 		m_fCanTurboActiveTime -= fTimeDelta;
 	else
 	{
-		if (Check_Turbo())
+		if (Check_Turbo(fTimeDelta))
 		{
 			m_fCanTurboActiveTime = 10.f;
 			return;
@@ -41,10 +41,6 @@ void CElite_Alert::Update(_float fTimeDelta)
 	}
 
 	
-
-
-
-
 	CModel* pModel = static_cast<CElite*>(m_pOwner)->Get_Model();
 
 	_double Duration = pModel->Get_CurAnimation()->Get_Duration();
@@ -60,7 +56,7 @@ void CElite_Alert::Update(_float fTimeDelta)
 
 void CElite_Alert::End_State()
 {
-
+	m_isAttackActive = false;
 }
 
 
@@ -69,29 +65,54 @@ _bool CElite_Alert::Check_Death()
 	return _bool();
 }
 
-_bool CElite_Alert::Check_Turbo()
+_bool CElite_Alert::Check_Turbo(_float fTimeDelta)
 {
 	// 터보가 발동되는조건 
 	// 거리안에 들어오고 +    
 
 	_vector vPlayerPos = m_pGameInstance->Find_Player(LEVEL_GAMEPLAY)->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+	vPlayerPos = XMVectorSetY(vPlayerPos, 0.0f);  // Y축 성분 제거
+	
 	CTransform* pEliteTransform = m_pOwner->Get_Transform();
 	_vector vElitePos = pEliteTransform->Get_State(CTransform::STATE_POSITION);
+	vElitePos = XMVectorSetY(vElitePos, 0.0f);  // Y축 성분 제거
+
 
 	_float fDistance = XMVectorGetX(XMVector3Length(XMVectorSubtract(vPlayerPos, vElitePos)));
 
-	if (m_fCanTurboDistance >= fDistance)
+	
+	if (true == m_isAttackActive || m_fCanTurboDistance >= fDistance)
 	{
-		CModel* pModel = m_pOwner->Get_Model();
-		CFsm* pFsm = m_pOwner->Get_Fsm();
+		m_isAttackActive = true;
 
-		pModel->SetUp_Animation(CElite::ELITE_ANIMATION::ALERT_TO_TURBO, true);
-		pFsm->Change_State(CElite::ELITE_ANIMATION::ALERT_TO_TURBO);		
+		_vector vPlayerPos = m_pGameInstance->Find_Player(LEVEL_GAMEPLAY)->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+		
+		CTransform* pEliteTransform = m_pOwner->Get_Transform();
+		_vector vElitePos = pEliteTransform->Get_State(CTransform::STATE_POSITION);
+		
+		_vector vEliteLookNor = XMVector3Normalize(pEliteTransform->Get_State(CTransform::STATE_LOOK));
+		
+		_vector vEliteToPlayerDir = XMVectorSubtract(vPlayerPos, vElitePos);
+		vEliteToPlayerDir = XMVectorSetY(vEliteToPlayerDir, 0.0f);  // Y축 성분 제거
+		_vector vEliteToPlayerDirNor = XMVector3Normalize(vEliteToPlayerDir);
+		
+		_float fDot = XMVectorGetX(XMVector3Dot(vEliteLookNor, vEliteToPlayerDirNor));
+		
+		_float fAngle = XMConvertToDegrees(acos(fDot));
+		
+		if (1.f < fAngle)
+		{
+			pEliteTransform->LookAt_XZSmooth(vPlayerPos, fTimeDelta, nullptr);	
+		}	
+		else
+		{	
+			CFsm* pFsm = m_pOwner->Get_Fsm();
+			pFsm->Change_State(CElite::ELITE_ANIMATION::ALERT_TO_TURBO);
 
-		return true;
+			return true;
+		}	
 	}
-
-
+	
 	return false;
 }
 

@@ -6,7 +6,9 @@
 
 #include "Body_Player.h"
 #include "Weapon_Player.h"
-#include "WeaponParticle.h"
+#include "SwordTrail.h"
+#include "ShurikenTrail.h"
+
 #include "SubShuriken.h"
 #include "Wire_Player.h"
 
@@ -25,6 +27,7 @@
 
 #include "Player_CutAll.h"
 
+#include "HomingShuriken.h"
 
 #include "Player_Nami.h"
 #include "Player_MindControl.h"
@@ -196,7 +199,6 @@ void CPlayer::Priority_Update(_float fTimeDelta)
     
     if (false == static_cast<CBody_Player*>(m_Parts[PARTID::PART_BODY])->IsLandingWall())
     {
-         // 디버그용
         if (g_hWnd == GetFocus() && m_pGameInstance->Get_KeyState(KEY::RBUTTON) == KEY_STATE::HOLD)
         {
             _long	MouseMove = {};
@@ -292,6 +294,9 @@ void CPlayer::Update(_float fTimeDelta)
     Compute_BlockCoolTime(fTimeDelta);
     Compute_CutAllCoolTime(fTimeDelta);
     Compute_TimeStopCoolTime(fTimeDelta);
+    Compute_NamiCoolTime(fTimeDelta);
+    Compute_MindControlCoolTime(fTimeDelta);
+    Compute_HomingShCoolTime(fTimeDelta);
 
 
     m_pFsm->Update(fTimeDelta);
@@ -304,7 +309,7 @@ void CPlayer::Update(_float fTimeDelta)
 
     for (auto& pPartObject : m_Parts)
         pPartObject->Update(fTimeDelta);
-
+    
     
     
 
@@ -317,6 +322,8 @@ void CPlayer::Update(_float fTimeDelta)
 
 void CPlayer::Late_Update(_float fTimeDelta)
 {
+   
+
     if (true == m_pGameInstance->IsTimeDelayActive())
         fTimeDelta *= m_fTimeDelayLerpRatio;
 
@@ -435,6 +442,9 @@ HRESULT	CPlayer::Ready_State()
     if (FAILED(m_pFsm->Add_State(CPlayer_Sh_Attack1::Create(this))))
         return E_FAIL;
 
+    if (FAILED(m_pFsm->Add_State(CHomingShuriken::Create(this))))       // 이름 나중ㅇ ㅔ다시 원상복귀해
+        return E_FAIL;
+    
 
     if (FAILED(m_pFsm->Add_State(CPlayer_Hook::Create(this))))
         return E_FAIL;
@@ -508,7 +518,6 @@ void CPlayer::Compute_CutAllCoolTime(_float fTimeDelta)
         m_bCutAllActive = false;
 }
 
-
 void CPlayer::Compute_TimeStopCoolTime(_float fTimeDelta)
 {
     if (true == m_bStartCountTimeStopTime)
@@ -519,6 +528,42 @@ void CPlayer::Compute_TimeStopCoolTime(_float fTimeDelta)
         m_bTimeStopActive = true;
     else if (m_fTimeStopCoolTime > m_fTimeStopRemainingTime)
         m_bTimeStopActive = false;
+}
+
+void CPlayer::Compute_NamiCoolTime(_float fTimeDelta)
+{
+    if (true == m_bStartCountNamiTime)
+        m_fNamiRemainingTime += fTimeDelta;
+
+
+    if (m_fNamiCoolTime <= m_fNamiRemainingTime)
+        m_bNamiActive = true;
+    else if (m_fNamiCoolTime > m_fNamiRemainingTime)
+        m_bNamiActive = false;
+}
+
+void CPlayer::Compute_MindControlCoolTime(_float fTimeDelta)
+{
+    if (true == m_bStartCountMindControlTime)
+        m_fMindControlRemainingTime += fTimeDelta;
+
+
+    if (m_fMindControlCoolTime <= m_fMindControlRemainingTime)
+        m_bMindControlActive = true;
+    else if (m_fMindControlCoolTime > m_fMindControlRemainingTime)
+        m_bMindControlActive = false;
+}
+
+void CPlayer::Compute_HomingShCoolTime(_float fTimeDelta)
+{
+    if (true == m_bStartCountHomingShTime)
+        m_fHomingShRemainingTime += fTimeDelta;
+
+
+    if (m_fHomingShCoolTime <= m_fHomingShRemainingTime)
+        m_bHomingShActive = true;
+    else if (m_fHomingShCoolTime > m_fHomingShRemainingTime)
+        m_bHomingShActive = false;
 }
 
 
@@ -551,13 +596,21 @@ HRESULT CPlayer::Ready_PartObjects()
     SubShurikenDesc.fRotationPerSec = 30.f;
     SubShurikenDesc.fSpeedPerSec = 30.f;
     SubShurikenDesc.MyOffSet = _float3{ -0.3f ,0.f,-0.3f };
+    SubShurikenDesc.pOwner = this;
+    SubShurikenDesc.iNumSubShuriken = 0;     // 첫번째 섭 수리켄
+
     WeaponDesc.pSubShuriSken[0] = static_cast<CSubShuriken*>(m_pGameInstance->Clone_GameObject(L"Prototype_GameObject_SubShuriken", &SubShurikenDesc));
 
+
+
     SubShurikenDesc.MyOffSet = _float3{ 0.05f, -0.3f, -0.6f };
+    SubShurikenDesc.iNumSubShuriken = 1;     // 두번째 섭 수리켄 
+
     WeaponDesc.pSubShuriSken[1] = static_cast<CSubShuriken*>(m_pGameInstance->Clone_GameObject(L"Prototype_GameObject_SubShuriken", &SubShurikenDesc));
     
     if (FAILED(__super::Add_PartObject(PART_WEAPON, TEXT("Prototype_GameObject_Weapon_Player"), &WeaponDesc)))
         return E_FAIL;
+
 
 
     CWire_Player::WIRE_DESC		WireDesc{};
@@ -573,16 +626,6 @@ HRESULT CPlayer::Ready_PartObjects()
 
 
 
-    CWeaponParticle::EFFECT_DESC		EffectDesc{};
-    EffectDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
-    EffectDesc.pSocketBoneMatrix = static_cast<CBody_Player*>(m_Parts[PART_BODY])->Get_BoneMatrix_Ptr("Weapon_r");
-    EffectDesc.pOwner = this;
-    if (FAILED(__super::Add_PartObject(PART_PARTICLE_SWORDTRAIL, TEXT("Prototype_GameObject_SwordTrail"), &EffectDesc)))
-        return E_FAIL;
-
-
-
-
     _float3				KatanaStartLocal = _float3(-0.0776796862, -0.202111647, 0.839834869);
     _float3				KatanaEndLocal = _float3(0.0776796862, 1.43591797, 9.31558323);
     _float3             KatanaMiddleLocal;
@@ -590,6 +633,7 @@ HRESULT CPlayer::Ready_PartObjects()
     KatanaMiddleLocal.x = (KatanaStartLocal.x + KatanaEndLocal.x) * 0.5f;
     KatanaMiddleLocal.y = (KatanaStartLocal.y + KatanaEndLocal.y) * 0.5f;
     KatanaMiddleLocal.z = (KatanaStartLocal.z + KatanaEndLocal.z) * 0.5f;
+
 
     CParticle_Block::PARTICLE_BLOCKEFFECT  BlockDesc = {};
     BlockDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
@@ -616,8 +660,6 @@ HRESULT CPlayer::Ready_PartObjects()
     NamiDesc.pOwner = this;
     if (FAILED(__super::Add_PartObject(PART_PARTICLE_NAMI, TEXT("Prototype_GameObject_Particle_NamiEffect"), &NamiDesc)))
         return E_FAIL;
-
-
 
 
     return S_OK;

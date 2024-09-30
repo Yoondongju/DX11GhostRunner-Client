@@ -4,6 +4,7 @@
 #include "GameInstance.h"
 #include "PartObject.h"
 #include "Weapon_Player.h"
+#include "Player.h"
 
 CParticle_ShurikenEffect::CParticle_ShurikenEffect(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CGameObject{ pDevice, pContext }
@@ -37,50 +38,38 @@ HRESULT CParticle_ShurikenEffect::Initialize(void* pArg)
 	return S_OK;
 }
 
+
 void CParticle_ShurikenEffect::Priority_Update(_float fTimeDelta)
 {
 
 }
 
+
 void CParticle_ShurikenEffect::Update(_float fTimeDelta)
 {
 	CPartObject* pShuriken = static_cast<CPartObject*>(m_pShuriken);
-	m_bActive = pShuriken->IsActiveMyParticle();
+	CWeapon_Player* pMainShuriken = dynamic_cast<CWeapon_Player*>(pShuriken);
 
-	
-
-	if (false == m_bActive)
+	if (nullptr != pMainShuriken)
 	{
-		if (m_bPreActive != m_bActive)
-		{
- 			m_pVIBufferCom->ResetTranslation();
-			m_bPreActive = m_bActive;
-		}
-			
-		return;
-	}
-		
-
-	if (nullptr != dynamic_cast<CWeapon_Player*>(pShuriken))
 		m_pTransformCom->Set_WorldMatrix(*pShuriken->Get_PartObjectComBindWorldMatrixPtr());
+	
+		m_bActive = pMainShuriken->IsHomingActive();
+	}
 	else
 		m_pTransformCom->Set_WorldMatrix(*pShuriken->Get_Transform()->Get_WorldMatrix_Ptr());
 
+	if (false == m_bActive)
+		return;
 
 	
-
-	_vector vLook = m_pGameInstance->Find_Player(LEVEL_GAMEPLAY)->Get_Transform()->Get_State(CTransform::STATE_LOOK);
-
-	m_pVIBufferCom->DirectionSpread(fTimeDelta, XMVectorSet(0.f,-1.f,0.f,0.f));
-
-	m_bPreActive = m_bActive;
+	m_pVIBufferCom->Spread(fTimeDelta);
 }
 
 void CParticle_ShurikenEffect::Late_Update(_float fTimeDelta)
 {
 	if (false == m_bActive)
 		return;
-
 
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
 }
@@ -118,7 +107,7 @@ HRESULT CParticle_ShurikenEffect::Ready_Components()
 		return E_FAIL;
 
 	/* FOR.Com_Texture */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_ParticleShuriken"),
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Lightning"),
 		TEXT("Com_Texture"), reinterpret_cast<CComponent**>(&m_pTextureCom))))
 		return E_FAIL;
 

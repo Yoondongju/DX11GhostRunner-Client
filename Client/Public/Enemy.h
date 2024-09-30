@@ -37,11 +37,20 @@ public:
 	}
 
 	CEnemy*&				Get_TargetEnemy() { return m_pTargetEnemy; }
-	
+
+public:
+	_bool					IsTargetting() { return m_isTargeting; }
+	void					Set_Targeting(_bool b) { m_isTargeting = b; }
+
+	_bool					IsFinalTargetting() { return m_isFinalTargeting; }
+	void					Set_FinalTargeting(_bool b) { m_isFinalTargeting = b; }
+
+
+
 
 public:
 	virtual CCollider*		Get_Collider() { return nullptr; }
-
+	virtual _bool			IsDead() { return false; }
 
 public:
 	virtual HRESULT Initialize_Prototype() override;
@@ -54,14 +63,24 @@ public:
 	
 public:
 	virtual void Check_CollByTargetEnemy() {};
+	virtual void Check_Collision_Me() {};
+	
 
 
 protected:
-	_bool			m_isMindControling = { false };		// 마인드 컨트롤 당했니?
+	_bool				m_isTargeting = { false };			// 내가 탐색한 타겟으로 정해졋니
+	_bool				m_isFinalTargeting = { false };		// 최종 내가 사냥할 타겟으로 정해졋니
 
-	CEnemy*			m_pTargetEnemy = { nullptr };
+protected:
+	_bool				m_isMindControling = { false };		// 마인드 컨트롤 당했니?
+	CEnemy*				m_pTargetEnemy = { nullptr };
+
+	
+
 
  
+private:
+	HRESULT		Create_EnemyMarker();
 
 
 public:

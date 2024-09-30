@@ -217,6 +217,77 @@ void CVIBuffer_Point_Instance::DirectionSpread(_float fTimeDelta, _fvector vDir)
 	m_pContext->Unmap(m_pVBInstance, 0);
 }
 
+
+void CVIBuffer_Point_Instance::Spread_Side(_float fTimeDelta)
+{
+	D3D11_MAPPED_SUBRESOURCE	SubResource{};
+
+	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
+
+	VTXPOINTINSTANCE* pVertices = static_cast<VTXPOINTINSTANCE*>(SubResource.pData);
+
+	for (size_t i = 0; i < m_iNumInstance; i++)
+	{
+		_vector		vMoveDir = XMVectorSetW(XMLoadFloat4(&pVertices[i].vTranslation) - XMLoadFloat3(&m_vPivotPos), 0.f);
+		vMoveDir.m128_f32[2] = 0.f;
+
+		_int iDir = 1; 
+		if (i % 2 == 0)
+			iDir = -1;
+
+		_vector vRightDir = XMVectorSet((_float)iDir, 0.f, 0.f, 0.f); // Right 방향 벡터 (X축 방향)
+		_vector vRightMovement = vRightDir * m_pSpeed[i] * fTimeDelta * 0.5f;
+
+
+		XMStoreFloat4(&pVertices[i].vTranslation,
+			XMLoadFloat4(&pVertices[i].vTranslation) + XMVector3Normalize(vMoveDir) * m_pSpeed[i] * fTimeDelta + vRightMovement);
+
+
+
+
+
+		pVertices[i].vLifeTime.y += fTimeDelta;
+
+		if (true == m_isLoop && pVertices[i].vLifeTime.y >= pVertices[i].vLifeTime.x)
+		{
+			pVertices[i].vTranslation = static_cast<VTXPOINTINSTANCE*>(m_pInstanceVertices)[i].vTranslation;
+			pVertices[i].vLifeTime.y = 0.f;
+		}
+	}
+
+	m_pContext->Unmap(m_pVBInstance, 0);
+}
+
+
+void CVIBuffer_Point_Instance::ForTrailLifeTimeMul(_float fTimeDelta, _fvector vDir, _float fTrailDuration)
+{
+	D3D11_MAPPED_SUBRESOURCE	SubResource{};
+
+	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
+
+	VTXPOINTINSTANCE* pVertices = static_cast<VTXPOINTINSTANCE*>(SubResource.pData);
+
+	for (size_t i = 0; i < m_iNumInstance; i++)
+	{
+		_vector vFinalDir = XMVector3Normalize(vDir);
+
+		XMStoreFloat4(&pVertices[i].vTranslation,
+			XMLoadFloat4(&pVertices[i].vTranslation) + vFinalDir * m_pSpeed[i] * fTimeDelta * 0.1f);
+
+
+		pVertices[i].vLifeTime.y += fTimeDelta;
+
+		if (true == m_isLoop && pVertices[i].vLifeTime.y >= fTrailDuration)
+		{
+			pVertices[i].vTranslation = static_cast<VTXPOINTINSTANCE*>(m_pInstanceVertices)[i].vTranslation;
+			pVertices[i].vLifeTime.y = 0.f;
+		}
+	}
+
+	m_pContext->Unmap(m_pVBInstance, 0);
+}
+
+
 void CVIBuffer_Point_Instance::ResetTranslation()
 {
 	D3D11_MAPPED_SUBRESOURCE	SubResource{};

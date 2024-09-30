@@ -50,6 +50,9 @@ void CMonster_Bullet::Priority_Update(_float fTimeDelta)
 
 void CMonster_Bullet::Update(_float fTimeDelta)
 {
+    if (true == static_cast<CEnemy*>(m_pOwner)->IsDead())
+        return;
+
     _matrix		SocketMatrix = XMLoadFloat4x4(m_pSocketMatrix);
     for (size_t i = 0; i < 3; i++)
     {
@@ -68,19 +71,24 @@ void CMonster_Bullet::Update(_float fTimeDelta)
     {  
         _float fSpeed = 1.f;
 
-        if (false == static_cast<CEnemy*>(m_pOwner)->IsMindControling())
+        _bool bMindControling = static_cast<CEnemy*>(m_pOwner)->IsMindControling();
+
+        if (false == bMindControling)
         {
             Check_Collision_Player();
-        }            
-        else
+        }
+        else if (true == bMindControling)
         {
             fSpeed = 5.f;
             Check_Collision_Enemy();      // 마인드컨트롤 상태라면 다른 충돌 비교를 해야하고
         }
-           
-       
-       
 
+        if (true == m_isBouncedBullet)
+        {
+            fSpeed = -5.f;
+            Check_Collision_Me();
+        }         
+           
 
         m_pTransformCom->Go_Straight(fTimeDelta * fSpeed * 5.f);        // 몬스터마다 총알속도 달라
 
@@ -97,6 +105,9 @@ void CMonster_Bullet::Update(_float fTimeDelta)
 
 void CMonster_Bullet::Late_Update(_float fTimeDelta)
 {
+    if (true == static_cast<CEnemy*>(m_pOwner)->IsDead())
+        return;
+
     m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 
 #ifdef _DEBUG
@@ -159,6 +170,7 @@ void CMonster_Bullet::Check_Collision_Player()
             CPlayer::PLAYER_ANIMATIONID::BLOCK_R3 == eCurState)
         {
             pPlayer->Get_Part(CPlayer::PARTID::PART_PARTICLE_BLOCK)->SetActiveMyParticle(true);
+            m_isBouncedBullet = true;
         }
     }
 
@@ -179,11 +191,20 @@ void CMonster_Bullet::Check_Collision_Enemy()
         static_cast<CEnemy*>(m_pOwner)->Set_MindControling(false, nullptr);
     }
 
+}
 
+void CMonster_Bullet::Check_Collision_Me()
+{
+    CEnemy* pOwner =  static_cast<CEnemy*>(m_pOwner);
 
-    
+    CCollider* pMyOwnerCollider = pOwner->Get_Collider();
 
+    m_pColliderCom->Intersect(pMyOwnerCollider);
 
+    if (m_pColliderCom->IsBoundingCollisionEnter())
+    {
+        pOwner->Check_Collision_Me();
+    }
 }
 
 

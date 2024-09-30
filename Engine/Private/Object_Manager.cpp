@@ -192,6 +192,15 @@ CGameObject* CObject_Manager::Find_Camera(_uint iLevelIndex)
 	return pCamera;
 }
 
+CGameObject* CObject_Manager::Find_Notify(_uint iLevelIndex)
+{
+	CGameObject* pCamera = Find_Object(iLevelIndex, TEXT("Layer_Notify"), 0);
+	if (nullptr == pCamera)
+		return nullptr;
+
+	return pCamera;
+}
+
 class CLayer* CObject_Manager::Delete_Layer(_uint iLevelIndex ,const _wstring& strLayerTag)
 {
 	auto iter = m_pLayers[iLevelIndex].find(strLayerTag);

@@ -218,6 +218,58 @@ void CTransform::Go_Dir_XZ(_fvector vDirection, _float fTimeDelta)
 }
 
 
+void CTransform::Go_Dir_Wave(_fvector vDirection, _float fTimeDelta , _float fAmplitude , _float fFrequency ,  _fvector vWaveAxis,_float* pAccTime)
+{
+	_vector vPosition = Get_State(STATE_POSITION);
+
+
+	_vector vCompute_Result = XMVector3Normalize(vDirection) * m_fSpeedPerSec * fTimeDelta;
+
+
+	vPosition += vCompute_Result;
+
+
+	// 시간을 기반으로 수직으로 파동 추가 (sin 함수 사용)
+	_float fWaveOffset = fAmplitude * sinf(fFrequency * (*pAccTime));
+
+	
+	vPosition += XMVector3Normalize(vWaveAxis) * fWaveOffset;
+
+
+	Set_State(STATE_POSITION, vPosition);
+
+	*pAccTime += fTimeDelta;
+}
+
+
+void CTransform::Go_Dir_Curve(_fvector vTargetPos, _fvector vStartPos ,_float fTimeDelta)
+{
+	_vector vPosition = Get_State(STATE_POSITION);
+	_vector vDirection = XMVectorSubtract(vTargetPos, vPosition);
+	
+
+	_vector vUp = XMVectorSet(0.f, 1.f, 0.f, 0.f);
+	_vector vRightNor = XMVector3Normalize(XMVector3Cross(vUp, vDirection));
+
+
+
+
+
+	_vector vCompute_Result = {};
+	vCompute_Result += XMVector3Normalize(vDirection)* m_fSpeedPerSec * fTimeDelta;
+
+
+	_float fCurveFactor = sinf(fTimeDelta * 2.f);
+	vCompute_Result += vRightNor * fCurveFactor * m_fSpeedPerSec * fTimeDelta;
+
+
+	vPosition += vCompute_Result;
+	
+
+	Set_State(STATE_POSITION, vPosition);
+}
+
+
 void CTransform::Go_Straight_FreeWalk(_float fTimeDelta)
 {
 	_vector vPosition = Get_State(STATE_POSITION);
@@ -404,7 +456,7 @@ void CTransform::LookAt(const _fvector& vAt ,_float4x4* RotationMatrix)
 
 }
 
-void CTransform::LookAt_Smooth(const _fvector& vAt, _float fTimeDelta, _float4x4* RotationMatrix)
+void CTransform::LookAt_Smooth(const _fvector& vAt, _float fTimeDelta ,_float4x4* RotationMatrix ,_float* pOutAngleGap)
 {
 	_float3 vScaled = Get_Scaled();
 
@@ -423,13 +475,15 @@ void CTransform::LookAt_Smooth(const _fvector& vAt, _float fTimeDelta, _float4x4
 	_float fDot = XMVectorGetX(XMVector3Dot(vCurrentLook, vTargetLook));
 	_float fAngle = acosf(fDot); // 각도 (라디안)
 
+	if(nullptr != pOutAngleGap)
+		*pOutAngleGap = XMConvertToDegrees(fAngle);		// 각도 차이얼마 나니  디그리로 ?
 	
 	_float fRotationSpeed = 5.0f; // 기본 회전 속도
-	_float fRotationFactor = fAngle / XM_PIDIV2;  // 90도(XM_PIDIV2)에서 최대 속도, 0도에서 최소 속도
+	_float fRotationFactor = fAngle / XM_PIDIV2;  
 	
 	_float fRotationAmount = fRotationSpeed * fRotationFactor * fTimeDelta; // 각도에 따라 조절된 회전 양
 
-	if (fRotationAmount > fAngle) // 목표까지의 각도보다 회전 양이 크면
+	if (fRotationAmount > fAngle)	// 목표까지의 각도보다 회전 양이 크면
 	{
 		fRotationAmount = fAngle; 
 	}

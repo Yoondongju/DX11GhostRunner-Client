@@ -46,18 +46,57 @@ _bool CBounding_AABB::Intersect(CCollider::TYPE eColliderType, CBounding * pBoun
 {
 	m_isCurColl = false;
 
+	
+	if (isnan(m_pBoundingDesc->Center.x) ||
+		isnan(m_pBoundingDesc->Center.y) ||
+		isnan(m_pBoundingDesc->Center.z) )
+	{
+		return false;
+	}
+
+
 	switch (eColliderType)
 	{
 	case CCollider::TYPE_AABB:
-		m_isCurColl = m_pBoundingDesc->Intersects(*(dynamic_cast<CBounding_AABB*>(pBounding)->Get_Desc()));
+	{
+		const BoundingBox* pBoundingBox = static_cast<CBounding_AABB*>(pBounding)->Get_Desc();
+
+		if (isnan(pBoundingBox->Center.x) ||
+			isnan(pBoundingBox->Center.y) ||
+			isnan(pBoundingBox->Center.z))
+		{
+			return false;
+		}
+		m_isCurColl = m_pBoundingDesc->Intersects(*pBoundingBox);
+	}
 		break;
 
 	case CCollider::TYPE_OBB:
-		m_isCurColl = m_pBoundingDesc->Intersects(*(dynamic_cast<CBounding_OBB*>(pBounding)->Get_Desc()));
+	{
+		const BoundingOrientedBox* pBoundingBox = static_cast<CBounding_OBB*>(pBounding)->Get_Desc();
+
+		if (isnan(pBoundingBox->Center.x) ||
+			isnan(pBoundingBox->Center.y) ||
+			isnan(pBoundingBox->Center.z))
+		{
+			return false;
+		}
+		m_isCurColl = m_pBoundingDesc->Intersects(*pBoundingBox);
+	}
 		break;
 
 	case CCollider::TYPE_SPHERE:
-		m_isCurColl = m_pBoundingDesc->Intersects(*(dynamic_cast<CBounding_Sphere*>(pBounding)->Get_Desc()));
+	{
+		const BoundingSphere* pBoundingBox = static_cast<CBounding_Sphere*>(pBounding)->Get_Desc();
+
+		if (isnan(pBoundingBox->Center.x) ||
+			isnan(pBoundingBox->Center.y) ||
+			isnan(pBoundingBox->Center.z))
+		{
+			return false;
+		}
+		m_isCurColl = m_pBoundingDesc->Intersects(*pBoundingBox);
+	}
 		break;
 	}
 

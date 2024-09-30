@@ -57,13 +57,31 @@ void CParticle_Block::Update(_float fTimeDelta)
 		
 		
 	
-		XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * XMLoadFloat4x4(m_pParentMatrix));
-		_vector vWorldPos = XMVector3TransformCoord(XMLoadFloat3(&m_SpwanPositionLocal), XMLoadFloat4x4(&m_WorldMatrix));
 
-		
-		m_WorldMatrix.m[3][0] = vWorldPos.m128_f32[0];
-		m_WorldMatrix.m[3][1] = vWorldPos.m128_f32[1] + 15;
-		m_WorldMatrix.m[3][2] = vWorldPos.m128_f32[2];
+
+		_float3* pRight = (_float3*)m_pParentMatrix->m[0];
+		_float3* pUp = (_float3*)m_pParentMatrix->m[1];
+		_float3* pLook = (_float3*)m_pParentMatrix->m[2];
+		_float3* pPos = (_float3*)m_pParentMatrix->m[3];
+
+
+		XMStoreFloat4x4(&m_WorldMatrix, /*XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix*/  XMLoadFloat4x4(m_pParentMatrix));
+
+
+		_vector vRightNor = XMVector3Normalize(XMLoadFloat3(pRight));
+		_vector vUpNor = XMVector3Normalize(XMLoadFloat3(pUp));
+		_vector vLookNor = XMVector3Normalize(XMLoadFloat3(pLook));
+
+		_vector vPos = XMLoadFloat3(pPos);
+
+		//vPos += vRightNor * -0.6f;
+		vPos += vUpNor * 15.f;
+		vPos += vLookNor * 5.f;
+
+		XMStoreFloat3((_float3*)m_WorldMatrix.m[3], XMVectorSetW(vPos, 1.f));
+
+
+
 
 		m_pVIBufferCom->Spread(fTimeDelta);		
 	}

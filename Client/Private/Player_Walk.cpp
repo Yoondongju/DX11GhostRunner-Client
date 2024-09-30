@@ -8,6 +8,7 @@
 #include "GrapplingPointUI.h"
 
 #include "Animation.h"
+#include "SwordTrail.h"
 
 CPlayer_Walk::CPlayer_Walk(class CGameObject* pOwner)
 	: CState{ CPlayer::PLAYER_ANIMATIONID::WALK ,pOwner }
@@ -36,6 +37,7 @@ void CPlayer_Walk::Update(_float fTimeDelta)
 		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::SPIN_A, true);
 		m_fSwordSpinTime = 5.f;
 		m_fFristSpinCall = true;
+
 	}
 	else
 	{
@@ -49,8 +51,8 @@ void CPlayer_Walk::Update(_float fTimeDelta)
 				CFsm* pFsm = m_pOwner->Get_Fsm();	
 
 				pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::WALK, true);
-
 				m_fFristSpinCall = false;
+
 			}
 		}
 	}
@@ -255,8 +257,20 @@ _bool CPlayer_Walk::Check_Attack1()
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 
+		_uint iRandomValue = static_cast<_uint>(m_pGameInstance->Get_Random(0, 2));
 
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_R1, false);	// Change_State보다 먼저 세팅해줘야함 Hook이나 Attack같은 같은 State를 공유하는녀석일 경우
+		switch (iRandomValue)
+		{
+		case 0:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_R1, false);
+			break;
+		case 1:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_L1, false);
+			break;
+		default:
+			break;
+		}
+
 		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::ATTACK_R1);
 
 		return true;
@@ -278,8 +292,19 @@ _bool CPlayer_Walk::Check_Attack2()
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 		
+		_uint iRandomValue = static_cast<_uint>(m_pGameInstance->Get_Random(0, 2));
 
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_R2, false);	// Change_State보다 먼저 세팅해줘야함 Hook이나 Attack같은 같은 State를 공유하는녀석일 경우
+		switch (iRandomValue)
+		{
+		case 0:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_R2, false);
+			break;
+		case 1:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_L2, false);
+			break;
+		default:
+			break;
+		}
 		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::ATTACK_R2);
 
 		return true;
@@ -300,8 +325,20 @@ _bool CPlayer_Walk::Check_Attack3()
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 		
+		_uint iRandomValue = static_cast<_uint>(m_pGameInstance->Get_Random(0, 2));
 
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_R3, false);	// Change_State보다 먼저 세팅해줘야함 Hook이나 Attack같은 같은 State를 공유하는녀석일 경우
+		switch (iRandomValue)
+		{
+		case 0:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_R3, false);
+			break;
+		case 1:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_L3, false);
+			break;
+		default:
+			break;
+		}
+
 		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::ATTACK_R3);
 
 		return true;
@@ -324,7 +361,6 @@ _bool CPlayer_Walk::Check_CutAll()
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 
 		
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::FURR_AIM_LOOP, true);
 		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::FURR_AIM_LOOP);
 
 		return true;

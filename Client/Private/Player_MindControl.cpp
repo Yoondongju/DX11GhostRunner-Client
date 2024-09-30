@@ -12,6 +12,8 @@
 #include "Pistol.h"
 #include "Mira.h"
 
+#include "EventNotify.h"
+
 CPlayer_MindControl::CPlayer_MindControl(class CGameObject* pOwner)
 	: CState{ CPlayer::PLAYER_ANIMATIONID::MIND_CONTROL_START_START , pOwner }
 {
@@ -28,13 +30,33 @@ HRESULT CPlayer_MindControl::Start_State(void* pArg)
 	if( 0 == m_VisibleEnemy.capacity())
 		m_VisibleEnemy.reserve(10);
 
+
+	FindVisiableEnemy();
+
+
+	if (m_VisibleEnemy.size() >= m_iCanVisibleNum)
+	{
+		// 마인드컨트롤 가능
+		CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::MIND_CONTROL_START_START, true);
+	}
+	else
+	{
+		CFsm* pFsm = m_pOwner->Get_Fsm();
+		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);
+
+		static_cast<CEventNotify*>(m_pGameInstance->Find_Notify(LEVEL_GAMEPLAY))->Set_Active(true, CEventNotify::TEXT_EVENT::UNABLE_MINDCONTROL);
+		return S_OK;
+	}
+
+
+
 	return S_OK;
 }
 
 void CPlayer_MindControl::Update(_float fTimeDelta)
 {
-	if (true == m_isOrderCommand ||
-		m_VisibleEnemy.size() < m_iCanVisibleNum)
+	if (true == m_isOrderCommand)		// 명령을 한번이상 내렸으면 
 	{
 		CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::MIND_CONTROL_START_TO_IDLE, true);
@@ -55,15 +77,19 @@ void CPlayer_MindControl::Update(_float fTimeDelta)
 		}
 	}
 
-
-	if (true == m_isFirstFind)
-		FindVisiableEnemy();
-	if(m_VisibleEnemy.size() >= m_iCanVisibleNum)
-		CommandToAttackEachEnemy();
+	CommandToAttackEachEnemy();
 }
 
 void CPlayer_MindControl::End_State()
 {
+	if (true == m_isOrderCommand)
+	{
+		CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
+		pPlayer->Set_StartCountMindControlTime(false);
+		pPlayer->Set_MindControlRemainingTime(0.f);
+	}
+
+
 	for (_uint i = 0; i < m_VisibleEnemy.size(); i++)
 	{
 		Safe_Release(m_VisibleEnemy[i]);
@@ -72,7 +98,6 @@ void CPlayer_MindControl::End_State()
 
 
 	m_isOrderCommand = false;
-	m_isFirstFind = true;
 }
 
 
@@ -85,8 +110,7 @@ void CPlayer_MindControl::FindVisiableEnemy()
 
 	_float fVisiableAngle = m_fVisibleAngle * 0.5f;
 
-	// m_VisibleEnemy여기에 자기자신을 3번 들어가는것 문제가됨 예외처리해야하고 
-	// 위에를 해결하고 갑자기 몬터 사라지는현상수정해야함
+
 
 	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Sniper");
 	for (auto& Sniper : Snipers)
@@ -166,7 +190,6 @@ void CPlayer_MindControl::FindVisiableEnemy()
 		}
 	}
 
-	m_isFirstFind = false;
 }
 
 
@@ -180,6 +203,7 @@ void CPlayer_MindControl::CommandToAttackEachEnemy()
 	{
 		CEnemy*  pEnemy =	static_cast<CEnemy*>(m_VisibleEnemy[i]);
 		CEnemy*  pTargetEnemy = static_cast<CEnemy*>(m_VisibleEnemy[(i + 1) % iSize]);
+
 
 		// 각자의 Idle에서 Attack으로 변경해주고있는데 
 		// 마인드컨트롤 상태면 강제로 Attack으로 변경하되 방향도 지들이 지들을 바라봐야한다.

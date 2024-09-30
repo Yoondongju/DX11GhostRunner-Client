@@ -1,25 +1,25 @@
 #include "stdafx.h"
-#include "..\Public\WeaponParticle.h"
+#include "..\Public\SwordTrail.h"
 
 #include "GameInstance.h"
 #include "Player.h"
 
-CWeaponParticle::CWeaponParticle(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
+CSwordTrail::CSwordTrail(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CPartObject{ pDevice, pContext }
 {
 }
 
-CWeaponParticle::CWeaponParticle(const CWeaponParticle& Prototype)
+CSwordTrail::CSwordTrail(const CSwordTrail& Prototype)
 	: CPartObject{ Prototype }
 {
 }
 
-HRESULT CWeaponParticle::Initialize_Prototype()
+HRESULT CSwordTrail::Initialize_Prototype()
 {
 	return S_OK;
 }
 
-HRESULT CWeaponParticle::Initialize(void* pArg)
+HRESULT CSwordTrail::Initialize(void* pArg)
 {
 	EFFECT_DESC* pDesc = static_cast<EFFECT_DESC*>(pArg);
 	
@@ -40,29 +40,15 @@ HRESULT CWeaponParticle::Initialize(void* pArg)
 	return S_OK;
 }
 
-void CWeaponParticle::Priority_Update(_float fTimeDelta)
+void CSwordTrail::Priority_Update(_float fTimeDelta)
 {
 
 }
 
 
 
-void CWeaponParticle::Update(_float fTimeDelta)
+void CSwordTrail::Update(_float fTimeDelta)
 {
-	return;
-
-	_matrix		SocketMatrix = XMLoadFloat4x4(m_pSocketMatrix);
-
-	for (size_t i = 0; i < 3; i++)
-	{
-		SocketMatrix.r[i] = XMVector3Normalize(SocketMatrix.r[i]);
-	}
-	XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
-
-
-
-
-
 	CWeapon_Player* pWeapon = static_cast<CWeapon_Player*>(static_cast<CPlayer*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON));
 	_float4x4* pWeaponMatrix = pWeapon->Get_PartObjectComBindWorldMatrixPtr();
 
@@ -75,33 +61,59 @@ void CWeaponParticle::Update(_float fTimeDelta)
 	{
 	case CWeapon_Player::KATANA:
 	{
-		m_bActive = true;
 		StartLocal = m_KatanaStartLocal;
 		EndLocal = m_KatanaEndLocal;
 
 		WeaponMatrix = XMLoadFloat4x4(pWeaponMatrix);
 
-		if (false == m_bActive)
+		if (false == m_bActive)	
+		{
+			m_Trail.clear();
+
+			m_StartPos = *(_float3*)pWeaponMatrix->m[3];
 			return;
+		}
+			
 
-		m_fAccTime += fTimeDelta;
 
-	
+		_float3	CurStart = {};
+		_float3	CurEnd = {};
 
-		XMStoreFloat3(&m_CurStart, XMVector3Transform(XMLoadFloat3(&StartLocal), WeaponMatrix));
-		XMStoreFloat3(&m_CurEnd, XMVector3Transform(XMLoadFloat3(&EndLocal), WeaponMatrix));
 
+		XMStoreFloat3(&CurStart, XMVector3Transform(XMLoadFloat3(&StartLocal), WeaponMatrix));
+		XMStoreFloat3(&CurEnd, XMVector3Transform(XMLoadFloat3(&EndLocal), WeaponMatrix));
+
+
+
+		CVIBuffer_Trail::TRAIL_INFO TrailInfo = {};
+
+		TrailInfo.CurStart = CurStart;
+		TrailInfo.CurEnd = CurEnd;
+		TrailInfo.fLifeTime = 0.5f;
+
+
+		// 원래는 80개 채우면 넘어가는식인데 만약 이동이 빠를경우에 이전에 위치가 너무 동떨어져 있어서
+		// 가는듯한 늒미을 받지못해
+		// 달리면서 때린다면  or 스킬을 사용하면서 때린다면 등등								   
 		
 
-		m_pVIBufferCom->Update_Trail(fTimeDelta, XMLoadFloat3(&m_PreStart), XMLoadFloat3(&m_PreEnd), XMLoadFloat3(&m_CurStart), XMLoadFloat3(&m_CurEnd));
+		_vector vCurPos = WeaponMatrix.r[3];
 
-		if (m_fAccTime > 0.05f)
+		_float fDistance = XMVectorGetX(XMVector3Length(XMVectorSubtract(XMLoadFloat3(&m_StartPos), vCurPos)));
+
+		if (fDistance > 10.f && m_Trail.size() > 1)
 		{
-			m_PreStart = m_CurStart;
-			m_PreEnd = m_CurEnd;
+			m_Trail.pop_front();
+		}
 
-			m_fAccTime = 0.f;
-		}	
+		if (m_Trail.size() > 80)			// 2개당 사각형 하나지
+		{
+			m_Trail.pop_front();
+		}
+
+	
+		m_Trail.emplace_back(TrailInfo);
+ 		m_pVIBufferCom->Update_SwordTrail(fTimeDelta, m_Trail);
 	}
 	break;
 	case CWeapon_Player::SHURIKEN:
@@ -119,22 +131,19 @@ void CWeaponParticle::Update(_float fTimeDelta)
 
 }
 
-void CWeaponParticle::Late_Update(_float fTimeDelta)
+void CSwordTrail::Late_Update(_float fTimeDelta)
 {
-	return;
-
 	if (false == m_bActive)
 		return;
 
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
 }
 
-HRESULT CWeaponParticle::Render()
+HRESULT CSwordTrail::Render()
 {
-	_float4x4* pWeaponMatrix = static_cast<CWeapon_Player*>(static_cast<CPlayer*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON))->Get_PartObjectComBindWorldMatrixPtr();
-
-	if (FAILED(m_pShaderCom->Bind_Matrix("g_WorldMatrix", pWeaponMatrix)))
-		return E_FAIL;
+	//_float4x4* pWeaponMatrix = static_cast<CWeapon_Player*>(static_cast<CPlayer*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON))->Get_PartObjectComBindWorldMatrixPtr();
+	//if (FAILED(m_pShaderCom->Bind_Matrix("g_WorldMatrix", pWeaponMatrix)))
+	//	return E_FAIL;
 
 	if (FAILED(m_pShaderCom->Bind_Matrix("g_ViewMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_VIEW))))
 		return E_FAIL;
@@ -142,9 +151,9 @@ HRESULT CWeaponParticle::Render()
 		return E_FAIL;
 	if (FAILED(m_pTextureCom->Bind_ShadeResource(m_pShaderCom, "g_Texture", 0)))
 		return E_FAIL;
+	
 
-
-
+	
 
 	if (FAILED(m_pShaderCom->Begin(0)))
 		return E_FAIL;
@@ -158,33 +167,33 @@ HRESULT CWeaponParticle::Render()
 	return S_OK;
 }
 
-HRESULT CWeaponParticle::Ready_Components()
+HRESULT CSwordTrail::Ready_Components()
 {
 	/* FOR.Com_Shader */
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxSwordTrail"),
 		TEXT("Com_Shader"), reinterpret_cast<CComponent**>(&m_pShaderCom))))
 		return E_FAIL;
 
-	/* FOR.Com_Texture */
+	/* FOR.Com_Texture */				// Prototype_Component_Texture_ParticleShuriken
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_ParticleShuriken"),
 		TEXT("Com_Texture"), reinterpret_cast<CComponent**>(&m_pTextureCom))))
 		return E_FAIL;
 
 	/* FOR.Com_VIBuffer */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Trail"),
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_SwordTrail"),
 		TEXT("Com_VIBuffer"), reinterpret_cast<CComponent**>(&m_pVIBufferCom))))
 		return E_FAIL;
 
 	return S_OK;
 }
 
-CWeaponParticle* CWeaponParticle::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
+CSwordTrail* CSwordTrail::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {
-	CWeaponParticle* pInstance = new CWeaponParticle(pDevice, pContext);
+	CSwordTrail* pInstance = new CSwordTrail(pDevice, pContext);
 
 	if (FAILED(pInstance->Initialize_Prototype()))
 	{
-		MSG_BOX(TEXT("Failed to Created : CWeaponParticle"));
+		MSG_BOX(TEXT("Failed to Created : CSwordTrail"));
 		Safe_Release(pInstance);
 	}
 
@@ -193,20 +202,20 @@ CWeaponParticle* CWeaponParticle::Create(ID3D11Device* pDevice, ID3D11DeviceCont
 
 
 
-CGameObject* CWeaponParticle::Clone(void* pArg)
+CGameObject* CSwordTrail::Clone(void* pArg)
 {
-	CWeaponParticle* pInstance = new CWeaponParticle(*this);
+	CSwordTrail* pInstance = new CSwordTrail(*this);
 
 	if (FAILED(pInstance->Initialize(pArg)))
 	{
-		MSG_BOX(TEXT("Failed to Cloned : CWeaponParticle"));
+		MSG_BOX(TEXT("Failed to Cloned : CSwordTrail"));
 		Safe_Release(pInstance);
 	}
 
 	return pInstance;
 }
 
-void CWeaponParticle::Free()
+void CSwordTrail::Free()
 {
 	__super::Free();
 

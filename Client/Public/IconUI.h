@@ -16,7 +16,7 @@ BEGIN(Client)
 class CIconUI final : public CUIObject
 {
 public:
-	enum ICON_TYPE { BLOCK, SHURIKEN, DASH, MINDCONTROL, NAMI, CUTALL, TIMESTOP, ICON_TYPE_END };
+	enum ICON_TYPE { BLOCK, CUTALL , NAMI , TIMESTOP , MINDCONTROL, DASH, SHURIKEN , HOMING_SH ,ICON_TYPE_END };	// 순서 바꾸면안댐
 	
 	typedef struct : public CUIObject::UI_DESC
 	{
@@ -55,6 +55,7 @@ private:
 	class CPlayer*  m_pPlayer = { nullptr };
 
 
+private:
 	_float2			m_vTargetSize = {};
 	_float2			m_vOriginSize = {};
 	
@@ -62,8 +63,24 @@ private:
 	_float4			m_clickedColor = _float4(1.0f, 0.6f, 0.f, 1.0f);
 
 private:
-	HRESULT Ready_Components();
+	_float2				 m_vTargetPos = {};			// 어디까지 갈까
+	_float2				 m_vInSidePos = {};
+	_float				 m_fAccTime = {};
 
+	_bool			     m_isArrive = { false };	 // 도착햇어?
+	_bool				 m_isOverShoot = { false };	 // 목표지점을 넘었어?
+	_float				 m_fOverShoot = {20.f};			 // 얼마나 넘길거야
+
+
+	static _bool*		 m_NextIconArrive[ICON_TYPE::ICON_TYPE_END];
+	
+
+private:
+	HRESULT		Ready_Components();
+
+	
+	void		Go_InSide(_float fTimeDelta);
+	void		Go_Out(_float fTimeDelta);
 
 private:
 

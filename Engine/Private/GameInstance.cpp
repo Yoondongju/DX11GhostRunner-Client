@@ -249,6 +249,11 @@ CGameObject* CGameInstance::Find_Camera(_uint iLevelIndex)
 	return m_pObject_Manager->Find_Camera(iLevelIndex);
 }
 
+CGameObject* CGameInstance::Find_Notify(_uint iLevelIndex)
+{
+	return m_pObject_Manager->Find_Notify(iLevelIndex);
+}
+
 list<class CGameObject*>& CGameInstance::Get_GameObjects(_uint iLevelIndx, const _wstring& strLayerTag)
 {
 	return m_pObject_Manager->Get_GameObjects(iLevelIndx, strLayerTag);
@@ -383,10 +388,11 @@ HRESULT CGameInstance::Add_Font(const _wstring& strFontTag, const _tchar* pFontF
 	return m_pFont_Manager->Add_Font(strFontTag, pFontFilePath);
 }
 
-HRESULT CGameInstance::Render_Text(const _wstring& strFontTag, const _tchar* pText, _fvector vPosition, _fvector vColor, _float fRadian, _fvector vPivot, _float fScale)
+HRESULT CGameInstance::Render_Text(const _wstring& strFontTag, const _tchar* pText, _fvector vPosition, _float fScale, _fvector vColor, _float fRadian, _fvector vPivot)
 {
-	return m_pFont_Manager->Render(strFontTag, pText, vPosition, vColor, fRadian, vPivot, fScale);
+	return m_pFont_Manager->Render(strFontTag, pText, vPosition, fScale ,  vColor, fRadian, vPivot);
 }
+
 
 HRESULT CGameInstance::Add_RenderTarget(const _wstring& strTargetTag, _uint iWidth, _uint iHeight, DXGI_FORMAT ePixelFormat, const _float4& vClearColor)
 {

@@ -66,7 +66,7 @@ void CEvent_Manager::Excute(const EVENT tEvent)
 				iter = GameObjectList.erase(iter);			// 객체를 삭제 하진않고 리스트에서 빼주기만 할거야
 
 				pLayer = m_pObject_Manager->Delete_Layer(iLevelIndex, LayerTag);
-			
+		
 			}
 			else
 				++iter;

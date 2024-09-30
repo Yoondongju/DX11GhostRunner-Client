@@ -20,25 +20,7 @@ HRESULT CElite_Walk::Initialize()
 
 HRESULT CElite_Walk::Start_State(void* pArg)
 {
-	switch (m_eDir)
-	{
-	case Engine::CState::FRONT:
-		break;
-	case Engine::CState::BACK:
-		break;
-	case Engine::CState::LEFT:	
-		break;
-	case Engine::CState::RIGHT:		
-		break;
-	case Engine::CState::STATE_DIR_END:
-		break;
-	default:
-		break;
-	}
-
-
 	m_fRetreatTime = m_pGameInstance->Get_Random(1.f, 2.f);
-
 
 	return S_OK;
 }
@@ -49,24 +31,77 @@ void CElite_Walk::Update(_float fTimeDelta)
 		return;
 
 	CModel* pModel = static_cast<CElite*>(m_pOwner)->Get_Model();
+	_double TrackPos = pModel->Get_Referene_CurrentTrackPosition();
+	_double Duration = pModel->Get_CurAnimation()->Get_Duration();
 
-	CTransform* pEliteTransform = m_pOwner->Get_Transform();
 
 	
+
 	if (m_fRetreatTime > 0.f)
 	{
 		m_fRetreatTime -= fTimeDelta;
-		pEliteTransform->Go_Backward(fTimeDelta);
+
+		CTransform* pEliteTransform = m_pOwner->Get_Transform();
+
+		switch (m_eDir)
+		{
+		case Engine::CState::FRONT:		// 없서
+			break;
+		case Engine::CState::BACK:
+			pEliteTransform->Go_Backward(fTimeDelta * 5.f);
+			break;
+		case Engine::CState::LEFT:
+			pEliteTransform->Go_Left(fTimeDelta * 5.f);
+			break;
+		case Engine::CState::RIGHT:
+			pEliteTransform->Go_Right(fTimeDelta * 5.f);
+			break;
+		case Engine::CState::STATE_DIR_END:
+			break;
+		default:
+			break;
+		}
+
 	}
 	else
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
+		if (CState::BACK == m_eDir)  	// 뒤로 백했으면	
+		{
+			_int iRandom = m_pGameInstance->Get_Random_Interger(0, 2);
+			switch (iRandom)
+			{
+			case 0:
+			{
+				pModel->SetUp_Animation(CElite::ELITE_ANIMATION::WALK_L, true);
+				pFsm->Change_State(CElite::ELITE_ANIMATION::WALK_F, CState::STATE_DIR::LEFT);
+			}
+			break;
+			case 1:
+			{
+				pModel->SetUp_Animation(CElite::ELITE_ANIMATION::WALK_R, true);
+				pFsm->Change_State(CElite::ELITE_ANIMATION::WALK_F, CState::STATE_DIR::RIGHT);
+			}
+			break;
+			case 2:
+			{
+				_bool	bDashBlock = true;
 
-		pModel->SetUp_Animation(CElite::ELITE_ANIMATION::IDLE_TO_ALERT, true);
-		pFsm->Change_State(CElite::ELITE_ANIMATION::IDLE_TO_ALERT);
+				pModel->SetUp_Animation(CElite::ELITE_ANIMATION::DASH_TO_ALERDLB, true);
+				pFsm->Change_State(CElite::ELITE_ANIMATION::BLOCK_F, -1, &bDashBlock);
+			}
+			break;
+			default:
+				break;
+			}
+		}
+		else   // WALK   L ,R 
+		{
+			pModel->SetUp_Animation(CElite::ELITE_ANIMATION::IDLE_TO_ALERT, true);
+			pFsm->Change_State(CElite::ELITE_ANIMATION::IDLE_TO_ALERT);
+		}
 	}
 		
-
 }
 
 void CElite_Walk::End_State()

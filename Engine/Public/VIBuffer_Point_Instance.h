@@ -18,11 +18,15 @@ public:
 public:
 	virtual void Spread(_float fTimeDelta) override;
 
-
 	virtual void Drop(_float fTimeDelta) override;
+
 
 public:
 	void		 DirectionSpread(_float fTimeDelta, _fvector vDir);
+	void		 Spread_Side(_float fTimeDelta);	// 양 옆으로 퍼지는 스프레드
+
+	void		 ForTrailLifeTimeMul(_float fTimeDelta, _fvector vDir, _float fTrailDuration);		// 궤적을 남길 방향  // 트레일을 위한 라이프타임 증식
+
 	void		 ResetTranslation();
 
 

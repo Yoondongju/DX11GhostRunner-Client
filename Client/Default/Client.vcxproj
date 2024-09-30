@@ -166,6 +166,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Public\BackPack_Jetpack.h" />
+    <ClInclude Include="..\Public\CrossHairUI.h" />
     <ClInclude Include="..\Public\Decorative_Object.h" />
     <ClInclude Include="..\public\BackGround.h" />
     <ClInclude Include="..\Public\Body_Player.h" />
@@ -175,9 +176,13 @@
     <ClInclude Include="..\Public\Elite_Block.h" />
     <ClInclude Include="..\Public\Elite_Death.h" />
     <ClInclude Include="..\Public\Elite_Idle.h" />
+    <ClInclude Include="..\Public\Elite_Stun.h" />
     <ClInclude Include="..\Public\Elite_Turbo.h" />
     <ClInclude Include="..\Public\Elite_Walk.h" />
+    <ClInclude Include="..\Public\EnemyMarkerUI.h" />
+    <ClInclude Include="..\Public\EventNotify.h" />
     <ClInclude Include="..\Public\GrapplingPointUI.h" />
+    <ClInclude Include="..\Public\HomingShuriken.h" />
     <ClInclude Include="..\Public\IconUI.h" />
     <ClInclude Include="..\Public\Jetpack.h" />
     <ClInclude Include="..\Public\Jetpack_Attack.h" />
@@ -196,7 +201,10 @@
     <ClInclude Include="..\Public\Particle_Block.h" />
     <ClInclude Include="..\Public\Particle_Blood.h" />
     <ClInclude Include="..\Public\Particle_CutAll.h" />
+    <ClInclude Include="..\Public\Particle_EliteBlock.h" />
+    <ClInclude Include="..\Public\Particle_Explosion.h" />
     <ClInclude Include="..\Public\Particle_Nami.h" />
+    <ClInclude Include="..\Public\Particle_ShockWave.h" />
     <ClInclude Include="..\Public\Particle_ShurikenEffect.h" />
     <ClInclude Include="..\Public\Pistol.h" />
     <ClInclude Include="..\Public\Pistol_Attack.h" />
@@ -216,6 +224,7 @@
     <ClInclude Include="..\Public\Player_Sh_Run.h" />
     <ClInclude Include="..\Public\Player_Sh_Walk.h" />
     <ClInclude Include="..\Public\Player_TimeStop.h" />
+    <ClInclude Include="..\Public\ShurikenTrail.h" />
     <ClInclude Include="..\Public\Sky.h" />
     <ClInclude Include="..\Public\Sniper.h" />
     <ClInclude Include="..\Public\Sniper_Attack.h" />
@@ -243,7 +252,7 @@
     <ClInclude Include="..\Public\Spider.h" />
     <ClInclude Include="..\Public\SubShuriken.h" />
     <ClInclude Include="..\Public\Terrain.h" />
-    <ClInclude Include="..\Public\WeaponParticle.h" />
+    <ClInclude Include="..\Public\SwordTrail.h" />
     <ClInclude Include="..\Public\Weapon_Elite.h" />
     <ClInclude Include="..\Public\Weapon_Jetpack.h" />
     <ClInclude Include="..\Public\Weapon_Pistol.h" />
@@ -257,6 +266,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Private\BackPack_Jetpack.cpp" />
+    <ClCompile Include="..\Private\CrossHairUI.cpp" />
     <ClCompile Include="..\Private\Decorative_Object.cpp" />
     <ClCompile Include="..\private\BackGround.cpp" />
     <ClCompile Include="..\Private\Body_Player.cpp" />
@@ -266,9 +276,13 @@
     <ClCompile Include="..\Private\Elite_Block.cpp" />
     <ClCompile Include="..\Private\Elite_Death.cpp" />
     <ClCompile Include="..\Private\Elite_Idle.cpp" />
+    <ClCompile Include="..\Private\Elite_Stun.cpp" />
     <ClCompile Include="..\Private\Elite_Turbo.cpp" />
     <ClCompile Include="..\Private\Elite_Walk.cpp" />
+    <ClCompile Include="..\Private\EnemyMarkerUI.cpp" />
+    <ClCompile Include="..\Private\EventNotify.cpp" />
     <ClCompile Include="..\Private\GrapplingPointUI.cpp" />
+    <ClCompile Include="..\Private\HomingShuriken.cpp" />
     <ClCompile Include="..\Private\IconUI.cpp" />
     <ClCompile Include="..\Private\Jetpack.cpp" />
     <ClCompile Include="..\Private\Jetpack_Attack.cpp" />
@@ -287,7 +301,10 @@
     <ClCompile Include="..\Private\Particle_Block.cpp" />
     <ClCompile Include="..\Private\Particle_Blood.cpp" />
     <ClCompile Include="..\Private\Particle_CutAll.cpp" />
+    <ClCompile Include="..\Private\Particle_EliteBlock.cpp" />
+    <ClCompile Include="..\Private\Particle_Explosion.cpp" />
     <ClCompile Include="..\Private\Particle_Nami.cpp" />
+    <ClCompile Include="..\Private\Particle_ShockWave.cpp" />
     <ClCompile Include="..\Private\Particle_ShurikenEffect.cpp" />
     <ClCompile Include="..\Private\Pistol.cpp" />
     <ClCompile Include="..\Private\Pistol_Attack.cpp" />
@@ -307,6 +324,7 @@
     <ClCompile Include="..\Private\Player_Sh_Run.cpp" />
     <ClCompile Include="..\Private\Player_Sh_Walk.cpp" />
     <ClCompile Include="..\Private\Player_TimeStop.cpp" />
+    <ClCompile Include="..\Private\ShurikenTrail.cpp" />
     <ClCompile Include="..\Private\Sky.cpp" />
     <ClCompile Include="..\Private\Sniper.cpp" />
     <ClCompile Include="..\Private\Sniper_Attack.cpp" />
@@ -333,7 +351,7 @@
     <ClCompile Include="..\Private\Spider.cpp" />
     <ClCompile Include="..\Private\SubShuriken.cpp" />
     <ClCompile Include="..\Private\Terrain.cpp" />
-    <ClCompile Include="..\Private\WeaponParticle.cpp" />
+    <ClCompile Include="..\Private\SwordTrail.cpp" />
     <ClCompile Include="..\Private\Weapon_Elite.cpp" />
     <ClCompile Include="..\Private\Weapon_Jetpack.cpp" />
     <ClCompile Include="..\Private\Weapon_Pistol.cpp" />
@@ -367,7 +385,6 @@
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxPosTex.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxRectInstance.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxSwordTrail.hlsl" />
-    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxTrailInstance.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

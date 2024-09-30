@@ -77,6 +77,8 @@ public:
 	class CGameObject* Find_Object(_uint iLevelIndex, const _wstring& strLayerTag, _uint iIndex);
 	class CGameObject* Find_Player(_uint iLevelIndex);
 	class CGameObject* Find_Camera(_uint iLevelIndex);
+	class CGameObject* Find_Notify(_uint iLevelIndex);
+
 
 	list<class CGameObject*>& Get_GameObjects(_uint iLevelIndx, const _wstring & strLayerTag);
 
@@ -135,7 +137,7 @@ public:
 
 #pragma region FONT_MANAGER
 	HRESULT Add_Font(const _wstring& strFontTag, const _tchar* pFontFilePath);
-	HRESULT Render_Text(const _wstring& strFontTag, const _tchar* pText, _fvector vPosition, _fvector vColor = XMVectorSet(1.f, 1.f, 1.f, 1.f), _float fRadian = 0.f, _fvector vPivot = XMVectorSet(0.f, 0.f, 0.f, 1.f), _float fScale = 1.f);
+	HRESULT Render_Text(const _wstring& strFontTag, const _tchar* pText, _fvector vPosition, _float fScale = 1.f , _fvector vColor = XMVectorSet(1.f, 1.f, 1.f, 1.f), _float fRadian = 0.f, _fvector vPivot = XMVectorSet(0.f, 0.f, 0.f, 1.f));
 #pragma endregion
 
 #pragma region TARGET_MANAGER

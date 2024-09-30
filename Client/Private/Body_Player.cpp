@@ -63,6 +63,7 @@ void CBody_Player::Priority_Update(_float fTimeDelta)
 void CBody_Player::Update(_float fTimeDelta)
 {
 	CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
+
 	CTransform* pPlayerTransform = pPlayer->Get_Transform();
 
 
@@ -111,6 +112,8 @@ void CBody_Player::Update(_float fTimeDelta)
 
 void CBody_Player::Late_Update(_float fTimeDelta)
 {
+	CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
+
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 
 #ifdef _DEBUG
@@ -192,13 +195,17 @@ void CBody_Player::Ready_Modify_Animation()
 	vector<CAnimation*>& Animations = m_pModelCom->Get_Animations();
 
 	
-	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R1]->Set_SpeedPerSec(50.f);
-	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R2]->Set_SpeedPerSec(50.f);
-	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R3]->Set_SpeedPerSec(60.f);
+	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R1]->Set_SpeedPerSec(35.f);
+	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R2]->Set_SpeedPerSec(35.f);
+	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R3]->Set_SpeedPerSec(35.f);
 	
-	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L1]->Set_SpeedPerSec(50.f);
-	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L2]->Set_SpeedPerSec(50.f);
-	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L3]->Set_SpeedPerSec(60.f);
+	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L1]->Set_SpeedPerSec(35.f);
+	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L2]->Set_SpeedPerSec(35.f);
+	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L3]->Set_SpeedPerSec(35.f);
+
+
+	Animations[CPlayer::PLAYER_ANIMATIONID::NAMI_AIM_ATTACK_TO_IDLE]->Set_SpeedPerSec(40.f);
+	
 
 
 	Animations[CPlayer::PLAYER_ANIMATIONID::SH_ATTACK]->Set_SpeedPerSec(26.f);

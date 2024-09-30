@@ -20,12 +20,14 @@ public:
 
 
 private:
-    _float          m_fCanTurboDistance = 200.f;
-    _float          m_fCanTurboActiveTime = { 10.f };
+    _float          m_fCanTurboDistance = 100.f;
+    _float          m_fCanTurboActiveTime = { 4.f };
+
+    _bool           m_isAttackActive = { false };
 
 private:
     _bool   Check_Death();
-    _bool   Check_Turbo();
+    _bool   Check_Turbo(_float fTimeDelta);
 
 
 

@@ -5,12 +5,14 @@
 
 #include "Body_Player.h"
 #include "Weapon_Player.h"
-#include "WeaponParticle.h"
+#include "SwordTrail.h"
 
 #include "GameInstance.h"
 #include "GrapplingPointUI.h"
 
 #include "Animation.h"
+
+#include "EventNotify.h"
 
 CPlayer_Idle::CPlayer_Idle(class CGameObject* pOwner)
 	: CState{ CPlayer::PLAYER_ANIMATIONID::IDLE , pOwner }
@@ -47,6 +49,10 @@ void CPlayer_Idle::Update(_float fTimeDelta)
 			m_fSwordSpinTime = 5.f;
 
 			m_fFristSpinCall = true;
+
+
+		CSwordTrail* pSwordTrail = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON))->Get_SwordTrail();
+			pSwordTrail->Set_Active(true);
 		}
 		else
 		{				
@@ -61,6 +67,9 @@ void CPlayer_Idle::Update(_float fTimeDelta)
 			
 					pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::IDLE, true);
 					m_fFristSpinCall = false;
+
+				CSwordTrail* pSwordTrail = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON))->Get_SwordTrail();
+					pSwordTrail->Set_Active(false);
 				}
 			}
 		}
@@ -75,6 +84,13 @@ void CPlayer_Idle::Update(_float fTimeDelta)
 				return;
 			if (pPlayer->IsBlockActive() && Check_Block1())
 				return;
+			else
+			{
+				if (m_pGameInstance->Get_KeyState(KEY::E) == KEY_STATE::TAP)
+				{
+					static_cast<CEventNotify*>(m_pGameInstance->Find_Notify(LEVEL_GAMEPLAY))->Set_Active(true, CEventNotify::TEXT_EVENT::UNABLE_SKILL_COOLTIME);
+				}
+			}
 		}
 		break;
 		case 1:
@@ -83,6 +99,13 @@ void CPlayer_Idle::Update(_float fTimeDelta)
 				return;
 			if (pPlayer->IsBlockActive() && Check_Block2())
 				return;
+			else
+			{
+				if (m_pGameInstance->Get_KeyState(KEY::E) == KEY_STATE::TAP)
+				{
+					static_cast<CEventNotify*>(m_pGameInstance->Find_Notify(LEVEL_GAMEPLAY))->Set_Active(true, CEventNotify::TEXT_EVENT::UNABLE_SKILL_COOLTIME);
+				}
+			}
 		}
 		break;
 		case 2:
@@ -91,6 +114,13 @@ void CPlayer_Idle::Update(_float fTimeDelta)
 				return;
 			if (pPlayer->IsBlockActive() && Check_Block3())
 				return;
+			else
+			{
+				if (m_pGameInstance->Get_KeyState(KEY::E) == KEY_STATE::TAP)
+				{
+					static_cast<CEventNotify*>(m_pGameInstance->Find_Notify(LEVEL_GAMEPLAY))->Set_Active(true, CEventNotify::TEXT_EVENT::UNABLE_SKILL_COOLTIME);
+				}
+			}
 		}
 		break;
 		default:
@@ -99,30 +129,63 @@ void CPlayer_Idle::Update(_float fTimeDelta)
 
 
 		if (pPlayer->IsDashActive() && Check_Dash())
-		{
 			return;
-		}
 
 		// SKILL
 		if (pPlayer->IsCutAllActive() && Check_CutAll())
 			return;
-		if (Check_Nami())
+		else
+		{
+			if (m_pGameInstance->Get_KeyState(KEY::Q) == KEY_STATE::TAP)
+			{
+				static_cast<CEventNotify*>(m_pGameInstance->Find_Notify(LEVEL_GAMEPLAY))->Set_Active(true, CEventNotify::TEXT_EVENT::UNABLE_SKILL_COOLTIME);
+			}
+		}
+		if (pPlayer->IsNamiActive() && Check_Nami())
 			return;
-		if (Check_MindControl())
+		else
+		{
+			if (m_pGameInstance->Get_KeyState(KEY::ONE) == KEY_STATE::TAP)
+			{
+				static_cast<CEventNotify*>(m_pGameInstance->Find_Notify(LEVEL_GAMEPLAY))->Set_Active(true, CEventNotify::TEXT_EVENT::UNABLE_SKILL_COOLTIME);
+			}
+		}
+		if (pPlayer->IsMindControlActive() && Check_MindControl())
 			return;
+		else
+		{
+			if (m_pGameInstance->Get_KeyState(KEY::TWO) == KEY_STATE::TAP)
+			{
+				static_cast<CEventNotify*>(m_pGameInstance->Find_Notify(LEVEL_GAMEPLAY))->Set_Active(true, CEventNotify::TEXT_EVENT::UNABLE_SKILL_COOLTIME);
+			}
+		}
 		if (pPlayer->IsTimeStopActive() && Check_TimeStop())
 			return;
+		else
+		{
+			if (m_pGameInstance->Get_KeyState(KEY::R) == KEY_STATE::TAP)
+			{
+				static_cast<CEventNotify*>(m_pGameInstance->Find_Notify(LEVEL_GAMEPLAY))->Set_Active(true, CEventNotify::TEXT_EVENT::UNABLE_SKILL_COOLTIME);
+			}
+		}
 	}
 
 	else if (CWeapon_Player::WEAPON_TYPE::SHURIKEN == static_cast<CPlayer*>(m_pOwner)->Get_CurWeaponType())
 	{
 		if (Check_Sh_Attack1())
 			return;
+		if (pPlayer->IsHomingShActive() && Check_HomingShuriken())
+			return;
+		else
+		{
+			if (m_pGameInstance->Get_KeyState(KEY::Z) == KEY_STATE::TAP)
+			{
+				static_cast<CEventNotify*>(m_pGameInstance->Find_Notify(LEVEL_GAMEPLAY))->Set_Active(true, CEventNotify::TEXT_EVENT::UNABLE_SKILL_COOLTIME);
+			}
+		}
 
 		if (pPlayer->IsDashActive() && Check_Sh_Dash())
-		{
 			return;
-		}
 			
 	}
 
@@ -137,8 +200,16 @@ void CPlayer_Idle::Update(_float fTimeDelta)
 	if (Check_RunAndWalk())
 		return;
 
-	if (Check_SwapWeapon())
+	if (pPlayer->IsCanSwapWeapon() && Check_SwapWeapon())
 		return;
+	else
+	{
+		if (m_pGameInstance->Get_KeyState(KEY::G) == KEY_STATE::TAP)
+		{
+			static_cast<CEventNotify*>(m_pGameInstance->Find_Notify(LEVEL_GAMEPLAY))->Set_Active(true, CEventNotify::TEXT_EVENT::UNABLE_SWAPWEAPON);
+		}
+	}
+
 
 }
 
@@ -646,6 +717,28 @@ _bool CPlayer_Idle::Check_Sh_Attack1()
 	return false;
 }
 
+_bool CPlayer_Idle::Check_HomingShuriken()
+{
+	if (true == static_cast<CBody_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY))->IsLandingWall())
+		return false;
+
+	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+
+	if (CPlayer::PLAYER_ANIMATIONID::RIFT_PICKUP != pModel->Get_CurAnimationIndex() &&
+		m_pGameInstance->Get_KeyState(KEY::Z) == KEY_STATE::TAP)
+	{
+		CFsm* pFsm = m_pOwner->Get_Fsm();
+		_double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
+		TrackPos = 0.0;
+
+	
+		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::RIFT_PICKUP);
+		return true;
+	}
+
+	return false;
+}
+
 _bool CPlayer_Idle::Check_SwapWeapon()
 {
 	CBody_Player* pBody = static_cast<CBody_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY));
@@ -682,15 +775,16 @@ _bool CPlayer_Idle::Check_SwapWeapon()
 		if (CPlayer::PLAYER_ANIMATIONID::SH_KAT_TO_SHUR == iAniIndex)
 		{
 			pWeapon->Set_CurType(CWeapon_Player::WEAPON_TYPE::SHURIKEN);
-
-
 			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::SH_IDLE, true);
+
+			static_cast<CPlayer*>(m_pOwner)->Set_CanSwapWeapon(false);			// 스킬 UI들 다 안착하면 true로
 		}
 		else if (CPlayer::PLAYER_ANIMATIONID::SH_SHUR_TO_KAT == iAniIndex)
 		{
 			pWeapon->Set_CurType(CWeapon_Player::WEAPON_TYPE::KATANA);
-
 			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::IDLE, true);
+
+			static_cast<CPlayer*>(m_pOwner)->Set_CanSwapWeapon(false);
 		}
 
 	}
@@ -712,9 +806,7 @@ _bool CPlayer_Idle::Check_CutAll()
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::FURR_AIM_LOOP, true);
 		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::FURR_AIM_LOOP);
-
 		return true;
 	}
 
@@ -733,7 +825,6 @@ _bool CPlayer_Idle::Check_Nami()
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::NAMI_IDLE_TO_AIM, true);
 		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::NAMI_IDLE_TO_AIM);
 
 		return true;
@@ -753,9 +844,7 @@ _bool CPlayer_Idle::Check_MindControl()
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::MIND_CONTROL_START_START, true);
 		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::MIND_CONTROL_START_START);
-
 		return true;
 	}
 

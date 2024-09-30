@@ -2,9 +2,13 @@
 #include "..\Public\Weapon_Player.h"
 
 #include "Player.h"
+#include "Body_Player.h"
+#include "Animation.h"
 
 #include "GameInstance.h"
 
+#include "SwordTrail.h"
+#include "ShurikenTrail.h"
 
 CWeapon_Player::CWeapon_Player(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CPartObject{ pDevice, pContext }
@@ -41,6 +45,12 @@ HRESULT CWeapon_Player::Initialize(void* pArg)
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
 
+	if (FAILED(Reday_Trail()))
+		return E_FAIL;
+
+
+	XMStoreFloat4x4(&m_RotationMatrix, XMMatrixIdentity());
+
 
 	m_KatanaOriginMatrix = {
 		0.181342006, 0.655698836, 0.207122847, 0.00000000,
@@ -58,7 +68,7 @@ HRESULT CWeapon_Player::Initialize(void* pArg)
 
 
 
-	XMStoreFloat4x4(&m_KatanaOriginMatrix, XMMatrixMultiply( XMLoadFloat4x4(&m_KatanaOriginMatrix), XMMatrixRotationZ(XMConvertToRadians(90.0f))));
+	XMStoreFloat4x4(&m_KatanaOriginMatrix, XMMatrixMultiply(XMLoadFloat4x4(&m_KatanaOriginMatrix), XMMatrixRotationZ(XMConvertToRadians(90.0f))));
 
 	m_pTransformCom->Set_WorldMatrix(m_KatanaOriginMatrix);
 
@@ -79,65 +89,188 @@ void CWeapon_Player::Update(_float fTimeDelta)
 		SocketMatrix.r[i] = XMVector3Normalize(SocketMatrix.r[i]);
 	}
 
+	if (false == m_isChangeWeapon)
+	{
+		m_ePreType = m_eCurType;
+	}
+	else
+		m_isChangeWeapon = false;
+
 
 	if (m_eCurType == SHURIKEN)
 	{
+		if (m_fDissolveAmount < 1.5f)					// Dissolve
+			m_fDissolveAmount += fTimeDelta * 0.3f;
+
+
+		if (m_isEmissiveIncreasing) 
+		{
+			if (m_fEmissiveEmphasize < 1.f)  // Emissive
+			{
+				m_fEmissiveEmphasize += fTimeDelta; // 0에서 1로 증가
+			}
+			else
+			{
+				m_isEmissiveIncreasing = false; // 최대치에 도달하면 감소 상태로 변경
+			}
+		}
+		else		
+		{
+			if (m_fEmissiveEmphasize > 0.f) // 1에서 0으로 감소
+			{
+				m_fEmissiveEmphasize -= fTimeDelta;
+			}
+			else
+			{
+				m_isEmissiveIncreasing = true; // 최소치에 도달하면 증가 상태로 변경
+			}
+		}
+			
+		if (true == m_isHomingShurikenActive)
+		{
+			LockTransformHoming(fTimeDelta);
+			return;
+		}
+
+		
+
+
 		m_pTransformCom->Set_WorldMatrix(m_ShurikenOriginMatrix);
-	
+
+		CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
+
 		if (false == m_isAttacking)
 		{
+			m_fShurikenAccTime = 0.f;
+
+			if (true == m_isPreAttaciong)
+				*(_float3*)m_WorldMatrix.m[3] = m_InitPos;
+		
+
 			XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
-
-			m_isActiveMyParticle = false;
-
-			m_pSubShuriken[0]->SetActiveMyParticle(false);
-			m_pSubShuriken[1]->SetActiveMyParticle(false);
-		}		
+		
+			XMStoreFloat3(&m_InitGoDir, XMVector3Normalize(pPlayer->Get_Transform()->Get_State(CTransform::STATE_LOOK)));	// 초기 방향
+		
+			m_InitPos = *(_float3*)m_WorldMatrix.m[3];		// 표창의 초기위치고 
+		
+			XMStoreFloat3(&m_InitPlayerPos, pPlayer->Get_Transform()->Get_State(CTransform::STATE_POSITION));	// 플레이어의 초기위치
+		}
 		else
 		{
-			m_isActiveMyParticle = true;
+			_vector vInitDir = XMLoadFloat3(&m_InitGoDir);			
+			_vector vCurPos = XMLoadFloat3((_float3*)m_WorldMatrix.m[3]);
+		
+		
+			_float fSpeed = m_pTransformCom->Get_SpeedPerSec();						// 아마 30 
+			_float fPlayerSpeed = pPlayer->Get_Transform()->Get_SpeedPerSec();		// 아마 80
+		
+			_vector vPlayerDir = pPlayer->Get_Transform()->Get_State(CTransform::STATE_LOOK); // 플레이어가 바라보는 방향 (정면 방향)
+			vPlayerDir = XMVector3Normalize(vPlayerDir);
+		
+			_vector vRightDir = pPlayer->Get_Transform()->Get_State(CTransform::STATE_RIGHT);
+			vRightDir = XMVector3Normalize(vRightDir);
+		
+		
+			_vector vPlayerVelocity = XMVectorSet(0.f, 0.f, 0.f, 1.f);
+			deque<CVIBuffer_Trail::TRAIL_INFO>& Trail = m_pShurikenTrail->Get_Trail();
+		
+			if (m_pGameInstance->Get_KeyState(KEY::W) == KEY_STATE::HOLD)
+			{
+				vPlayerVelocity += vPlayerDir * fPlayerSpeed; // 앞쪽 방향
+			}
+			if (m_pGameInstance->Get_KeyState(KEY::S) == KEY_STATE::HOLD)
+			{
+				vPlayerVelocity -= vPlayerDir * fPlayerSpeed;
+			}
+			if (m_pGameInstance->Get_KeyState(KEY::A) == KEY_STATE::HOLD)
+			{
+				vPlayerVelocity -= vRightDir * fPlayerSpeed;
+			}
+			if (m_pGameInstance->Get_KeyState(KEY::D) == KEY_STATE::HOLD)
+			{
+				vPlayerVelocity += vRightDir * fPlayerSpeed; // 뒤쪽 방향
+			}
+			vPlayerVelocity = XMVectorSetY(vPlayerVelocity, 0.f);
+		
+			
+			
+			CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+			_double Duration = pModel->Get_CurAnimation()->Get_Duration();
+			const _double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
 
-			m_pSubShuriken[0]->SetActiveMyParticle(true);
-			m_pSubShuriken[1]->SetActiveMyParticle(true);
+
+			_float MinSpeed = 2.f;   // 최소 속도
+			_float MaxSpeed = 30.f;  // 최대 속도
+
+			_float Ratio = (_float)(TrackPos / Duration);
+			m_fShurikenAccTime = MinSpeed + (MaxSpeed - MinSpeed) * (Ratio * Ratio);
+
+
+			m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), m_fShurikenAccTime* fTimeDelta);
+	
+			_vector vFinalVelocity = vInitDir * fSpeed * m_fShurikenAccTime + vPlayerVelocity;
+			vCurPos += vFinalVelocity * fTimeDelta;
+
+			XMStoreFloat3((_float3*)m_WorldMatrix.m[3], vCurPos);
 		}
 	}
-	else
+	else if (m_eCurType == KATANA)
 	{
+		m_fDissolveAmount = 0.f;
 		m_pTransformCom->Set_WorldMatrix(m_KatanaOriginMatrix);
-		m_isActiveMyParticle = false;
-
-		m_pSubShuriken[0]->SetActiveMyParticle(false);
-		m_pSubShuriken[1]->SetActiveMyParticle(false);
-
-		XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
+		XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));		
 	}
 		
 	
-
-
-
 	m_pColliderCom[m_eCurType]->Update(&m_WorldMatrix);
+
 
 	if (m_eCurType == SHURIKEN)
 	{
+		//m_pShurikenTrail->Update(fTimeDelta, &m_WorldMatrix);
+
 		for (_uint i = 0; i < 2; i++)
 		{
-			m_pSubShuriken[i]->Update(&m_WorldMatrix , m_isAttacking, fTimeDelta);
+			_bool bLeft = false;;
+			if (i % 2 == 0)
+				bLeft = true;
+		
+			m_pSubShuriken[i]->Update(&m_WorldMatrix, m_isAttacking, m_InitGoDir, bLeft, m_InitPlayerPos, fTimeDelta);
 		}
 	}
+	else if (m_eCurType == KATANA)
+		m_pSwordTrail->Update(fTimeDelta);
+
 }
 
 void CWeapon_Player::Late_Update(_float fTimeDelta)
 {
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 
+	if (true == m_isHomingShurikenActive)
+	{
+		m_pShurikenTrail->Late_Update(fTimeDelta);
+
+#ifdef _DEBUG
+		m_pGameInstance->Add_DebugObject(m_pColliderCom[m_eCurType]);
+#endif
+		return;
+	}
+		
+
+
 	if (m_eCurType == SHURIKEN)
 	{
+		//m_pShurikenTrail->Late_Update(fTimeDelta);
+
 		for (_uint i = 0; i < 2; i++)
 		{
 			m_pSubShuriken[i]->Late_Update(fTimeDelta);
 		}
 	}
+	else if (m_eCurType == KATANA)
+		m_pSwordTrail->Late_Update(fTimeDelta);
+
 
 #ifdef _DEBUG
 	m_pGameInstance->Add_DebugObject(m_pColliderCom[m_eCurType]);
@@ -163,8 +296,43 @@ HRESULT CWeapon_Player::Render()
 	{
 		if (FAILED(m_pModelCom[m_eCurType]->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
 			return E_FAIL;
+	
+		_uint iPassNum = 0;
 
-		if (FAILED(m_pShaderCom->Begin(0)))
+		switch (m_eCurType)
+		{
+		case Client::CWeapon_Player::KATANA:
+			iPassNum = 0;
+			break;
+		case Client::CWeapon_Player::SHURIKEN:
+		{
+			if (FAILED(m_pModelCom[m_eCurType]->Bind_Material(m_pShaderCom, "g_EmissiveTexture", aiTextureType_EMISSIVE, i)))
+				return E_FAIL;
+
+			if (FAILED(m_pShaderCom->Bind_RawValue("g_fEmissiveEmphasize", &m_fEmissiveEmphasize, sizeof(_float))))
+				return E_FAIL;
+
+			if (1.5f > m_fDissolveAmount)
+			{
+				if (FAILED(m_pShaderCom->Bind_RawValue("g_fDissolveAmount", &m_fDissolveAmount, sizeof(_float))))
+					return E_FAIL;
+
+				if (FAILED(m_pCreateNoiseTexture->Bind_ShadeResource(m_pShaderCom, "g_NoiseTexture", 0)))
+					return E_FAIL;
+			}
+
+			iPassNum = 2;
+		}
+			
+			break;
+		case Client::CWeapon_Player::WEAPON_TYPE_END:
+			break;
+		default:
+			break;
+		}
+
+
+		if (FAILED(m_pShaderCom->Begin(iPassNum)))
 			return E_FAIL;
 
 		if (FAILED(m_pModelCom[m_eCurType]->Render(i)))
@@ -174,6 +342,25 @@ HRESULT CWeapon_Player::Render()
 
 	return S_OK;
 }
+
+
+
+void CWeapon_Player::LockTransformHoming(_float fTimeDelta)
+{	
+	XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()));
+
+	_matrix CopyMatrix = XMLoadFloat4x4(&m_WorldMatrix);
+	CopyMatrix.r[0] = XMVector3Normalize(CopyMatrix.r[0]) * 0.2f;
+	CopyMatrix.r[1] = XMVector3Normalize(CopyMatrix.r[1]) * 0.2f;
+	CopyMatrix.r[2] = XMVector3Normalize(CopyMatrix.r[2]) * 0.2f;
+
+	_float4x4 ColliderMatrix = {};
+	XMStoreFloat4x4(&ColliderMatrix, CopyMatrix);
+	m_pColliderCom[m_eCurType]->Update(&ColliderMatrix);					// 충돌체 크기 줄여
+
+	m_pShurikenTrail->Update(fTimeDelta, &m_WorldMatrix);
+}
+
 
 HRESULT CWeapon_Player::Ready_Components()
 {
@@ -193,6 +380,12 @@ HRESULT CWeapon_Player::Ready_Components()
 		return E_FAIL;
 
 
+	/* For.Com_Texture*/
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_CreateDissolve"),
+		TEXT("Com_Texture"), reinterpret_cast<CComponent**>(&m_pCreateNoiseTexture), nullptr)))
+		return E_FAIL;
+
+
 
 	/* FOR.Com_Collider */
 	CBounding_OBB::BOUNDING_OBB_DESC			ColliderDesc{};
@@ -207,8 +400,8 @@ HRESULT CWeapon_Player::Ready_Components()
 
 
 	/* FOR.Com_Collider */
-	ColliderDesc.vExtents = _float3(3.f, 3.f, 3.f);
-	ColliderDesc.vCenter = _float3(0.f, 0.f, ColliderDesc.vExtents.z);
+	ColliderDesc.vExtents = _float3(8.f, 8.f, 8.f);
+	ColliderDesc.vCenter = _float3(0.f, 0.f, 0.f);
 	ColliderDesc.vAngles = _float3(0.f, 0.f, 0.f);
 
 
@@ -217,12 +410,32 @@ HRESULT CWeapon_Player::Ready_Components()
 		return E_FAIL;
 
 
-
-
-
-
-
 	
+	return S_OK;
+}
+
+HRESULT CWeapon_Player::Reday_Trail()
+{
+	CBody_Player* pBodyPlayer = static_cast<CBody_Player*>(static_cast<CPlayer*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY));
+
+
+	CSwordTrail::EFFECT_DESC		SwordTrailDesc{};
+	SwordTrailDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+	SwordTrailDesc.pSocketBoneMatrix = pBodyPlayer->Get_BoneMatrix_Ptr("Weapon_r");
+	SwordTrailDesc.pOwner = m_pOwner;			//   m_pOwner  == Player
+
+	m_pSwordTrail = static_cast<CSwordTrail*>(m_pGameInstance->Clone_GameObject(TEXT("Prototype_GameObject_SwordTrail"), &SwordTrailDesc));
+
+
+	CShurikenTrail::EFFECT_DESC  ShurikenTrailDesc = {};
+	ShurikenTrailDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+	ShurikenTrailDesc.pSocketBoneMatrix = pBodyPlayer->Get_BoneMatrix_Ptr("Weapon_r");
+	ShurikenTrailDesc.pOwner = m_pOwner;
+	ShurikenTrailDesc.eType = CShurikenTrail::SHURIKEN_TYPE::MAIN;
+
+	m_pShurikenTrail = static_cast<CShurikenTrail*>(m_pGameInstance->Clone_GameObject(TEXT("Prototype_GameObject_ShurikenTrail"), &ShurikenTrailDesc));
+
+
 	return S_OK;
 }
 
@@ -276,6 +489,14 @@ void CWeapon_Player::Free()
 	{
 		Safe_Release(m_pSubShuriken[i]);
 	}
-	
 
+	Safe_Release(m_pCreateNoiseTexture);
+
+	Safe_Release(m_pSwordTrail);
+	Safe_Release(m_pShurikenTrail);
+}
+
+HRESULT Reday_Trail()
+{
+	return E_NOTIMPL;
 }

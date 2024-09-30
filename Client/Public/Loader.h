@@ -141,7 +141,10 @@ private:
 
 
 	HRESULT Create_Particle();
-	HRESULT Create_SwordTrail();				// 소드트레일
+	HRESULT Create_SwordTrail();				// 소드 트레일
+	HRESULT Create_ShurikenTrail();				// 수리켄 트레일
+
+
 	HRESULT Create_ShurikenEffect();			// 수리켄 이펙트
 	HRESULT Create_KatanaBlockEffect();			// 막을때 이펙트
 	HRESULT Create_CutAllEffect();				// Cutall 이펙트
@@ -149,6 +152,11 @@ private:
 
 
 	HRESULT Create_Blood();
+	HRESULT Create_ShockWave();
+
+
+	HRESULT Create_EliteBlockEffect();
+	HRESULT Create_ExplosionEffect();
 
 
 private:

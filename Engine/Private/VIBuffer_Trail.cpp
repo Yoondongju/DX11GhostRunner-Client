@@ -9,22 +9,22 @@ CVIBuffer_Trail::CVIBuffer_Trail(ID3D11Device* pDevice, ID3D11DeviceContext* pCo
 
 CVIBuffer_Trail::CVIBuffer_Trail(const CVIBuffer_Trail& Prototype)
 	: CVIBuffer{ Prototype }
-	, m_iNumPanel { Prototype.m_iNumPanel }
+	, m_iNumSegment{ Prototype.m_iNumSegment }
 {
 }
 
-HRESULT CVIBuffer_Trail::Initialize_Prototype()
+HRESULT CVIBuffer_Trail::Initialize_Prototype(_uint iNumSegment)
 {
 	if (FAILED(__super::Initialize_Prototype()))
 		return E_FAIL;
 
-	m_iNumPanel = 15;
+	m_iNumSegment = iNumSegment;					// 최대 세그먼트 갯수
 
 	m_iNumVertexBuffers = 1;
-	m_iNumVertices = 2 *  (m_iNumPanel + 1);							// m_iNumVertices = 2 * (N + 1);
-	m_iVertexStride = sizeof(VTXNORTEX);
-	m_iNumIndices = 6 * m_iNumPanel;									// m_iNumIndices = 6 * N;
-	m_iIndexStride = 2;
+	m_iNumVertices = 2 *  (m_iNumSegment + 1);							// m_iNumVertices = 2 * (N + 1);
+	m_iVertexStride = sizeof(VTXTRAILTEX);
+	m_iNumIndices = 6 * m_iNumSegment;									// m_iNumIndices = 6 * N;
+	m_iIndexStride = sizeof(_ushort);
 	m_eIndexFormat = DXGI_FORMAT_R16_UINT;
 	m_eTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
@@ -32,27 +32,24 @@ HRESULT CVIBuffer_Trail::Initialize_Prototype()
 #pragma region VERTEX_BUFFER
 	ZeroMemory(&m_BufferDesc, sizeof m_BufferDesc);
 	m_BufferDesc.ByteWidth = m_iVertexStride * m_iNumVertices;
-	m_BufferDesc.Usage = D3D11_USAGE_DYNAMIC; /* 정적버퍼로 생성한다. */
+	m_BufferDesc.Usage = D3D11_USAGE_DYNAMIC; 
 	m_BufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	m_BufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	m_BufferDesc.MiscFlags = 0;
 	m_BufferDesc.StructureByteStride = m_iVertexStride;
 
 	/* 정점버퍼에 채워줄 값들을 만들기위해서 임시적으로 공간을 할당한다. */
-	VTXNORTEX* pVertices = new VTXNORTEX[m_iNumVertices];
-	ZeroMemory(pVertices, sizeof(VTXNORTEX) * m_iNumVertices);
+	VTXTRAILTEX* pVertices = new VTXTRAILTEX[m_iNumVertices];
+	ZeroMemory(pVertices, sizeof(VTXTRAILTEX) * m_iNumVertices);
 
-	pVertices[0].vPosition = _float3(-0.5f, 0.5f, 0.f);
-	pVertices[0].vTexcoord = _float2(0.f, 0.f);
+	for (_uint i = 0; i < m_iNumVertices; i++)
+	{
+		pVertices[i].vLifeTime.x = m_pGameInstance->Get_Random(0.05,0.05f);
+		pVertices[i].vLifeTime.y = 0.f;
+	}
 
-	pVertices[1].vPosition = _float3(0.5f, 0.5f, 0.f);
-	pVertices[1].vTexcoord = _float2(1.f, 0.f);
 
-	pVertices[2].vPosition = _float3(0.5f, -0.5f, 0.f);
-	pVertices[2].vTexcoord = _float2(1.f, 1.f);
-
-	pVertices[3].vPosition = _float3(-0.5f, -0.5f, 0.f);
-	pVertices[3].vTexcoord = _float2(0.f, 1.f);
+	
 
 	ZeroMemory(&m_InitialData, sizeof m_InitialData);
 	m_InitialData.pSysMem = pVertices;
@@ -69,7 +66,7 @@ HRESULT CVIBuffer_Trail::Initialize_Prototype()
 	/* 인덱스버퍼의 내용을 채워주곡 */
 	ZeroMemory(&m_BufferDesc, sizeof m_BufferDesc);
 	m_BufferDesc.ByteWidth = m_iIndexStride * m_iNumIndices;
-	m_BufferDesc.Usage = D3D11_USAGE_DEFAULT; /* 정적버퍼로 생성한다. */
+	m_BufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	m_BufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	m_BufferDesc.CPUAccessFlags = 0;
 	m_BufferDesc.MiscFlags = 0;
@@ -81,7 +78,7 @@ HRESULT CVIBuffer_Trail::Initialize_Prototype()
 
 	// 각 구간은 2개의 정점을 사용한다
 
-	for (_uint i = 0; i < m_iNumPanel; ++i) {
+	for (_uint i = 0; i < m_iNumSegment; ++i) {
 		_uint baseIndex = i * 2;
 
 		// 첫 번째 삼각형
@@ -124,7 +121,7 @@ HRESULT CVIBuffer_Trail::Initialize(void* pArg)
 
 
 
-void CVIBuffer_Trail::Update_Trail(_float fTimeDelta , const _fvector& vPreStart, const _fvector& vPreEnd, const _fvector& vCurStart, const _fvector& vCurEnd)
+void CVIBuffer_Trail::Update_SwordTrail(_float fTimeDelta, deque<TRAIL_INFO>& TrailInfo)
 {	
 	// 상수 버퍼 데이터 업데이트
 	
@@ -132,88 +129,198 @@ void CVIBuffer_Trail::Update_Trail(_float fTimeDelta , const _fvector& vPreStart
 	// 버텍스 두점을 칼 양 끝으로 잡는다
 	// 이후 0,1    /  2,3 이전위치와 다음위치로 그린다
 	
-	 // 버텍스 버퍼 업데이트
+
+
+	for (auto it = TrailInfo.begin(); it != TrailInfo.end();)
+	{
+		it->fLifeTime -= fTimeDelta; // 생명 주기 감소
+		if (it->fLifeTime <= 0.0f) // 만료된 세그먼트 확인
+		{
+			it = TrailInfo.erase(it); // 세그먼트 삭제
+		}
+		else
+		{
+			++it; // 다음 세그먼트로 이동
+		}
+	}
 
 
 	D3D11_MAPPED_SUBRESOURCE SubResource;
-	if (FAILED(m_pContext->Map(m_pVB, 0, D3D11_MAP_WRITE_DISCARD, 0, &SubResource)))
+	if (FAILED(m_pContext->Map(m_pVB, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource)))
 		return;
+	// D3D11_MAP_WRITE_DISCARD
+    // D3D11_MAP_WRITE_NO_OVERWRITE
+	VTXTRAILTEX* pVertices = static_cast<VTXTRAILTEX*>(SubResource.pData);
 
-	VTXNORTEX* pVertices = static_cast<VTXNORTEX*>(SubResource.pData);
 
 
+	m_iNumIndices = 6 * (TrailInfo.size() - 1);			// 인덱스버퍼 참조하는 인덱스 갯수가 달라져야해 
 
-	for (_uint i = 0; i < m_iNumPanel; i++)
+	if (TrailInfo.size() < 2)
 	{
-		_uint iIndex = i * 2; 
+		ZeroMemory(pVertices, sizeof(VTXTRAILTEX) * m_iNumVertices);
+
+		_float2 fOrigineLifeTime = { 0.5f , 0.f};
+		for (_uint i = 0; i < m_iNumVertices; i++)
+		{
+			memcpy(&(pVertices[i].vLifeTime), &fOrigineLifeTime, sizeof(_float2));
+		}
+		m_pContext->Unmap(m_pVB, 0);
+		return;
+	}
 	
-	
-		XMStoreFloat3(&pVertices[iIndex].vPosition, vPreStart);					 // 이전 프레임의 시작점
-		pVertices[iIndex].vTexcoord = _float2(0.0f, 0.0f);  
-	
-		XMStoreFloat3(&pVertices[iIndex +1].vPosition, vPreEnd);				 // 이전 프레임의 시작점
-		pVertices[iIndex + 1].vTexcoord = _float2(1.0f, 0.0f);  
-	
-	
-		XMStoreFloat3(&pVertices[iIndex + 2].vPosition, vCurStart);				 // 이전 프레임의 시작점
-		pVertices[iIndex + 2].vTexcoord = _float2(0.0f, 1.0f); 
-	
-		XMStoreFloat3(&pVertices[iIndex + 3].vPosition, vCurEnd);				 // 이전 프레임의 시작점
-		pVertices[iIndex + 3].vTexcoord = _float2(1.0f, 1.0f);  
+
+	for (_uint i = 0; i < TrailInfo.size(); i++)		// m_iNumPanel == TrailInfo.size()
+	{
+		_uint iIndex = i * 4; 
+		
+		_float3 CurStart = TrailInfo[i].CurStart;
+		_float3 CurEnd = TrailInfo[i].CurEnd;
+
+		pVertices[iIndex].vPosition = CurStart;
+		pVertices[iIndex].vTexcoord = _float2(0.0f, 0.0f);
+		pVertices[iIndex].vLifeTime.y += fTimeDelta;
+
+		pVertices[iIndex + 1].vPosition = CurEnd;
+		pVertices[iIndex + 1].vTexcoord = _float2(1.0f, 0.0f);
+		pVertices[iIndex + 1].vLifeTime.y += fTimeDelta;
+
+
+		// 다음 세그먼트 존재 확인
+		if (i < TrailInfo.size() - 1)
+		{
+			_float3 NextStart = TrailInfo[i + 1].CurStart;
+			_float3 NextEnd = TrailInfo[i + 1].CurEnd;
+
+			pVertices[iIndex + 2].vPosition = NextStart;
+			pVertices[iIndex + 2].vTexcoord = _float2(0.0f, 1.0f);
+			pVertices[iIndex + 2].vLifeTime.y += fTimeDelta;
+
+			pVertices[iIndex + 3].vPosition = NextEnd;
+			pVertices[iIndex + 3].vTexcoord = _float2(1.0f, 1.0f);
+			pVertices[iIndex + 3].vLifeTime.y += fTimeDelta;
+		}
+		else
+		{
+			// 마지막 세그먼트일 때: 마지막 포인트들을 그대로 유지
+			pVertices[iIndex + 2].vPosition = CurStart;
+			pVertices[iIndex + 2].vTexcoord = _float2(0.0f, 1.0f);
+			pVertices[iIndex + 2].vLifeTime.y += fTimeDelta;
+
+			pVertices[iIndex + 3].vPosition = CurEnd;
+			pVertices[iIndex + 3].vTexcoord = _float2(1.0f, 1.0f);
+			pVertices[iIndex + 3].vLifeTime.y += fTimeDelta;
+		}
+	}
+	m_pContext->Unmap(m_pVB, 0);
+
+}
+
+void CVIBuffer_Trail::Update_ShurikenTrail(_float fTimeDelta, deque<TRAIL_INFO>& TrailInfo)
+{
+	for (auto it = TrailInfo.begin(); it != TrailInfo.end();)
+	{
+		it->fLifeTime -= fTimeDelta; // 생명 주기 감소
+		if (it->fLifeTime <= 0.0f) // 만료된 세그먼트 확인
+		{
+			it = TrailInfo.erase(it); // 세그먼트 삭제
+		}
+		else
+		{
+			++it; // 다음 세그먼트로 이동
+		}
 	}
 
-	
-	
 
+	D3D11_MAPPED_SUBRESOURCE SubResource;
+	if (FAILED(m_pContext->Map(m_pVB, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource)))
+		return;
+	// D3D11_MAP_WRITE_DISCARD
+	// D3D11_MAP_WRITE_NO_OVERWRITE
+	VTXTRAILTEX* pVertices = static_cast<VTXTRAILTEX*>(SubResource.pData);
+
+
+
+	m_iNumIndices = 6 * (TrailInfo.size() - 1);			// 인덱스버퍼 참조하는 인덱스 갯수가 달라져야해 
+
+	if (TrailInfo.size() < 2)
+	{
+		ZeroMemory(pVertices, sizeof(VTXTRAILTEX) * m_iNumVertices);
+
+		_float2 fOrigineLifeTime = { 0.5f , 0.f };
+		for (_uint i = 0; i < m_iNumVertices; i++)
+		{
+			memcpy(&(pVertices[i].vLifeTime), &fOrigineLifeTime, sizeof(_float2));
+		}
+		m_pContext->Unmap(m_pVB, 0);
+		return;
+	}
+
+
+	for (_uint i = 0; i < TrailInfo.size(); i++)		// m_iNumPanel == TrailInfo.size()
+	{
+		_uint iIndex = i * 4;
+
+		_float3 CurStart = TrailInfo[i].CurStart;
+		_float3 CurEnd = TrailInfo[i].CurEnd;
+
+		pVertices[iIndex].vPosition = CurStart;
+		pVertices[iIndex].vTexcoord = _float2(0.0f, 0.0f);
+		pVertices[iIndex].vLifeTime.y += fTimeDelta;
+
+		pVertices[iIndex + 1].vPosition = CurEnd;
+		pVertices[iIndex + 1].vTexcoord = _float2(1.0f, 0.0f);
+		pVertices[iIndex + 1].vLifeTime.y += fTimeDelta;
+
+
+		// 다음 세그먼트 존재 확인
+		if (i < TrailInfo.size() - 1)
+		{
+			_float3 NextStart = TrailInfo[i + 1].CurStart;
+			_float3 NextEnd = TrailInfo[i + 1].CurEnd;
+
+			pVertices[iIndex + 2].vPosition = NextStart;
+			pVertices[iIndex + 2].vTexcoord = _float2(0.0f, 1.0f);
+			pVertices[iIndex + 2].vLifeTime.y += fTimeDelta;
+
+			pVertices[iIndex + 3].vPosition = NextEnd;
+			pVertices[iIndex + 3].vTexcoord = _float2(1.0f, 1.0f);
+			pVertices[iIndex + 3].vLifeTime.y += fTimeDelta;
+		}
+		else
+		{
+			// 마지막 세그먼트일 때: 마지막 포인트들을 그대로 유지
+			pVertices[iIndex + 2].vPosition = CurStart;
+			pVertices[iIndex + 2].vTexcoord = _float2(0.0f, 1.0f);
+			pVertices[iIndex + 2].vLifeTime.y += fTimeDelta;
+
+			pVertices[iIndex + 3].vPosition = CurEnd;
+			pVertices[iIndex + 3].vTexcoord = _float2(1.0f, 1.0f);
+			pVertices[iIndex + 3].vLifeTime.y += fTimeDelta;
+		}
+	}
 	m_pContext->Unmap(m_pVB, 0);
-	
+
 }
 
-_float3 CVIBuffer_Trail::CatmullRom(const _fvector& vPreStart, const _fvector& vPreEnd, const _fvector& vCurStart, const _fvector& vCurEnd, float t)
+_fvector CVIBuffer_Trail::CatmullRom(const _fvector& p0, const _fvector& p1, const _fvector& p2, const _fvector& p3, float t)
 {
-	_float t2 = t * t;
-	_float t3 = t2 * t;
-	XMFLOAT3 result;
-
-
-
-	_float3		PreStart;
-	_float3		PreEnd;
-	_float3		CurStart;
-	_float3		CurEnd;
-
-
-	XMStoreFloat3(&PreStart, vPreStart);
-	XMStoreFloat3(&PreEnd, vPreEnd);
-	XMStoreFloat3(&CurStart, vCurStart);
-	XMStoreFloat3(&CurEnd, vCurEnd);
-
-	result.x = 0.5f * ((2.0f * PreEnd.x) +
-		(-PreStart.x + CurStart.x) * t +
-		(2.0f * PreStart.x - 5.0f * PreEnd.x + 4.0f * CurStart.x - CurEnd.x) * t2 +
-		(-PreStart.x + 3.0f * PreEnd.x - 3.0f * CurStart.x + CurEnd.x) * t3);
-
-	result.y = 0.5f * ((2.0f * PreEnd.y) +
-		(-PreStart.y + CurStart.y) * t +
-		(2.0f * PreStart.y - 5.0f * PreEnd.y + 4.0f * CurStart.y - CurEnd.y) * t2 +
-		(-PreStart.y + 3.0f * PreEnd.y - 3.0f * CurStart.y + CurEnd.y) * t3);
-
-	result.z = 0.5f * ((2.0f * PreEnd.z) +
-		(-PreStart.z + CurStart.z) * t +
-		(2.0f * PreStart.z - 5.0f * PreEnd.z + 4.0f * CurStart.z - CurEnd.z) * t2 +
-		(-PreStart.z + 3.0f * PreEnd.z - 3.0f * CurStart.z + CurEnd.z) * t3);
-
-	return result;
+	return 0.5f * (
+		(2.0f * p1) +
+		(-p0 + p2) * t +
+		(2.0f * p0 - 5.0f * p1 + 4.0f * p2 - p3) * t * t +
+		(-p0 + 3.0f * p1 - 3.0f * p2 + p3) * t * t * t
+		);
 }
 
 
 
 
-CVIBuffer_Trail* CVIBuffer_Trail::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
+CVIBuffer_Trail* CVIBuffer_Trail::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, _uint iNumSegment)
 {
 	CVIBuffer_Trail* pInstance = new CVIBuffer_Trail(pDevice, pContext);
 
-	if (FAILED(pInstance->Initialize_Prototype()))
+	if (FAILED(pInstance->Initialize_Prototype(iNumSegment)))
 	{
 		MSG_BOX(TEXT("Failed to Created : CVIBuffer_Trail"));
 		Safe_Release(pInstance);

@@ -96,7 +96,6 @@ void CMira_Attack::Update(_float fTimeDelta)
 		else
 			pBullet->Set_Attacking(true);
 	}
-
 	
 }
 

@@ -170,6 +170,9 @@ _bool CModel::Play_Animation(_float fTimeDelta)
 		m_iCurrentAnimIndex = m_iNextAnimIndex;
 	}
 
+	m_Bones[1]->Set_TransformationMatrix(XMMatrixIdentity());
+
+
 	for (auto& pBone : m_Bones)
 	{
 		/* 내 뼈의 행렬 * 부모의 컴바인드 */

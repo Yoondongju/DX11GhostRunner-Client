@@ -48,10 +48,9 @@ void CSky::Update(_float fTimeDelta)
 
 void CSky::Late_Update(_float fTimeDelta)
 {
-
 	m_fTime += fTimeDelta * 0.5f;
 
-	//m_pGameInstance->Add_RenderObject(CRenderer::RG_PRIORITY, this);
+	m_pGameInstance->Add_RenderObject(CRenderer::RG_PRIORITY, this);
 }
 
 HRESULT CSky::Render()

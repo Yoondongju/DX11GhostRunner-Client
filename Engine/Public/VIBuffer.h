@@ -21,7 +21,10 @@ public:
 	virtual HRESULT Initialize_Prototype();
 	virtual HRESULT Initialize(void* pArg);
 	virtual HRESULT Bind_Buffers();
+
 	virtual HRESULT Render();
+
+
 
 protected:
 	ID3D11Buffer*				m_pVB = { nullptr };

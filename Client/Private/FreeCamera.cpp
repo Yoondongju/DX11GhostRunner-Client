@@ -32,6 +32,8 @@ HRESULT CFreeCamera::Initialize(void * pArg)
 
 	XMStoreFloat4(&m_OffsetByPlayer, XMVectorSet(0.f, 16.12215824f, 2.2040216f, 1.f));
 	
+	
+	XMStoreFloat4(&m_OffsetByShuriken, XMVectorSet(0.f, -1.f, -6.f, 1.f));
 
 
 	m_pTransformCom->Set_State(CTransform::STATE_RIGHT, XMVectorSet(1.f, 0.f, 0.f, 0.f));
@@ -55,22 +57,12 @@ void CFreeCamera::Update(_float fTimeDelta)
 void CFreeCamera::Late_Update(_float fTimeDelta)
 {
 	CPlayer* pPlayer = static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY));
-	
 	if (nullptr == pPlayer)
 		return;
 
-	_vector vCamPosition = pPlayer->Get_Transform()->Get_State(CTransform::STATE_POSITION);
-
-	
-
-	_vector RotationOffset = XMVector3TransformCoord(XMLoadFloat4(&m_OffsetByPlayer), XMLoadFloat4x4(&pPlayer->Get_RotationMatrix()));
-
-	m_pTransformCom->Set_State(CTransform::STATE_POSITION, vCamPosition + RotationOffset);
 
 
-	m_pTransformCom->Set_State(CTransform::STATE_RIGHT, pPlayer->Get_Transform()->Get_State(CTransform::STATE_RIGHT));
-	m_pTransformCom->Set_State(CTransform::STATE_UP, pPlayer->Get_Transform()->Get_State(CTransform::STATE_UP));
-	m_pTransformCom->Set_State(CTransform::STATE_LOOK, pPlayer->Get_Transform()->Get_State(CTransform::STATE_LOOK));
+	FollowPlayer(pPlayer);
 
 
 
@@ -81,6 +73,27 @@ HRESULT CFreeCamera::Render()
 {
 	return S_OK;
 }
+
+
+void CFreeCamera::FollowPlayer(CPlayer* pPlayer)
+{
+	CTransform* pPlayerTransform = pPlayer->Get_Transform();
+
+
+	_vector vPlayerPosition = pPlayerTransform->Get_State(CTransform::STATE_POSITION);
+
+
+
+	_vector RotationOffset = XMVector3TransformCoord(XMLoadFloat4(&m_OffsetByPlayer), XMLoadFloat4x4(&pPlayer->Get_RotationMatrix()));
+
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPlayerPosition + RotationOffset);
+	m_pTransformCom->Set_State(CTransform::STATE_RIGHT, pPlayerTransform->Get_State(CTransform::STATE_RIGHT));
+	m_pTransformCom->Set_State(CTransform::STATE_UP, pPlayerTransform->Get_State(CTransform::STATE_UP));
+	m_pTransformCom->Set_State(CTransform::STATE_LOOK, pPlayerTransform->Get_State(CTransform::STATE_LOOK));
+}
+
+
+
 
 
 CFreeCamera * CFreeCamera::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)

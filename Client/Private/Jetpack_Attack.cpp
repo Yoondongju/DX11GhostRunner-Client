@@ -8,6 +8,7 @@
 #include "GameInstance.h"
 #include "Animation.h"
 
+#include "Particle_Explosion.h"
 
 CJetpack_Attack::CJetpack_Attack(class CGameObject* pOwner)
 	: CState{ CJetpack::JETPACK_ANIMATION::ATTACK_1 , pOwner }
@@ -44,7 +45,12 @@ void CJetpack_Attack::Update(_float fTimeDelta)
 		_double Duration = pModel->Get_CurAnimation()->Get_Duration();
 		const _double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
 
-		if (0.8f <= (TrackPos / Duration))
+		CWeapon_Jetpack* JetpackWeapon = static_cast<CWeapon_Jetpack*>(static_cast<CJetpack*>(m_pOwner)->Get_Part(CJetpack::PARTID::PART_WEAPON));
+		_float4x4*		 pWorldMatrix = JetpackWeapon->Get_PartObjectComBindWorldMatrixPtr();
+
+
+
+		if (0.9f <= (TrackPos / Duration))
 		{
 			CFsm* pFsm = m_pOwner->Get_Fsm();
 
@@ -53,19 +59,19 @@ void CJetpack_Attack::Update(_float fTimeDelta)
 
 			pModel->SetUp_Animation(CJetpack::JETPACK_ANIMATION::IDLE, true);
 			pFsm->Change_State(CJetpack::JETPACK_ANIMATION::IDLE);
-		}
 
+
+			CParticle_Explosion* pExplosion = static_cast<CParticle_Explosion*>(static_cast<CJetpack*>(m_pOwner)->Get_Part(CJetpack::PARTID::PART_EXPLOSION));
+
+			pExplosion->SetActiveMyParticle(true);
+			pExplosion->Set_SpwanPos(*(_float3*)pWorldMatrix->m[3]);
+
+		}
 		if (0.1f <= (TrackPos / Duration))
 		{
-			CWeapon_Jetpack* JetpackWeapon = static_cast<CWeapon_Jetpack*>(static_cast<CJetpack*>(m_pOwner)->Get_Part(CJetpack::PARTID::PART_WEAPON));
-
 			JetpackWeapon->Set_Attacking(true);
 
-			_float4x4* pWorldMatrix = JetpackWeapon->Get_PartObjectComBindWorldMatrixPtr();
-
-
 			_matrix ComBindMatrix = XMLoadFloat4x4(pWorldMatrix);
-
 			_vector vLookNor = XMVector3Normalize(pJetpackTransform->Get_State(CTransform::STATE_LOOK));
 			vLookNor = XMVectorSetY(vLookNor, XMVectorGetY(vLookNor) - 0.2f);  // 0.2f 만큼 아래로 내림
 
@@ -76,11 +82,6 @@ void CJetpack_Attack::Update(_float fTimeDelta)
 		}
 
 	}
-
-
-	
-
-
 
 }
 

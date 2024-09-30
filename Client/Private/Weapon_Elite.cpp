@@ -5,6 +5,8 @@
 
 #include "GameInstance.h"
 
+#include "Body_Player.h"
+
 CWeapon_Elite::CWeapon_Elite(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CPartObject{ pDevice, pContext }
 {
@@ -108,6 +110,35 @@ HRESULT CWeapon_Elite::Render()
 	}
 
 	return S_OK;
+}
+
+_bool CWeapon_Elite::Check_Collision()
+{
+	CPlayer* pPlayer = static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY));
+	CBody_Player* pBodyPlayer = static_cast<CBody_Player*>(pPlayer->Get_Part(CPlayer::PART_BODY));
+
+	CCollider* pCollider = pBodyPlayer->Get_Collider_OBB();
+
+	if (m_pColliderCom->Intersect(pCollider))
+	{
+		//충돌햇어 근데 지금 상태가 막기상태야 이 처리를 
+		CFsm* pFsm = pPlayer->Get_Fsm();
+		CPlayer::PLAYER_ANIMATIONID eCurState = (CPlayer::PLAYER_ANIMATIONID)pFsm->Get_CurStateIndex();
+
+
+		if (CPlayer::PLAYER_ANIMATIONID::BLOCK_R1 == eCurState ||
+			CPlayer::PLAYER_ANIMATIONID::BLOCK_R2 == eCurState ||
+			CPlayer::PLAYER_ANIMATIONID::BLOCK_R3 == eCurState)
+		{
+			pPlayer->Get_Part(CPlayer::PARTID::PART_PARTICLE_BLOCK)->SetActiveMyParticle(true);
+		}	
+	}
+
+	if(m_pColliderCom->IsBoundingCollisionEnter())
+		return true;
+
+	
+	return false;
 }
 
 HRESULT CWeapon_Elite::Ready_Components()

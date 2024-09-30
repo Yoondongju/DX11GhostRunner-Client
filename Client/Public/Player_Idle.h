@@ -28,6 +28,8 @@ private:
     _float  m_fSwordSpinTime = { 5.f };
     _bool   m_fFristSpinCall = { true };
 
+    
+
 
 private:
     _bool Check_RunAndWalk();
@@ -47,7 +49,9 @@ private:
     _bool Check_Attack2();
     _bool Check_Attack3();
 
+
     _bool Check_Sh_Attack1();
+    _bool Check_HomingShuriken();
         
     _bool Check_SwapWeapon();
 

@@ -113,6 +113,10 @@ public:
 	void Go_Dir(_fvector vDirection , _float fTimeDelta);
 	void Go_Dir_XZ(_fvector vDirection, _float fTimeDelta);
 
+	void Go_Dir_Wave(_fvector vDirection, _float fTimeDelta , _float fAmplitude, _float fFrequency , _fvector vWaveAxis, _float* pAccTime);		// 파동높이, 파동주기
+	void Go_Dir_Curve(_fvector vTargetPos, _fvector vStartPos , _float fTimeDelta);
+
+
 
 	void Go_Straight_FreeWalk(_float fTimeDelta);
 	void Go_Backward_FreeWalk(_float fTimeDelta);
@@ -129,7 +133,7 @@ public:
 	void Rotation(_float fX, _float fY, _float fZ);
 
 	void LookAt(const _fvector & vAt, _float4x4* RotationMatrix);
-	void LookAt_Smooth(const _fvector& vAt, _float fTimeDelta, _float4x4* RotationMatrix);
+	void LookAt_Smooth(const _fvector& vAt, _float fTimeDelta, _float4x4* RotationMatrix , _float* pOutAngleGap = nullptr );
 
 	void LookAt_XZ(const _fvector& vAt);
 	void LookAt_XZSmooth(const _fvector& vAt, _float fTimeDelta, _float4x4* RotationMatrix);
@@ -141,7 +145,6 @@ private:
 	_float				m_fSpeedPerSec = {};
 
 	_float				m_fRotationPerSec = {};
-
 
 
 

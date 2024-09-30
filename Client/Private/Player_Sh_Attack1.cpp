@@ -14,6 +14,8 @@
 #include "Mira.h"
 #include "Jetpack.h"
 
+#include "ShurikenTrail.h"
+
 CPlayer_Sh_Attack1::CPlayer_Sh_Attack1(class CGameObject* pOwner)
 	: CState{ CPlayer::PLAYER_ANIMATIONID::SH_ATTACK , pOwner }
 {
@@ -27,8 +29,6 @@ HRESULT CPlayer_Sh_Attack1::Initialize()
 
 HRESULT CPlayer_Sh_Attack1::Start_State(void* pArg)
 {
-
-
 	return S_OK;
 }
 
@@ -44,47 +44,28 @@ void CPlayer_Sh_Attack1::Update(_float fTimeDelta)
 	const _double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
 
 
-	CWeapon_Player* pShuiKen = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON));
-	CSubShuriken** pSubShuriken = pShuiKen->Get_SubShuriken();
-
-	CTransform* pSubTransform1 = pSubShuriken[0]->Get_Transform();
-	CTransform* pSubTransform2 = pSubShuriken[1]->Get_Transform();
-
+	CWeapon_Player* pMainShuriken = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON));
+	CSubShuriken** pSubShuriken = pMainShuriken->Get_SubShuriken();
 
 	if (0.05f <= (TrackPos / Duration))
 	{
 		Check_Collision();
-
-		_vector vLookNor = XMVector3Normalize(static_cast<CPlayer*>(m_pOwner)->Get_Transform()->Get_State(CTransform::STATE_LOOK));
-		_vector vUpNor = XMVector3Normalize(static_cast<CPlayer*>(m_pOwner)->Get_Transform()->Get_State(CTransform::STATE_UP));
-
-		pShuiKen->Set_Attacking(true);
-		
-		_float4x4* pComBindWMatrix = pShuiKen->Get_PartObjectComBindWorldMatrixPtr();
-		_matrix ComBindMatrix = XMLoadFloat4x4(pComBindWMatrix);
-		_vector vCompute_Result = (vLookNor) * 700.f * fTimeDelta;
-
-		ComBindMatrix.r[3] += vCompute_Result;
-		XMStoreFloat4x4(pComBindWMatrix, ComBindMatrix);
-
-
-
-		_matrix RoatationL =  XMMatrixRotationAxis(vUpNor, XMConvertToRadians(10.f));
-		vLookNor = XMVector3TransformCoord(vLookNor, RoatationL);
-
-		_vector vPos = pSubTransform1->Get_State(CTransform::STATE_POSITION);
-		vCompute_Result = (vLookNor) * 700.f * fTimeDelta;
-		pSubTransform1->Set_State(CTransform::STATE_POSITION, vPos + vCompute_Result);
-
-
-		_matrix RoatationR = XMMatrixRotationAxis(vUpNor, XMConvertToRadians(-20.f));
-		vLookNor = XMVector3TransformCoord(vLookNor, RoatationR);
-
-		_vector vPos1 = pSubTransform2->Get_State(CTransform::STATE_POSITION);
-		vCompute_Result = (vLookNor) * 700.f * fTimeDelta;
-		pSubTransform2->Set_State(CTransform::STATE_POSITION, vPos1 + vCompute_Result);
-	
+		pMainShuriken->Set_Attacking(true);
 	}
+
+	if (0.4f <= (TrackPos / Duration))
+	{
+		CShurikenTrail* pMainShurikenTrail = pMainShuriken->Get_ShurikenTrail();
+		CShurikenTrail* pSub0ShurikenTrail = pSubShuriken[0]->Get_ShurikenTrail();
+		CShurikenTrail* pSub1ShurikenTrail = pSubShuriken[1]->Get_ShurikenTrail();
+
+		pMainShurikenTrail->Set_Active(true);
+		pSub0ShurikenTrail->Set_Active(true);
+		pSub1ShurikenTrail->Set_Active(true);
+	}
+
+
+
 
 
 
@@ -121,14 +102,27 @@ void CPlayer_Sh_Attack1::Update(_float fTimeDelta)
 
  }
 
+
 void CPlayer_Sh_Attack1::End_State()
 {
-	CWeapon_Player* pShuiKen = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON));
+	CWeapon_Player* pMainShuriken = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON));
 
-	_float4x4 OriginMatrix =  pShuiKen->Get_ShurikenOriginMatrix();
-	pShuiKen->Get_Transform()->Set_WorldMatrix(OriginMatrix);
+	CSubShuriken** pSubShuriken = pMainShuriken->Get_SubShuriken();
 
-	pShuiKen->Set_Attacking(false);
+
+	CShurikenTrail* pMainShurikenTrail = pMainShuriken->Get_ShurikenTrail();
+
+	CShurikenTrail* pSub0ShurikenTrail = pSubShuriken[0]->Get_ShurikenTrail();
+
+	CShurikenTrail* pSub1ShurikenTrail = pSubShuriken[1]->Get_ShurikenTrail();
+
+
+	pMainShuriken->Set_Attacking(false);
+
+
+	pMainShurikenTrail->Set_Active(false);
+	pSub0ShurikenTrail->Set_Active(false);
+	pSub1ShurikenTrail->Set_Active(false);
 }
 
 

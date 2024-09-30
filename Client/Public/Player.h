@@ -25,7 +25,6 @@ public:
 		PART_BODY, 
 		PART_WEAPON,  
 		PART_WIRE ,
-		PART_PARTICLE_SWORDTRAIL,
 		PART_PARTICLE_BLOCK,
 		PART_PARTICLE_CUTALL,
 		PART_PARTICLE_NAMI,
@@ -152,6 +151,11 @@ public:
 	void				Set_JumpProgressTime(_float fTime) { m_fJumpProgressTime = fTime; }
 	_float				Get_JumpProgressTime() { return m_fJumpProgressTime; }
 
+
+	void				Set_CanSwapWeapon(_bool b) { m_isCanSwapWeapon = b; }
+	_bool				IsCanSwapWeapon() { return m_isCanSwapWeapon; }
+
+
 public: // DASH
 	void				Set_DashActive(_bool b) { m_bDashActive = b; }
 	_bool				IsDashActive() { return m_bDashActive; }
@@ -196,6 +200,39 @@ public: // TIMESTOP
 	void				Set_StartCountTimeStopTime(_bool b) { m_bStartCountTimeStopTime = b; }
 
 
+public: // NAMI
+	void				Set_NamiActive(_bool b) { m_bNamiActive = b; }
+	_bool				IsNamiActive() { return m_bNamiActive; }
+
+	const _float&		Get_NamiCoolTime() { return m_fNamiCoolTime; }
+	const _float&		Get_NamiRemainingTime() { return m_fNamiRemainingTime; }
+
+	void				Set_NamiRemainingTime(_float fTime) { m_fNamiRemainingTime = fTime; }
+	void				Set_StartCountNamiTime(_bool b) { m_bStartCountNamiTime = b; }
+
+
+public: // MindControl
+	void				Set_MindControlActive(_bool b) { m_bMindControlActive = b; }
+	_bool				IsMindControlActive() { return m_bMindControlActive; }
+
+	const _float&		Get_MindControlCoolTime() { return m_fMindControlCoolTime; }
+	const _float&		Get_MindControlRemainingTime() { return m_fMindControlRemainingTime; }
+
+	void				Set_MindControlRemainingTime(_float fTime) { m_fMindControlRemainingTime = fTime; }
+	void				Set_StartCountMindControlTime(_bool b) { m_bStartCountMindControlTime = b; }
+
+
+public: // HomingSh
+	void				Set_HomingShActive(_bool b) { m_bHomingShActive = b; }
+	_bool				IsHomingShActive() { return m_bHomingShActive; }
+
+	const _float&		Get_HomingShCoolTime() { return m_fHomingShCoolTime; }
+	const _float&		Get_HomingShRemainingTime() { return m_fHomingShRemainingTime; }
+
+	void				Set_HomingShRemainingTime(_float fTime) { m_fHomingShRemainingTime = fTime; }
+	void				Set_StartCountHomingShTime(_bool b) { m_bStartCountHomingShTime = b; }
+
+
 
 public:
 	class CGrapplingPointUI*		Get_GrapplingPoint()  { return m_pGrapplingPoint; }
@@ -204,6 +241,11 @@ public:
 	{
 		return static_cast<CWeapon_Player*>(m_Parts[PARTID::PART_WEAPON])->Get_CurType();
 	}
+	CWeapon_Player::WEAPON_TYPE		Get_PreWeaponType()
+	{
+		return static_cast<CWeapon_Player*>(m_Parts[PARTID::PART_WEAPON])->Get_PreType();
+	}
+
 
 
 public:
@@ -241,7 +283,6 @@ private:
 	CRigidBody*				m_pRigidBody = { nullptr };
 
 	PLAYER_ANIMATIONID		m_eCurAnimationID = { PLAYER_ANIMATION_END };
-
 	POINT					m_ptOldMousePos = {};
 
 
@@ -268,6 +309,8 @@ private:
 private:
 	_float				m_fJumpProgressTime = { 0.f };	// 점프 진행시간
 
+
+	_bool				m_isCanSwapWeapon = { true };
 
 private:		// DASH
 	_float				m_fDashCoolTime = { 3.f };			// 대쉬 쿨타임
@@ -299,6 +342,27 @@ private:		// TimeStop
 	_float				m_fTimeDelayLerpRatio = {4.f};		// 게임인스턴스에서 0.1만큼 델타타임에 곱햇으니 얜 절반은 복구시키자
 
 
+private:		// NAMI
+	_float				m_fNamiCoolTime = { 3.f };		
+	_float				m_fNamiRemainingTime = { 3.f };	
+	_bool				m_bNamiActive = { true };
+	_bool				m_bStartCountNamiTime = { false };	
+
+
+private:		// MINDCONTROL
+	_float				m_fMindControlCoolTime = { 3.f };		
+	_float				m_fMindControlRemainingTime = { 3.f };	
+	_bool				m_bMindControlActive = { true };
+	_bool				m_bStartCountMindControlTime = { false };	
+
+
+private:		// HOMING_SH
+	_float				m_fHomingShCoolTime = { 3.f };		
+	_float				m_fHomingShRemainingTime = { 3.f };	
+	_bool				m_bHomingShActive = { true };
+	_bool				m_bStartCountHomingShTime = { false };	
+
+
 
 
 private:
@@ -321,6 +385,10 @@ private:
 	void		Compute_BlockCoolTime(_float fTimeDelta);
 	void		Compute_CutAllCoolTime(_float fTimeDelta);
 	void		Compute_TimeStopCoolTime(_float fTimeDelta);
+	void		Compute_NamiCoolTime(_float fTimeDelta);
+	void		Compute_MindControlCoolTime(_float fTimeDelta);
+	void		Compute_HomingShCoolTime(_float fTimeDelta);
+
 
 public:
 	static CPlayer* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

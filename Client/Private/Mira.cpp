@@ -16,6 +16,8 @@
 #include "Particle_Blood.h"
 #include "Monster_Bullet.h"
 
+#include "Particle_ShockWave.h"
+
 CMira::CMira(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CEnemy(pDevice, pContext)
 {
@@ -80,6 +82,8 @@ void CMira::Update(_float fTimeDelta)
         m_fDiscard += fTimeDelta * 0.4f;
     }
        
+    if (true == m_isMindControling)
+        m_Parts[PART_SHOCKWAVE]->SetActiveMyParticle(true);
         
 
     m_pFsm->Update(fTimeDelta);
@@ -122,7 +126,6 @@ HRESULT CMira::Render()
         iPassNum = 1;
 
 
-        _float dissovleAmount = 0.5f;
 
         if (FAILED(m_pShaderCom->Bind_RawValue("g_fDissolveAmount", &m_fDiscard, sizeof(_float))))
             return E_FAIL;
@@ -158,6 +161,9 @@ HRESULT CMira::Render()
 
 _bool CMira::Check_Collision()
 {
+    if (true == m_isDead)
+        return false;
+
     CWeapon_Player* pPlayerWeapon = static_cast<CWeapon_Player*>(static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY))->Get_Part(CPlayer::PART_WEAPON));
     CCollider* pCollider = pPlayerWeapon->Get_Collider();
 
@@ -186,7 +192,7 @@ _bool CMira::Check_Collision()
     }
 
 
-    if (CMira::MIRA_ANIMATION::DEATH != m_pModel->Get_CurAnimationIndex() && m_pColliderCom->IsBoundingCollisionEnter())
+    if (CMira::MIRA_ANIMATION::DEATH != m_pModel->Get_NextAnimationIndex() && m_pColliderCom->IsBoundingCollisionEnter())
     {
         _double& TrackPos = m_pModel->Get_Referene_CurrentTrackPosition();
         TrackPos = 0.0;
@@ -204,6 +210,27 @@ _bool CMira::Check_Collision()
 
 void CMira::Check_CollByTargetEnemy()
 {
+    if (true == m_isDead)
+        return;
+
+    if (CMira::MIRA_ANIMATION::DEATH != m_pModel->Get_CurAnimationIndex())
+    {
+        _double& TrackPos = m_pModel->Get_Referene_CurrentTrackPosition();
+        TrackPos = 0.0;
+
+        m_pModel->SetUp_Animation(CMira::MIRA_ANIMATION::DEATH, true);
+        m_pFsm->Change_State(CMira::MIRA_ANIMATION::DEATH);
+
+        static_cast<CParticle_Blood*>(m_Parts[PART_EFFECT])->SetActiveMyParticle(true);
+    }
+}
+
+
+void CMira::Check_Collision_Me()
+{
+    if (true == m_isDead)
+        return;
+
     if (CMira::MIRA_ANIMATION::DEATH != m_pModel->Get_CurAnimationIndex())
     {
         _double& TrackPos = m_pModel->Get_Referene_CurrentTrackPosition();
@@ -304,9 +331,21 @@ HRESULT CMira::Reday_Parts()
     BulletDesc.pOwner = this;
     BulletDesc.InitWorldMatrix = XMMatrixIdentity();
     BulletDesc.fSpeedPerSec = 30.f;
-
     if (FAILED(__super::Add_PartObject(PART_BULLET, TEXT("Prototype_GameObject_Monster_Bullet"), &BulletDesc)))
         return E_FAIL;
+
+
+
+    CParticle_ShockWave::SHOCKWAVE_DESC	ShockWaveDesc{};
+
+    ShockWaveDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    ShockWaveDesc.pSocketBoneMatrix = m_pModel->Get_BoneCombindTransformationMatrix_Ptr("spine_01");
+    ShockWaveDesc.pOwner = this;
+    ShockWaveDesc.InitWorldMatrix = XMMatrixIdentity();
+    ShockWaveDesc.fSpeedPerSec = 20.f;
+    if (FAILED(__super::Add_PartObject(PART_SHOCKWAVE, TEXT("Prototype_GameObject_Particle_ShockWave"), &ShockWaveDesc)))
+        return E_FAIL;
+
 
     return S_OK;
 }
@@ -342,7 +381,6 @@ void CMira::Free()
     __super::Free();
 
     Safe_Release(m_pDeadNoiseTexture);
-
 
     Safe_Release(m_pShaderCom);
     Safe_Release(m_pModel);

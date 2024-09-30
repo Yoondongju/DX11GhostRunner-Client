@@ -13,10 +13,12 @@ HRESULT CCustomFont::Initialize(const _tchar* pFontFilePath)
 	m_pFont = new SpriteFont(m_pDevice, pFontFilePath);
 	m_pBatch = new SpriteBatch(m_pContext);
 
+
 	return S_OK;
 }
 
-HRESULT CCustomFont::Render(const _tchar* pText, _fvector vPosition, _fvector vColor, _float fRadian, _fvector vPivot, _float fScale)
+
+HRESULT CCustomFont::Render(const _tchar* pText, _fvector vPosition, _float fScale, _fvector vColor, _float fRadian, _fvector vPivot)
 {
 	m_pBatch->Begin();
 
@@ -26,6 +28,7 @@ HRESULT CCustomFont::Render(const _tchar* pText, _fvector vPosition, _fvector vC
 
 	return S_OK;
 }
+
 
 CCustomFont* CCustomFont::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const _tchar* pFontFilePath)
 {

@@ -235,20 +235,20 @@ HRESULT CLevel_GamePlay::Ready_Layer_MapObject(void* pArg)
 HRESULT CLevel_GamePlay::Ready_Layer_Monster(void* pArg)
 {
 	CLevel_Loading::LOAD_DATA_DESC* pDesc = static_cast<CLevel_Loading::LOAD_DATA_DESC*>(pArg);
-
+	
 	_uint iAnimDataSize = pDesc->iAnimDataSize;
 	const CLoader::LOADING_OBJECT_INFO* pAnimData = pDesc->pAnimData;
-
+	
 	for (size_t i = 0; i < iAnimDataSize; i++)		// Non Anim Object
 	{
 		CGameObject::GAMEOBJECT_DESC Desc = {};
-
+	
 		Desc.fRotationPerSec = 20.f;
 		Desc.fSpeedPerSec = 20.f;
 		Desc.InitWorldMatrix = XMLoadFloat4x4(&pAnimData[i].vWorldMatrix);
 		Desc.iObjectType = pAnimData[i].eModelType;
-
-
+	
+	
 		if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, pAnimData[i].strLayerName, pAnimData[i].strPrototypeName, pAnimData[i].strModelPrototypeName, &Desc)))
 			return E_FAIL;
 	}
@@ -275,6 +275,23 @@ HRESULT CLevel_GamePlay::Ready_Layer_Player(void* pArg)
 
 HRESULT CLevel_GamePlay::Ready_Layer_UI()
 {
+	CUIObject::UI_DESC CrossHairDesc = {};
+
+	CrossHairDesc.fX = g_iWinSizeX * 0.5f;
+	CrossHairDesc.fY = g_iWinSizeY * 0.5f;
+	CrossHairDesc.fSizeX = 20;
+	CrossHairDesc.fSizeY = 20;
+	CrossHairDesc.fSpeedPerSec = 10.f;
+	CrossHairDesc.fRotationPerSec = XMConvertToRadians(90.0f);
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, L"Layer_UI", L"Prototype_GameObject_CCrossHairUI", L"No Model", &CrossHairDesc)))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, L"Layer_Notify", L"Prototype_GameObject_EventNotify", L"No Model", &CrossHairDesc)))
+		return E_FAIL;
+	
+
+
+
 	CIconUI::ICON_DESC Desc = {};
 
 	Desc.eType = CIconUI::ICON_TYPE::CUTALL;
@@ -286,7 +303,6 @@ HRESULT CLevel_GamePlay::Ready_Layer_UI()
 	Desc.fRotationPerSec = XMConvertToRadians(90.0f);
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, L"Layer_UI", L"Prototype_GameObject_IconUI", L"No Model", &Desc)))
 		return E_FAIL;
-
 
 	Desc.eType = CIconUI::ICON_TYPE::BLOCK;
 	Desc.fX = Desc.fX + 100;
@@ -321,6 +337,17 @@ HRESULT CLevel_GamePlay::Ready_Layer_UI()
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, L"Layer_UI", L"Prototype_GameObject_IconUI", L"No Model", &Desc)))
 		return E_FAIL;
 
+	Desc.eType = CIconUI::ICON_TYPE::HOMING_SH;
+	Desc.fX = Desc.fX;
+	Desc.fY = g_iWinSizeY - 180;
+	Desc.fSizeX = 70;
+	Desc.fSizeY = 70;
+	Desc.fSpeedPerSec = 10.f;
+	Desc.fRotationPerSec = XMConvertToRadians(90.0f);
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, L"Layer_UI", L"Prototype_GameObject_IconUI", L"No Model", &Desc)))
+		return E_FAIL;
+
+
 
 	Desc.eType = CIconUI::ICON_TYPE::TIMESTOP;
 	Desc.fX = Desc.fX - 100;
@@ -354,9 +381,6 @@ HRESULT CLevel_GamePlay::Ready_Layer_UI()
 	Desc.fRotationPerSec = XMConvertToRadians(90.0f);
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, L"Layer_UI", L"Prototype_GameObject_IconUI", L"No Model", &Desc)))
 		return E_FAIL;
-
-
-
 
 	return S_OK;
 }

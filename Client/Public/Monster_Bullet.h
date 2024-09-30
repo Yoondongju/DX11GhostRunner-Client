@@ -57,12 +57,14 @@ private:
 	_bool			m_isAttacking = { false };
 	_float3			m_PreAttackPos = {};
 	
+private:
+	_bool			m_isBouncedBullet = { false };
 
 
 private:
 	void		Check_Collision_Player();
 	void		Check_Collision_Enemy();
-
+	void		Check_Collision_Me();
 
 private:
 	HRESULT		Ready_Component();

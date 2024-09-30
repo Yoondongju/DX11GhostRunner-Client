@@ -8,6 +8,7 @@
 #include "GrapplingPointUI.h"
 
 #include "Animation.h"
+#include "SwordTrail.h"
 
 CPlayer_Run::CPlayer_Run(class CGameObject* pOwner)
 	: CState{ CPlayer::PLAYER_ANIMATIONID::RUN ,pOwner }
@@ -43,6 +44,7 @@ void CPlayer_Run::Update(_float fTimeDelta)
 		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::SPIN_A, true);	
 		m_fSwordSpinTime = 5.f;
 		m_fFristSpinCall = true;
+
 	}
 	else
 	{
@@ -56,8 +58,8 @@ void CPlayer_Run::Update(_float fTimeDelta)
 				CFsm* pFsm = m_pOwner->Get_Fsm();
 
 				pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::RUN, true);
-
 				m_fFristSpinCall = false;
+
 			}
 		}
 	}

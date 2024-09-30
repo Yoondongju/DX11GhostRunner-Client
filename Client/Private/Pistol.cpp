@@ -17,6 +17,8 @@
 #include "Particle_Blood.h"
 #include "Monster_Bullet.h"
 
+#include "Particle_ShockWave.h"
+
 CPistol::CPistol(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CEnemy(pDevice, pContext)
 {
@@ -78,6 +80,9 @@ void CPistol::Update(_float fTimeDelta)
 
         m_fDiscard += fTimeDelta * 0.4f;
     }
+
+    if (true == m_isMindControling)
+        m_Parts[PART_SHOCKWAVE]->SetActiveMyParticle(true);
 
     m_pFsm->Update(fTimeDelta);
     m_pModel->Play_Animation(fTimeDelta);
@@ -158,6 +163,9 @@ HRESULT CPistol::Render()
 
 _bool CPistol::Check_Collision()
 {
+    if (true == m_isDead)
+        return false;
+
     CWeapon_Player* pPlayerWeapon = static_cast<CWeapon_Player*>(static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY))->Get_Part(CPlayer::PART_WEAPON));
     CCollider* pCollider = pPlayerWeapon->Get_Collider();
 
@@ -186,7 +194,7 @@ _bool CPistol::Check_Collision()
     }
 
 
-    if (CPistol::PISTOL_ANIMATION::DEATH_2 != m_pModel->Get_CurAnimationIndex() && m_pColliderCom->IsBoundingCollisionEnter())
+    if (CPistol::PISTOL_ANIMATION::DEATH_2 != m_pModel->Get_NextAnimationIndex() && m_pColliderCom->IsBoundingCollisionEnter())
     {
         _double& TrackPos = m_pModel->Get_Referene_CurrentTrackPosition();
         TrackPos = 0.0;
@@ -204,6 +212,9 @@ _bool CPistol::Check_Collision()
 
 void CPistol::Check_CollByTargetEnemy()
 {
+    if (true == m_isDead)
+        return;
+
     if (CPistol::PISTOL_ANIMATION::DEATH_2 != m_pModel->Get_CurAnimationIndex())
     {
         _double& TrackPos = m_pModel->Get_Referene_CurrentTrackPosition();
@@ -215,6 +226,25 @@ void CPistol::Check_CollByTargetEnemy()
         static_cast<CParticle_Blood*>(m_Parts[PART_EFFECT])->SetActiveMyParticle(true);
     }
 }
+
+
+void CPistol::Check_Collision_Me()
+{
+    if (true == m_isDead)
+        return;
+
+    if (CPistol::PISTOL_ANIMATION::DEATH_2 != m_pModel->Get_CurAnimationIndex())
+    {
+        _double& TrackPos = m_pModel->Get_Referene_CurrentTrackPosition();
+        TrackPos = 0.0;
+
+        m_pModel->SetUp_Animation(CPistol::PISTOL_ANIMATION::DEATH_2, true);
+        m_pFsm->Change_State(CPistol::PISTOL_ANIMATION::DEATH_1);
+
+        static_cast<CParticle_Blood*>(m_Parts[PART_EFFECT])->SetActiveMyParticle(true);
+    }
+}
+
 
 HRESULT CPistol::Ready_Component()
 {
@@ -287,10 +317,20 @@ HRESULT CPistol::Ready_Parts()
     BulletDesc.pOwner = this;
     BulletDesc.InitWorldMatrix = XMMatrixIdentity();
     BulletDesc.fSpeedPerSec = 10.f;
-
-
     if (FAILED(__super::Add_PartObject(PART_BULLET, TEXT("Prototype_GameObject_Monster_Bullet"), &BulletDesc)))
         return E_FAIL;
+
+
+    CParticle_ShockWave::SHOCKWAVE_DESC	ShockWaveDesc{};
+
+    ShockWaveDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    ShockWaveDesc.pSocketBoneMatrix = m_pModel->Get_BoneCombindTransformationMatrix_Ptr("spine_01");
+    ShockWaveDesc.pOwner = this;
+    ShockWaveDesc.InitWorldMatrix = XMMatrixIdentity();
+    ShockWaveDesc.fSpeedPerSec = 20.f;
+    if (FAILED(__super::Add_PartObject(PART_SHOCKWAVE, TEXT("Prototype_GameObject_Particle_ShockWave"), &ShockWaveDesc)))
+        return E_FAIL;
+
 
     return S_OK;
 }
