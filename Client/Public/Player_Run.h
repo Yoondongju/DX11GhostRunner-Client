@@ -33,9 +33,15 @@ private:
     _bool Check_Block2();
     _bool Check_Block3();
 
+    _bool Check_Attack1();
+    _bool Check_Attack2();
+    _bool Check_Attack3();
+
 
 private:
     _bool Check_CutAll();
+    _bool Check_Nami();
+    _bool Check_TimeStop();
 
 
 public:

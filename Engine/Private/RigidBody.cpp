@@ -123,14 +123,12 @@ void CRigidBody::Calculate_Gravity(_float fTargetY)
 	_float fHeightFactor = 0.0f;
 	if (heightDifference > 0.0f)
 	{
-		fHeightFactor = 70.f / (heightDifference + 0.1f);  // +0.1f로 나눗셈에서 0 나누기 방지
+		// 거리가 클수록 중력이 커지고 가까울수록 중력이 작아지도록 수정
+		fHeightFactor = heightDifference / 70.f + 0.1f;  // +0.1f로 나눗셈에서 0 방지
 
-		// 거리가 100 차이나 그럼 중력의 0.7배
-		// 거리가 10 차이나   중력의 7배
-		// 거리가 작을때 최소의 중력을 보장해줘야해 
-
-		fHeightFactor = min(fHeightFactor, 1.6f);  // 최소 중력
-		fHeightFactor = max(fHeightFactor, 0.7f);  // 최대 중력
+		// 최대 및 최소 중력 값을 설정
+		fHeightFactor = max(fHeightFactor, 3.f);  // 최소 중력
+		fHeightFactor = min(fHeightFactor, 4.5f);  // 최대 중력
 	}
 	_float fAdjustedGravityAccel = m_fGravityAccel * fHeightFactor;
 

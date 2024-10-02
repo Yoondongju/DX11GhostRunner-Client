@@ -1149,7 +1149,7 @@ HRESULT CLoader::Load_OtherModel()
 		fread(&materialsCount, sizeof(materialsCount), 1, fin);
 
 		string					strMaterialTexturePath = "";
-		_wstring				wstrMaterialTexturePath[15][AI_TEXTURE_TYPE_MAX] = { L"" };
+		_wstring				wstrMaterialTexturePath[200][AI_TEXTURE_TYPE_MAX] = { L"" };			// << 이거 최종맵데이터는 메테리얼갯수많아
 
 		// Material Texture Path 읽기
 		for (size_t i = 0; i < materialsCount; i++)

@@ -240,7 +240,7 @@ HRESULT CStatic_Object::Ready_HandleModelTypeTasks()
         if (TEXT("Prototype_Component_Model_Crane2") == m_strModelPrototypeName)
         {
             CGrapplingPointUI::GRAPPLINGPOINT_DESC Desc = { CGrapplingPointUI::GRAPPLINGPOINT_TYPE::TYPE_OUTRING , this };
-            if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_UI"),
+            if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_GrapplingPointUI"),
                 TEXT("Prototype_GameObject_GrapplingPointUI"), TEXT("¾È ³Ö¾îµµ´ï"), &Desc)))
                 return E_FAIL;
         }

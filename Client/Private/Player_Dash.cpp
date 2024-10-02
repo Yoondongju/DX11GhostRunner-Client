@@ -26,23 +26,26 @@ HRESULT CPlayer_Dash::Start_State(void* pArg)
 	pRigidBody->Set_Accel(_float3(0.f, 0.f, 0.f));
 	pRigidBody->Set_ZeroTimer();
 
+
+	pRigidBody->Add_Force_Direction(XMVectorSet(0.f,1.f,0.f,0.f), 400, Engine::CRigidBody::VELOCITYCHANGE);
+
 	switch (m_eDir)
 	{
 	case Engine::CState::FRONT:
-		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_LOOK), 70, Engine::CRigidBody::ACCELERATION);
-		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_LOOK), 150, Engine::CRigidBody::VELOCITYCHANGE);
+		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_LOOK), 100, Engine::CRigidBody::ACCELERATION);
+		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_LOOK), 450, Engine::CRigidBody::VELOCITYCHANGE);
 		break;
 	case Engine::CState::BACK:
-		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_LOOK), -70, Engine::CRigidBody::ACCELERATION);
-		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_LOOK), -150, Engine::CRigidBody::VELOCITYCHANGE);
+		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_LOOK), -100, Engine::CRigidBody::ACCELERATION);
+		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_LOOK), -450, Engine::CRigidBody::VELOCITYCHANGE);
 		break;
 	case Engine::CState::LEFT:
-		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_RIGHT), -70, Engine::CRigidBody::ACCELERATION);
-		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_RIGHT), -150, Engine::CRigidBody::VELOCITYCHANGE);
+		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_RIGHT), -100, Engine::CRigidBody::ACCELERATION);
+		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_RIGHT), -450, Engine::CRigidBody::VELOCITYCHANGE);
 		break;
 	case Engine::CState::RIGHT:
-		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_RIGHT), 70, Engine::CRigidBody::ACCELERATION);
-		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_RIGHT), 150, Engine::CRigidBody::VELOCITYCHANGE);
+		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_RIGHT), 100, Engine::CRigidBody::ACCELERATION);
+		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_RIGHT), 450, Engine::CRigidBody::VELOCITYCHANGE);
 		break;
 	case Engine::CState::STATE_DIR_END:
 		break;

@@ -128,7 +128,11 @@ void CWeapon_Player::Update(_float fTimeDelta)
 			
 		if (true == m_isHomingShurikenActive)
 		{
-			LockTransformHoming(fTimeDelta);
+			if(false == m_isHomingStartHunt)
+				XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
+			else
+				LockTransformHoming(fTimeDelta);
+
 			return;
 		}
 
@@ -348,6 +352,7 @@ HRESULT CWeapon_Player::Render()
 void CWeapon_Player::LockTransformHoming(_float fTimeDelta)
 {	
 	XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()));
+
 
 	_matrix CopyMatrix = XMLoadFloat4x4(&m_WorldMatrix);
 	CopyMatrix.r[0] = XMVector3Normalize(CopyMatrix.r[0]) * 0.2f;

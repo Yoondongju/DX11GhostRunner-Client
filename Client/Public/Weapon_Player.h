@@ -82,6 +82,7 @@ public:
 public:
 	_bool		IsHomingActive() { return m_isHomingShurikenActive; }
 	void		Set_HomingShurikenActive(_bool b) { m_isHomingShurikenActive = b; }
+	void		Set_HomingStartHunt(_bool b) { m_isHomingStartHunt = b; }
 
 	_float4x4*   Get_RotationMatrix_Ptr() { return &m_RotationMatrix; }
 
@@ -113,6 +114,8 @@ private:
 
 
 	_bool			m_isHomingShurikenActive = { false };
+	_bool			m_isHomingStartHunt = { false };
+
 	_float4x4		m_RotationMatrix = {};
 
 

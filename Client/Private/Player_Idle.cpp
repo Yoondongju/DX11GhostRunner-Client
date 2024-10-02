@@ -36,7 +36,6 @@ void CPlayer_Idle::Update(_float fTimeDelta)
 {
 	m_fAccTime += fTimeDelta;
 	
-
 	CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
 	CModel* pModel = static_cast<CBody_Player*>(pPlayer->Get_Part(CPlayer::PARTID::PART_BODY))->Get_Model();
 
@@ -128,6 +127,7 @@ void CPlayer_Idle::Update(_float fTimeDelta)
 		}
 
 
+		// DASH
 		if (pPlayer->IsDashActive() && Check_Dash())
 			return;
 
@@ -216,7 +216,6 @@ void CPlayer_Idle::Update(_float fTimeDelta)
 void CPlayer_Idle::End_State()
 {
 	m_fSwordSpinTime = 5.f;
-
 }
 
 
@@ -431,22 +430,53 @@ _bool CPlayer_Idle::Check_Sh_Dash()
 _bool CPlayer_Idle::Check_HookUp()
 {
 	CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
-	if (false == pPlayer->Get_GrapplingPoint()->Get_FindPlayer())
-		return false;
 
 	if (m_pGameInstance->Get_KeyState(KEY::F) == KEY_STATE::TAP)
 	{
-		CFsm* pFsm = m_pOwner->Get_Fsm();
-		CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+		_vector vPlayerPos = pPlayer->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+		vPlayerPos = XMVectorSetY(vPlayerPos, 0.f);
+		
+		list<CGameObject*>& GrapUIs =  m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_GrapplingPointUI");
+		_float fMinDistance = { 9999.f };
+		CGrapplingPointUI* pClosestGrapUI = nullptr;
 
-		if (CWeapon_Player::WEAPON_TYPE::KATANA == pPlayer->Get_CurWeaponType())
-			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::HOOK_UP, false);
-		else if(CWeapon_Player::WEAPON_TYPE::SHURIKEN == pPlayer->Get_CurWeaponType())
-			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::HOOK_UP, false);
+		for (auto& GrapUI : GrapUIs)
+		{
+			CGrapplingPointUI* pGrapUI = static_cast<CGrapplingPointUI*>(GrapUI);
 
-		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::HOOK_UP);	
+			if (false == pGrapUI->IsActive())
+				continue;
+			else
+			{
+				_vector vGrapUIPos = pGrapUI->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+				vGrapUIPos = XMVectorSetY(vGrapUIPos, 0.f);				// X,Z성분만 비교한다. 
 
-		return true;
+
+				_float fDistance = XMVectorGetX(XMVector3Length(vGrapUIPos - vPlayerPos));				
+				if (fDistance < fMinDistance)
+				{
+					fMinDistance = fDistance;
+					pClosestGrapUI = pGrapUI;
+				}
+			}
+		}
+
+
+		if (nullptr != pClosestGrapUI)		// 조건에 만족하는 제일가까운 GrapPoint를 찾았다.
+		{
+			CFsm* pFsm = m_pOwner->Get_Fsm();
+			CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+
+			if (CWeapon_Player::WEAPON_TYPE::KATANA == pPlayer->Get_CurWeaponType())
+				pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::HOOK_UP, false);
+			else if (CWeapon_Player::WEAPON_TYPE::SHURIKEN == pPlayer->Get_CurWeaponType())
+				pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::HOOK_UP, false);
+
+			pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::HOOK_UP, -1 , pClosestGrapUI);
+
+			return true;
+		}
+
 	}
 
 	return false;
@@ -454,9 +484,6 @@ _bool CPlayer_Idle::Check_HookUp()
 
 _bool CPlayer_Idle::Check_Jump()
 {
-	if (true == static_cast<CBody_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY))->IsLandingWall())
-		return false;
-
 	if (m_pGameInstance->Get_KeyState(KEY::SPACE) == KEY_STATE::TAP)
 	{
 		CTransform* pTransform = m_pOwner->Get_Transform();
@@ -467,13 +494,24 @@ _bool CPlayer_Idle::Check_Jump()
 		CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 
 
-		if (fLandY + fOffSetY == XMVectorGetY(pTransform->Get_State(CTransform::STATE_POSITION)))
+		if (false == static_cast<CBody_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY))->IsLandingWall())		// 벽타기중이 아니라면 원래 점프
+		{
+			if (fLandY + fOffSetY == XMVectorGetY(pTransform->Get_State(CTransform::STATE_POSITION)))
+			{
+				CFsm* pFsm = m_pOwner->Get_Fsm();
+				CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+
+
+				pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::JUMP_START);
+			}
+		}
+		else
 		{
 			CFsm* pFsm = m_pOwner->Get_Fsm();
 			CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 
-
-			pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::JUMP_START);
+			_bool	bLandWall = true;
+			pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::JUMP_START,-1, &bLandWall);
 		}
 
 		return true;

@@ -112,8 +112,7 @@ HRESULT CEventNotify::Render()
 	_float	fFontSize = 0.5f;
 	
 	_uint iTextLength = wcslen(pCurText);		// 글자 길이
-
-
+	 
 	_float fPosX = (g_iWinSizeX - iTextLength * 15) * 0.5f;
 	
 	 m_pGameInstance->Render_Text(TEXT("Font_145"), pCurText,

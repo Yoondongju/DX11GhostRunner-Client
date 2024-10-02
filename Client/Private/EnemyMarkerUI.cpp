@@ -100,7 +100,29 @@ void CEnemyMarker::Update(_float fTimeDelta)
 
 
 
+	CTransform* pPlayerTransform = m_pGameInstance->Find_Player(LEVEL_GAMEPLAY)->Get_Transform();
+
+	_vector vPlayerPos = pPlayerTransform->Get_State(CTransform::STATE_POSITION);
+	_vector vPlayerLook = pPlayerTransform->Get_State(CTransform::STATE_LOOK);
+
 	_vector vOwnerPos = m_pOwner->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+	
+	_vector vLookNor = XMVector3Normalize(vPlayerLook);
+	_vector vDirNor = XMVector3Normalize(vOwnerPos - vPlayerPos);
+
+
+	_float fDot = XMVectorGetX(XMVector3Dot(vLookNor, vDirNor));
+	_float fAngle = XMConvertToDegrees(acos(fDot));
+
+
+	if (fAngle > 45.f)
+	{
+		m_bActivate = false;
+		return;
+	}
+
+
+	
 
 	vOwnerPos = XMVectorSetY(vOwnerPos, vOwnerPos.m128_f32[1] + 30.f);
 

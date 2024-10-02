@@ -23,7 +23,7 @@ public:
 private:
     vector<class CGameObject*>            m_Targets = {};
     _float                                m_fVisibleAngle = { 90.f };
-    _float                                m_fVisiableDistance = { 5000.f };
+    _float                                m_fVisiableDistance = { 800.f };
     _bool                                 m_isFindTargets = { false };
     _float                                m_fTargetCreateTime = { 0.f };
     _uint                                 m_iTargetIndex = { 0 };

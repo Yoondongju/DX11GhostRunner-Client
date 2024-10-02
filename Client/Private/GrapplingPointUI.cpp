@@ -6,6 +6,9 @@
 #include "Static_Object.h"
 #include "PipeLine.h"
 
+#include "Player.h"
+#include "Player_Hook.h"
+
 CGrapplingPointUI::CGrapplingPointUI(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CUIObject{ pDevice, pContext }
 {
@@ -91,6 +94,9 @@ void CGrapplingPointUI::Update(_float fTimeDelta)
 	{
 		m_bFindPlayer = m_bActivate = Find_Player(fTimeDelta);
 	}
+
+
+	
 	
 	if (nullptr != m_pCrane)	// Á© ºÎ¸ð
 	{
@@ -214,7 +220,35 @@ HRESULT CGrapplingPointUI::Render()
 
 _bool CGrapplingPointUI::Find_Player(_float fTimeDelta)
 {
-	_vector vPlayerPos = m_pGameInstance->Find_Player(LEVEL_GAMEPLAY)->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+	CPlayer* pPlayer = static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY));
+	CFsm* pFsm = pPlayer->Get_Fsm();
+
+	if (CPlayer::PLAYER_ANIMATIONID::HOOK_UP == pFsm->Get_CurStateIndex())
+	{
+		CGrapplingPointUI* pTargetUI = static_cast<CPlayer_Hook*>(pFsm->Get_CurState())->Get_GrapUI();
+
+		if (pTargetUI != this)
+		{
+			if (m_fAlpha > 0.f)
+			{
+				m_fAlpha -= fTimeDelta * 0.9;
+				return true;
+			}
+			else
+			{
+				m_fAlpha = 0.f;
+				return false;
+			}
+		}
+	}
+
+
+
+	CTransform* pPlayerTransform = pPlayer->Get_Transform();
+
+	_vector vPlayerPos = pPlayerTransform->Get_State(CTransform::STATE_POSITION);
+	_vector vPlayerLook = pPlayerTransform->Get_State(CTransform::STATE_LOOK);
+
 
 	_vector vCranePos =  m_pCrane->Get_Transform()->Get_State(CTransform::STATE_POSITION);
 
@@ -222,9 +256,15 @@ _bool CGrapplingPointUI::Find_Player(_float fTimeDelta)
 	_float fZdistance = fabs(XMVectorGetZ(vCranePos) - XMVectorGetZ(vPlayerPos));
 
 
+	_vector vLookNor = XMVector3Normalize(vPlayerLook);
+	_vector vDirNor = XMVector3Normalize(vCranePos - vPlayerPos);
+	
 
-	if (fabs(400 >= fXdistance &&
-		600.f >= fZdistance))
+	_float fDot = XMVectorGetX(XMVector3Dot(vLookNor, vDirNor));
+	_float fAngle = XMConvertToDegrees(acos(fDot));
+
+	
+	if (600 >= fXdistance && 800.f >= fZdistance && fAngle <= 40.f)
 	{
 		if (m_fAlpha < 1.f)
 			m_fAlpha += fTimeDelta * 0.7f;
@@ -239,7 +279,7 @@ _bool CGrapplingPointUI::Find_Player(_float fTimeDelta)
 		if (m_fAlpha > 0.f)
 		{
 			m_fAlpha -= fTimeDelta * 0.9;
-			return true;
+			return false;
 		}
 		else
 		{

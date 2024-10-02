@@ -677,9 +677,6 @@
     <ClCompile Include="..\Private\Player_Dash.cpp">
       <Filter>02.GameObjects\Player\PlayerState\Dash</Filter>
     </ClCompile>
-    <ClCompile Include="..\Private\Player_Hook.cpp">
-      <Filter>02.GameObjects\Player\PlayerState\Hook</Filter>
-    </ClCompile>
     <ClCompile Include="..\Private\Player_Idle.cpp">
       <Filter>02.GameObjects\Player\PlayerState\Idle</Filter>
     </ClCompile>
@@ -907,6 +904,9 @@
     </ClCompile>
     <ClCompile Include="..\Private\Particle_ShockWave.cpp">
       <Filter>02.GameObjects\04.Particle\ShockWave</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Player_Hook.cpp">
+      <Filter>02.GameObjects\Player\PlayerState\Hook</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

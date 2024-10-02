@@ -50,8 +50,6 @@ HRESULT CHomingShuriken::Start_State(void* pArg)
 	static_cast<CPlayer*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_PARTICLE_CUTALL)->SetActiveMyParticle(true);
 
 	CWeapon_Player* pMainShuriken = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON));
-	pMainShuriken->Get_Transform()->Set_WorldMatrix(*pMainShuriken->Get_PartObjectComBindWorldMatrixPtr());			// 원래 이 녀석의 고유한 행렬은 로컬의 오프셋잡아주기위함이엿지만 스킬일때 잠깐 바꿔치기해
-
 	pMainShuriken->Set_HomingShurikenActive(true);
 
 	return S_OK;
@@ -64,8 +62,8 @@ void CHomingShuriken::Update(_float fTimeDelta)
 	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 	CWeapon_Player* pMainShuriken = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON));
 
+	
 	CTransform* pShurikenTransform = pMainShuriken->Get_Transform();
-
 	_vector vShurikenPos = pShurikenTransform->Get_State(CTransform::STATE::STATE_POSITION);
 
 	
@@ -73,7 +71,6 @@ void CHomingShuriken::Update(_float fTimeDelta)
 	if (m_fAccScaling < 15.f)
 	{
 		m_fAccScaling += fTimeDelta * 5.f;
-
 		pShurikenTransform->Scaling(m_fAccScaling, m_fAccScaling, m_fAccScaling);
 	}		
 	
@@ -85,6 +82,9 @@ void CHomingShuriken::Update(_float fTimeDelta)
 	if (m_fAccScaling >= 15.f)
 	{
 		m_isHuntStart = true;
+		pMainShuriken->Set_HomingStartHunt(true);
+
+		pMainShuriken->Get_Transform()->Set_WorldMatrix(*pMainShuriken->Get_PartObjectComBindWorldMatrixPtr());			// 원래 이 녀석의 고유한 행렬은 로컬의 오프셋잡아주기위함이엿지만 스킬일때 잠깐 바꿔치기해
 	}
 
 	if (true == m_isHuntStart)
@@ -166,6 +166,8 @@ void CHomingShuriken::End_State()
 
 	CWeapon_Player* pMainShuriken = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON));
 	pMainShuriken->Set_HomingShurikenActive(false);
+	pMainShuriken->Set_HomingStartHunt(false);
+
 	pMainShuriken->Get_Transform()->Scaling(1.f, 1.f, 1.f);
 	m_fAccScaling = 1.f;
 
@@ -194,7 +196,7 @@ void CHomingShuriken::FindVisiableEnemy()
 		_float fDistance = XMVectorGetX(XMVector3Length(vDistance));
 
 
-		vSniperPos = XMVectorSetY(vSniperPos, vSniperPos.m128_f32[1] + 20.f);
+		vSniperPos = XMVectorSetY(vSniperPos, vSniperPos.m128_f32[1] + 40.f);
 
 
 		Float3Wrapper  SniperPos;
@@ -221,7 +223,7 @@ void CHomingShuriken::FindVisiableEnemy()
 		_vector vDistance = XMVectorSubtract(vShurikenPos, vPistolPos);
 		_float fDistance = XMVectorGetX(XMVector3Length(vDistance));
 
-		vPistolPos = XMVectorSetY(vPistolPos, vPistolPos.m128_f32[1] + 20.f);
+		vPistolPos = XMVectorSetY(vPistolPos, vPistolPos.m128_f32[1] + 40.f);
 
 
 		Float3Wrapper  PistolPos;
@@ -249,7 +251,7 @@ void CHomingShuriken::FindVisiableEnemy()
 		_float fDistance = XMVectorGetX(XMVector3Length(vDistance));
 
 
-		vMiraPos = XMVectorSetY(vMiraPos, vMiraPos.m128_f32[1] + 20.f);
+		vMiraPos = XMVectorSetY(vMiraPos, vMiraPos.m128_f32[1] + 40.f);
 
 
 		Float3Wrapper  MiraPos;
@@ -278,7 +280,7 @@ void CHomingShuriken::FindVisiableEnemy()
 		_float fDistance = XMVectorGetX(XMVector3Length(vDistance));		// 처음 정렬하기위해 필요한값이고
 
 
-		vJetpackPos = XMVectorSetY(vJetpackPos, vJetpackPos.m128_f32[1] + 20.f);
+		vJetpackPos = XMVectorSetY(vJetpackPos, vJetpackPos.m128_f32[1] + 30.f);
 
 
 		Float3Wrapper  JetpackPos;

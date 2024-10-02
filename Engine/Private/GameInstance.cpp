@@ -273,6 +273,11 @@ CComponent * CGameInstance::Clone_Component(_uint iLevelIndex, const _wstring & 
 	return m_pComponent_Manager->Clone_Component(iLevelIndex, strPrototypeTag, pArg);
 }
 
+CComponent* CGameInstance::Find_Prototype(_uint iLevelIndex, const _wstring& strPrototypeTag)
+{
+	return m_pComponent_Manager->Find_Prototype(iLevelIndex, strPrototypeTag);
+}
+
 _bool CGameInstance::IsFind_Model(_uint iLevelIndex, const _wstring& strModelPrototypeName)
 {
 	return m_pComponent_Manager->IsFind_Model(iLevelIndex, strModelPrototypeName);

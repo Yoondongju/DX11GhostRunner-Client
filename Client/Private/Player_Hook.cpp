@@ -40,22 +40,11 @@ HRESULT CPlayer_Hook::Start_State(void* pArg)
 	pRigidBody->Set_ZeroTimer();
 
 
-	CGrapplingPointUI* pGrapplingPoint = pPlayer->Get_GrapplingPoint();
+	m_pGrapUI = static_cast<CGrapplingPointUI*>(pArg);
+	Safe_AddRef(m_pGrapUI);
 
-	_vector vGrapPointPos = pGrapplingPoint->Get_Crane()->Get_Transform()->Get_State(CTransform::STATE_POSITION);
-	_vector vPlayerPos = pTransform->Get_State(CTransform::STATE_POSITION);
-
-	_vector vDir = XMVector3Normalize(vGrapPointPos - vPlayerPos);
-
-
-
-	pRigidBody->Add_Force_Direction(vDir, 700, Engine::CRigidBody::ACCELERATION);
-	pRigidBody->Add_Force_Direction(vDir, 60, Engine::CRigidBody::VELOCITYCHANGE);
-	
 
 	static_cast<CWire_Player*>(pPlayer->Get_Part(CPlayer::PARTID::PART_WIRE))->Set_Active(true);
-
-
 	return S_OK;
 }
 
@@ -63,19 +52,34 @@ void CPlayer_Hook::Update(_float fTimeDelta)
 {
 	m_fAccTime += fTimeDelta;
 
-	
-	CTransform* pTransform = m_pOwner->Get_Transform();
-	CRigidBody* pRigidBody = m_pOwner->Get_RigidBody();
+	if (m_fAccTime >= 0.3f)
+		m_isStartHook = true;
 
-	CGrapplingPointUI* pGrapplingPoint = static_cast<CPlayer*>(m_pOwner)->Get_GrapplingPoint();
 
-	_vector vGrapPointPos = pGrapplingPoint->Get_Crane()->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+	CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
+	CTransform* pTransform = pPlayer->Get_Transform();
+	CRigidBody* pRigidBody = pPlayer->Get_RigidBody();
+
+	_vector vGrapPointPos = m_pGrapUI->Get_Crane()->Get_Transform()->Get_State(CTransform::STATE_POSITION);
 	_vector vPlayerPos = pTransform->Get_State(CTransform::STATE_POSITION);
 
-	_vector vAbsDistance = XMVectorAbs(XMVectorSubtract(vGrapPointPos, vPlayerPos));
+
+	_float4x4* pPlayerRotationMatrix = static_cast<CPlayer*>(m_pOwner)->Get_RotationMatrixPtr();
+	pTransform->LookAt_Smooth(vGrapPointPos , fTimeDelta * 2, pPlayerRotationMatrix);
+
+
+	if (true == m_isStartHook)
+	{
+		_vector vDir = XMVector3Normalize(vGrapPointPos - vPlayerPos);
+
+		pRigidBody->Add_Force_Direction(vDir, 700, Engine::CRigidBody::ACCELERATION);
+		pRigidBody->Add_Force_Direction(vDir, 60, Engine::CRigidBody::VELOCITYCHANGE);
+
+		m_isStartHook = false;
+	}
+
 	
-
-
+	_vector vAbsDistance = XMVectorAbs(XMVectorSubtract(vGrapPointPos, vPlayerPos));
 
 	if (300.f >= XMVectorGetX(XMVector3Length(vAbsDistance)))
 	{
@@ -107,6 +111,9 @@ void CPlayer_Hook::End_State()
 {
 	static_cast<CWire_Player*>(static_cast<CPlayer*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WIRE))->Set_Active(false);
 	m_fAccTime = 0.f;
+	m_isStartHook = false;
+
+	Safe_Release(m_pGrapUI);
 }
 
 
@@ -127,5 +134,5 @@ void CPlayer_Hook::Free()
 {
 	__super::Free();
 
-	
+	Safe_Release(m_pGrapUI);
 }

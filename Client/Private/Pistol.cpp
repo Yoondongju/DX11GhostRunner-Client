@@ -58,7 +58,7 @@ HRESULT CPistol::Initialize(void* pArg)
     m_pModel->SetUp_Animation(CPistol::PISTOL_ANIMATION::IDLE_1, true);
     m_pFsm->Set_State(CPistol::PISTOL_ANIMATION::IDLE_1);
 
-    m_pTransformCom->Scaling(2.3f, 2.3f, 2.3f);
+    m_pTransformCom->Scaling(2.5f, 2.5f, 2.5f);
 
 
     return S_OK;

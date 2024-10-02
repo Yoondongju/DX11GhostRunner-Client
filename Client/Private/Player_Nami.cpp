@@ -310,7 +310,7 @@ void CPlayer_Nami::FindShortestDistanceEnemy()
 
 
 			// 가장 가까운 몬스터 찾기
-			if (fDistance < m_fMinDistance)
+			if (m_fVisiableDistance >= fDistance && fDistance < m_fMinDistance)
 			{
 				m_fMinDistance = fDistance;
 				XMStoreFloat3(&m_TargetPos, vSniperPos);
@@ -332,7 +332,7 @@ void CPlayer_Nami::FindShortestDistanceEnemy()
 			_float fDistance = XMVectorGetX(XMVector3Length(vDistance));
 
 			// 가장 가까운 몬스터 찾기
-			if (fDistance < m_fMinDistance)
+			if (m_fVisiableDistance >= fDistance &&  fDistance < m_fMinDistance)
 			{
 				m_fMinDistance = fDistance;
 				XMStoreFloat3(&m_TargetPos, vPistolPos);
@@ -354,7 +354,7 @@ void CPlayer_Nami::FindShortestDistanceEnemy()
 			_float fDistance = XMVectorGetX(XMVector3Length(vDistance));
 
 			// 가장 가까운 몬스터 찾기
-			if (fDistance < m_fMinDistance)
+			if (m_fVisiableDistance >= fDistance &&  fDistance < m_fMinDistance)
 			{
 				m_fMinDistance = fDistance;
 				XMStoreFloat3(&m_TargetPos, vMiraPos);

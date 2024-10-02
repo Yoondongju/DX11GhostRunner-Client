@@ -23,6 +23,14 @@ private:
     _bool       m_isFirstCallLoop = { true };
     _bool       m_isFirstCallEnd = { true };
 
+
+
+private:
+    _bool Check_HookUp();
+    _bool Check_Nami();
+
+    _bool Check_Jump();
+
 public:
     static CPlayer_JumpFall* Create(class CGameObject* pOwner);
     virtual void Free() override;

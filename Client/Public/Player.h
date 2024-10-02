@@ -235,8 +235,6 @@ public: // HomingSh
 
 
 public:
-	class CGrapplingPointUI*		Get_GrapplingPoint()  { return m_pGrapplingPoint; }
-
 	CWeapon_Player::WEAPON_TYPE		Get_CurWeaponType()
 	{
 		return static_cast<CWeapon_Player*>(m_Parts[PARTID::PART_WEAPON])->Get_CurType();
@@ -290,8 +288,8 @@ private:
 
 
 private:
-	_float					m_fOffsetY = { 20.f };
-	_float					m_fLandPosY = { 0.f };		// 내가 착지해야할 Y위치는 어디니? 메쉬가 내 발아래있으면 메쉬의 Y위치고 없으면 0 
+	_float					m_fOffsetY = { 35.f };
+	_float					m_fLandPosY = { -1000.f };		// 내가 착지해야할 Y위치는 어디니? 메쉬가 내 발아래있으면 메쉬의 Y위치고 없으면 0 
 
 
 
@@ -366,8 +364,6 @@ private:		// HOMING_SH
 
 
 private:
-	class CGrapplingPointUI*		m_pGrapplingPoint = { nullptr };
-
 	_bool							m_bFreeWalk = { false };
 
 

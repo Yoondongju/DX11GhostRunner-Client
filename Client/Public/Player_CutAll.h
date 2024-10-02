@@ -40,7 +40,7 @@ private:
 
 
     _float             m_fVisibleAngle = { 90.f };               // 시야 각도 
-    _float             m_fVisiableDistance = { 2000.f };         // 발견할수있는 최대 거리
+    _float             m_fVisiableDistance = { 600.f };         // 발견할수있는 최대 거리
   
 
     _uint              m_iNumHunt = {};                 // 내가 사냥할 타겟 갯수

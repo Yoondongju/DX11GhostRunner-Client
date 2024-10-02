@@ -220,7 +220,7 @@ void CBody_Player::Ready_Modify_Animation()
 	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L1]->Set_NextAnimLerpDuration(0.08f);
 	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L2]->Set_NextAnimLerpDuration(0.1f);
 	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_L3]->Set_NextAnimLerpDuration(0.1f);
-;
+
 
 }
 
@@ -361,8 +361,14 @@ void CBody_Player::PhysXComputeCollision()
 
 
 						_float4x4* pParentMatrix = const_cast<_float4x4*>(m_pParentMatrix);
+
+						// 충돌했다면 위치를 그냥 빌보드 오브젝트의 특정부분으로 갈아치우는게 난이도가 훨씬쉽다.
+
+
+						
 						pParentMatrix->m[3][0] += hitInfo.block.normal.x * (m_fPreLandingDistance * 0.8f);
 						//pParentMatrix->m[3][1] += rayDirection.y * (fDistance);
+						//pParentMatrix->m[3][1] += hitInfo.block.position.y * 0.5f;
 						pParentMatrix->m[3][2] += hitInfo.block.normal.z * (m_fPreLandingDistance * 0.8f);
 
 					}
@@ -458,7 +464,7 @@ void CBody_Player::PhysXComputeCollision()
 			pPlayer->Set_LandPosY(fMeshY);
 		}
 		else
-			pPlayer->Set_LandPosY(-100.f);	// 지형이 없을때 맥시멈으로 떨어지는위치  
+			pPlayer->Set_LandPosY(-9999.f);	// 지형이 없을때 맥시멈으로 떨어지는위치  
 	}
 
 }
@@ -469,6 +475,8 @@ void CBody_Player::ProcessInRange()
 
 	_vector vLookNormal = XMVector3Normalize(m_pOwner->Get_Transform()->Get_State(CTransform::STATE_LOOK));
 	_float fPlayerY = XMVectorGetY(m_pOwner->Get_Transform()->Get_State(CTransform::STATE::STATE_POSITION));
+	
+
 
 	list<CGameObject*>& ClimbObjects = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Climb_Object");
 	for (auto& ClimbObject : ClimbObjects)
@@ -478,7 +486,7 @@ void CBody_Player::ProcessInRange()
 
 		_float fObjectY = XMVectorGetY(ClimbObject->Get_Transform()->Get_State(CTransform::STATE::STATE_POSITION));
 		
-		if (40.f <= fabs(fPlayerY - fObjectY))
+		if (80.f <= fabs(fPlayerY - fObjectY))
 			continue;
 
 
@@ -604,7 +612,7 @@ void CBody_Player::LandWall()
 		m_fAccRotationSpeed = 0.f;
 	}
 
-}
+ }
 
 
 CBody_Player* CBody_Player::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)

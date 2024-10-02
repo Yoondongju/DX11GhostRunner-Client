@@ -59,7 +59,7 @@ HRESULT CJetpack::Initialize(void* pArg)
     m_pModel->SetUp_Animation(IDLE, true);
     m_pFsm->Set_State(IDLE);
 
-    m_pTransformCom->Scaling(2.4f, 2.4f, 2.4f);
+    m_pTransformCom->Scaling(2.5f, 2.5f, 2.5f);
 
 
 

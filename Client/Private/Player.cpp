@@ -163,19 +163,30 @@ void CPlayer::Priority_Update(_float fTimeDelta)
     }
       
 
+    CBody_Player* pBodyPlayer = static_cast<CBody_Player*>(m_Parts[PARTID::PART_BODY]);
+
     if (false == m_bFreeWalk)
     {
+        _uint iCurStateIndex = m_pFsm->Get_CurStateIndex();
+        _float fAddSpeed = 1.f;
+
+        if (CPlayer::PLAYER_ANIMATIONID::JUMP_START == iCurStateIndex ||
+            CPlayer::PLAYER_ANIMATIONID::JUMP_LOOP == iCurStateIndex)
+        {
+            fAddSpeed = 2.f;
+        }
+
         if (m_pGameInstance->Get_KeyState(KEY::W) == KEY_STATE::HOLD)
-            m_pTransformCom->Go_Straight(fTimeDelta);
+            m_pTransformCom->Go_Straight(fTimeDelta * fAddSpeed);
         if (m_pGameInstance->Get_KeyState(KEY::S) == KEY_STATE::HOLD)
-            m_pTransformCom->Go_Backward(fTimeDelta);
+            m_pTransformCom->Go_Backward(fTimeDelta * fAddSpeed);
 
         if (false == static_cast<CBody_Player*>(m_Parts[PARTID::PART_BODY])->IsLandingWall())
         {
             if (m_pGameInstance->Get_KeyState(KEY::A) == KEY_STATE::HOLD)
-                m_pTransformCom->Go_Left(fTimeDelta);
+                m_pTransformCom->Go_Left(fTimeDelta * fAddSpeed);
             if (m_pGameInstance->Get_KeyState(KEY::D) == KEY_STATE::HOLD)
-                m_pTransformCom->Go_Right(fTimeDelta);
+                m_pTransformCom->Go_Right(fTimeDelta * fAddSpeed);
         }
     }
     else
@@ -183,21 +194,21 @@ void CPlayer::Priority_Update(_float fTimeDelta)
         m_pRigidBody->Set_IsGravity(false);
 
         if (m_pGameInstance->Get_KeyState(KEY::W) == KEY_STATE::HOLD)
-            m_pTransformCom->Go_Straight_FreeWalk(fTimeDelta);
+            m_pTransformCom->Go_Straight_FreeWalk(fTimeDelta * 4);
         if (m_pGameInstance->Get_KeyState(KEY::S) == KEY_STATE::HOLD)
-            m_pTransformCom->Go_Backward_FreeWalk(fTimeDelta);
+            m_pTransformCom->Go_Backward_FreeWalk(fTimeDelta * 4);
 
         if (m_pGameInstance->Get_KeyState(KEY::A) == KEY_STATE::HOLD)
-            m_pTransformCom->Go_Left_FreeWalk(fTimeDelta);
+            m_pTransformCom->Go_Left_FreeWalk(fTimeDelta * 4);
         if (m_pGameInstance->Get_KeyState(KEY::D) == KEY_STATE::HOLD)
-            m_pTransformCom->Go_Right_FreeWalk(fTimeDelta);
+            m_pTransformCom->Go_Right_FreeWalk(fTimeDelta * 4);
     }
     
    
 
   
     
-    if (false == static_cast<CBody_Player*>(m_Parts[PARTID::PART_BODY])->IsLandingWall())
+    if (false == pBodyPlayer->IsLandingWall())
     {
         if (g_hWnd == GetFocus() && m_pGameInstance->Get_KeyState(KEY::RBUTTON) == KEY_STATE::HOLD)
         {
@@ -328,14 +339,20 @@ void CPlayer::Late_Update(_float fTimeDelta)
         fTimeDelta *= m_fTimeDelayLerpRatio;
 
     // 공중에 떠있니? 
-    if (m_pGameInstance->Get_KeyState(KEY::SPACE) == KEY_STATE::NONE &&
-        XMVectorGetY(m_pTransformCom->Get_State(CTransform::STATE_POSITION)) > (m_fLandPosY + m_fOffsetY) * 4)
+    // 내 위치가 -9999거나 
+    _float fPlayerY = XMVectorGetY(m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+    _float fDistance = fabs(fPlayerY - m_fLandPosY);
+
+
+    if (m_pGameInstance->Get_KeyState(KEY::SPACE) == KEY_STATE::NONE && fDistance  > 200.f) 
     {
         if (false == static_cast<CBody_Player*>(m_Parts[PARTID::PART_BODY])->IsLandingWall())
         {
             _uint iCurStateIndex = m_pFsm->Get_CurStateIndex();
-       
-            if (PLAYER_ANIMATIONID::JUMP_START != iCurStateIndex &&
+            CBody_Player* pBodyPlayer = static_cast<CBody_Player*>(m_Parts[PARTID::PART_BODY]);
+
+            if (
+                PLAYER_ANIMATIONID::JUMP_START != iCurStateIndex &&
                 PLAYER_ANIMATIONID::JUMP_LOOP != iCurStateIndex &&
                 PLAYER_ANIMATIONID::JUMP_END != iCurStateIndex &&
                 PLAYER_ANIMATIONID::HOOK_UP != iCurStateIndex &&   
@@ -349,7 +366,7 @@ void CPlayer::Late_Update(_float fTimeDelta)
                 // 무조건 착지 전이면 점프 상태로 돌입 -> 점프상태일때 이동이 안되야하나?
                 // 점프할때 이동 돼 안돼 여부 랑 점프할때 애니메이션 여부
     
-                m_Parts[PARTID::PART_BODY]->Get_Model()->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::JUMP_START, false);
+                pBodyPlayer->Get_Model()->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::JUMP_START, false);
                 m_pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::JUMP_LOOP);
             }
         }
@@ -475,10 +492,6 @@ HRESULT	CPlayer::Ready_State()
 
 HRESULT CPlayer::Ready_PlayerUI()
 {
-    m_pGrapplingPoint = static_cast<CGrapplingPointUI*>(m_pGameInstance->Find_Object(LEVEL_GAMEPLAY, TEXT("Layer_UI"), 0));
-    Safe_AddRef(m_pGrapplingPoint);     // 얘는 Crane만들때 만들어줬다 이유: Crane을 알야하는데 후에 찾으려면 너무 비용이들어서
-   
-
     return S_OK;
 }
 
@@ -707,5 +720,4 @@ void CPlayer::Free()
 
     Safe_Release(m_pFsm);
     Safe_Release(m_pRigidBody);
-    Safe_Release(m_pGrapplingPoint);
 }

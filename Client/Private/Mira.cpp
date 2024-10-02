@@ -57,7 +57,7 @@ HRESULT CMira::Initialize(void* pArg)
     m_pModel->SetUp_Animation(WALKIN_AROUND, true);
     m_pFsm->Set_State(WALKIN_AROUND);
 
-    m_pTransformCom->Scaling(2.5f, 2.4f, 2.5f);
+    m_pTransformCom->Scaling(2.6f, 2.6f, 2.6f);
 
 
   

@@ -40,6 +40,17 @@ HRESULT CLevel_GamePlay::Initialize(void *pArg)
 		return E_FAIL;									// 플레이어를 만들고 나서 몬스터들을 만들어야하기에 여기서 나눠야겟다
 
 
+	CGameObject::GAMEOBJECT_DESC Desc = {};
+	Desc.fRotationPerSec = 20.f;
+	Desc.fSpeedPerSec = 20.f;
+	Desc.InitWorldMatrix = XMMatrixIdentity();
+
+
+	Desc.iObjectType = CModel::TYPE::TYPE_NONANIM;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, L"Layer_Map", L"Prototype_GameObject_Static_Object", L"Prototype_Component_MapModel", &Desc)))
+		return E_FAIL;
+
+
 	if (FAILED(Ready_Layer_Player(pArg)))			
 		return E_FAIL;
 
@@ -103,7 +114,7 @@ HRESULT CLevel_GamePlay::Ready_Layer_Camera()
 	Desc.vAt = _float4(0.f, 0.f, 0.f, 1.f);
 	Desc.fFovy = XMConvertToRadians(90.0f);
 	Desc.fNear = 0.1f;
-	Desc.fFar = 1000.f;
+	Desc.fFar = 5000.f;
 	Desc.fSpeedPerSec = 30.f;
 	Desc.fRotationPerSec = XMConvertToRadians(90.0f);
 	Desc.fAspect = (_float)g_iWinSizeX / g_iWinSizeY;

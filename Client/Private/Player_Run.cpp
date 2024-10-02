@@ -10,6 +10,8 @@
 #include "Animation.h"
 #include "SwordTrail.h"
 
+#include "EventNotify.h"
+
 CPlayer_Run::CPlayer_Run(class CGameObject* pOwner)
 	: CState{ CPlayer::PLAYER_ANIMATIONID::RUN ,pOwner }
 {
@@ -91,18 +93,24 @@ void CPlayer_Run::Update(_float fTimeDelta)
 	{
 	case 0:
 	{
+		if (Check_Attack1())
+			return;
 		if (pPlayer->IsBlockActive() && Check_Block1())
 			return;
 	}
 	break;
 	case 1:
 	{
+		if (Check_Attack2())
+			return;
 		if (pPlayer->IsBlockActive() && Check_Block2())
 			return;
 	}
 	break;
 	case 2:
 	{
+		if (Check_Attack3())
+			return;
 		if (pPlayer->IsBlockActive() && Check_Block3())
 			return;
 	}
@@ -114,6 +122,31 @@ void CPlayer_Run::Update(_float fTimeDelta)
 	// SKILL
 	if (pPlayer->IsCutAllActive() && Check_CutAll())
 		return;
+	else
+	{
+		if (m_pGameInstance->Get_KeyState(KEY::Q) == KEY_STATE::TAP)
+		{
+			static_cast<CEventNotify*>(m_pGameInstance->Find_Notify(LEVEL_GAMEPLAY))->Set_Active(true, CEventNotify::TEXT_EVENT::UNABLE_SKILL_COOLTIME);
+		}
+	}
+	if (pPlayer->IsNamiActive() && Check_Nami())
+		return;
+	else
+	{
+		if (m_pGameInstance->Get_KeyState(KEY::ONE) == KEY_STATE::TAP)
+		{
+			static_cast<CEventNotify*>(m_pGameInstance->Find_Notify(LEVEL_GAMEPLAY))->Set_Active(true, CEventNotify::TEXT_EVENT::UNABLE_SKILL_COOLTIME);
+		}
+	}
+	if (pPlayer->IsTimeStopActive() && Check_TimeStop())
+		return;
+	else
+	{
+		if (m_pGameInstance->Get_KeyState(KEY::R) == KEY_STATE::TAP)
+		{
+			static_cast<CEventNotify*>(m_pGameInstance->Find_Notify(LEVEL_GAMEPLAY))->Set_Active(true, CEventNotify::TEXT_EVENT::UNABLE_SKILL_COOLTIME);
+		}
+	}
 
 
 	if (Check_HookUp())
@@ -135,19 +168,53 @@ void CPlayer_Run::End_State()
 
 _bool CPlayer_Run::Check_HookUp()
 {
-	if (false == static_cast<CPlayer*>(m_pOwner)->Get_GrapplingPoint()->Get_FindPlayer())
-		return false;
+	CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
 
 	if (m_pGameInstance->Get_KeyState(KEY::F) == KEY_STATE::TAP)
 	{
-		CFsm* pFsm = m_pOwner->Get_Fsm();
-		CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+		_vector vPlayerPos = pPlayer->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+		vPlayerPos = XMVectorSetY(vPlayerPos, 0.f);
+
+		list<CGameObject*>& GrapUIs = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_GrapplingPointUI");
+		_float fMinDistance = { 9999.f };
+		CGrapplingPointUI* pClosestGrapUI = nullptr;
+
+		for (auto& GrapUI : GrapUIs)
+		{
+			CGrapplingPointUI* pGrapUI = static_cast<CGrapplingPointUI*>(GrapUI);
+
+			if (false == pGrapUI->IsActive())
+				continue;
+			else
+			{
+				_vector vGrapUIPos = pGrapUI->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+				vGrapUIPos = XMVectorSetY(vGrapUIPos, 0.f);				// X,Z성분만 비교한다. 
 
 
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::HOOK_UP, false);	// Change_State보다 먼저 세팅해줘야함 Hook이나 Attack같은 같은 State를 공유하는녀석일 경우
-		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::HOOK_UP);
+				_float fDistance = XMVectorGetX(XMVector3Length(vGrapUIPos - vPlayerPos));
+				if (fDistance < fMinDistance)
+				{
+					fMinDistance = fDistance;
+					pClosestGrapUI = pGrapUI;
+				}
+			}
+		}
 
-		return true;
+
+		if (nullptr != pClosestGrapUI)		// 조건에 만족하는 제일가까운 GrapPoint를 찾았다.
+		{
+			CFsm* pFsm = m_pOwner->Get_Fsm();
+			CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+
+			if (CWeapon_Player::WEAPON_TYPE::KATANA == pPlayer->Get_CurWeaponType())
+				pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::HOOK_UP, false);
+			else if (CWeapon_Player::WEAPON_TYPE::SHURIKEN == pPlayer->Get_CurWeaponType())
+				pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::HOOK_UP, false);
+
+			pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::HOOK_UP, -1, pClosestGrapUI);
+
+			return true;
+		}
 	}
 
 	return false;
@@ -246,6 +313,108 @@ _bool CPlayer_Run::Check_Block3()
 	return false;
 }
 
+_bool CPlayer_Run::Check_Attack1()
+{
+	if (true == static_cast<CBody_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY))->IsLandingWall())
+		return false;
+
+	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+
+	if (CPlayer::PLAYER_ANIMATIONID::ATTACK_R1 != pModel->Get_CurAnimationIndex() &&
+		m_pGameInstance->Get_KeyState(KEY::LBUTTON) == KEY_STATE::TAP)
+	{
+		CFsm* pFsm = m_pOwner->Get_Fsm();
+
+		_uint iRandomValue = static_cast<_uint>(m_pGameInstance->Get_Random(0, 2));
+
+		switch (iRandomValue)
+		{
+		case 0:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_R1, false);
+			break;
+		case 1:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_L1, false);
+			break;
+		default:
+			break;
+		}
+
+		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::ATTACK_R1);
+
+		return true;
+	}
+
+
+	return false;
+}
+
+_bool CPlayer_Run::Check_Attack2()
+{
+	if (true == static_cast<CBody_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY))->IsLandingWall())
+		return false;
+
+	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+
+	if (CPlayer::PLAYER_ANIMATIONID::ATTACK_R2 != pModel->Get_CurAnimationIndex() &&
+		m_pGameInstance->Get_KeyState(KEY::LBUTTON) == KEY_STATE::TAP)
+	{
+		CFsm* pFsm = m_pOwner->Get_Fsm();
+
+		_uint iRandomValue = static_cast<_uint>(m_pGameInstance->Get_Random(0, 2));
+
+		switch (iRandomValue)
+		{
+		case 0:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_R2, false);
+			break;
+		case 1:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_L2, false);
+			break;
+		default:
+			break;
+		}
+		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::ATTACK_R2);
+
+		return true;
+	}
+
+	return false;
+}
+
+_bool CPlayer_Run::Check_Attack3()
+{
+	if (true == static_cast<CBody_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY))->IsLandingWall())
+		return false;
+
+	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+
+	if (CPlayer::PLAYER_ANIMATIONID::ATTACK_R3 != pModel->Get_CurAnimationIndex() &&
+		m_pGameInstance->Get_KeyState(KEY::LBUTTON) == KEY_STATE::TAP)
+	{
+		CFsm* pFsm = m_pOwner->Get_Fsm();
+
+		_uint iRandomValue = static_cast<_uint>(m_pGameInstance->Get_Random(0, 2));
+
+		switch (iRandomValue)
+		{
+		case 0:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_R3, false);
+			break;
+		case 1:
+			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::ATTACK_L3, false);
+			break;
+		default:
+			break;
+		}
+
+		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::ATTACK_R3);
+
+		return true;
+	}
+
+	return false;
+}
+
 _bool CPlayer_Run::Check_CutAll()
 {
 	if (true == static_cast<CBody_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY))->IsLandingWall())
@@ -258,9 +427,48 @@ _bool CPlayer_Run::Check_CutAll()
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 
-
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::FURR_AIM_LOOP, true);
 		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::FURR_AIM_LOOP);
+
+		return true;
+	}
+
+	return false;
+}
+
+_bool CPlayer_Run::Check_Nami()
+{
+	if (true == static_cast<CBody_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY))->IsLandingWall())
+		return false;
+
+	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+
+	if (m_pGameInstance->Get_KeyState(KEY::ONE) == KEY_STATE::TAP)
+	{
+		CFsm* pFsm = m_pOwner->Get_Fsm();
+
+		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::NAMI_IDLE_TO_AIM);
+
+		return true;
+	}
+
+	return false;
+}
+
+_bool CPlayer_Run::Check_TimeStop()
+{
+	if (true == static_cast<CBody_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY))->IsLandingWall())
+		return false;
+
+	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+
+	if (m_pGameInstance->Get_KeyState(KEY::R) == KEY_STATE::TAP)
+	{
+		CFsm* pFsm = m_pOwner->Get_Fsm();
+
+
+
+		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::TIME_STOP, true);
+		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::TIME_STOP);
 
 		return true;
 	}

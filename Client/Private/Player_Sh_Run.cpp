@@ -76,19 +76,53 @@ void CPlayer_Sh_Run::End_State()
 
 _bool CPlayer_Sh_Run::Check_HookUp()
 {
-	if (false == static_cast<CPlayer*>(m_pOwner)->Get_GrapplingPoint()->Get_FindPlayer())
-		return false;
+	CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
 
 	if (m_pGameInstance->Get_KeyState(KEY::F) == KEY_STATE::TAP)
 	{
-		CFsm* pFsm = m_pOwner->Get_Fsm();
-		CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+		_vector vPlayerPos = pPlayer->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+		vPlayerPos = XMVectorSetY(vPlayerPos, 0.f);
+
+		list<CGameObject*>& GrapUIs = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_GrapplingPointUI");
+		_float fMinDistance = { 9999.f };
+		CGrapplingPointUI* pClosestGrapUI = nullptr;
+
+		for (auto& GrapUI : GrapUIs)
+		{
+			CGrapplingPointUI* pGrapUI = static_cast<CGrapplingPointUI*>(GrapUI);
+
+			if (false == pGrapUI->IsActive())
+				continue;
+			else
+			{
+				_vector vGrapUIPos = pGrapUI->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+				vGrapUIPos = XMVectorSetY(vGrapUIPos, 0.f);				// X,Z성분만 비교한다. 
 
 
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::HOOK_UP, false);	// Change_State보다 먼저 세팅해줘야함 Hook이나 Attack같은 같은 State를 공유하는녀석일 경우
-		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::HOOK_UP);
+				_float fDistance = XMVectorGetX(XMVector3Length(vGrapUIPos - vPlayerPos));
+				if (fDistance < fMinDistance)
+				{
+					fMinDistance = fDistance;
+					pClosestGrapUI = pGrapUI;
+				}
+			}
+		}
 
-		return true;
+
+		if (nullptr != pClosestGrapUI)		// 조건에 만족하는 제일가까운 GrapPoint를 찾았다.
+		{
+			CFsm* pFsm = m_pOwner->Get_Fsm();
+			CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+
+			if (CWeapon_Player::WEAPON_TYPE::KATANA == pPlayer->Get_CurWeaponType())
+				pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::HOOK_UP, false);
+			else if (CWeapon_Player::WEAPON_TYPE::SHURIKEN == pPlayer->Get_CurWeaponType())
+				pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::HOOK_UP, false);
+
+			pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::HOOK_UP, -1, pClosestGrapUI);
+
+			return true;
+		}
 	}
 
 	return false;

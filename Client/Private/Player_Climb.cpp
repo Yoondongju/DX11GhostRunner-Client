@@ -52,8 +52,8 @@ HRESULT CPlayer_Climb::Start_State(void* pArg)
 	vJumpDirection = XMVector3Normalize(vJumpDirection);
 
 
-	pRigidBody->Add_Force_Direction(vJumpDirection, 180, Engine::CRigidBody::ACCELERATION);
-	pRigidBody->Add_Force_Direction(vJumpDirection, 50, Engine::CRigidBody::VELOCITYCHANGE);
+	pRigidBody->Add_Force_Direction(vJumpDirection, 250, Engine::CRigidBody::ACCELERATION);
+	pRigidBody->Add_Force_Direction(vJumpDirection, 110, Engine::CRigidBody::VELOCITYCHANGE);
 
 
 	return S_OK;

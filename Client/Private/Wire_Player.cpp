@@ -6,6 +6,8 @@
 #include "GrapplingPointUI.h"
 #include "Static_Object.h"
 
+#include "Player_Hook.h"
+
 CWire_Player::CWire_Player(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CPartObject{ pDevice, pContext }
 {
@@ -65,8 +67,12 @@ void CWire_Player::Update(_float fTimeDelta)
 
 
 	_vector vStartPos = XMLoadFloat3((_float3*)m_WorldMatrix.m[3]);
-	CGrapplingPointUI* pGrapplingPoint = static_cast<CPlayer*>(m_pOwner)->Get_GrapplingPoint();
 
+
+
+	CFsm* pFsm = m_pOwner->Get_Fsm();
+
+	CGrapplingPointUI* pGrapplingPoint = static_cast<CPlayer_Hook*>(pFsm->Get_CurState())->Get_GrapUI();
 	_vector vGrapPointPos = pGrapplingPoint->Get_Crane()->Get_Transform()->Get_State(CTransform::STATE_POSITION);
 
 

@@ -39,6 +39,8 @@ public:
 
 	_float						Get_Alpha() { return m_fAlpha; }
 
+public:
+	_bool						IsActive() { return m_bActivate; }
 
 public:
 	virtual HRESULT Initialize_Prototype() override;

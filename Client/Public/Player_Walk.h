@@ -27,6 +27,7 @@ private:
     _bool Check_HookUp();
     _bool Check_Jump();
 
+
     _bool Check_Block1();
     _bool Check_Block2();
     _bool Check_Block3();
@@ -38,6 +39,9 @@ private:
 
 private:
     _bool Check_CutAll();
+    _bool Check_Nami();
+    _bool Check_TimeStop();
+
 
 
 public:

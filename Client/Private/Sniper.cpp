@@ -52,7 +52,7 @@ HRESULT CSniper::Initialize(void* pArg)
         return E_FAIL;
 
     
-    m_pTransformCom->Scaling(2.3f, 2.3f, 2.3f);
+    m_pTransformCom->Scaling(2.5f, 2.5f, 2.5f);
 
 
     m_pModel->SetUp_Animation(CSniper::SNIPER_ANIMATION::IDLE, true);
