@@ -142,8 +142,9 @@ HRESULT CBody_Player::Render()
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
 			return E_FAIL;
 
-		/*if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
-			return E_FAIL;*/
+		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
+			return E_FAIL;
+
 
 		if (FAILED(m_pShaderCom->Begin(0)))
 			return E_FAIL;
@@ -242,7 +243,7 @@ HRESULT CBody_Player::Ready_PhysX()
 
 
 	// 4. Triangle Mesh 기반 Shape 생성
-	m_pShape = m_pGameInstance->Get_Physics()->createShape(PxCapsuleGeometry(7.f, 3.f), *Material);
+	m_pShape = m_pGameInstance->Get_Physics()->createShape(PxCapsuleGeometry(7.f, 5.f), *Material);
 	if (!m_pShape) {
 		MSG_BOX(TEXT("createShape failed!"));
 		return E_FAIL;
@@ -291,7 +292,6 @@ void CBody_Player::PhysXComputeCollision()
 	CTransform* pPlayerTransform = pPlayer->Get_Transform();
 
 
-
 	m_pColliderCom->Set_PrePhysXCollision(m_pColliderCom->Get_CurPhysXCollision());	// 충돌 들어가기전에 항상 이전 충돌정보를 세팅!
 	m_bClimbing = false;
 
@@ -300,11 +300,19 @@ void CBody_Player::PhysXComputeCollision()
 		LandWall();
 	}
 
+
 	if (true == m_pGameInstance->CollisionUpdate_PlayerToTriangleMeshGeometry(&m_vDir, &m_vDepth, m_pShape, &m_PxTransform, &m_pCollisionDestObject))
 	{
+		//CRigidBody* pPlayerRigidBody = m_pOwner->Get_RigidBody();
+		//
+		//pPlayerRigidBody->Set_Velocity(_float3(0.f, 0.f, 0.f));
+		//pPlayerRigidBody->Set_Accel(_float3(0.f, 0.f, 0.f));
+		//pPlayerRigidBody->Set_ZeroTimer();
+
 		m_pColliderCom->Set_CurPhysXCollision(true);
 
-		_float4x4* pParentMatrix = const_cast<_float4x4*>(m_pParentMatrix);
+		_float4x4* pParentMatrix = m_pParentMatrix;
+		
 		pParentMatrix->m[3][0] += m_vDir.x * (m_vDepth + 0.1f);
 		pParentMatrix->m[3][1] += m_vDir.y * (m_vDepth + 0.1f);
 		pParentMatrix->m[3][2] += m_vDir.z * (m_vDepth + 0.1f);
@@ -319,7 +327,6 @@ void CBody_Player::PhysXComputeCollision()
 				if (pStaticObject->IsCanLandWall())
 				{
 					m_bLandingWall = true;
-
 
 					PxVec3 rayOrigin = m_PxTransform.p;
 					_vector vRightNormal = XMVector3Normalize(pPlayerTransform->Get_State(CTransform::STATE_RIGHT));
@@ -478,7 +485,7 @@ void CBody_Player::ProcessInRange()
 	
 
 
-	list<CGameObject*>& ClimbObjects = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Climb_Object");
+	list<CGameObject*>& ClimbObjects = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Climb_Object");
 	for (auto& ClimbObject : ClimbObjects)
 	{
 		// 플레이어의 룩 방향으로 레이를 쏴

@@ -130,7 +130,6 @@ void CVIBuffer_Trail::Update_SwordTrail(_float fTimeDelta, deque<TRAIL_INFO>& Tr
 	// 이후 0,1    /  2,3 이전위치와 다음위치로 그린다
 	
 
-
 	for (auto it = TrailInfo.begin(); it != TrailInfo.end();)
 	{
 		it->fLifeTime -= fTimeDelta; // 생명 주기 감소
@@ -143,7 +142,7 @@ void CVIBuffer_Trail::Update_SwordTrail(_float fTimeDelta, deque<TRAIL_INFO>& Tr
 			++it; // 다음 세그먼트로 이동
 		}
 	}
-
+	
 
 	D3D11_MAPPED_SUBRESOURCE SubResource;
 	if (FAILED(m_pContext->Map(m_pVB, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource)))
@@ -151,7 +150,6 @@ void CVIBuffer_Trail::Update_SwordTrail(_float fTimeDelta, deque<TRAIL_INFO>& Tr
 	// D3D11_MAP_WRITE_DISCARD
     // D3D11_MAP_WRITE_NO_OVERWRITE
 	VTXTRAILTEX* pVertices = static_cast<VTXTRAILTEX*>(SubResource.pData);
-
 
 
 	m_iNumIndices = 6 * (TrailInfo.size() - 1);			// 인덱스버퍼 참조하는 인덱스 갯수가 달라져야해 

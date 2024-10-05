@@ -59,7 +59,7 @@ private:
 	
 private:
 	_bool			m_isBouncedBullet = { false };
-
+	_float			m_fChangeColorTime = { 0.f };
 
 private:
 	void		Check_Collision_Player();

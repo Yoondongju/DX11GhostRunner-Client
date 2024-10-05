@@ -80,11 +80,6 @@ void CSniper_Attack::Update(_float fTimeDelta)
 	}
 	else if (true == m_isMindContorling)
 	{
-		_vector vTargetPos = static_cast<CSniper*>(m_pOwner)->Get_TargetEnemy()->Get_Transform()->Get_State(CTransform::STATE_POSITION);
-
-		pOwnerTransform->LookAt_XZ(vTargetPos);
-
-
 		_double Duration = pModel->Get_CurAnimation()->Get_Duration();
 		_double TrackPos = pModel->Get_Referene_CurrentTrackPosition();
 

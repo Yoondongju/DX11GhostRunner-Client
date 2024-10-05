@@ -76,31 +76,31 @@ CSwordTrail* pSwordTrail = static_cast<CWeapon_Player*>(static_cast<CContainerOb
 
 void CPlayer_Attack3::Check_Collision()
 {
-	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Sniper");
+	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Sniper");
 	for (auto& Sniper : Snipers)
 	{
 		_bool b = static_cast<CSniper*>(Sniper)->Check_Collision();
 	}
 
-	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Pistol");
+	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Pistol");
 	for (auto& Pistol : Pistols)
 	{
 		_bool b = static_cast<CPistol*>(Pistol)->Check_Collision();
 	}
 
-	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Mira");
+	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Mira");
 	for (auto& Mira : Miras)
 	{
 		_bool b = static_cast<CMira*>(Mira)->Check_Collision();
 	}
 
-	list<CGameObject*>& Jetpacks = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Jetpack");
+	list<CGameObject*>& Jetpacks = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Jetpack");
 	for (auto& Jetpack : Jetpacks)
 	{
 		_bool b = static_cast<CJetpack*>(Jetpack)->Check_Collision();
 	}
 
-	list<CGameObject*>& Elites = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Elite");
+	list<CGameObject*>& Elites = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Elite");
 	for (auto& Elite : Elites)
 	{
 		CElite* pElite = static_cast<CElite*>(Elite);

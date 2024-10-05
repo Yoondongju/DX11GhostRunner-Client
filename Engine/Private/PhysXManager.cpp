@@ -11,7 +11,7 @@ HRESULT CPhysXManager::Initialize()
 	if (FAILED(Ready_PhysX()))
 		return E_FAIL;
 	
-	m_Player_WalkAble_Mesh.reserve(50);	// 일단임시
+	m_Player_WalkAble_Mesh.reserve(150);	// 일단임시
 
 	return S_OK;
 }
@@ -184,6 +184,11 @@ void CPhysXManager::Update(_float fTimeDelta)
 	if (m_pScene)
 		m_pScene->fetchResults(true);
 
+}
+
+void CPhysXManager::Clear()
+{
+	m_Player_WalkAble_Mesh.clear();
 }
 
 

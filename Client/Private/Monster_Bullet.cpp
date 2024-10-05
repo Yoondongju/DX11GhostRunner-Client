@@ -66,6 +66,8 @@ void CMonster_Bullet::Update(_float fTimeDelta)
         XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
 
         m_PreAttackPos = *(_float3*)m_pTransformCom->Get_WorldMatrix_Ptr()->m[3];
+
+        m_fChangeColorTime = 0.f;       // 색 변화시간
     }
     else
     {  
@@ -97,6 +99,8 @@ void CMonster_Bullet::Update(_float fTimeDelta)
         m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPos);
 
         XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * XMLoadFloat4x4(m_pParentMatrix));
+
+        m_fChangeColorTime += fTimeDelta * 1.5f;
     }
 
 
@@ -126,8 +130,12 @@ HRESULT CMonster_Bullet::Render()
         return E_FAIL;
 
   
+    if (FAILED(m_pShaderCom->Bind_RawValue("g_fChangeColorTime", &m_fChangeColorTime , sizeof(_float))))
+        return E_FAIL;
 
-    _uint iPassNum = 0;
+    
+
+    _uint iPassNum = 4;
   
     _uint		iNumMeshes = m_pModel->Get_NumMeshes();
 
@@ -170,7 +178,7 @@ void CMonster_Bullet::Check_Collision_Player()
             CPlayer::PLAYER_ANIMATIONID::BLOCK_R3 == eCurState)
         {
             pPlayer->Get_Part(CPlayer::PARTID::PART_PARTICLE_BLOCK)->SetActiveMyParticle(true);
-            m_isBouncedBullet = true;
+            m_isBouncedBullet = true;           
         }
     }
 
@@ -219,7 +227,7 @@ HRESULT CMonster_Bullet::Ready_Component()
 
     /* For.Com_Collider */
     CBounding_AABB::BOUNDING_AABB_DESC			ColliderDesc{};
-    ColliderDesc.vExtents = _float3(2.5f, 2.5f, 2.5f);
+    ColliderDesc.vExtents = _float3(1.f, 1.f, 1.f);
     ColliderDesc.vCenter = _float3(0.f, 0, 0.f);
    
     if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_CCollider_AABB"),

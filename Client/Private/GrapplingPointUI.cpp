@@ -296,7 +296,7 @@ _bool CGrapplingPointUI::Find_Player(_float fTimeDelta)
 HRESULT CGrapplingPointUI::Ready_Components()
 {
 	/* FOR.Com_Shader */
-	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Shader_VtxPosTex"),
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxPosTex"),
 		TEXT("Com_Shader"), reinterpret_cast<CComponent**>(&m_pShaderCom))))
 		return E_FAIL;
 
@@ -333,7 +333,7 @@ HRESULT CGrapplingPointUI::Ready_Components()
 	
 
 	/* FOR.Com_VIBuffer */
-	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_VIBuffer_Rect"),
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Rect"),
 		TEXT("Com_VIBuffer"), reinterpret_cast<CComponent**>(&m_pVIBufferCom))))
 		return E_FAIL;
 

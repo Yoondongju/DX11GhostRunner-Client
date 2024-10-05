@@ -19,10 +19,25 @@ protected:
 
 
 public:
+	_bool			IsMindControlReady() { return m_isMindControlReady; }
+	void			Set_MindControlReady(_bool b , CEnemy* pTarget)
+	{ 
+		m_isMindControlReady = b;
+
+		if (nullptr != pTarget)
+		{
+			m_pTargetEnemy = pTarget;
+			Safe_AddRef(m_pTargetEnemy);
+		}
+	}
+
+
 	_bool			IsMindControling() { return m_isMindControling; }
 	void			Set_MindControling(_bool b , CEnemy* pTarget) 
 	{ 
 		m_isMindControling = b;
+		m_isMindControlReady = false;
+
 
 		if (nullptr != pTarget)
 		{
@@ -30,13 +45,18 @@ public:
 			Safe_AddRef(m_pTargetEnemy);
 		}
 		else if (nullptr == pTarget)
-		{
+		{		
 			m_pTargetEnemy = pTarget;
 			Safe_Release(m_pTargetEnemy);
 		}
 	}
 
 	CEnemy*&				Get_TargetEnemy() { return m_pTargetEnemy; }
+
+
+public:
+	_bool					IsFindPlayer() { return m_isFindPlayer; }
+	void					Set_FindPlayer(_bool b) { m_isFindPlayer = b; }
 
 public:
 	_bool					IsTargetting() { return m_isTargeting; }
@@ -45,6 +65,7 @@ public:
 	_bool					IsFinalTargetting() { return m_isFinalTargeting; }
 	void					Set_FinalTargeting(_bool b) { m_isFinalTargeting = b; }
 
+	
 
 
 
@@ -72,6 +93,12 @@ protected:
 	_bool				m_isFinalTargeting = { false };		// 최종 내가 사냥할 타겟으로 정해졋니
 
 protected:
+	_bool				m_isFindPlayer = { false };			// 플레이어 찾음?
+
+
+protected:
+	_bool				m_isMindControlReady = { false };	// 마인드 컨트롤 준비대기상태
+
 	_bool				m_isMindControling = { false };		// 마인드 컨트롤 당했니?
 	CEnemy*				m_pTargetEnemy = { nullptr };
 
@@ -81,6 +108,12 @@ protected:
  
 private:
 	HRESULT		Create_EnemyMarker();
+	HRESULT		Create_EnemyMarkerMC();
+
+	HRESULT		Create_EnemyFind();
+	HRESULT		Create_EnemyMiniMapMarker();
+
+
 
 
 public:

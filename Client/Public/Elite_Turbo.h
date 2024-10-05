@@ -24,7 +24,7 @@ private:
     _float          m_fAccSpeed = { 0.f };
     _float3         m_GoDirNor = {};
 
-    _float          m_fMaxRushDistance = { 100 - 30 };     // 최대 돌진 거리     Elite_Alert의 발견할수있는 탐지거리와 와꾸맞추자
+    _float          m_fMaxRushDistance = { 250 - 30 };     // 최대 돌진 거리     Elite_Alert의 발견할수있는 탐지거리와 와꾸맞추자
  
     _float3         m_RushStartPos = {};                   // 돌진을 처음 시작한 거리
 

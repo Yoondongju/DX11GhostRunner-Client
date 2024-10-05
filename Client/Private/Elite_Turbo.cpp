@@ -7,6 +7,7 @@
 #include "Animation.h"
 
 #include "Weapon_Elite.h"
+#include "EliteSwordTrail.h"
 
 CElite_Turbo::CElite_Turbo(class CGameObject* pOwner)
 	: CState{ CElite::ELITE_ANIMATION::ALERT_TO_TURBO , pOwner }
@@ -24,7 +25,8 @@ HRESULT CElite_Turbo::Start_State(void* pArg)
 	CModel* pModel = m_pOwner->Get_Model();
 	pModel->SetUp_Animation(CElite::ELITE_ANIMATION::ALERT_TO_TURBO, true);
 
-
+	CEliteSwordTrail* pSwordTrail = static_cast<CWeapon_Elite*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CElite::PARTID::PART_WEAPON))->Get_SwordTrail();
+	pSwordTrail->Set_Active(true);
 
 	// 플레이어가 못막으면 바로 사망으로 처리하자
 	// 패링을 강조하자
@@ -128,10 +130,19 @@ _bool CElite_Turbo::Check_TurboDash(_float fTimeDelta)
 			++m_iCountSuccessParrying;		// 패링 성공했으면 ++
 
 
-		CModel* pModel = pElite->Get_Model();
+		CModel* pModel = pElite->Get_Model();	
+
+		if (CElite::ELITE_ANIMATION::TURBO_TO_DASH != pModel->Get_CurAnimationIndex())
+		{
+			_double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
+			TrackPos = 0.0;
+
+			pModel->SetUp_Animation(CElite::ELITE_ANIMATION::TURBO_TO_DASH, true);
+		}
 
 		
-		pModel->SetUp_Animation(CElite::ELITE_ANIMATION::TURBO_TO_DASH, true);
+		CEliteSwordTrail* pSwordTrail = static_cast<CWeapon_Elite*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CElite::PARTID::PART_WEAPON))->Get_SwordTrail();
+		pSwordTrail->Set_Active(true);
 
 		if (0.1f >= fRemainingDistance)
 		{
@@ -139,9 +150,16 @@ _bool CElite_Turbo::Check_TurboDash(_float fTimeDelta)
 			m_bStartTurboDash = false;
 		}	
 	}
+	else
+	{
+		pEliteTransform->Go_Straight(fDistanceToMove);
+		m_fAccSpeed += fTimeDelta;
 
-	pEliteTransform->Go_Straight(fDistanceToMove);
-	m_fAccSpeed += fTimeDelta;
+		CEliteSwordTrail* pSwordTrail = static_cast<CWeapon_Elite*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CElite::PARTID::PART_WEAPON))->Get_SwordTrail();
+		pSwordTrail->Set_Active(false);
+	}
+
+	
 
 	return false;
 }

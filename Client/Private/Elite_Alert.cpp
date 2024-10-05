@@ -35,7 +35,7 @@ void CElite_Alert::Update(_float fTimeDelta)
 	{
 		if (Check_Turbo(fTimeDelta))
 		{
-			m_fCanTurboActiveTime = 10.f;
+			m_fCanTurboActiveTime = 1.5f;
 			return;
 		}			
 	}
@@ -102,7 +102,7 @@ _bool CElite_Alert::Check_Turbo(_float fTimeDelta)
 		
 		if (1.f < fAngle)
 		{
-			pEliteTransform->LookAt_XZSmooth(vPlayerPos, fTimeDelta, nullptr);	
+			pEliteTransform->LookAt_XZSmooth(vPlayerPos, fTimeDelta * 2.f, nullptr);	
 		}	
 		else
 		{	

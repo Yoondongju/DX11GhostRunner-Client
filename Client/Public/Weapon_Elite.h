@@ -20,6 +20,11 @@ public:
 		const _float4x4* pSocketBoneMatrix = { nullptr };
 	}WEAPON_DESC;
 
+
+public:
+	class CEliteSwordTrail*		Get_SwordTrail() { return m_pSwordTrail; }
+
+
 private:
 	CWeapon_Elite(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CWeapon_Elite(const CWeapon_Elite& Prototype);
@@ -54,7 +59,12 @@ private:
 
 
 private:
+	class CEliteSwordTrail* m_pSwordTrail = { nullptr };
+
+private:
 	HRESULT Ready_Components();
+	HRESULT Reday_Trail();
+	
 
 public:
 	static CWeapon_Elite* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

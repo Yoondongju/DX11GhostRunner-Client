@@ -25,7 +25,6 @@ HRESULT CPistol_Walk::Start_State(void* pArg)
 
 void CPistol_Walk::Update(_float fTimeDelta)
 {
-
 	if (Check_Attack(fTimeDelta))
 		return;
 

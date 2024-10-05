@@ -129,6 +129,7 @@ void CGameInstance::Update_Engine(_float fTimeDelta)
 	if (true == m_bTimeDelayActive)
 		fAdjustedDeltaTime *= 0.15f;
 
+
 	m_pObject_Manager->Priority_Update(fAdjustedDeltaTime);
 	m_pObject_Manager->Update(fAdjustedDeltaTime);
 	m_pObject_Manager->Late_Update(fAdjustedDeltaTime);
@@ -151,7 +152,8 @@ void CGameInstance::FinalUpdate_Engine()
 
 HRESULT CGameInstance::Draw_Engine()
 {
-	m_pRenderer->Draw();
+	if(1 != m_pLevel_Manager->Get_CurLevelIndex())
+		m_pRenderer->Draw();
 
 	return m_pLevel_Manager->Render();
 }
@@ -162,7 +164,7 @@ HRESULT CGameInstance::Clear(_uint iLevelIndex)
 	m_pObject_Manager->Clear(iLevelIndex);
 
 	/* 컴포넌트 원형들도 레벨별로 관리했었다. */
-	//m_pComponent_Manager->Clear(iLevelIndex);
+	m_pComponent_Manager->Clear(iLevelIndex);
 
 	return S_OK;
 }
@@ -173,7 +175,6 @@ void CGameInstance::Render_Begin()
 	m_pGraphic_Device->Clear_BackBuffer_View(_float4(0.f, 0.f, 1.f, 1.f));
 	m_pGraphic_Device->Clear_DepthStencil_View();
 	
-
 }
 
 void CGameInstance::Render_End()
@@ -207,6 +208,11 @@ _long CGameInstance::Get_DIMouseMove(MOUSEMOVESTATE eMouseState)
 HRESULT CGameInstance::Change_Level(_uint iLevelIndex, CLevel * pNextLevel)
 {
 	return m_pLevel_Manager->Change_Level(iLevelIndex, pNextLevel);	
+}
+
+_uint CGameInstance::Get_CurLevelIndex()
+{
+	return m_pLevel_Manager->Get_CurLevelIndex();
 }
 
 #pragma endregion
@@ -462,6 +468,12 @@ HRESULT CGameInstance::Add_WalkAble_Mesh(const CPhysXManager::PLAYER_WALKABLE_ME
 _bool CGameInstance::CollisionUpdate_PlayerToTriangleMeshGeometry(PxVec3* pOutDir, PxReal* pOutDepth, PxShape* pPlayerShape, PxTransform* pPlayerTransform, CGameObject** pCollTarget)
 {
 	return m_pPhysX_Manager->CollisionUpdate_PlayerToTriangleMeshGeometry(pOutDir, pOutDepth, pPlayerShape, pPlayerTransform, pCollTarget);
+}
+
+void CGameInstance::Phys_Clear()
+{
+	m_pPhysX_Manager->Clear();
+	
 }
 
 

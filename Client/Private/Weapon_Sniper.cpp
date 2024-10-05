@@ -133,7 +133,7 @@ HRESULT CWeapon_Sniper::Ready_Components()
 
 
 	/* FOR.Com_Model */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Pistol_Sniper_Gun"),
+	if (FAILED(__super::Add_Component(g_CurLevel, TEXT("Prototype_Component_Model_Pistol_Sniper_Gun"),
 		TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModelCom))))
 		return E_FAIL;
 

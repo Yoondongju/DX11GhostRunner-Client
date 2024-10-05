@@ -337,7 +337,7 @@ private:		// TimeStop
 	_bool				m_bTimeStopActive = { true };
 	_bool				m_bStartCountTimeStopTime = { false };
 
-	_float				m_fTimeDelayLerpRatio = {4.f};		// 게임인스턴스에서 0.1만큼 델타타임에 곱햇으니 얜 절반은 복구시키자
+	_float				m_fTimeDelayLerpRatio = {8.f};		// 게임인스턴스에서 0.1만큼 델타타임에 곱햇으니 얜 절반은 복구시키자
 
 
 private:		// NAMI

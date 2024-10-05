@@ -32,7 +32,6 @@ HRESULT CSky::Initialize(void* pArg)
 	m_pFreeCameraTransform = m_pGameInstance->Find_Camera(LEVEL_GAMEPLAY)->Get_Transform();
 	Safe_AddRef(m_pFreeCameraTransform);
 
-
 	return S_OK;
 }
 

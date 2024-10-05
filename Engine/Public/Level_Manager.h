@@ -14,6 +14,10 @@ private:
 	CLevel_Manager();
 	virtual ~CLevel_Manager() = default;
 
+
+public:
+	_uint Get_CurLevelIndex() { return m_iLevelIndex; }
+
 public:
 	HRESULT Initialize();
 	void Update(_float fTimeDelta);

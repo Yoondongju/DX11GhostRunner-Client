@@ -275,7 +275,7 @@ HRESULT CEnemyMarker::Ready_Components()
 
 
 	/* FOR.Com_VIBuffer */
-	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_VIBuffer_Rect"),
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Rect"),
 		TEXT("Com_VIBuffer"), reinterpret_cast<CComponent**>(&m_pVIBufferCom))))
 		return E_FAIL;
 

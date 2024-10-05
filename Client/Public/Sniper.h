@@ -20,7 +20,7 @@ BEGIN(Client)
 class CSniper final : public CEnemy
 {
 public:
-	enum PARTID { PART_WEAPON, PART_EFFECT, PART_BULLET, PART_SHOCKWAVE, PART_END };
+	enum PARTID { PART_WEAPON, PART_EFFECT, PART_BULLET, PART_END };
 
 	enum SNIPER_ANIMATION
 	{

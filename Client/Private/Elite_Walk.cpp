@@ -6,6 +6,8 @@
 #include "GameInstance.h"
 #include "Animation.h"
 
+#include "EliteSwordTrail.h"
+#include "Weapon_Elite.h"
 
 CElite_Walk::CElite_Walk(class CGameObject* pOwner)
 	: CState{ CElite::ELITE_ANIMATION::WALK_F , pOwner }
@@ -68,32 +70,38 @@ void CElite_Walk::Update(_float fTimeDelta)
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 		if (CState::BACK == m_eDir)  	// 뒤로 백했으면	
 		{
-			_int iRandom = m_pGameInstance->Get_Random_Interger(0, 2);
-			switch (iRandom)
-			{
-			case 0:
-			{
-				pModel->SetUp_Animation(CElite::ELITE_ANIMATION::WALK_L, true);
-				pFsm->Change_State(CElite::ELITE_ANIMATION::WALK_F, CState::STATE_DIR::LEFT);
-			}
-			break;
-			case 1:
-			{
-				pModel->SetUp_Animation(CElite::ELITE_ANIMATION::WALK_R, true);
-				pFsm->Change_State(CElite::ELITE_ANIMATION::WALK_F, CState::STATE_DIR::RIGHT);
-			}
-			break;
-			case 2:
-			{
-				_bool	bDashBlock = true;
+			_bool	bDashBlock = true;			// 테스트용
 
-				pModel->SetUp_Animation(CElite::ELITE_ANIMATION::DASH_TO_ALERDLB, true);
-				pFsm->Change_State(CElite::ELITE_ANIMATION::BLOCK_F, -1, &bDashBlock);
-			}
-			break;
-			default:
-				break;
-			}
+			pModel->SetUp_Animation(CElite::ELITE_ANIMATION::DASH_TO_ALERDLB, true);
+			pFsm->Change_State(CElite::ELITE_ANIMATION::BLOCK_F, -1, &bDashBlock);
+
+
+			//_int iRandom = m_pGameInstance->Get_Random_Interger(0, 2);
+			//switch (iRandom)
+			//{
+			//case 0:
+			//{
+			//	pModel->SetUp_Animation(CElite::ELITE_ANIMATION::WALK_L, true);
+			//	pFsm->Change_State(CElite::ELITE_ANIMATION::WALK_F, CState::STATE_DIR::LEFT);
+			//}
+			//break;
+			//case 1:
+			//{
+			//	pModel->SetUp_Animation(CElite::ELITE_ANIMATION::WALK_R, true);
+			//	pFsm->Change_State(CElite::ELITE_ANIMATION::WALK_F, CState::STATE_DIR::RIGHT);
+			//}
+			//break;
+			//case 2:
+			//{
+			//	_bool	bDashBlock = true;
+			//
+			//	pModel->SetUp_Animation(CElite::ELITE_ANIMATION::DASH_TO_ALERDLB, true);
+			//	pFsm->Change_State(CElite::ELITE_ANIMATION::BLOCK_F, -1, &bDashBlock);
+			//}
+			//break;
+			//default:
+			//	break;
+			//}
 		}
 		else   // WALK   L ,R 
 		{
@@ -106,7 +114,7 @@ void CElite_Walk::Update(_float fTimeDelta)
 
 void CElite_Walk::End_State()
 {
-
+	
 }
 
 

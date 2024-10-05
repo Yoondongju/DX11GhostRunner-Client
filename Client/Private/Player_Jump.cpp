@@ -26,7 +26,10 @@ HRESULT CPlayer_Jump::Initialize()
 
 HRESULT CPlayer_Jump::Start_State(void* pArg)
 {
-	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+	CBody_Player* pBodyPlayer = static_cast<CBody_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY));
+
+
+	CModel* pModel = pBodyPlayer->Get_Model();
 
 	CTransform* pTransform = m_pOwner->Get_Transform();
 	CRigidBody* pRigidBody = m_pOwner->Get_RigidBody();
@@ -301,7 +304,7 @@ _bool CPlayer_Jump::Check_HookUp()
 		_vector vPlayerPos = pPlayer->Get_Transform()->Get_State(CTransform::STATE_POSITION);
 		vPlayerPos = XMVectorSetY(vPlayerPos, 0.f);
 
-		list<CGameObject*>& GrapUIs = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_GrapplingPointUI");
+		list<CGameObject*>& GrapUIs = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_GrapplingPointUI");
 		_float fMinDistance = { 9999.f };
 		CGrapplingPointUI* pClosestGrapUI = nullptr;
 

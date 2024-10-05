@@ -33,6 +33,10 @@ void CPistol_Idle::Update(_float fTimeDelta)
 	if (Check_MindControling())
 		return;
 
+	if (true == static_cast<CEnemy*>(m_pOwner)->IsMindControlReady())
+		return;
+
+
 
 	m_fAccTime += fTimeDelta;
 	CModel* pModel = m_pOwner->Get_Model();
@@ -101,6 +105,8 @@ void CPistol_Idle::Update(_float fTimeDelta)
 
 		pModel->SetUp_Animation(CPistol::PISTOL_ANIMATION::WALK_F, true);
 		pFsm->Change_State(CPistol::PISTOL_ANIMATION::WALK_F);
+
+		static_cast<CEnemy*>(m_pOwner)->Set_FindPlayer(true);
 		return;
 	}
 

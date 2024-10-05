@@ -226,7 +226,7 @@ void CPlayer_Nami::FindVisiableEnemy()
 	_float fVisiableAngle = m_fVisibleAngle * 0.5f;
 
 
-	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Sniper");
+	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Sniper");
 	for (auto Sniper : Snipers)
 	{
 		_vector vSniperPos = Sniper->Get_Transform()->Get_State(CTransform::STATE_POSITION);
@@ -246,7 +246,7 @@ void CPlayer_Nami::FindVisiableEnemy()
 		}
 	}
 
-	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Pistol");
+	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Pistol");
 	for (auto Pistol : Pistols)
 	{
 		_vector vPistolPos = Pistol->Get_Transform()->Get_State(CTransform::STATE_POSITION);
@@ -266,7 +266,7 @@ void CPlayer_Nami::FindVisiableEnemy()
 		}
 	}
 
-	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Mira");
+	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Mira");
 	for (auto Mira : Miras)
 	{
 		_vector vMiraPos = Mira->Get_Transform()->Get_State(CTransform::STATE_POSITION);
@@ -296,7 +296,7 @@ void CPlayer_Nami::FindShortestDistanceEnemy()
 
 	if (XMVector3Equal(XMLoadFloat3(&m_TargetPos), XMVectorZero()))
 	{
-		list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Sniper");
+		list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Sniper");
 		for (auto& Sniper : Snipers)
 		{
 			if (true == static_cast<CEnemy*>(Sniper)->IsDead())
@@ -318,7 +318,7 @@ void CPlayer_Nami::FindShortestDistanceEnemy()
 			}
 		}
 
-		list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Pistol");
+		list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Pistol");
 		for (auto& Pistol : Pistols)
 		{
 			if (true == static_cast<CEnemy*>(Pistol)->IsDead())
@@ -340,7 +340,7 @@ void CPlayer_Nami::FindShortestDistanceEnemy()
 			}
 		}
 
-		list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Mira");
+		list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Mira");
 		for (auto& Mira : Miras)
 		{
 			if (true == static_cast<CEnemy*>(Mira)->IsDead())
@@ -367,19 +367,19 @@ void CPlayer_Nami::FindShortestDistanceEnemy()
 
 void CPlayer_Nami::Check_Collision()
 {
-	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Sniper");
+	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Sniper");
 	for (auto& Sniper : Snipers)
 	{
 		_bool b = static_cast<CSniper*>(Sniper)->Check_Collision();
 	}
 
-	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Pistol");
+	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Pistol");
 	for (auto& Pistol : Pistols)
 	{
 		_bool b = static_cast<CPistol*>(Pistol)->Check_Collision();
 	}
 
-	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Mira");
+	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Mira");
 	for (auto& Mira : Miras)
 	{
 		_bool b = static_cast<CMira*>(Mira)->Check_Collision();

@@ -30,10 +30,12 @@ void CMira_Idle::Update(_float fTimeDelta)
 	if (Check_Death())
 		return;
 
-	
 	if (Check_MindControling())
 		return;
 
+
+	if (true == static_cast<CEnemy*>(m_pOwner)->IsMindControlReady())
+		return;
 
 
 
@@ -44,6 +46,8 @@ void CMira_Idle::Update(_float fTimeDelta)
 
 		pModel->SetUp_Animation(CMira::MIRA_ANIMATION::ATTACK, true);
 		pFsm->Change_State(CMira::MIRA_ANIMATION::ATTACK);
+
+		static_cast<CEnemy*>(m_pOwner)->Set_FindPlayer(true);
 		return;
 	}
 
@@ -93,8 +97,6 @@ _bool CMira_Idle::Check_MindControling()
 
 	pModel->SetUp_Animation(CMira::MIRA_ANIMATION::ATTACK, true);
 	pFsm->Change_State(CMira::MIRA_ANIMATION::ATTACK, -1 , &isMindContorling);
-
-
 
 	return true;
 }

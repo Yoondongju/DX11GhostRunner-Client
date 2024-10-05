@@ -46,6 +46,12 @@ void CParticle_Block::Update(_float fTimeDelta)
 {
 	if (m_isActiveMyParticle)
 	{
+		if(m_fDisableTime == 1.f)
+			m_pGameInstance->Set_TimeDelayActive(true);
+		else if (m_fDisableTime <= 0.65f)
+			m_pGameInstance->Set_TimeDelayActive(false);
+
+
 		if (m_fDisableTime <= 0.f)
 		{
 			m_isActiveMyParticle = false;
@@ -75,7 +81,7 @@ void CParticle_Block::Update(_float fTimeDelta)
 		_vector vPos = XMLoadFloat3(pPos);
 
 		//vPos += vRightNor * -0.6f;
-		vPos += vUpNor * 15.f;
+		vPos += vUpNor * 16.f;
 		vPos += vLookNor * 5.f;
 
 		XMStoreFloat3((_float3*)m_WorldMatrix.m[3], XMVectorSetW(vPos, 1.f));

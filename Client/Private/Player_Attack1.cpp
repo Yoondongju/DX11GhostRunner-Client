@@ -80,31 +80,31 @@ void CPlayer_Attack1::Check_Collision()
 	// 일단 몬스터종류를 체크해야하고 , 그다음 그 종류의 몬스터중 (여러마리 있을때) 어떤놈인지 체크해야해
 	// 몬스터가 내 레벨에 따라 나오는 몬스터 종류에 대한 이야기를 안해놔서 일단 고민되네
 
-	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Sniper");
+	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Sniper");
 	for (auto& Sniper : Snipers)
 	{
 		_bool b = static_cast<CSniper*>(Sniper)->Check_Collision();
 	}
 
-	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Pistol");
+	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Pistol");
 	for (auto& Pistol : Pistols)
 	{
 		_bool b = static_cast<CPistol*>(Pistol)->Check_Collision();
 	}
 
-	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Mira");
+	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Mira");
 	for (auto& Mira : Miras)
 	{
 		_bool b = static_cast<CMira*>(Mira)->Check_Collision();
 	}
 
-	list<CGameObject*>& Jetpacks = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Jetpack");
+	list<CGameObject*>& Jetpacks = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Jetpack");
 	for (auto& Jetpack : Jetpacks)
 	{
 		_bool b = static_cast<CJetpack*>(Jetpack)->Check_Collision();
 	}
 
-	list<CGameObject*>& Elites = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Elite");
+	list<CGameObject*>& Elites = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Elite");
 	for (auto& Elite : Elites)
 	{
 		CElite* pElite = static_cast<CElite*>(Elite);

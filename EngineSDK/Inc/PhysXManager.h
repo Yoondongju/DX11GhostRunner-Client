@@ -50,12 +50,12 @@ public:
 	
 
 public:
+	void	Clear();
 	HRESULT	Add_WalkAble_Mesh(const PLAYER_WALKABLE_MESH& WalkAbleMesh);
 	
 
 
 	_bool CollisionUpdate_PlayerToTriangleMeshGeometry(PxVec3* pOutDir, PxReal* pOutDepth, PxShape* pPlayerShape, PxTransform* pPlayerTransform, class CGameObject** pCollTarget);
-
 
 
 private:

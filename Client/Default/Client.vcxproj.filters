@@ -325,6 +325,60 @@
     <Filter Include="02.GameObjects\04.Particle\ShockWave">
       <UniqueIdentifier>{2f26365e-73d1-4bd2-892f-a47be6327ffa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01.Levels\GamePlay\Stage1">
+      <UniqueIdentifier>{cbc098fb-b204-4bd6-8871-1f17dfc7b8a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Levels\GamePlay\Stage1_Boss">
+      <UniqueIdentifier>{8c4802a4-f4e0-4f54-bbe7-e72bcda80aad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI\EnemyFindUI">
+      <UniqueIdentifier>{ce2673a8-52ab-4cff-af61-e127e7542762}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI\MinimapUI">
+      <UniqueIdentifier>{c3c96d7a-1cab-43d6-92ba-129758c5360d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI\MinimapUI\MiniMapPanel">
+      <UniqueIdentifier>{fbe06876-a8fe-43f6-8ad7-f49d46ade238}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI\MinimapUI\MiniMapMarker">
+      <UniqueIdentifier>{0eead612-ddde-4e72-a07d-256ce19857f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\99.Camera\MiniMapCamera">
+      <UniqueIdentifier>{6f6fb1ca-28fb-4799-bb4e-242986a48e24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI\MinimapUI\MiniMapPlayer">
+      <UniqueIdentifier>{b0bc8bd4-2617-4eb6-913e-6042be734ba1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI\EnemyMarkerUI\EnemyMarkerMC">
+      <UniqueIdentifier>{9a01d324-232c-4ac1-aebf-372d1776aa5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Elite\WeaponParticle\EliteBlock">
+      <UniqueIdentifier>{3b5aa97e-4e33-443f-9233-4ed21a826d99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Elite\WeaponParticle\EliteDashBlock">
+      <UniqueIdentifier>{d8136806-7abb-421e-b863-80d24691a57e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Elite\Trail">
+      <UniqueIdentifier>{ae026e38-22ba-4b2c-ad9e-929998dc00e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Elite\Trail\Sword">
+      <UniqueIdentifier>{bb9d0673-4d7b-4edf-83ed-d95607bca2e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Elite\Trail\Turbo">
+      <UniqueIdentifier>{03e03792-09e5-4bd5-b468-d3eeb57c9702}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI\BossHp">
+      <UniqueIdentifier>{cbe8998c-6777-44f7-886c-6af70e19035b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI\BossHp\Panel">
+      <UniqueIdentifier>{aff72aa8-81a9-4968-aeba-79db9f9fdfc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI\BossHp\MainHp">
+      <UniqueIdentifier>{f3881138-12b7-435b-8fce-f54313ae0d92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI\BossHp\Energy">
+      <UniqueIdentifier>{ba0f905d-7c19-4a9c-b84d-04147128b9bc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -365,9 +419,6 @@
     </ClInclude>
     <ClInclude Include="..\public\FreeCamera.h">
       <Filter>02.GameObjects\99.Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Public\Enemy.h">
-      <Filter>02.GameObjects\02.Monster</Filter>
     </ClInclude>
     <ClInclude Include="..\Public\Decorative_Object.h">
       <Filter>02.GameObjects\Decorative_Object</Filter>
@@ -597,9 +648,6 @@
     <ClInclude Include="..\Public\Elite_Stun.h">
       <Filter>02.GameObjects\02.Monster\Elite\EliteState\Stun</Filter>
     </ClInclude>
-    <ClInclude Include="..\Public\Particle_EliteBlock.h">
-      <Filter>02.GameObjects\02.Monster\Elite\WeaponParticle</Filter>
-    </ClInclude>
     <ClInclude Include="..\Public\Particle_Explosion.h">
       <Filter>02.GameObjects\02.Monster\Jetpack\Particle_Explosion</Filter>
     </ClInclude>
@@ -620,6 +668,51 @@
     </ClInclude>
     <ClInclude Include="..\Public\Particle_ShockWave.h">
       <Filter>02.GameObjects\04.Particle\ShockWave</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Level_Stage1_Boss.h">
+      <Filter>01.Levels\GamePlay\Stage1_Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Level_Stage1.h">
+      <Filter>01.Levels\GamePlay\Stage1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\EnemyFindUI.h">
+      <Filter>02.GameObjects\GameUI\EnemyFindUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\MiniMapPanel.h">
+      <Filter>02.GameObjects\GameUI\MinimapUI\MiniMapPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\MiniMapMarker.h">
+      <Filter>02.GameObjects\GameUI\MinimapUI\MiniMapMarker</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\MiniMapPlayer.h">
+      <Filter>02.GameObjects\GameUI\MinimapUI\MiniMapPlayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\EnemyMarkerMC.h">
+      <Filter>02.GameObjects\GameUI\EnemyMarkerUI\EnemyMarkerMC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Enemy.h">
+      <Filter>02.GameObjects\02.Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Particle_EliteBlock.h">
+      <Filter>02.GameObjects\02.Monster\Elite\WeaponParticle\EliteBlock</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Particle_EliteDashBlock.h">
+      <Filter>02.GameObjects\02.Monster\Elite\WeaponParticle\EliteDashBlock</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\EliteSwordTrail.h">
+      <Filter>02.GameObjects\02.Monster\Elite\Trail\Sword</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\EliteTurboTrail.h">
+      <Filter>02.GameObjects\02.Monster\Elite\Trail\Turbo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\BossHpPanel.h">
+      <Filter>02.GameObjects\GameUI\BossHp\Panel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\BossHpMain.h">
+      <Filter>02.GameObjects\GameUI\BossHp\MainHp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\BossHpEnergy.h">
+      <Filter>02.GameObjects\GameUI\BossHp\Energy</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -881,9 +974,6 @@
     <ClCompile Include="..\Private\Elite_Stun.cpp">
       <Filter>02.GameObjects\02.Monster\Elite\EliteState\Stun</Filter>
     </ClCompile>
-    <ClCompile Include="..\Private\Particle_EliteBlock.cpp">
-      <Filter>02.GameObjects\02.Monster\Elite\WeaponParticle</Filter>
-    </ClCompile>
     <ClCompile Include="..\Private\Particle_Explosion.cpp">
       <Filter>02.GameObjects\02.Monster\Jetpack\Particle_Explosion</Filter>
     </ClCompile>
@@ -907,6 +997,48 @@
     </ClCompile>
     <ClCompile Include="..\Private\Player_Hook.cpp">
       <Filter>02.GameObjects\Player\PlayerState\Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Level_Stage1_Boss.cpp">
+      <Filter>01.Levels\GamePlay\Stage1_Boss</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Level_Stage1.cpp">
+      <Filter>01.Levels\GamePlay\Stage1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\EnemyFindUI.cpp">
+      <Filter>02.GameObjects\GameUI\EnemyFindUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\MiniMapPanel.cpp">
+      <Filter>02.GameObjects\GameUI\MinimapUI\MiniMapPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\MiniMapMarker.cpp">
+      <Filter>02.GameObjects\GameUI\MinimapUI\MiniMapMarker</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\MiniMapPlayer.cpp">
+      <Filter>02.GameObjects\GameUI\MinimapUI\MiniMapPlayer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\EnemyMarkerMC.cpp">
+      <Filter>02.GameObjects\GameUI\EnemyMarkerUI\EnemyMarkerMC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Particle_EliteBlock.cpp">
+      <Filter>02.GameObjects\02.Monster\Elite\WeaponParticle\EliteBlock</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Particle_EliteDashBlock.cpp">
+      <Filter>02.GameObjects\02.Monster\Elite\WeaponParticle\EliteDashBlock</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\EliteSwordTrail.cpp">
+      <Filter>02.GameObjects\02.Monster\Elite\Trail\Sword</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\EliteTurboTrail.cpp">
+      <Filter>02.GameObjects\02.Monster\Elite\Trail\Turbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\BossHpPanel.cpp">
+      <Filter>02.GameObjects\GameUI\BossHp\Panel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\BossHpMain.cpp">
+      <Filter>02.GameObjects\GameUI\BossHp\MainHp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\BossHpEnergy.cpp">
+      <Filter>02.GameObjects\GameUI\BossHp\Energy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

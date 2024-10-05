@@ -119,6 +119,9 @@ HRESULT CWeapon_Jetpack::Render()
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
 			return E_FAIL;
 
+		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
+			return E_FAIL;
+
 		if (FAILED(m_pShaderCom->Begin(iPassNum)))
 			return E_FAIL;
 
@@ -139,7 +142,7 @@ HRESULT CWeapon_Jetpack::Ready_Components()
 
 
 	/* FOR.Com_Model */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Jetpack_Roket"),
+	if (FAILED(__super::Add_Component(g_CurLevel, TEXT("Prototype_Component_Model_Jetpack_Roket"),
 		TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModelCom))))
 		return E_FAIL;
 

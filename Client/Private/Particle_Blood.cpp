@@ -44,6 +44,24 @@ void CParticle_Blood::Update(_float fTimeDelta)
 {
 	if (m_isActiveMyParticle)
 	{
+		_int iRandom = m_pGameInstance->Get_Random_Interger(0, 3);
+		switch (iRandom)
+		{
+		case 0:
+			m_pVIBufferCom->Spread(fTimeDelta * 2.f);
+			break;
+		case 1:
+			m_pVIBufferCom->Spread2(fTimeDelta * 2.f);
+			break;
+		case 2:
+			m_pVIBufferCom->Spread3(fTimeDelta * 2.f);
+			break;
+		default:
+			break;
+		}		
+	}
+	else
+	{
 		_matrix		SocketMatrix = XMLoadFloat4x4(m_pSocketMatrix);
 
 		for (size_t i = 0; i < 3; i++)
@@ -51,25 +69,7 @@ void CParticle_Blood::Update(_float fTimeDelta)
 			SocketMatrix.r[i] = XMVector3Normalize(SocketMatrix.r[i]);
 		}
 		XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
-
-	
-
-		_int iRandom = m_pGameInstance->Get_Random_Interger(0, 3);
-		switch (iRandom)
-		{
-		case 0:
-			m_pVIBufferCom->Spread(fTimeDelta);
-			break;
-		case 1:
-			m_pVIBufferCom->Spread2(fTimeDelta);
-			break;
-		case 2:
-			m_pVIBufferCom->Spread3(fTimeDelta);
-			break;
-		default:
-			break;
-		}		
-	}		
+	}
 }
 
 void CParticle_Blood::Late_Update(_float fTimeDelta)

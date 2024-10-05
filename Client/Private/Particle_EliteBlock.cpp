@@ -44,28 +44,26 @@ void CParticle_EliteBlock::Priority_Update(_float fTimeDelta)
 
 void CParticle_EliteBlock::Update(_float fTimeDelta)
 {
-	if (m_isActiveMyParticle)
+	if (true == m_isPreActive && false == m_isActiveMyParticle)
 	{
-		if (m_fDisableTime <= 0.f)
-		{
-			m_isActiveMyParticle = false;
-			m_fDisableTime = 1.f;
-			m_pVIBufferCom->ResetTranslation();
-		}
-
-		m_fDisableTime -= fTimeDelta;
+		m_pVIBufferCom->ResetTranslation();
+		m_isPreActive = false;
+	}
 
 
-
+	if (m_isActiveMyParticle)
+	{	
 		XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * XMLoadFloat4x4(m_pParentMatrix));
 		_vector vWorldPos = XMVector3TransformCoord(XMLoadFloat3(&m_SpwanPositionLocal), XMLoadFloat4x4(&m_WorldMatrix));
 
 
 		m_WorldMatrix.m[3][0] = vWorldPos.m128_f32[0];
-		m_WorldMatrix.m[3][1] = vWorldPos.m128_f32[1] + 30.f;
+		m_WorldMatrix.m[3][1] = vWorldPos.m128_f32[1] + 45.f;
 		m_WorldMatrix.m[3][2] = vWorldPos.m128_f32[2];
 
 		m_pVIBufferCom->Spread(fTimeDelta);
+
+		m_isPreActive = true;
 	}
 }
 

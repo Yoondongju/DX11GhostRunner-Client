@@ -166,12 +166,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Public\BackPack_Jetpack.h" />
+    <ClInclude Include="..\Public\BossHpEnergy.h" />
+    <ClInclude Include="..\Public\BossHpMain.h" />
+    <ClInclude Include="..\Public\BossHpPanel.h" />
     <ClInclude Include="..\Public\CrossHairUI.h" />
     <ClInclude Include="..\Public\Decorative_Object.h" />
     <ClInclude Include="..\public\BackGround.h" />
     <ClInclude Include="..\Public\Body_Player.h" />
     <ClInclude Include="..\Public\Dynamic_Object.h" />
     <ClInclude Include="..\Public\Elite.h" />
+    <ClInclude Include="..\Public\EliteSwordTrail.h" />
+    <ClInclude Include="..\Public\EliteTurboTrail.h" />
     <ClInclude Include="..\Public\Elite_Alert.h" />
     <ClInclude Include="..\Public\Elite_Block.h" />
     <ClInclude Include="..\Public\Elite_Death.h" />
@@ -179,6 +184,8 @@
     <ClInclude Include="..\Public\Elite_Stun.h" />
     <ClInclude Include="..\Public\Elite_Turbo.h" />
     <ClInclude Include="..\Public\Elite_Walk.h" />
+    <ClInclude Include="..\Public\EnemyFindUI.h" />
+    <ClInclude Include="..\Public\EnemyMarkerMC.h" />
     <ClInclude Include="..\Public\EnemyMarkerUI.h" />
     <ClInclude Include="..\Public\EventNotify.h" />
     <ClInclude Include="..\Public\GrapplingPointUI.h" />
@@ -190,6 +197,11 @@
     <ClInclude Include="..\Public\Jetpack_Fly.h" />
     <ClInclude Include="..\Public\Jetpack_Idle.h" />
     <ClInclude Include="..\Public\Jetpack_Scared.h" />
+    <ClInclude Include="..\Public\Level_Stage1.h" />
+    <ClInclude Include="..\Public\Level_Stage1_Boss.h" />
+    <ClInclude Include="..\Public\MiniMapMarker.h" />
+    <ClInclude Include="..\Public\MiniMapPanel.h" />
+    <ClInclude Include="..\Public\MiniMapPlayer.h" />
     <ClInclude Include="..\Public\Mira.h" />
     <ClInclude Include="..\Public\Mira_Attack.h" />
     <ClInclude Include="..\Public\Mira_Death.h" />
@@ -202,6 +214,7 @@
     <ClInclude Include="..\Public\Particle_Blood.h" />
     <ClInclude Include="..\Public\Particle_CutAll.h" />
     <ClInclude Include="..\Public\Particle_EliteBlock.h" />
+    <ClInclude Include="..\Public\Particle_EliteDashBlock.h" />
     <ClInclude Include="..\Public\Particle_Explosion.h" />
     <ClInclude Include="..\Public\Particle_Nami.h" />
     <ClInclude Include="..\Public\Particle_ShockWave.h" />
@@ -266,12 +279,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Private\BackPack_Jetpack.cpp" />
+    <ClCompile Include="..\Private\BossHpEnergy.cpp" />
+    <ClCompile Include="..\Private\BossHpMain.cpp" />
+    <ClCompile Include="..\Private\BossHpPanel.cpp" />
     <ClCompile Include="..\Private\CrossHairUI.cpp" />
     <ClCompile Include="..\Private\Decorative_Object.cpp" />
     <ClCompile Include="..\private\BackGround.cpp" />
     <ClCompile Include="..\Private\Body_Player.cpp" />
     <ClCompile Include="..\Private\Dynamic_Object.cpp" />
     <ClCompile Include="..\Private\Elite.cpp" />
+    <ClCompile Include="..\Private\EliteSwordTrail.cpp" />
+    <ClCompile Include="..\Private\EliteTurboTrail.cpp" />
     <ClCompile Include="..\Private\Elite_Alert.cpp" />
     <ClCompile Include="..\Private\Elite_Block.cpp" />
     <ClCompile Include="..\Private\Elite_Death.cpp" />
@@ -279,6 +297,8 @@
     <ClCompile Include="..\Private\Elite_Stun.cpp" />
     <ClCompile Include="..\Private\Elite_Turbo.cpp" />
     <ClCompile Include="..\Private\Elite_Walk.cpp" />
+    <ClCompile Include="..\Private\EnemyFindUI.cpp" />
+    <ClCompile Include="..\Private\EnemyMarkerMC.cpp" />
     <ClCompile Include="..\Private\EnemyMarkerUI.cpp" />
     <ClCompile Include="..\Private\EventNotify.cpp" />
     <ClCompile Include="..\Private\GrapplingPointUI.cpp" />
@@ -290,6 +310,11 @@
     <ClCompile Include="..\Private\Jetpack_Fly.cpp" />
     <ClCompile Include="..\Private\Jetpack_Idle.cpp" />
     <ClCompile Include="..\Private\Jetpack_Scared.cpp" />
+    <ClCompile Include="..\Private\Level_Stage1.cpp" />
+    <ClCompile Include="..\Private\Level_Stage1_Boss.cpp" />
+    <ClCompile Include="..\Private\MiniMapMarker.cpp" />
+    <ClCompile Include="..\Private\MiniMapPanel.cpp" />
+    <ClCompile Include="..\Private\MiniMapPlayer.cpp" />
     <ClCompile Include="..\Private\Mira.cpp" />
     <ClCompile Include="..\Private\Mira_Attack.cpp" />
     <ClCompile Include="..\Private\Mira_Death.cpp" />
@@ -302,6 +327,7 @@
     <ClCompile Include="..\Private\Particle_Blood.cpp" />
     <ClCompile Include="..\Private\Particle_CutAll.cpp" />
     <ClCompile Include="..\Private\Particle_EliteBlock.cpp" />
+    <ClCompile Include="..\Private\Particle_EliteDashBlock.cpp" />
     <ClCompile Include="..\Private\Particle_Explosion.cpp" />
     <ClCompile Include="..\Private\Particle_Nami.cpp" />
     <ClCompile Include="..\Private\Particle_ShockWave.cpp" />

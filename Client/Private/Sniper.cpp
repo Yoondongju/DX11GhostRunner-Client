@@ -52,7 +52,7 @@ HRESULT CSniper::Initialize(void* pArg)
         return E_FAIL;
 
     
-    m_pTransformCom->Scaling(2.5f, 2.5f, 2.5f);
+    m_pTransformCom->Scaling(2.8f, 2.8f, 2.8f);
 
 
     m_pModel->SetUp_Animation(CSniper::SNIPER_ANIMATION::IDLE, true);
@@ -74,17 +74,23 @@ void CSniper::Update(_float fTimeDelta)
     if (true == m_isDead)
     {
         if (m_fDiscard >= 1.f)
-            m_pGameInstance->Delete(LEVEL_GAMEPLAY, CRenderer::RG_NONBLEND, this);
+            m_pGameInstance->Delete(g_CurLevel, CRenderer::RG_NONBLEND, this);
 
         m_fDiscard += fTimeDelta * 0.4f;
     }
 
-    if(true == m_isMindControling)
-        m_Parts[PART_SHOCKWAVE]->SetActiveMyParticle(true);
-
-
     m_pFsm->Update(fTimeDelta);
     m_pModel->Play_Animation(fTimeDelta);
+
+
+    if (true == m_isMindControlReady)
+    {
+        _vector vTargetPos = m_pTargetEnemy->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+        m_pTransformCom->LookAt_XZ(vTargetPos);
+
+        m_pModel->SetUp_Animation(CSniper::SNIPER_ANIMATION::IDLE, true);
+        m_pFsm->Change_State(CSniper::SNIPER_ANIMATION::IDLE);
+    }
 
 
     for (auto& pPartObject : m_Parts)
@@ -145,6 +151,9 @@ HRESULT CSniper::Render()
         m_pModel->Bind_MeshBoneMatrices(m_pShaderCom, "g_BoneMatrices", i);
 
         if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
+            return E_FAIL;
+
+        if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
             return E_FAIL;
 
         if (FAILED(m_pShaderCom->Begin(iPassNum)))
@@ -270,7 +279,7 @@ HRESULT CSniper::Ready_Component()
     
 
     /* For.Com_VIBuffer */
-    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Sniper"),
+    if (FAILED(__super::Add_Component(g_CurLevel, TEXT("Prototype_Component_Model_Sniper"),
         TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModel), nullptr)))
         return E_FAIL;
 
@@ -319,16 +328,16 @@ HRESULT CSniper::Ready_Parts()
         return E_FAIL;
 
 
-    CParticle_ShockWave::SHOCKWAVE_DESC	ShockWaveDesc{};
-
-    ShockWaveDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
-    ShockWaveDesc.pSocketBoneMatrix = m_pModel->Get_BoneCombindTransformationMatrix_Ptr("spine_01");
-    ShockWaveDesc.pOwner = this;
-    ShockWaveDesc.InitWorldMatrix = XMMatrixIdentity();
-    ShockWaveDesc.fSpeedPerSec = 20.f;
-
-    if (FAILED(__super::Add_PartObject(PART_SHOCKWAVE, TEXT("Prototype_GameObject_Particle_ShockWave"), &ShockWaveDesc)))
-        return E_FAIL;
+    //CParticle_ShockWave::SHOCKWAVE_DESC	ShockWaveDesc{};
+    //
+    //ShockWaveDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    //ShockWaveDesc.pSocketBoneMatrix = m_pModel->Get_BoneCombindTransformationMatrix_Ptr("spine_01");
+    //ShockWaveDesc.pOwner = this;
+    //ShockWaveDesc.InitWorldMatrix = XMMatrixIdentity();
+    //ShockWaveDesc.fSpeedPerSec = 20.f;
+    //
+    //if (FAILED(__super::Add_PartObject(PART_SHOCKWAVE, TEXT("Prototype_GameObject_Particle_ShockWave"), &ShockWaveDesc)))
+    //    return E_FAIL;
 
 
     return S_OK;

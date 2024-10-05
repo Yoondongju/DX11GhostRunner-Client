@@ -82,7 +82,7 @@ void CShurikenTrail::Update(_float fTimeDelta , const _float4x4* pWeaponMatrix)
 	CVIBuffer_Trail::TRAIL_INFO TrailInfo = {};
 	TrailInfo.CurStart = CurStart;
 	TrailInfo.CurEnd = CurEnd;
-	TrailInfo.fLifeTime = 0.5f;
+	TrailInfo.fLifeTime = 1.5f;
 
 
 	_vector vCurPos = WeaponMatrix.r[3];
@@ -90,7 +90,7 @@ void CShurikenTrail::Update(_float fTimeDelta , const _float4x4* pWeaponMatrix)
 	_float fDistance = XMVectorGetX(XMVector3Length(XMVectorSubtract(XMLoadFloat3(&m_StartPos), vCurPos)));
 
 
-	if (m_Trail.size() > 150)			// 2개당 사각형 하나지
+	if (m_Trail.size() > 250)			// 2개당 사각형 하나지
 	{
 		m_Trail.pop_front();
 	}

@@ -19,7 +19,7 @@ BEGIN(Client)
 class CElite final : public CEnemy
 {
 public:
-	enum PARTID { PART_WEAPON, PART_EFFECT, PART_PARTICLE_BLOCK, PART_END };
+	enum PARTID { PART_WEAPON, PART_EFFECT, PART_PARTICLE_BLOCK, PART_PARTICLE_DASHBLOCK, PART_END };
 	enum ELITE_ANIMATION
 	{
 		IDLE_TO_ALERT,
@@ -88,17 +88,40 @@ private:
 	_float		m_fDiscard = { 0.f };
 
 private:
+	_float		m_fEnergy = {};
+	_float		m_fHp = {};
+
+
+private:
 	_bool		m_isGroggy = { false };
 
+private:
+	PxTransform				m_PxTransform = {};
+	PxRigidDynamic*			m_pPxRigidDynamic = { nullptr };
+	PxShape*				m_pShape = { nullptr };
+
+	PxVec3					m_vDir = {};
+	PxReal					m_vDepth = {};
+
+	CGameObject*			m_pCollisionDestObject = { nullptr };		// 내가 충돌한 옵젝
+
+
+private:
+	void		PhysXComputeCollision();
 
 private:
 	HRESULT		Ready_Component();
 	HRESULT		Ready_Parts();
 	HRESULT		Ready_State();
 
+	HRESULT		Ready_PhysX();
+
 	HRESULT		Ready_Change_Layer();
 
 	void		Ready_Modify_Animation();
+
+
+	HRESULT		Create_BossHp();
 
 public:
 	static CElite* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

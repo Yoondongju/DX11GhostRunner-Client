@@ -335,6 +335,8 @@ HRESULT CWeapon_Player::Render()
 			break;
 		}
 
+		if (FAILED(m_pModelCom[m_eCurType]->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
+			return E_FAIL;
 
 		if (FAILED(m_pShaderCom->Begin(iPassNum)))
 			return E_FAIL;

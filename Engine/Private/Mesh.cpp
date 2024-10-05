@@ -67,10 +67,10 @@ HRESULT CMesh::Initialize_Prototype(CModel* pModel, CModel::TYPE eModelType, _fm
 		CVIBuffer_Mesh_Instance::MESHINSTANCE_DESC			Desc{};
 		Desc.iNumInstance = 60;
 		Desc.vCenter = _float3(0.f, 0.f, 0.f);
-		Desc.vRange = _float3(1.5f, 1.f, 1.5f);
+		Desc.vRange = _float3(1.f, 2.5f, 1.f);
 		Desc.vSize = _float2(0.5f, 2.f);
 		Desc.vPivot = _float3(0.f, 0.f, 0.f);
-		Desc.vSpeed = _float2(5.f, 15.f);
+		Desc.vSpeed = _float2(10.f, 15.f);
 		Desc.vLifeTime = _float2(0.5f, 1.5f);
 		Desc.isLoop = false;
 

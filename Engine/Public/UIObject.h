@@ -38,6 +38,12 @@ public:
 
 	void				Set_Active(_bool b) { m_bActivate = b; }
 
+	void		 SetParentUI(CUIObject* _p)
+	{
+		m_pParentUI = _p;
+	}
+
+
 public:
 	virtual HRESULT Initialize_Prototype() override;
 	virtual HRESULT Initialize(void* pArg) override;
@@ -82,10 +88,7 @@ protected:
 	virtual void MouseOn();
 	virtual void MouseOut();
 
-	void		 SetParentUI(CUIObject* _p) 
-	{
-		m_pParentUI = _p;
-	}
+	
 
 
 

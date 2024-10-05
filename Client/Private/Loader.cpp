@@ -2,6 +2,8 @@
 #include "..\Public\Loader.h"
 #include "Terrain.h"
 #include "FreeCamera.h"
+
+
 #include "BackGround.h"
 #include "GameInstance.h"
 
@@ -52,11 +54,23 @@
 #include "IconUI.h"
 #include "NumberUI.h"
 #include "EnemyMarkerUI.h"
+#include "EnemyMarkerMC.h"
+
 #include "CrossHairUI.h"
 #include "EventNotify.h"
+#include "EnemyFindUI.h"
+#include "MiniMapPanel.h"
+#include "MiniMapMarker.h"
+#include "MiniMapPlayer.h"
+
+#include "BossHpPanel.h"
+#include "BossHpMain.h"
+#include "BossHpEnergy.h"
 
 
 #include "SwordTrail.h"
+#include "EliteSwordTrail.h"
+
 #include "ShurikenTrail.h"
 #include "Particle_ShurikenEffect.h"
 #include "Particle_Block.h"
@@ -67,6 +81,8 @@
 
 #include "Particle_Blood.h"
 #include "Particle_EliteBlock.h"
+#include "Particle_EliteDashBlock.h"
+
 #include "Particle_Explosion.h"
 #include "Particle_ShockWave.h"
 
@@ -128,12 +144,14 @@ HRESULT CLoader::Initialize(LEVELID eNextLevelID)
 {
 	m_eNextLevelID = eNextLevelID;
 
+	g_CurLevel = m_eNextLevelID;
+
 	InitializeCriticalSection(&m_CriticalSection);
 
 	m_hThread = (HANDLE)_beginthreadex(nullptr, 0, LoadingMain, this, 0, nullptr);
 	if (0 == m_hThread)
 		return E_FAIL;
-
+	 
 
 	return S_OK;
 }
@@ -144,8 +162,6 @@ HRESULT CLoader::Load_Terrain()
 	lstrcpy(m_szLoadingText, TEXT("Terrain을 로딩중.."));
 
 	switch (m_eNextLevelID) {
-	case Client::LEVEL_STATIC:
-		break;
 	case Client::LEVEL_LOADING:
 		break;
 	case Client::LEVEL_LOGO:
@@ -228,58 +244,320 @@ HRESULT CLoader::Load_Anim_GameObject()
 {
 	lstrcpy(m_szLoadingText, TEXT("AnimObject를 로딩중.."));
 
-	FILE* file;
+	FILE* file = nullptr;
 
 	switch (m_eNextLevelID)
 	{
-	case Client::LEVEL_STATIC:
-		break;
 	case Client::LEVEL_LOADING:
 		break;
 	case Client::LEVEL_LOGO:
 		break;
 	case Client::LEVEL_GAMEPLAY:
 	{
-		fopen_s(&file, "../Bin/Anim_Model_Data.bin", "rb");
-		if (!file)    // 파일 열었다면
+		
+	}
+	break;
+
+	case Client::LEVEL_STAGE1:
+	{
+		fopen_s(&file, "../Bin/Stage1/Anim_Model_Data.bin", "rb");
+	}
+		break;
+
+	case Client::LEVEL_STAGE1_BOSS:
+	{
+		fopen_s(&file, "../Bin/Stage1_BossMap/Anim_Model_Data.bin", "rb");
+	}
+		break;
+	case Client::LEVEL_END:
+		break;
+	default:
+		break;
+	}
+
+
+	if (!file)    // 파일 열었다면
+	{
+		MSG_BOX(TEXT("파일 읽기를 실패했어요.."));
+		return E_FAIL;
+	}
+
+	_uint iObjectCount = {};
+	_uint iObjectType = (_uint)MODEL_CHECK_LIST::MODEL_CHECK_TYPE_END;
+
+	string strMyPrototypeName = "";
+	wstring wstrMyPrototypeName = L"";
+
+	string strMyLayerName = "";
+	wstring wstrMyLayerName = L"";
+
+	string strMyModelPrototypeName = "";
+	wstring wstrMyModelPrototypeName = L"";
+
+	_uint iModelType = 0;
+
+	string strMyModelFilePath = "";
+
+	string strMaterialTexturePath = "";
+	wstring wstrMaterialTexturePath[15][AI_TEXTURE_TYPE_MAX] = { L"" };
+
+	_uint iMeshesCount = 0;
+	_uint iMaterialsCount = 0;
+
+	_float4x4 PreTransformMatrix = {};
+
+	fread(&iObjectCount, sizeof(iObjectCount), 1, file);
+
+	m_iNumLoadingAnimObject[m_eNextLevelID] = iObjectCount;
+	m_pLoadingAnimObjectInfo[m_eNextLevelID] = new LOADING_OBJECT_INFO[iObjectCount];
+
+	for (size_t i = 0; i < iObjectCount; i++)
+	{
+		// 객체원형 //
+		fread(&iObjectType, sizeof(iObjectType), 1, file);
+
+		// 프로토타입 이름 읽기
+		ReadString(file, strMyPrototypeName);
+		wstrMyPrototypeName = stringToWstring(strMyPrototypeName);
+
+		// 레이어 이름 읽기
+		ReadString(file, strMyLayerName);
+		wstrMyLayerName = stringToWstring(strMyLayerName);
+
+
+
+		// 모델 //
+		fread(&PreTransformMatrix, sizeof(PreTransformMatrix), 1, file);
+
+		ReadString(file, strMyModelPrototypeName);
+		wstrMyModelPrototypeName = stringToWstring(strMyModelPrototypeName);
+
+		fread(&iModelType, sizeof(iModelType), 1, file);
+
+		ReadString(file, strMyModelFilePath);
+
+		fread(&iMeshesCount, sizeof(iMeshesCount), 1, file);
+		fread(&iMaterialsCount, sizeof(iMaterialsCount), 1, file);
+
+		for (size_t i = 0; i < iMaterialsCount; i++)
 		{
-			MSG_BOX(TEXT("파일 읽기를 실패했어요.."));
-			return E_FAIL;
+			for (size_t j = 0; j < AI_TEXTURE_TYPE_MAX; j++)
+			{
+				ReadString(file, strMaterialTexturePath);
+				wstrMaterialTexturePath[i][j] = stringToWstring(strMaterialTexturePath);
+			}
 		}
 
-		_uint iObjectCount = {};
-		_uint iObjectType = (_uint)MODEL_CHECK_LIST::MODEL_CHECK_TYPE_END;
+		CMesh::MESH_DESC* pDesc = new CMesh::MESH_DESC[iMeshesCount];
 
-		string strMyPrototypeName = "";
-		wstring wstrMyPrototypeName = L"";
+		CBone::INIT_BONE_DESC Desc = {};
+		CAnimation::ANIMATION_DESC AnimationDesc = {};
+		vector<vector<_uint>> vecKeyFrameIndices;
 
-		string strMyLayerName = "";
-		wstring wstrMyLayerName = L"";
-
-		string strMyModelPrototypeName = "";
-		wstring wstrMyModelPrototypeName = L"";
-
-		_uint iModelType = 0;
-
-		string strMyModelFilePath = "";
-
-		string strMaterialTexturePath = "";
-		wstring wstrMaterialTexturePath[15][AI_TEXTURE_TYPE_MAX] = { L"" };
-
-		_uint iMeshesCount = 0;
-		_uint iMaterialsCount = 0;
-
-		_float4x4 PreTransformMatrix = {};
-
-		fread(&iObjectCount, sizeof(iObjectCount), 1, file);
-
-		m_iNumLoadingAnimObject[LEVEL_GAMEPLAY] = iObjectCount;
-		m_pLoadingAnimObjectInfo[LEVEL_GAMEPLAY] = new LOADING_OBJECT_INFO[iObjectCount];
-
-		for (size_t i = 0; i < iObjectCount; i++)
+		for (size_t i = 0; i < iMeshesCount; i++)
 		{
-			// 객체원형 //
-			fread(&iObjectType, sizeof(iObjectType), 1, file);
+			fread(&pDesc[i].iMaterialIndex, sizeof(pDesc[i].iMaterialIndex), 1, file);
+			fread(&pDesc[i].iNumVertices, sizeof(pDesc[i].iNumVertices), 1, file);
+			fread(&pDesc[i].iVertexStride, sizeof(pDesc[i].iVertexStride), 1, file);
+
+			pDesc[i].pAnimVertices = new VTXANIMMESH[pDesc[i].iNumVertices];
+			fread(pDesc[i].pAnimVertices, sizeof(VTXANIMMESH) * pDesc[i].iNumVertices, 1, file);
+
+			fread(&pDesc[i].iNumIndices, sizeof(pDesc[i].iNumIndices), 1, file);
+			fread(&pDesc[i].iIndexStride, sizeof(pDesc[i].iIndexStride), 1, file);
+
+			pDesc[i].pIndices = new _uint[pDesc[i].iNumIndices];
+			fread(pDesc[i].pIndices, sizeof(_uint) * pDesc[i].iNumIndices, 1, file);
+
+			fread(&pDesc[i].eIndexFormat, sizeof(pDesc[i].eIndexFormat), 1, file);
+			fread(&pDesc[i].eTopology, sizeof(pDesc[i].eTopology), 1, file);
+
+			fread(&pDesc[i].vMinPos, sizeof(pDesc[i].vMinPos), 1, file);
+			fread(&pDesc[i].vMaxPos, sizeof(pDesc[i].vMaxPos), 1, file);
+
+			_uint iNumModelBones = {};
+			fread(&iNumModelBones, sizeof(iNumModelBones), 1, file);
+
+			Desc.vecChildBones.resize(iNumModelBones);
+
+			for (size_t i = 0; i < iNumModelBones; i++)
+			{
+				_int iParentBoneIndex = {};
+				_uint iNumChildBone = {};
+
+				_char* szName = nullptr;
+				size_t nameLength = {};
+
+				_float4x4 TransformationMatrix = {};
+				_float4x4 CombinedTransformationMatrix = {};
+
+				fread(&iParentBoneIndex, sizeof(iParentBoneIndex), 1, file);
+				fread(&iNumChildBone, sizeof(iNumChildBone), 1, file);
+
+				fread(&nameLength, sizeof(nameLength), 1, file);
+				szName = new char[nameLength + 1];
+				fread(szName, nameLength, 1, file);
+				szName[nameLength] = '\0';
+
+				fread(&TransformationMatrix, sizeof(TransformationMatrix), 1, file);
+				fread(&CombinedTransformationMatrix, sizeof(CombinedTransformationMatrix), 1, file);
+
+				Desc.vecChildBones[i].iParentBoneIndex = iParentBoneIndex;
+				Desc.vecChildBones[i].iNumChildBone = iNumChildBone;
+
+				strcpy(Desc.vecChildBones[i].szName, szName);
+
+				Desc.vecChildBones[i].TransformationMatrix = TransformationMatrix;
+				Desc.vecChildBones[i].CombinedTransformaionMatrix = CombinedTransformationMatrix;
+
+				delete[] szName;
+			}
+
+			_char* szName = nullptr;
+			size_t nameLength = {};
+
+			fread(&nameLength, sizeof(nameLength), 1, file);
+			szName = new char[nameLength + 1];
+			fread(szName, nameLength, 1, file);
+			szName[nameLength] = '\0';
+
+			_uint iNum_AffectedBones = {};
+			fread(&iNum_AffectedBones, sizeof(iNum_AffectedBones), 1, file);
+
+			vector<_uint> vecIndices;
+			vecIndices.resize(iNum_AffectedBones);
+
+			vector<_float4x4> vecOffsetMatrix;
+			vecOffsetMatrix.resize(iNum_AffectedBones);
+
+			for (size_t i = 0; i < iNum_AffectedBones; i++)
+			{
+				fread(&vecIndices[i], sizeof(vecIndices[i]), 1, file);
+				fread(&vecOffsetMatrix[i], sizeof(vecOffsetMatrix[i]), 1, file);
+			}
+
+			strcpy(pDesc[i].pName, szName);
+			pDesc[i].vecIndices.resize(iNum_AffectedBones);
+			pDesc[i].vecOffsetMatrix.resize(iNum_AffectedBones);
+
+			pDesc[i].iNumAffectBones = iNum_AffectedBones;
+			pDesc[i].vecIndices = vecIndices;
+			pDesc[i].vecOffsetMatrix = vecOffsetMatrix;
+
+			delete[] szName;
+
+			_uint iNumAnimation = {};
+			fread(&iNumAnimation, sizeof(iNumAnimation), 1, file);
+
+			_uint iNumChannel = {};
+
+			AnimationDesc.vecAnimationDesc.resize(iNumAnimation);
+
+			for (size_t i = 0; i < iNumAnimation; i++)
+			{
+				_char* szName = nullptr;
+				size_t nameLength = {};
+
+				fread(&nameLength, sizeof(nameLength), 1, file);
+				szName = new char[nameLength + 1];
+				fread(szName, nameLength, 1, file);
+				szName[nameLength] = '\0';
+
+				_double Duration = {};
+				_double SpeedPerSec = {};
+
+				fread(&Duration, sizeof(Duration), 1, file);
+				fread(&SpeedPerSec, sizeof(SpeedPerSec), 1, file);
+				fread(&iNumChannel, sizeof(iNumChannel), 1, file);
+
+				AnimationDesc.vecAnimationDesc[i].vecChannelDesc.resize(iNumChannel);
+
+				for (size_t j = 0; j < iNumChannel; j++)
+				{
+					_char* szName = nullptr;
+					size_t nameLength = {};
+
+					_uint iBoneIndex = {};
+
+					_uint iNumKeyFrame = {};
+
+					fread(&nameLength, sizeof(nameLength), 1, file);
+					szName = new char[nameLength + 1];
+					fread(szName, nameLength, 1, file);
+					szName[nameLength] = '\0';
+
+					fread(&iBoneIndex, sizeof(iBoneIndex), 1, file);
+					fread(&iNumKeyFrame, sizeof(iNumKeyFrame), 1, file);
+
+					strcpy(AnimationDesc.vecAnimationDesc[i].vecChannelDesc[j].pName, szName);
+					AnimationDesc.vecAnimationDesc[i].vecChannelDesc[j].iBoneIndex = iBoneIndex;
+					AnimationDesc.vecAnimationDesc[i].vecChannelDesc[j].iNumKeyFrames = iNumKeyFrame;
+
+					delete[] szName;
+
+					AnimationDesc.vecAnimationDesc[i].vecChannelDesc[j].vecKeyFrames.resize(iNumKeyFrame);
+
+					for (size_t k = 0; k < iNumKeyFrame; k++)
+					{
+						_float3 vScale = {};
+						_float4 vRotation = {};
+						_float3 vTranslation = {};
+						_double vTarckPosition = {};
+
+						fread(&vScale, sizeof(vScale), 1, file);
+						fread(&vRotation, sizeof(vRotation), 1, file);
+						fread(&vTranslation, sizeof(vTranslation), 1, file);
+						fread(&vTarckPosition, sizeof(vTarckPosition), 1, file);
+
+						AnimationDesc.vecAnimationDesc[i].vecChannelDesc[j].vecKeyFrames[k].vScale = vScale;
+						AnimationDesc.vecAnimationDesc[i].vecChannelDesc[j].vecKeyFrames[k].vRotation = vRotation;
+						AnimationDesc.vecAnimationDesc[i].vecChannelDesc[j].vecKeyFrames[k].vTranslation = vTranslation;
+						AnimationDesc.vecAnimationDesc[i].vecChannelDesc[j].vecKeyFrames[k].TrackPosition = vTarckPosition;
+					}
+				}
+
+				strcpy(AnimationDesc.vecAnimationDesc[i].szName, szName);
+				AnimationDesc.vecAnimationDesc[i].Duration = Duration;
+				AnimationDesc.vecAnimationDesc[i].SpeedPerSec = SpeedPerSec;
+				AnimationDesc.vecAnimationDesc[i].iNumChannels = iNumChannel;
+				delete[] szName;
+			}
+		}
+
+		if (true == m_pGameInstance->IsFind_Model(m_eNextLevelID, wstrMyModelPrototypeName))
+		{
+			int a = 0;
+		}
+		else
+		{
+			if (FAILED(m_pGameInstance->Add_Prototype(m_eNextLevelID, wstrMyModelPrototypeName,
+				CModel::Create(m_pDevice, m_pContext, (CModel::TYPE)iModelType,
+					strMyModelFilePath.c_str(),
+					*wstrMaterialTexturePath,
+					iMeshesCount,
+					iMaterialsCount,
+					XMLoadFloat4x4(&PreTransformMatrix),
+					pDesc,
+					reinterpret_cast<void*>(&Desc),
+					reinterpret_cast<void*>(&AnimationDesc)))))
+			{
+				_wstring msg = to_wstring(i) + L"번째" + L"모델이 로드가 안댐";
+				MSG_BOX(msg.c_str());
+				return E_FAIL;
+			}
+		}
+
+		// 월드 행렬 읽기
+		_float4x4 WorldMatrix;
+		fread(&WorldMatrix, sizeof(WorldMatrix), 1, file);
+
+
+		if (MODEL_CHECK_LIST::ELITE == iObjectType ||
+			MODEL_CHECK_LIST::JETPACK == iObjectType ||
+			MODEL_CHECK_LIST::PISTOL == iObjectType ||
+			MODEL_CHECK_LIST::SNIPER == iObjectType)
+		{
+			fread(reinterpret_cast<char*>(&iObjectType), sizeof(iObjectType), 1, file);
 
 			// 프로토타입 이름 읽기
 			ReadString(file, strMyPrototypeName);
@@ -289,369 +567,542 @@ HRESULT CLoader::Load_Anim_GameObject()
 			ReadString(file, strMyLayerName);
 			wstrMyLayerName = stringToWstring(strMyLayerName);
 
-			
+			_uint iPartSize = {};
+			fread(reinterpret_cast<char*>(&iPartSize), sizeof(iPartSize), 1, file);
 
-			// 모델 //
-			fread(&PreTransformMatrix, sizeof(PreTransformMatrix), 1, file);
-
-			ReadString(file, strMyModelPrototypeName);
-			wstrMyModelPrototypeName = stringToWstring(strMyModelPrototypeName);
-
-			fread(&iModelType, sizeof(iModelType), 1, file);
-
-			ReadString(file, strMyModelFilePath);
-
-			fread(&iMeshesCount, sizeof(iMeshesCount), 1, file);
-			fread(&iMaterialsCount, sizeof(iMaterialsCount), 1, file);
-
-			for (size_t i = 0; i < iMaterialsCount; i++)
+			for (_uint k = 0; k < iPartSize; k++)
 			{
-				for (size_t j = 0; j < AI_TEXTURE_TYPE_MAX; j++)
+				_uint iMeshesCount = {};
+				_uint iMaterialsCount = {};
+
+				// 모델 //
+				fread(reinterpret_cast<char*>(&PreTransformMatrix), sizeof(PreTransformMatrix), 1, file);
+
+				ReadString(file, strMyModelPrototypeName);
+				wstrMyModelPrototypeName = stringToWstring(strMyModelPrototypeName);
+
+				fread(reinterpret_cast<char*>(&iModelType), sizeof(iModelType), 1, file);
+
+				ReadString(file, strMyModelFilePath);  // 모델 fbx경로 _char* 를 요구하기에 string 으로 해야함
+
+				fread(reinterpret_cast<char*>(&iMeshesCount), sizeof(iMeshesCount), 1, file);
+				fread(reinterpret_cast<char*>(&iMaterialsCount), sizeof(iMaterialsCount), 1, file);
+
+				for (size_t i = 0; i < iMaterialsCount; i++)
 				{
-					ReadString(file, strMaterialTexturePath);
-					wstrMaterialTexturePath[i][j] = stringToWstring(strMaterialTexturePath);
-				}
-			}
-
-			CMesh::MESH_DESC* pDesc = new CMesh::MESH_DESC[iMeshesCount];
-
-			CBone::INIT_BONE_DESC Desc = {};
-			CAnimation::ANIMATION_DESC AnimationDesc = {};
-			vector<vector<_uint>> vecKeyFrameIndices;
-
-			for (size_t i = 0; i < iMeshesCount; i++)
-			{
-				fread(&pDesc[i].iMaterialIndex, sizeof(pDesc[i].iMaterialIndex), 1, file);
-				fread(&pDesc[i].iNumVertices, sizeof(pDesc[i].iNumVertices), 1, file);
-				fread(&pDesc[i].iVertexStride, sizeof(pDesc[i].iVertexStride), 1, file);
-
-				pDesc[i].pAnimVertices = new VTXANIMMESH[pDesc[i].iNumVertices];
-				fread(pDesc[i].pAnimVertices, sizeof(VTXANIMMESH) * pDesc[i].iNumVertices, 1, file);
-
-				fread(&pDesc[i].iNumIndices, sizeof(pDesc[i].iNumIndices), 1, file);
-				fread(&pDesc[i].iIndexStride, sizeof(pDesc[i].iIndexStride), 1, file);
-
-				pDesc[i].pIndices = new _uint[pDesc[i].iNumIndices];
-				fread(pDesc[i].pIndices, sizeof(_uint) * pDesc[i].iNumIndices, 1, file);
-
-				fread(&pDesc[i].eIndexFormat, sizeof(pDesc[i].eIndexFormat), 1, file);
-				fread(&pDesc[i].eTopology, sizeof(pDesc[i].eTopology), 1, file);
-
-				fread(&pDesc[i].vMinPos, sizeof(pDesc[i].vMinPos), 1, file);
-				fread(&pDesc[i].vMaxPos, sizeof(pDesc[i].vMaxPos), 1, file);
-
-				_uint iNumModelBones = {};
-				fread(&iNumModelBones, sizeof(iNumModelBones), 1, file);
-
-				Desc.vecChildBones.resize(iNumModelBones);
-
-				for (size_t i = 0; i < iNumModelBones; i++)
-				{
-					_int iParentBoneIndex = {};
-					_uint iNumChildBone = {};
-
-					_char* szName = nullptr;
-					size_t nameLength = {};
-
-					_float4x4 TransformationMatrix = {};
-					_float4x4 CombinedTransformationMatrix = {};
-
-					fread(&iParentBoneIndex, sizeof(iParentBoneIndex), 1, file);
-					fread(&iNumChildBone, sizeof(iNumChildBone), 1, file);
-
-					fread(&nameLength, sizeof(nameLength), 1, file);
-					szName = new char[nameLength + 1];
-					fread(szName, nameLength, 1, file);
-					szName[nameLength] = '\0';
-
-					fread(&TransformationMatrix, sizeof(TransformationMatrix), 1, file);
-					fread(&CombinedTransformationMatrix, sizeof(CombinedTransformationMatrix), 1, file);
-
-					Desc.vecChildBones[i].iParentBoneIndex = iParentBoneIndex;
-					Desc.vecChildBones[i].iNumChildBone = iNumChildBone;
-
-					strcpy(Desc.vecChildBones[i].szName, szName);
-
-					Desc.vecChildBones[i].TransformationMatrix = TransformationMatrix;
-					Desc.vecChildBones[i].CombinedTransformaionMatrix = CombinedTransformationMatrix;
-
-					delete[] szName;
-				}
-
-				_char* szName = nullptr;
-				size_t nameLength = {};
-
-				fread(&nameLength, sizeof(nameLength), 1, file);
-				szName = new char[nameLength + 1];
-				fread(szName, nameLength, 1, file);
-				szName[nameLength] = '\0';
-
-				_uint iNum_AffectedBones = {};
-				fread(&iNum_AffectedBones, sizeof(iNum_AffectedBones), 1, file);
-
-				vector<_uint> vecIndices;
-				vecIndices.resize(iNum_AffectedBones);
-
-				vector<_float4x4> vecOffsetMatrix;
-				vecOffsetMatrix.resize(iNum_AffectedBones);
-
-				for (size_t i = 0; i < iNum_AffectedBones; i++)
-				{
-					fread(&vecIndices[i], sizeof(vecIndices[i]), 1, file);
-					fread(&vecOffsetMatrix[i], sizeof(vecOffsetMatrix[i]), 1, file);
-				}
-
-				strcpy(pDesc[i].pName, szName);
-				pDesc[i].vecIndices.resize(iNum_AffectedBones);
-				pDesc[i].vecOffsetMatrix.resize(iNum_AffectedBones);
-
-				pDesc[i].iNumAffectBones = iNum_AffectedBones;
-				pDesc[i].vecIndices = vecIndices;
-				pDesc[i].vecOffsetMatrix = vecOffsetMatrix;
-
-				delete[] szName;
-
-				_uint iNumAnimation = {};
-				fread(&iNumAnimation, sizeof(iNumAnimation), 1, file);
-
-				_uint iNumChannel = {};
-
-				AnimationDesc.vecAnimationDesc.resize(iNumAnimation);
-
-				for (size_t i = 0; i < iNumAnimation; i++)
-				{
-					_char* szName = nullptr;
-					size_t nameLength = {};
-
-					fread(&nameLength, sizeof(nameLength), 1, file);
-					szName = new char[nameLength + 1];
-					fread(szName, nameLength, 1, file);
-					szName[nameLength] = '\0';
-
-					_double Duration = {};
-					_double SpeedPerSec = {};
-
-					fread(&Duration, sizeof(Duration), 1, file);
-					fread(&SpeedPerSec, sizeof(SpeedPerSec), 1, file);
-					fread(&iNumChannel, sizeof(iNumChannel), 1, file);
-
-					AnimationDesc.vecAnimationDesc[i].vecChannelDesc.resize(iNumChannel);
-
-					for (size_t j = 0; j < iNumChannel; j++)
+					for (size_t j = 0; j < AI_TEXTURE_TYPE_MAX; j++)
 					{
-						_char* szName = nullptr;
-						size_t nameLength = {};
-
-						_uint iBoneIndex = {};
-
-						_uint iNumKeyFrame = {};
-
-						fread(&nameLength, sizeof(nameLength), 1, file);
-						szName = new char[nameLength + 1];
-						fread(szName, nameLength, 1, file);
-						szName[nameLength] = '\0';
-
-						fread(&iBoneIndex, sizeof(iBoneIndex), 1, file);
-						fread(&iNumKeyFrame, sizeof(iNumKeyFrame), 1, file);
-
-						strcpy(AnimationDesc.vecAnimationDesc[i].vecChannelDesc[j].pName, szName);
-						AnimationDesc.vecAnimationDesc[i].vecChannelDesc[j].iBoneIndex = iBoneIndex;
-						AnimationDesc.vecAnimationDesc[i].vecChannelDesc[j].iNumKeyFrames = iNumKeyFrame;
-
-						delete[] szName;
-
-						AnimationDesc.vecAnimationDesc[i].vecChannelDesc[j].vecKeyFrames.resize(iNumKeyFrame);
-
-						for (size_t k = 0; k < iNumKeyFrame; k++)
-						{
-							_float3 vScale = {};
-							_float4 vRotation = {};
-							_float3 vTranslation = {};
-							_double vTarckPosition = {};
-
-							fread(&vScale, sizeof(vScale), 1, file);
-							fread(&vRotation, sizeof(vRotation), 1, file);
-							fread(&vTranslation, sizeof(vTranslation), 1, file);
-							fread(&vTarckPosition, sizeof(vTarckPosition), 1, file);
-
-							AnimationDesc.vecAnimationDesc[i].vecChannelDesc[j].vecKeyFrames[k].vScale = vScale;
-							AnimationDesc.vecAnimationDesc[i].vecChannelDesc[j].vecKeyFrames[k].vRotation = vRotation;
-							AnimationDesc.vecAnimationDesc[i].vecChannelDesc[j].vecKeyFrames[k].vTranslation = vTranslation;
-							AnimationDesc.vecAnimationDesc[i].vecChannelDesc[j].vecKeyFrames[k].TrackPosition = vTarckPosition;
-						}
+						ReadString(file, strMaterialTexturePath);
+						wstrMaterialTexturePath[i][j] = stringToWstring(strMaterialTexturePath); // 머테리얼 경로
 					}
-
-					strcpy(AnimationDesc.vecAnimationDesc[i].szName, szName);
-					AnimationDesc.vecAnimationDesc[i].Duration = Duration;
-					AnimationDesc.vecAnimationDesc[i].SpeedPerSec = SpeedPerSec;
-					AnimationDesc.vecAnimationDesc[i].iNumChannels = iNumChannel;
-					delete[] szName;
 				}
-			}
 
-			if (true == m_pGameInstance->IsFind_Model(LEVEL_GAMEPLAY, wstrMyModelPrototypeName))
-			{
-				int a = 0;
-			}
-			else
-			{	
-				if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, wstrMyModelPrototypeName,
-					CModel::Create(m_pDevice, m_pContext, (CModel::TYPE)iModelType,
-						strMyModelFilePath.c_str(),
-						*wstrMaterialTexturePath,
-						iMeshesCount,
-						iMaterialsCount,
-						XMLoadFloat4x4(&PreTransformMatrix),
-						pDesc,
-						reinterpret_cast<void*>(&Desc),
-						reinterpret_cast<void*>(&AnimationDesc)))))
+				CMesh::MESH_DESC* pDesc = new CMesh::MESH_DESC[iMeshesCount];
+
+				for (size_t i = 0; i < iMeshesCount; i++)
 				{
-					_wstring msg = to_wstring(i) + L"번째" + L"모델이 로드가 안댐";
-					MSG_BOX(msg.c_str());
-					return E_FAIL;
+					fread(reinterpret_cast<char*>(&pDesc[i].iMaterialIndex), sizeof(pDesc[i].iMaterialIndex), 1, file);
+					fread(reinterpret_cast<char*>(&pDesc[i].iNumVertices), sizeof(pDesc[i].iNumVertices), 1, file);
+					fread(reinterpret_cast<char*>(&pDesc[i].iVertexStride), sizeof(pDesc[i].iVertexStride), 1, file);
+
+					pDesc[i].pVertices = new VTXMESH[pDesc[i].iNumVertices];
+					fread(reinterpret_cast<char*>(pDesc[i].pVertices), sizeof(VTXMESH) * pDesc[i].iNumVertices, 1, file);
+
+					fread(reinterpret_cast<char*>(&pDesc[i].iNumIndices), sizeof(pDesc[i].iNumIndices), 1, file);
+					fread(reinterpret_cast<char*>(&pDesc[i].iIndexStride), sizeof(pDesc[i].iIndexStride), 1, file);
+
+					pDesc[i].pIndices = new _uint[pDesc[i].iNumIndices];
+					fread(reinterpret_cast<char*>(pDesc[i].pIndices), sizeof(_uint) * pDesc[i].iNumIndices, 1, file);
+
+					fread(reinterpret_cast<char*>(&pDesc[i].eIndexFormat), sizeof(pDesc[i].eIndexFormat), 1, file);
+					fread(reinterpret_cast<char*>(&pDesc[i].eTopology), sizeof(pDesc[i].eTopology), 1, file);
+
+					fread(reinterpret_cast<char*>(&pDesc[i].vMinPos), sizeof(pDesc[i].vMinPos), 1, file);
+					fread(reinterpret_cast<char*>(&pDesc[i].vMaxPos), sizeof(pDesc[i].vMaxPos), 1, file);
 				}
+
+				if (true == m_pGameInstance->IsFind_Model(m_eNextLevelID, wstrMyModelPrototypeName))  // 내가 불러오고자 하는 모델이 이미 불러왔어?
+				{
+					// 모델을 찾았을 때의 처리
+				}
+				else
+				{
+					if (FAILED(m_pGameInstance->Add_Prototype(m_eNextLevelID, wstrMyModelPrototypeName, // 모델 프로토타입 이름
+						CModel::Create(m_pDevice, m_pContext, (CModel::TYPE)iModelType,  // 모델타입
+							strMyModelFilePath.c_str(),  // 모델 fbx 경로
+							*wstrMaterialTexturePath,  // 머테리얼 텍스쳐 경로
+							iMeshesCount,  // 메쉬 갯수
+							iMaterialsCount,  // 머테리얼 갯수
+							XMLoadFloat4x4(&PreTransformMatrix),  // 더미
+							pDesc))))  // 메쉬를 이루기 위한 정보
+					{
+						MSG_BOX(TEXT("AnimModel의 Part가 로드가 안댐요"));
+						return E_FAIL;
+					}
+				}
+
+
+				// 머라고해야하지
+				//m_pLoadingAnimObjectInfo[LEVEL_GAMEPLAY][i].PartsInfo[k].strLayerName = wstrMyLayerName;
+				//m_pLoadingAnimObjectInfo[LEVEL_GAMEPLAY][i].PartsInfo[k].strPrototypeName = wstrMyPrototypeName;
+				//m_pLoadingAnimObjectInfo[LEVEL_GAMEPLAY][i].PartsInfo[k].strModelPrototypeName = wstrMyModelPrototypeName;
+				//
+				//XMStoreFloat4x4(&m_pLoadingAnimObjectInfo[LEVEL_GAMEPLAY][i].PartsInfo[k].vWorldMatrix, XMMatrixIdentity());
+
+				for (size_t i = 0; i < iMeshesCount; i++)
+				{
+					Safe_Delete_Array(pDesc[i].pVertices);
+					Safe_Delete_Array(pDesc[i].pIndices);
+				}
+				Safe_Delete_Array(pDesc);
+
 			}
+
 
 			// 월드 행렬 읽기
 			_float4x4 WorldMatrix;
-			fread(&WorldMatrix, sizeof(WorldMatrix), 1, file);
+			fread(reinterpret_cast<char*>(&WorldMatrix), sizeof(WorldMatrix), 1, file);
 
 
-			if (MODEL_CHECK_LIST::ELITE == iObjectType ||
-				MODEL_CHECK_LIST::JETPACK == iObjectType ||
-				MODEL_CHECK_LIST::PISTOL == iObjectType ||
-				MODEL_CHECK_LIST::SNIPER == iObjectType)
-			{			
-				fread(reinterpret_cast<char*>(&iObjectType), sizeof(iObjectType), 1, file);
-
-				// 프로토타입 이름 읽기
-				ReadString(file, strMyPrototypeName);
-				wstrMyPrototypeName = stringToWstring(strMyPrototypeName);
-
-				// 레이어 이름 읽기
-				ReadString(file, strMyLayerName);
-				wstrMyLayerName = stringToWstring(strMyLayerName);
-
-				_uint iPartSize = {};
-				fread(reinterpret_cast<char*>(&iPartSize), sizeof(iPartSize), 1, file);
-
-				for (_uint k = 0; k < iPartSize; k++)
-				{
-					_uint iMeshesCount = {};
-					_uint iMaterialsCount = {};
-
-					// 모델 //
-					fread(reinterpret_cast<char*>(&PreTransformMatrix), sizeof(PreTransformMatrix), 1, file);
-
-					ReadString(file, strMyModelPrototypeName);
-					wstrMyModelPrototypeName = stringToWstring(strMyModelPrototypeName);
-
-					fread(reinterpret_cast<char*>(&iModelType), sizeof(iModelType), 1, file);
-
-					ReadString(file, strMyModelFilePath);  // 모델 fbx경로 _char* 를 요구하기에 string 으로 해야함
-
-					fread(reinterpret_cast<char*>(&iMeshesCount), sizeof(iMeshesCount), 1, file);
-					fread(reinterpret_cast<char*>(&iMaterialsCount), sizeof(iMaterialsCount), 1, file);
-
-					for (size_t i = 0; i < iMaterialsCount; i++)
-					{
-						for (size_t j = 0; j < AI_TEXTURE_TYPE_MAX; j++)
-						{
-							ReadString(file, strMaterialTexturePath);
-							wstrMaterialTexturePath[i][j] = stringToWstring(strMaterialTexturePath); // 머테리얼 경로
-						}
-					}
-
-					CMesh::MESH_DESC* pDesc = new CMesh::MESH_DESC[iMeshesCount];
-
-					for (size_t i = 0; i < iMeshesCount; i++)
-					{
-						fread(reinterpret_cast<char*>(&pDesc[i].iMaterialIndex), sizeof(pDesc[i].iMaterialIndex), 1, file);
-						fread(reinterpret_cast<char*>(&pDesc[i].iNumVertices), sizeof(pDesc[i].iNumVertices), 1, file);
-						fread(reinterpret_cast<char*>(&pDesc[i].iVertexStride), sizeof(pDesc[i].iVertexStride), 1, file);
-
-						pDesc[i].pVertices = new VTXMESH[pDesc[i].iNumVertices];
-						fread(reinterpret_cast<char*>(pDesc[i].pVertices), sizeof(VTXMESH) * pDesc[i].iNumVertices, 1, file);
-
-						fread(reinterpret_cast<char*>(&pDesc[i].iNumIndices), sizeof(pDesc[i].iNumIndices), 1, file);
-						fread(reinterpret_cast<char*>(&pDesc[i].iIndexStride), sizeof(pDesc[i].iIndexStride), 1, file);
-
-						pDesc[i].pIndices = new _uint[pDesc[i].iNumIndices];
-						fread(reinterpret_cast<char*>(pDesc[i].pIndices), sizeof(_uint) * pDesc[i].iNumIndices, 1, file);
-
-						fread(reinterpret_cast<char*>(&pDesc[i].eIndexFormat), sizeof(pDesc[i].eIndexFormat), 1, file);
-						fread(reinterpret_cast<char*>(&pDesc[i].eTopology), sizeof(pDesc[i].eTopology), 1, file);
-
-						fread(reinterpret_cast<char*>(&pDesc[i].vMinPos), sizeof(pDesc[i].vMinPos), 1, file);
-						fread(reinterpret_cast<char*>(&pDesc[i].vMaxPos), sizeof(pDesc[i].vMaxPos), 1, file);
-					}
-
-					if (true == m_pGameInstance->IsFind_Model(LEVEL_GAMEPLAY, wstrMyModelPrototypeName))  // 내가 불러오고자 하는 모델이 이미 불러왔어?
-					{
-						// 모델을 찾았을 때의 처리
-					}
-					else
-					{
-						if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, wstrMyModelPrototypeName, // 모델 프로토타입 이름
-							CModel::Create(m_pDevice, m_pContext, (CModel::TYPE)iModelType,  // 모델타입
-								strMyModelFilePath.c_str(),  // 모델 fbx 경로
-								*wstrMaterialTexturePath,  // 머테리얼 텍스쳐 경로
-								iMeshesCount,  // 메쉬 갯수
-								iMaterialsCount,  // 머테리얼 갯수
-								XMLoadFloat4x4(&PreTransformMatrix),  // 더미
-								pDesc))))  // 메쉬를 이루기 위한 정보
-						{							
-							MSG_BOX(TEXT("AnimModel의 Part가 로드가 안댐요"));
-							return E_FAIL;
-						}
-					}
-
-					
-					// 머라고해야하지
-					//m_pLoadingAnimObjectInfo[LEVEL_GAMEPLAY][i].PartsInfo[k].strLayerName = wstrMyLayerName;
-					//m_pLoadingAnimObjectInfo[LEVEL_GAMEPLAY][i].PartsInfo[k].strPrototypeName = wstrMyPrototypeName;
-					//m_pLoadingAnimObjectInfo[LEVEL_GAMEPLAY][i].PartsInfo[k].strModelPrototypeName = wstrMyModelPrototypeName;
-					//
-					//XMStoreFloat4x4(&m_pLoadingAnimObjectInfo[LEVEL_GAMEPLAY][i].PartsInfo[k].vWorldMatrix, XMMatrixIdentity());
-
-					for (size_t i = 0; i < iMeshesCount; i++)
-					{
-						Safe_Delete_Array(pDesc[i].pVertices);
-						Safe_Delete_Array(pDesc[i].pIndices);
-					}
-					Safe_Delete_Array(pDesc);
-
-				}
-
-
-				// 월드 행렬 읽기
-				_float4x4 WorldMatrix;
-				fread(reinterpret_cast<char*>(&WorldMatrix), sizeof(WorldMatrix), 1, file);
-
-
-			}
-
-
-
-			m_pLoadingAnimObjectInfo[LEVEL_GAMEPLAY][i].strLayerName = wstrMyLayerName;
-			m_pLoadingAnimObjectInfo[LEVEL_GAMEPLAY][i].strPrototypeName = wstrMyPrototypeName;
-			m_pLoadingAnimObjectInfo[LEVEL_GAMEPLAY][i].strModelPrototypeName = wstrMyModelPrototypeName;
-			XMStoreFloat4x4(&m_pLoadingAnimObjectInfo[LEVEL_GAMEPLAY][i].vWorldMatrix, XMLoadFloat4x4(&WorldMatrix));
-
-			m_pLoadingAnimObjectInfo[LEVEL_GAMEPLAY][i].eModelType = (MODEL_CHECK_LIST)iObjectType;
-
-
-
-			for (size_t i = 0; i < iMeshesCount; i++)
-			{
-				delete[] pDesc[i].pAnimVertices;
-				delete[] pDesc[i].pIndices;
-			}
-			delete[] pDesc;
 		}
 
-		fclose(file);
-		//MSG_BOX(TEXT("LEVEL_GAME_PLAY의 AnimObject 정보를 Load했습니다."));
+
+
+		m_pLoadingAnimObjectInfo[m_eNextLevelID][i].strLayerName = wstrMyLayerName;
+		m_pLoadingAnimObjectInfo[m_eNextLevelID][i].strPrototypeName = wstrMyPrototypeName;
+		m_pLoadingAnimObjectInfo[m_eNextLevelID][i].strModelPrototypeName = wstrMyModelPrototypeName;
+		XMStoreFloat4x4(&m_pLoadingAnimObjectInfo[m_eNextLevelID][i].vWorldMatrix, XMLoadFloat4x4(&WorldMatrix));
+
+		m_pLoadingAnimObjectInfo[m_eNextLevelID][i].eModelType = (MODEL_CHECK_LIST)iObjectType;
+
+
+		for (size_t i = 0; i < iMeshesCount; i++)
+		{
+			delete[] pDesc[i].pAnimVertices;
+			delete[] pDesc[i].pIndices;
+		}
+		delete[] pDesc;
+	}
+
+	fclose(file);
+
+	return S_OK;
+}
+
+HRESULT CLoader::Load_NonAnim_GameObject()
+{
+	lstrcpy(m_szLoadingText, TEXT("NonAnim Object를 로딩중.."));
+
+	FILE* file = nullptr;
+
+	switch (m_eNextLevelID)
+	{
+	case Client::LEVEL_LOADING:
+		break;
+	case Client::LEVEL_LOGO:
+		break;
+	case Client::LEVEL_GAMEPLAY:
+	{
+		
+	}
+	break;
+
+	case Client::LEVEL_STAGE1:
+	{
+		fopen_s(&file, "../Bin/Stage1/NonAnim_Model_Data.bin", "rb");
+	}
+	break;
+
+	case Client::LEVEL_STAGE1_BOSS:
+	{
+		fopen_s(&file, "../Bin/Stage1_BossMap/NonAnim_Model_Data.bin", "rb");
+	}
+		break;
+
+	case Client::LEVEL_END:
+		break;
+	default:
+		break;
+	}
+
+	if (!file) // 파일 열기를 실패한 경우
+	{
+		MSG_BOX(TEXT("파일 읽기를 실패했어요.."));
+		return E_FAIL;
+	}
+
+	_uint					iObjectCount = {};
+
+	_uint					iObjectType = (_uint)MODEL_CHECK_LIST::MODEL_CHECK_TYPE_END;
+
+	string					strMyPrototypeName = "";
+	_wstring				wstrMyPrototypeName = L"";
+
+	string					strMyLayerName = "";
+	_wstring				wstrMyLayerName = L"";
+
+	string					strMyModelPrototypeName = "";
+	_wstring				wstrMyModelPrototypeName = L"";
+
+	_uint					iModelType = 0;
+
+	string					strMyModelFilePath = "";
+
+	string					strMaterialTexturePath = "";
+	_wstring				wstrMaterialTexturePath[15][AI_TEXTURE_TYPE_MAX] = { L"" };
+
+
+	_uint					iMeshesCount = 0;
+	_uint					iMaterialsCount = 0;
+
+	_float4x4				PreTransformMatrix = {};
+
+
+
+	fread(&iObjectCount, sizeof(iObjectCount), 1, file);
+	m_iNumLoadingDecorativeObject[m_eNextLevelID] = iObjectCount;
+	m_pLoadingDecorativeObjectInfo[m_eNextLevelID] = new LOADING_OBJECT_INFO[iObjectCount];
+	for (size_t i = 0; i < iObjectCount; i++)
+	{
+		// 객체원형 //
+		fread(&iObjectType, sizeof(iObjectType), 1, file);
+
+		// 프로토타입 이름 읽기
+		ReadString(file, strMyPrototypeName);
+		wstrMyPrototypeName = stringToWstring(strMyPrototypeName);
+
+		// 레이어 이름 읽기
+		ReadString(file, strMyLayerName);
+		wstrMyLayerName = stringToWstring(strMyLayerName);
+
+
+		// 모델 //
+		fread(&PreTransformMatrix, sizeof(PreTransformMatrix), 1, file);
+
+		ReadString(file, strMyModelPrototypeName);
+		wstrMyModelPrototypeName = stringToWstring(strMyModelPrototypeName);
+
+		fread(&iModelType, sizeof(iModelType), 1, file);
+		ReadString(file, strMyModelFilePath); // 모델 fbx경로 _char* 를 요구하기에 string 으로 해야함
+
+		fread(&iMeshesCount, sizeof(iMeshesCount), 1, file);
+		fread(&iMaterialsCount, sizeof(iMaterialsCount), 1, file);
+
+		for (size_t i = 0; i < iMaterialsCount; i++)
+		{
+			for (size_t j = 0; j < AI_TEXTURE_TYPE_MAX; j++)
+			{
+				ReadString(file, strMaterialTexturePath);
+				wstrMaterialTexturePath[i][j] = stringToWstring(strMaterialTexturePath); // 머테리얼 경로
+			}
+		}
+
+		CMesh::MESH_DESC* pDesc = new CMesh::MESH_DESC[iMeshesCount];
+		//ZeroMemory(pDesc, sizeof(CMesh::MESH_DESC) * iMeshesCount);
+
+		for (size_t i = 0; i < iMeshesCount; i++)
+		{
+			fread(&pDesc[i].iMaterialIndex, sizeof(pDesc[i].iMaterialIndex), 1, file);
+			fread(&pDesc[i].iNumVertices, sizeof(pDesc[i].iNumVertices), 1, file);
+			fread(&pDesc[i].iVertexStride, sizeof(pDesc[i].iVertexStride), 1, file);
+
+			pDesc[i].pVertices = new VTXMESH[pDesc[i].iNumVertices];
+			fread(pDesc[i].pVertices, sizeof(VTXMESH) * pDesc[i].iNumVertices, 1, file);
+
+			fread(&pDesc[i].iNumIndices, sizeof(pDesc[i].iNumIndices), 1, file);
+			fread(&pDesc[i].iIndexStride, sizeof(pDesc[i].iIndexStride), 1, file);
+
+			pDesc[i].pIndices = new _uint[pDesc[i].iNumIndices];
+			fread(pDesc[i].pIndices, sizeof(_uint) * pDesc[i].iNumIndices, 1, file);
+
+			fread(&pDesc[i].eIndexFormat, sizeof(pDesc[i].eIndexFormat), 1, file);
+			fread(&pDesc[i].eTopology, sizeof(pDesc[i].eTopology), 1, file);
+
+			fread(&pDesc[i].vMinPos, sizeof(pDesc[i].vMinPos), 1, file);
+			fread(&pDesc[i].vMaxPos, sizeof(pDesc[i].vMaxPos), 1, file);
+		}
+
+		if (true == m_pGameInstance->IsFind_Model(m_eNextLevelID, wstrMyModelPrototypeName)) // 내가 불러오고자 하는 모델이 이미 불러왔어?
+		{
+			// 모델을 찾았을 때의 처리
+		}
+		else
+		{
+			if (FAILED(m_pGameInstance->Add_Prototype(m_eNextLevelID, wstrMyModelPrototypeName, // 모델 프로토타입 이름
+				CModel::Create(m_pDevice, m_pContext, (CModel::TYPE)iModelType, // 모델타입
+					strMyModelFilePath.c_str(), // 모델 fbx 경로
+					*wstrMaterialTexturePath, // 머테리얼 텍스쳐 경로
+					iMeshesCount, // 메쉬 갯수
+					iMaterialsCount, // 머테리얼 갯수
+					XMLoadFloat4x4(&PreTransformMatrix), // 더미
+					pDesc)))) // 메쉬를 이루기 위한 정보
+			{
+				_wstring msg = to_wstring(i) + L"번째" + L"모델이 로드가 안댐";
+				MSG_BOX(msg.c_str());
+				return E_FAIL;
+			}
+		}
+
+		// 월드 행렬 읽기
+		_float4x4 WorldMatrix;
+		fread(&WorldMatrix, sizeof(WorldMatrix), 1, file);
+
+		m_pLoadingDecorativeObjectInfo[m_eNextLevelID][i].strLayerName = wstrMyLayerName;
+		m_pLoadingDecorativeObjectInfo[m_eNextLevelID][i].strPrototypeName = wstrMyPrototypeName;
+		m_pLoadingDecorativeObjectInfo[m_eNextLevelID][i].strModelPrototypeName = wstrMyModelPrototypeName;
+		m_pLoadingDecorativeObjectInfo[m_eNextLevelID][i].vWorldMatrix = WorldMatrix;
+
+		m_pLoadingDecorativeObjectInfo[m_eNextLevelID][i].eModelType = (MODEL_CHECK_LIST)iObjectType;
+
+
+
+		for (size_t i = 0; i < iMeshesCount; i++)
+		{
+			Safe_Delete_Array(pDesc[i].pVertices);
+			Safe_Delete_Array(pDesc[i].pIndices);
+		}
+		Safe_Delete_Array(pDesc);
+	}
+
+
+
+	fread(&iObjectCount, sizeof(iObjectCount), 1, file);
+	m_iNumLoadingStaticObject[m_eNextLevelID] = iObjectCount;
+	m_pLoadingStaticObjectInfo[m_eNextLevelID] = new LOADING_OBJECT_INFO[iObjectCount];
+	for (size_t i = 0; i < iObjectCount; i++)
+	{
+		// 객체원형 //
+		fread(&iObjectType, sizeof(iObjectType), 1, file);
+
+		// 프로토타입 이름 읽기
+		ReadString(file, strMyPrototypeName);
+		wstrMyPrototypeName = stringToWstring(strMyPrototypeName);
+
+		// 레이어 이름 읽기
+		ReadString(file, strMyLayerName);
+		wstrMyLayerName = stringToWstring(strMyLayerName);
+
+
+		// 모델 //
+		fread(&PreTransformMatrix, sizeof(PreTransformMatrix), 1, file);
+
+		ReadString(file, strMyModelPrototypeName);
+		wstrMyModelPrototypeName = stringToWstring(strMyModelPrototypeName);
+
+		fread(&iModelType, sizeof(iModelType), 1, file);
+		ReadString(file, strMyModelFilePath); // 모델 fbx경로 _char* 를 요구하기에 string 으로 해야함
+
+		fread(&iMeshesCount, sizeof(iMeshesCount), 1, file);
+		fread(&iMaterialsCount, sizeof(iMaterialsCount), 1, file);
+
+		for (size_t i = 0; i < iMaterialsCount; i++)
+		{
+			for (size_t j = 0; j < AI_TEXTURE_TYPE_MAX; j++)
+			{
+				ReadString(file, strMaterialTexturePath);
+				wstrMaterialTexturePath[i][j] = stringToWstring(strMaterialTexturePath); // 머테리얼 경로
+			}
+		}
+
+		CMesh::MESH_DESC* pDesc = new CMesh::MESH_DESC[iMeshesCount];
+		//ZeroMemory(pDesc, sizeof(CMesh::MESH_DESC) * iMeshesCount);
+
+		for (size_t i = 0; i < iMeshesCount; i++)
+		{
+			fread(&pDesc[i].iMaterialIndex, sizeof(pDesc[i].iMaterialIndex), 1, file);
+			fread(&pDesc[i].iNumVertices, sizeof(pDesc[i].iNumVertices), 1, file);
+			fread(&pDesc[i].iVertexStride, sizeof(pDesc[i].iVertexStride), 1, file);
+
+			pDesc[i].pVertices = new VTXMESH[pDesc[i].iNumVertices];
+			fread(pDesc[i].pVertices, sizeof(VTXMESH) * pDesc[i].iNumVertices, 1, file);
+
+			fread(&pDesc[i].iNumIndices, sizeof(pDesc[i].iNumIndices), 1, file);
+			fread(&pDesc[i].iIndexStride, sizeof(pDesc[i].iIndexStride), 1, file);
+
+			pDesc[i].pIndices = new _uint[pDesc[i].iNumIndices];
+			fread(pDesc[i].pIndices, sizeof(_uint) * pDesc[i].iNumIndices, 1, file);
+
+			fread(&pDesc[i].eIndexFormat, sizeof(pDesc[i].eIndexFormat), 1, file);
+			fread(&pDesc[i].eTopology, sizeof(pDesc[i].eTopology), 1, file);
+
+			fread(&pDesc[i].vMinPos, sizeof(pDesc[i].vMinPos), 1, file);
+			fread(&pDesc[i].vMaxPos, sizeof(pDesc[i].vMaxPos), 1, file);
+		}
+
+		if (true == m_pGameInstance->IsFind_Model(m_eNextLevelID, wstrMyModelPrototypeName)) // 내가 불러오고자 하는 모델이 이미 불러왔어?
+		{
+			// 모델을 찾았을 때의 처리
+		}
+		else
+		{
+			if (FAILED(m_pGameInstance->Add_Prototype(m_eNextLevelID, wstrMyModelPrototypeName, // 모델 프로토타입 이름
+				CModel::Create(m_pDevice, m_pContext, (CModel::TYPE)iModelType, // 모델타입
+					strMyModelFilePath.c_str(), // 모델 fbx 경로
+					*wstrMaterialTexturePath,	// 머테리얼 텍스쳐 경로
+					iMeshesCount,				// 메쉬 갯수
+					iMaterialsCount,			// 머테리얼 갯수
+					XMLoadFloat4x4(&PreTransformMatrix), // 더미
+					pDesc))))					// 메쉬를 이루기 위한 정보
+			{
+				_wstring msg = to_wstring(i) + L"번째" + L"모델이 로드가 안댐";
+				MSG_BOX(msg.c_str());
+				return E_FAIL;
+			}
+		}
+
+		// 월드 행렬 읽기
+		_float4x4 WorldMatrix;
+		fread(&WorldMatrix, sizeof(WorldMatrix), 1, file);
+
+		m_pLoadingStaticObjectInfo[m_eNextLevelID][i].strLayerName = wstrMyLayerName;
+		m_pLoadingStaticObjectInfo[m_eNextLevelID][i].strPrototypeName = wstrMyPrototypeName;
+		m_pLoadingStaticObjectInfo[m_eNextLevelID][i].strModelPrototypeName = wstrMyModelPrototypeName;
+		m_pLoadingStaticObjectInfo[m_eNextLevelID][i].vWorldMatrix = WorldMatrix;
+
+		m_pLoadingStaticObjectInfo[m_eNextLevelID][i].eModelType = (MODEL_CHECK_LIST)iObjectType;
+
+
+
+		for (size_t i = 0; i < iMeshesCount; i++)
+		{
+			Safe_Delete_Array(pDesc[i].pVertices);
+			Safe_Delete_Array(pDesc[i].pIndices);
+		}
+		Safe_Delete_Array(pDesc);
+	}
+
+
+
+	fread(&iObjectCount, sizeof(iObjectCount), 1, file);
+	m_iNumLoadingDynamicObject[m_eNextLevelID] = iObjectCount;
+	m_pLoadingDynamicObjectInfo[m_eNextLevelID] = new LOADING_OBJECT_INFO[iObjectCount];
+	for (size_t i = 0; i < iObjectCount; i++)
+	{
+		// 객체원형 //
+		fread(&iObjectType, sizeof(iObjectType), 1, file);
+
+		// 프로토타입 이름 읽기
+		ReadString(file, strMyPrototypeName);
+		wstrMyPrototypeName = stringToWstring(strMyPrototypeName);
+
+		// 레이어 이름 읽기
+		ReadString(file, strMyLayerName);
+		wstrMyLayerName = stringToWstring(strMyLayerName);
+
+
+		// 모델 //
+		fread(&PreTransformMatrix, sizeof(PreTransformMatrix), 1, file);
+
+		ReadString(file, strMyModelPrototypeName);
+		wstrMyModelPrototypeName = stringToWstring(strMyModelPrototypeName);
+
+		fread(&iModelType, sizeof(iModelType), 1, file);
+		ReadString(file, strMyModelFilePath); // 모델 fbx경로 _char* 를 요구하기에 string 으로 해야함
+
+		fread(&iMeshesCount, sizeof(iMeshesCount), 1, file);
+		fread(&iMaterialsCount, sizeof(iMaterialsCount), 1, file);
+
+		for (size_t i = 0; i < iMaterialsCount; i++)
+		{
+			for (size_t j = 0; j < AI_TEXTURE_TYPE_MAX; j++)
+			{
+				ReadString(file, strMaterialTexturePath);
+				wstrMaterialTexturePath[i][j] = stringToWstring(strMaterialTexturePath); // 머테리얼 경로
+			}
+		}
+
+		CMesh::MESH_DESC* pDesc = new CMesh::MESH_DESC[iMeshesCount];
+		//ZeroMemory(pDesc, sizeof(CMesh::MESH_DESC) * iMeshesCount);
+
+		for (size_t i = 0; i < iMeshesCount; i++)
+		{
+			fread(&pDesc[i].iMaterialIndex, sizeof(pDesc[i].iMaterialIndex), 1, file);
+			fread(&pDesc[i].iNumVertices, sizeof(pDesc[i].iNumVertices), 1, file);
+			fread(&pDesc[i].iVertexStride, sizeof(pDesc[i].iVertexStride), 1, file);
+
+			pDesc[i].pVertices = new VTXMESH[pDesc[i].iNumVertices];
+			fread(pDesc[i].pVertices, sizeof(VTXMESH) * pDesc[i].iNumVertices, 1, file);
+
+			fread(&pDesc[i].iNumIndices, sizeof(pDesc[i].iNumIndices), 1, file);
+			fread(&pDesc[i].iIndexStride, sizeof(pDesc[i].iIndexStride), 1, file);
+
+			pDesc[i].pIndices = new _uint[pDesc[i].iNumIndices];
+			fread(pDesc[i].pIndices, sizeof(_uint) * pDesc[i].iNumIndices, 1, file);
+
+			fread(&pDesc[i].eIndexFormat, sizeof(pDesc[i].eIndexFormat), 1, file);
+			fread(&pDesc[i].eTopology, sizeof(pDesc[i].eTopology), 1, file);
+
+			fread(&pDesc[i].vMinPos, sizeof(pDesc[i].vMinPos), 1, file);
+			fread(&pDesc[i].vMaxPos, sizeof(pDesc[i].vMaxPos), 1, file);
+		}
+
+		if (true == m_pGameInstance->IsFind_Model(m_eNextLevelID, wstrMyModelPrototypeName)) // 내가 불러오고자 하는 모델이 이미 불러왔어?
+		{
+			// 모델을 찾았을 때의 처리
+		}
+		else
+		{
+			if (FAILED(m_pGameInstance->Add_Prototype(m_eNextLevelID, wstrMyModelPrototypeName, // 모델 프로토타입 이름
+				CModel::Create(m_pDevice, m_pContext, (CModel::TYPE)iModelType, // 모델타입
+					strMyModelFilePath.c_str(), // 모델 fbx 경로
+					*wstrMaterialTexturePath, // 머테리얼 텍스쳐 경로
+					iMeshesCount, // 메쉬 갯수
+					iMaterialsCount, // 머테리얼 갯수
+					XMLoadFloat4x4(&PreTransformMatrix), // 더미
+					pDesc)))) // 메쉬를 이루기 위한 정보
+			{
+				_wstring msg = to_wstring(i) + L"번째" + L"모델이 로드가 안댐";
+				MSG_BOX(msg.c_str());
+				return E_FAIL;
+			}
+		}
+
+		// 월드 행렬 읽기
+		_float4x4 WorldMatrix;
+		fread(&WorldMatrix, sizeof(WorldMatrix), 1, file);
+
+		m_pLoadingDynamicObjectInfo[m_eNextLevelID][i].strLayerName = wstrMyLayerName;
+		m_pLoadingDynamicObjectInfo[m_eNextLevelID][i].strPrototypeName = wstrMyPrototypeName;
+		m_pLoadingDynamicObjectInfo[m_eNextLevelID][i].strModelPrototypeName = wstrMyModelPrototypeName;
+		m_pLoadingDynamicObjectInfo[m_eNextLevelID][i].vWorldMatrix = WorldMatrix;
+
+		m_pLoadingDynamicObjectInfo[m_eNextLevelID][i].eModelType = (MODEL_CHECK_LIST)iObjectType;
+
+
+
+		for (size_t i = 0; i < iMeshesCount; i++)
+		{
+			Safe_Delete_Array(pDesc[i].pVertices);
+			Safe_Delete_Array(pDesc[i].pIndices);
+		}
+		Safe_Delete_Array(pDesc);
+	}
+
+	fclose(file);
+
+	return S_OK;
+}
+
+HRESULT CLoader::Load_OtherModel()
+{
+	lstrcpy(m_szLoadingText, TEXT("Blood , Bullet, Etc 로딩중.."));
+
+	FILE* fin = nullptr;
+
+	switch (m_eNextLevelID)
+	{
+	case Client::LEVEL_LOADING:
+		break;
+	case Client::LEVEL_LOGO:
+		break;
+	case Client::LEVEL_GAMEPLAY:
+	{
+		
+	}
+	break;
+	case Client::LEVEL_STAGE1:
+	{
+		fopen_s(&fin, "../Bin/Stage1/Ohter_Model_Data.bin", "rb");
 	}
 	break;
 	case Client::LEVEL_END:
@@ -659,6 +1110,272 @@ HRESULT CLoader::Load_Anim_GameObject()
 	default:
 		break;
 	}
+
+
+	if (!fin)    // 파일 열기에 실패했다면
+	{
+		MSG_BOX(TEXT("파일 읽기를 실패했어요.."));
+		return E_FAIL;
+	}
+
+	CModel* pModel = nullptr;
+
+	_uint iModelSize = 0;
+	fread(&iModelSize, sizeof(iModelSize), 1, fin);
+
+	for (_uint i = 1; i < iModelSize + 1; i++)
+	{
+		// PreTransformMatrix 읽기
+		_float4x4 PreTransformMatrix;
+		fread(&PreTransformMatrix, sizeof(PreTransformMatrix), 1, fin);
+
+		// Prototype Name 크기 읽기
+		_uint modelPrototypeNameSize = 0;
+		fread(&modelPrototypeNameSize, sizeof(modelPrototypeNameSize), 1, fin);
+
+		// Prototype Name 읽기
+		std::string modelPrototypeName(modelPrototypeNameSize, '\0');
+		fread(&modelPrototypeName[0], modelPrototypeNameSize, 1, fin);
+
+		// Model File Path 크기 읽기
+		_uint modelFilePathSize = 0;
+		fread(&modelFilePathSize, sizeof(modelFilePathSize), 1, fin);
+
+		// Model File Path 읽기
+		std::string modelFilePath(modelFilePathSize, '\0');
+		fread(&modelFilePath[0], modelFilePathSize, 1, fin);
+
+		// Mesh 및 Material 정보 읽기
+		_uint meshCount = 0;
+		_uint materialsCount = 0;
+		fread(&meshCount, sizeof(meshCount), 1, fin);
+		fread(&materialsCount, sizeof(materialsCount), 1, fin);
+
+		string					strMaterialTexturePath = "";
+		_wstring				wstrMaterialTexturePath[200][AI_TEXTURE_TYPE_MAX] = { L"" };			// << 이거 최종맵데이터는 메테리얼갯수많아
+
+		// Material Texture Path 읽기
+		for (size_t i = 0; i < materialsCount; i++)
+		{
+			for (size_t j = 0; j < AI_TEXTURE_TYPE_MAX; j++)
+			{
+				ReadString(fin, strMaterialTexturePath);
+				wstrMaterialTexturePath[i][j] = stringToWstring(strMaterialTexturePath); // 머테리얼 경로
+			}
+		}
+
+
+		_wstring ModelPrototypeName = stringToWstring(modelPrototypeName);
+
+		CMesh::MESH_DESC* pDesc = new CMesh::MESH_DESC[meshCount];
+		pDesc->isInstanceObject = true;
+		pDesc->InstanceBufferPrototypeTag = ModelPrototypeName + L"Instance";
+
+
+		for (size_t i = 0; i < meshCount; i++)
+		{
+			fread(&pDesc[i].iMaterialIndex, sizeof(pDesc[i].iMaterialIndex), 1, fin);
+			fread(&pDesc[i].iNumVertices, sizeof(pDesc[i].iNumVertices), 1, fin);
+			fread(&pDesc[i].iVertexStride, sizeof(pDesc[i].iVertexStride), 1, fin);
+
+			pDesc[i].pVertices = new VTXMESH[pDesc[i].iNumVertices];
+			fread(pDesc[i].pVertices, sizeof(VTXMESH) * pDesc[i].iNumVertices, 1, fin);
+
+			fread(&pDesc[i].iNumIndices, sizeof(pDesc[i].iNumIndices), 1, fin);
+			fread(&pDesc[i].iIndexStride, sizeof(pDesc[i].iIndexStride), 1, fin);
+
+			pDesc[i].pIndices = new _uint[pDesc[i].iNumIndices];
+			fread(pDesc[i].pIndices, sizeof(_uint) * pDesc[i].iNumIndices, 1, fin);
+
+			fread(&pDesc[i].eIndexFormat, sizeof(pDesc[i].eIndexFormat), 1, fin);
+			fread(&pDesc[i].eTopology, sizeof(pDesc[i].eTopology), 1, fin);
+
+			fread(&pDesc[i].vMinPos, sizeof(pDesc[i].vMinPos), 1, fin);
+			fread(&pDesc[i].vMaxPos, sizeof(pDesc[i].vMaxPos), 1, fin);
+		}
+
+		if (true == m_pGameInstance->IsFind_Model(LEVEL_GAMEPLAY, ModelPrototypeName)) // 내가 불러오고자 하는 모델이 이미 불러왔어?
+		{
+			// 모델을 찾았을 때의 처리
+		}
+		else
+		{
+			if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, ModelPrototypeName, // 모델 프로토타입 이름
+				CModel::Create(m_pDevice, m_pContext, CModel::TYPE::TYPE_NONANIM, // 모델타입
+					modelFilePath.c_str(), // 모델 fbx 경로
+					*wstrMaterialTexturePath, // 머테리얼 텍스쳐 경로
+					meshCount, // 메쉬 갯수
+					materialsCount, // 머테리얼 갯수
+					XMLoadFloat4x4(&PreTransformMatrix), // 더미
+					pDesc)))) // 메쉬를 이루기 위한 정보
+			{
+				_wstring msg = to_wstring(i) + L"번째" + L"모델이 로드가 안댐";
+				MSG_BOX(msg.c_str());
+				return E_FAIL;
+			}
+		}
+
+
+		for (size_t i = 0; i < meshCount; i++)
+		{
+			Safe_Delete_Array(pDesc[i].pVertices);
+			Safe_Delete_Array(pDesc[i].pIndices);
+		}
+		Safe_Delete_Array(pDesc);
+	}
+
+	fclose(fin);
+
+	return S_OK;
+}
+
+HRESULT CLoader::Load_FinalMap()
+{
+	lstrcpy(m_szLoadingText, TEXT("Final Map을 로딩중.."));
+
+	FILE* fin = nullptr;
+
+	switch (m_eNextLevelID)
+	{
+	case Client::LEVEL_LOADING:
+		break;
+	case Client::LEVEL_LOGO:
+		break;
+	case Client::LEVEL_GAMEPLAY:
+	{
+
+	}
+	break;
+	case Client::LEVEL_STAGE1:
+	{
+		fopen_s(&fin, "../Bin/Stage1/FinalMap_Data.bin", "rb");
+	}
+	break;
+	case Client::LEVEL_STAGE1_BOSS:
+	{
+		fopen_s(&fin, "../Bin/Stage1_BossMap/FinalMap_Data.bin", "rb");
+	}
+	break;
+	case Client::LEVEL_END:
+		break;
+	default:
+		break;
+	}
+
+
+	if (!fin)    // 파일 열기에 실패했다면
+	{
+		MSG_BOX(TEXT("파일 읽기를 실패했어요.."));
+		return E_FAIL;
+	}
+
+	CModel* pModel = nullptr;
+
+	_uint iModelSize = 0;
+	fread(&iModelSize, sizeof(iModelSize), 1, fin);
+
+	for (_uint i = 1; i < iModelSize + 1; i++)
+	{
+		// PreTransformMatrix 읽기
+		_float4x4 PreTransformMatrix;
+		fread(&PreTransformMatrix, sizeof(PreTransformMatrix), 1, fin);
+
+		// Prototype Name 크기 읽기
+		_uint modelPrototypeNameSize = 0;
+		fread(&modelPrototypeNameSize, sizeof(modelPrototypeNameSize), 1, fin);
+
+		// Prototype Name 읽기
+		std::string modelPrototypeName(modelPrototypeNameSize, '\0');
+		fread(&modelPrototypeName[0], modelPrototypeNameSize, 1, fin);
+
+		// Model File Path 크기 읽기
+		_uint modelFilePathSize = 0;
+		fread(&modelFilePathSize, sizeof(modelFilePathSize), 1, fin);
+
+		// Model File Path 읽기
+		std::string modelFilePath(modelFilePathSize, '\0');
+		fread(&modelFilePath[0], modelFilePathSize, 1, fin);
+
+		// Mesh 및 Material 정보 읽기
+		_uint meshCount = 0;
+		_uint materialsCount = 0;
+		fread(&meshCount, sizeof(meshCount), 1, fin);
+		fread(&materialsCount, sizeof(materialsCount), 1, fin);
+
+		string					strMaterialTexturePath = "";
+		_wstring				wstrMaterialTexturePath[200][AI_TEXTURE_TYPE_MAX] = { L"" };			// << 이거 최종맵데이터는 메테리얼갯수많아
+
+		// Material Texture Path 읽기
+		for (size_t i = 0; i < materialsCount; i++)
+		{
+			for (size_t j = 0; j < AI_TEXTURE_TYPE_MAX; j++)
+			{
+				ReadString(fin, strMaterialTexturePath);
+				wstrMaterialTexturePath[i][j] = stringToWstring(strMaterialTexturePath); // 머테리얼 경로
+			}
+		}
+
+
+		_wstring ModelPrototypeName = stringToWstring(modelPrototypeName);
+
+		CMesh::MESH_DESC* pDesc = new CMesh::MESH_DESC[meshCount];
+		pDesc->isInstanceObject = false;
+		//pDesc->InstanceBufferPrototypeTag = ModelPrototypeName + L"Instance";
+
+
+		for (size_t i = 0; i < meshCount; i++)
+		{
+			fread(&pDesc[i].iMaterialIndex, sizeof(pDesc[i].iMaterialIndex), 1, fin);
+			fread(&pDesc[i].iNumVertices, sizeof(pDesc[i].iNumVertices), 1, fin);
+			fread(&pDesc[i].iVertexStride, sizeof(pDesc[i].iVertexStride), 1, fin);
+
+			pDesc[i].pVertices = new VTXMESH[pDesc[i].iNumVertices];
+			fread(pDesc[i].pVertices, sizeof(VTXMESH) * pDesc[i].iNumVertices, 1, fin);
+
+			fread(&pDesc[i].iNumIndices, sizeof(pDesc[i].iNumIndices), 1, fin);
+			fread(&pDesc[i].iIndexStride, sizeof(pDesc[i].iIndexStride), 1, fin);
+
+			pDesc[i].pIndices = new _uint[pDesc[i].iNumIndices];
+			fread(pDesc[i].pIndices, sizeof(_uint) * pDesc[i].iNumIndices, 1, fin);
+
+			fread(&pDesc[i].eIndexFormat, sizeof(pDesc[i].eIndexFormat), 1, fin);
+			fread(&pDesc[i].eTopology, sizeof(pDesc[i].eTopology), 1, fin);
+
+			fread(&pDesc[i].vMinPos, sizeof(pDesc[i].vMinPos), 1, fin);
+			fread(&pDesc[i].vMaxPos, sizeof(pDesc[i].vMaxPos), 1, fin);
+		}
+
+		if (true == m_pGameInstance->IsFind_Model(g_CurLevel, ModelPrototypeName)) // 내가 불러오고자 하는 모델이 이미 불러왔어?
+		{
+			// 모델을 찾았을 때의 처리
+		}
+		else
+		{
+			if (FAILED(m_pGameInstance->Add_Prototype(g_CurLevel, ModelPrototypeName, // 모델 프로토타입 이름
+				CModel::Create(m_pDevice, m_pContext, CModel::TYPE::TYPE_NONANIM, // 모델타입
+					modelFilePath.c_str(), // 모델 fbx 경로
+					*wstrMaterialTexturePath, // 머테리얼 텍스쳐 경로
+					meshCount, // 메쉬 갯수
+					materialsCount, // 머테리얼 갯수
+					XMLoadFloat4x4(&PreTransformMatrix), // 더미
+					pDesc)))) // 메쉬를 이루기 위한 정보
+			{
+				_wstring msg = to_wstring(i) + L"번째" + L"모델이 로드가 안댐";
+				MSG_BOX(msg.c_str());
+				return E_FAIL;
+			}
+		}
+
+
+		for (size_t i = 0; i < meshCount; i++)
+		{
+			Safe_Delete_Array(pDesc[i].pVertices);
+			Safe_Delete_Array(pDesc[i].pIndices);
+		}
+		Safe_Delete_Array(pDesc);
+	}
+
+	fclose(fin);
 
 	return S_OK;
 }
@@ -671,13 +1388,13 @@ HRESULT CLoader::Load_Player()
 
 	switch (m_eNextLevelID)
 	{
-	case Client::LEVEL_STATIC:
+	case Client::LEVEL_GAMEPLAY:
 		break;
 	case Client::LEVEL_LOADING:
 		break;
 	case Client::LEVEL_LOGO:
 		break;
-	case Client::LEVEL_GAMEPLAY:
+	case Client::LEVEL_STAGE1:
 	{
 		file = fopen("../Bin/Player_Model_Data.bin", "rb");
 		if (!file) {
@@ -713,7 +1430,7 @@ HRESULT CLoader::Load_Player()
 
 
 
-		
+
 		// Player 파츠가 2개니까 일단
 		m_pLoadingPlayerInfo[LEVEL_GAMEPLAY] = new LOADING_OBJECT_INFO[CPlayer::PARTID::PART_END];
 
@@ -983,7 +1700,7 @@ HRESULT CLoader::Load_Player()
 			Safe_Delete_Array(pDesc);
 		}
 
-		
+
 		{
 			// 무기
 			// 객체원형 //
@@ -1081,7 +1798,7 @@ HRESULT CLoader::Load_Player()
 				Safe_Delete_Array(pDesc);
 
 			}
-			
+
 
 			// 월드 행렬 읽기
 			_float4x4 WorldMatrix;
@@ -1093,7 +1810,6 @@ HRESULT CLoader::Load_Player()
 
 		fclose(file);
 		//MSG_BOX(TEXT("LEVEL_GAME_PLAY의 Player 정보를 Load했습니다."));
-
 	}
 	break;
 	case Client::LEVEL_END:
@@ -1105,519 +1821,6 @@ HRESULT CLoader::Load_Player()
 
 	return S_OK;
 }
-
-HRESULT CLoader::Load_OtherModel()
-{
-	FILE* fin = fopen("../Bin/Ohter_Model_Data.bin", "rb");
-	if (!fin)    // 파일 열기에 실패했다면
-	{
-		MSG_BOX(TEXT("파일 읽기를 실패했어요.."));
-		return E_FAIL;
-	}
-
-	CModel* pModel = nullptr;
-
-	_uint iModelSize = 0;
-	fread(&iModelSize, sizeof(iModelSize), 1, fin);
-
-	for (_uint i = 1; i < iModelSize + 1; i++)
-	{
-		// PreTransformMatrix 읽기
-		_float4x4 PreTransformMatrix;
-		fread(&PreTransformMatrix, sizeof(PreTransformMatrix), 1, fin);
-
-		// Prototype Name 크기 읽기
-		_uint modelPrototypeNameSize = 0;
-		fread(&modelPrototypeNameSize, sizeof(modelPrototypeNameSize), 1, fin);
-
-		// Prototype Name 읽기
-		std::string modelPrototypeName(modelPrototypeNameSize, '\0');
-		fread(&modelPrototypeName[0], modelPrototypeNameSize, 1, fin);
-
-		// Model File Path 크기 읽기
-		_uint modelFilePathSize = 0;
-		fread(&modelFilePathSize, sizeof(modelFilePathSize), 1, fin);
-
-		// Model File Path 읽기
-		std::string modelFilePath(modelFilePathSize, '\0');
-		fread(&modelFilePath[0], modelFilePathSize, 1, fin);
-
-		// Mesh 및 Material 정보 읽기
-		_uint meshCount = 0;
-		_uint materialsCount = 0;
-		fread(&meshCount, sizeof(meshCount), 1, fin);
-		fread(&materialsCount, sizeof(materialsCount), 1, fin);
-
-		string					strMaterialTexturePath = "";
-		_wstring				wstrMaterialTexturePath[200][AI_TEXTURE_TYPE_MAX] = { L"" };			// << 이거 최종맵데이터는 메테리얼갯수많아
-
-		// Material Texture Path 읽기
-		for (size_t i = 0; i < materialsCount; i++)
-		{
-			for (size_t j = 0; j < AI_TEXTURE_TYPE_MAX; j++)
-			{
-				ReadString(fin, strMaterialTexturePath);
-				wstrMaterialTexturePath[i][j] = stringToWstring(strMaterialTexturePath); // 머테리얼 경로
-			}
-		}
-
-
-		_wstring ModelPrototypeName = stringToWstring(modelPrototypeName);
-
-		CMesh::MESH_DESC* pDesc = new CMesh::MESH_DESC[meshCount];
-		pDesc->isInstanceObject = true;
-		pDesc->InstanceBufferPrototypeTag = ModelPrototypeName + L"Instance";
-
-
-		for (size_t i = 0; i < meshCount; i++)
-		{
-			fread(&pDesc[i].iMaterialIndex, sizeof(pDesc[i].iMaterialIndex), 1, fin);
-			fread(&pDesc[i].iNumVertices, sizeof(pDesc[i].iNumVertices), 1, fin);
-			fread(&pDesc[i].iVertexStride, sizeof(pDesc[i].iVertexStride), 1, fin);
-
-			pDesc[i].pVertices = new VTXMESH[pDesc[i].iNumVertices];
-			fread(pDesc[i].pVertices, sizeof(VTXMESH) * pDesc[i].iNumVertices, 1, fin);
-
-			fread(&pDesc[i].iNumIndices, sizeof(pDesc[i].iNumIndices), 1, fin);
-			fread(&pDesc[i].iIndexStride, sizeof(pDesc[i].iIndexStride), 1, fin);
-
-			pDesc[i].pIndices = new _uint[pDesc[i].iNumIndices];
-			fread(pDesc[i].pIndices, sizeof(_uint) * pDesc[i].iNumIndices, 1, fin);
-
-			fread(&pDesc[i].eIndexFormat, sizeof(pDesc[i].eIndexFormat), 1, fin);
-			fread(&pDesc[i].eTopology, sizeof(pDesc[i].eTopology), 1, fin);
-
-			fread(&pDesc[i].vMinPos, sizeof(pDesc[i].vMinPos), 1, fin);
-			fread(&pDesc[i].vMaxPos, sizeof(pDesc[i].vMaxPos), 1, fin);
-		}
-
-		if (true == m_pGameInstance->IsFind_Model(LEVEL_GAMEPLAY, ModelPrototypeName)) // 내가 불러오고자 하는 모델이 이미 불러왔어?
-		{
-			// 모델을 찾았을 때의 처리
-		}
-		else
-		{
-			if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, ModelPrototypeName, // 모델 프로토타입 이름
-				CModel::Create(m_pDevice, m_pContext, CModel::TYPE::TYPE_NONANIM, // 모델타입
-					modelFilePath.c_str(), // 모델 fbx 경로
-					*wstrMaterialTexturePath, // 머테리얼 텍스쳐 경로
-					meshCount, // 메쉬 갯수
-					materialsCount, // 머테리얼 갯수
-					XMLoadFloat4x4(&PreTransformMatrix), // 더미
-					pDesc)))) // 메쉬를 이루기 위한 정보
-			{
-				_wstring msg = to_wstring(i) + L"번째" + L"모델이 로드가 안댐";
-				MSG_BOX(msg.c_str());
-				return E_FAIL;
-			}
-		}
-
-
-		for (size_t i = 0; i < meshCount; i++)
-		{
-			Safe_Delete_Array(pDesc[i].pVertices);
-			Safe_Delete_Array(pDesc[i].pIndices);
-		}
-		Safe_Delete_Array(pDesc);
-	}
-
-	fclose(fin);
-
-	return S_OK;
-}
-
-HRESULT CLoader::Load_NonAnim_GameObject()
-{
-	lstrcpy(m_szLoadingText, TEXT("NonAnim Object를 로딩중.."));
-
-	FILE* file = fopen("../Bin/NonAnim_Model_Data.bin", "rb");
-
-	switch (m_eNextLevelID)
-	{
-	case Client::LEVEL_STATIC:
-		break;
-	case Client::LEVEL_LOADING:
-		break;
-	case Client::LEVEL_LOGO:
-		break;
-	case Client::LEVEL_GAMEPLAY:
-	{
-		if (!file) // 파일 열기를 실패한 경우
-		{
-			MSG_BOX(TEXT("파일 읽기를 실패했어요.."));
-			return E_FAIL;
-		}
-
-		_uint					iObjectCount = {};
-
-		_uint					iObjectType = (_uint)MODEL_CHECK_LIST::MODEL_CHECK_TYPE_END;
-
-		string					strMyPrototypeName = "";
-		_wstring				wstrMyPrototypeName = L"";
-
-		string					strMyLayerName = "";
-		_wstring				wstrMyLayerName = L"";
-
-		string					strMyModelPrototypeName = "";
-		_wstring				wstrMyModelPrototypeName = L"";
-
-		_uint					iModelType = 0;
-
-		string					strMyModelFilePath = "";
-
-		string					strMaterialTexturePath = "";
-		_wstring				wstrMaterialTexturePath[15][AI_TEXTURE_TYPE_MAX] = { L"" };
-	
-
-		_uint					iMeshesCount = 0;
-		_uint					iMaterialsCount = 0;
-
-		_float4x4				PreTransformMatrix = {};
-
-		
-
-		fread(&iObjectCount, sizeof(iObjectCount), 1, file);
-		m_iNumLoadingDecorativeObject[LEVEL_GAMEPLAY] = iObjectCount;
-		m_pLoadingDecorativeObjectInfo[LEVEL_GAMEPLAY] = new LOADING_OBJECT_INFO[iObjectCount];
-		for (size_t i = 0; i < iObjectCount; i++)
-		{
-			// 객체원형 //
-			fread(&iObjectType, sizeof(iObjectType), 1, file);
-
-			// 프로토타입 이름 읽기
-			ReadString(file, strMyPrototypeName);
-			wstrMyPrototypeName = stringToWstring(strMyPrototypeName);
-
-			// 레이어 이름 읽기
-			ReadString(file, strMyLayerName);
-			wstrMyLayerName = stringToWstring(strMyLayerName);
-
-
-			// 모델 //
-			fread(&PreTransformMatrix, sizeof(PreTransformMatrix), 1, file);
-
-			ReadString(file, strMyModelPrototypeName);
-			wstrMyModelPrototypeName = stringToWstring(strMyModelPrototypeName);
-
-			fread(&iModelType, sizeof(iModelType), 1, file);
-			ReadString(file, strMyModelFilePath); // 모델 fbx경로 _char* 를 요구하기에 string 으로 해야함
-
-			fread(&iMeshesCount, sizeof(iMeshesCount), 1, file);
-			fread(&iMaterialsCount, sizeof(iMaterialsCount), 1, file);
-
-			for (size_t i = 0; i < iMaterialsCount; i++)
-			{
-				for (size_t j = 0; j < AI_TEXTURE_TYPE_MAX; j++)
-				{
-					ReadString(file, strMaterialTexturePath);
-					wstrMaterialTexturePath[i][j] = stringToWstring(strMaterialTexturePath); // 머테리얼 경로
-				}
-			}
-
-			CMesh::MESH_DESC* pDesc = new CMesh::MESH_DESC[iMeshesCount];
-			//ZeroMemory(pDesc, sizeof(CMesh::MESH_DESC) * iMeshesCount);
-
-			for (size_t i = 0; i < iMeshesCount; i++)
-			{
-				fread(&pDesc[i].iMaterialIndex, sizeof(pDesc[i].iMaterialIndex), 1, file);
-				fread(&pDesc[i].iNumVertices, sizeof(pDesc[i].iNumVertices), 1, file);
-				fread(&pDesc[i].iVertexStride, sizeof(pDesc[i].iVertexStride), 1, file);
-
-				pDesc[i].pVertices = new VTXMESH[pDesc[i].iNumVertices];
-				fread(pDesc[i].pVertices, sizeof(VTXMESH) * pDesc[i].iNumVertices, 1, file);
-
-				fread(&pDesc[i].iNumIndices, sizeof(pDesc[i].iNumIndices), 1, file);
-				fread(&pDesc[i].iIndexStride, sizeof(pDesc[i].iIndexStride), 1, file);
-
-				pDesc[i].pIndices = new _uint[pDesc[i].iNumIndices];
-				fread(pDesc[i].pIndices, sizeof(_uint) * pDesc[i].iNumIndices, 1, file);
-
-				fread(&pDesc[i].eIndexFormat, sizeof(pDesc[i].eIndexFormat), 1, file);
-				fread(&pDesc[i].eTopology, sizeof(pDesc[i].eTopology), 1, file);
-
-				fread(&pDesc[i].vMinPos, sizeof(pDesc[i].vMinPos), 1, file);
-				fread(&pDesc[i].vMaxPos, sizeof(pDesc[i].vMaxPos), 1, file);
-			}
-
-			if (true == m_pGameInstance->IsFind_Model(LEVEL_GAMEPLAY, wstrMyModelPrototypeName)) // 내가 불러오고자 하는 모델이 이미 불러왔어?
-			{
-				// 모델을 찾았을 때의 처리
-			}
-			else
-			{
-				if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, wstrMyModelPrototypeName, // 모델 프로토타입 이름
-					CModel::Create(m_pDevice, m_pContext, (CModel::TYPE)iModelType, // 모델타입
-						strMyModelFilePath.c_str(), // 모델 fbx 경로
-						*wstrMaterialTexturePath, // 머테리얼 텍스쳐 경로
-						iMeshesCount, // 메쉬 갯수
-						iMaterialsCount, // 머테리얼 갯수
-						XMLoadFloat4x4(&PreTransformMatrix), // 더미
-						pDesc)))) // 메쉬를 이루기 위한 정보
-				{
-					_wstring msg = to_wstring(i) + L"번째" + L"모델이 로드가 안댐";
-						MSG_BOX(msg.c_str());
-						return E_FAIL;
-				}
-			}
-
-			// 월드 행렬 읽기
-			_float4x4 WorldMatrix;
-			fread(&WorldMatrix, sizeof(WorldMatrix), 1, file);
-
-			m_pLoadingDecorativeObjectInfo[LEVEL_GAMEPLAY][i].strLayerName = wstrMyLayerName;
-			m_pLoadingDecorativeObjectInfo[LEVEL_GAMEPLAY][i].strPrototypeName = wstrMyPrototypeName;
-			m_pLoadingDecorativeObjectInfo[LEVEL_GAMEPLAY][i].strModelPrototypeName = wstrMyModelPrototypeName;
-			m_pLoadingDecorativeObjectInfo[LEVEL_GAMEPLAY][i].vWorldMatrix = WorldMatrix;
-
-			m_pLoadingDecorativeObjectInfo[LEVEL_GAMEPLAY][i].eModelType = (MODEL_CHECK_LIST)iObjectType;
-
-
-
-			for (size_t i = 0; i < iMeshesCount; i++)
-			{
-				Safe_Delete_Array(pDesc[i].pVertices);
-				Safe_Delete_Array(pDesc[i].pIndices);
-			}
-			Safe_Delete_Array(pDesc);
-		}
-
-
-
-		fread(&iObjectCount, sizeof(iObjectCount), 1, file);
-		m_iNumLoadingStaticObject[LEVEL_GAMEPLAY] = iObjectCount;
-		m_pLoadingStaticObjectInfo[LEVEL_GAMEPLAY] = new LOADING_OBJECT_INFO[iObjectCount];
-		for (size_t i = 0; i < iObjectCount; i++)
-		{
-			// 객체원형 //
-			fread(&iObjectType, sizeof(iObjectType), 1, file);
-
-			// 프로토타입 이름 읽기
-			ReadString(file, strMyPrototypeName);
-			wstrMyPrototypeName = stringToWstring(strMyPrototypeName);
-
-			// 레이어 이름 읽기
-			ReadString(file, strMyLayerName);
-			wstrMyLayerName = stringToWstring(strMyLayerName);
-
-
-			// 모델 //
-			fread(&PreTransformMatrix, sizeof(PreTransformMatrix), 1, file);
-
-			ReadString(file, strMyModelPrototypeName);
-			wstrMyModelPrototypeName = stringToWstring(strMyModelPrototypeName);
-
-			fread(&iModelType, sizeof(iModelType), 1, file);
-			ReadString(file, strMyModelFilePath); // 모델 fbx경로 _char* 를 요구하기에 string 으로 해야함
-
-			fread(&iMeshesCount, sizeof(iMeshesCount), 1, file);
-			fread(&iMaterialsCount, sizeof(iMaterialsCount), 1, file);
-
-			for (size_t i = 0; i < iMaterialsCount; i++)
-			{
-				for (size_t j = 0; j < AI_TEXTURE_TYPE_MAX; j++)
-				{
-					ReadString(file, strMaterialTexturePath);
-					wstrMaterialTexturePath[i][j] = stringToWstring(strMaterialTexturePath); // 머테리얼 경로
-				}
-			}
-
-			CMesh::MESH_DESC* pDesc = new CMesh::MESH_DESC[iMeshesCount];
-			//ZeroMemory(pDesc, sizeof(CMesh::MESH_DESC) * iMeshesCount);
-
-			for (size_t i = 0; i < iMeshesCount; i++)
-			{
-				fread(&pDesc[i].iMaterialIndex, sizeof(pDesc[i].iMaterialIndex), 1, file);
-				fread(&pDesc[i].iNumVertices, sizeof(pDesc[i].iNumVertices), 1, file);
-				fread(&pDesc[i].iVertexStride, sizeof(pDesc[i].iVertexStride), 1, file);
-
-				pDesc[i].pVertices = new VTXMESH[pDesc[i].iNumVertices];
-				fread(pDesc[i].pVertices, sizeof(VTXMESH) * pDesc[i].iNumVertices, 1, file);
-
-				fread(&pDesc[i].iNumIndices, sizeof(pDesc[i].iNumIndices), 1, file);
-				fread(&pDesc[i].iIndexStride, sizeof(pDesc[i].iIndexStride), 1, file);
-
-				pDesc[i].pIndices = new _uint[pDesc[i].iNumIndices];
-				fread(pDesc[i].pIndices, sizeof(_uint) * pDesc[i].iNumIndices, 1, file);
-
-				fread(&pDesc[i].eIndexFormat, sizeof(pDesc[i].eIndexFormat), 1, file);
-				fread(&pDesc[i].eTopology, sizeof(pDesc[i].eTopology), 1, file);
-
-				fread(&pDesc[i].vMinPos, sizeof(pDesc[i].vMinPos), 1, file);
-				fread(&pDesc[i].vMaxPos, sizeof(pDesc[i].vMaxPos), 1, file);
-			}
-
-			if (true == m_pGameInstance->IsFind_Model(LEVEL_GAMEPLAY, wstrMyModelPrototypeName)) // 내가 불러오고자 하는 모델이 이미 불러왔어?
-			{
-				// 모델을 찾았을 때의 처리
-			}
-			else
-			{
-				if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, wstrMyModelPrototypeName, // 모델 프로토타입 이름
-					CModel::Create(m_pDevice, m_pContext, (CModel::TYPE)iModelType, // 모델타입
-						strMyModelFilePath.c_str(), // 모델 fbx 경로
-						*wstrMaterialTexturePath,	// 머테리얼 텍스쳐 경로
-						iMeshesCount,				// 메쉬 갯수
-						iMaterialsCount,			// 머테리얼 갯수
-						XMLoadFloat4x4(&PreTransformMatrix), // 더미
-						pDesc))))					// 메쉬를 이루기 위한 정보
-				{
-					_wstring msg = to_wstring(i) + L"번째" + L"모델이 로드가 안댐";
-					MSG_BOX(msg.c_str());
-					return E_FAIL;
-				}
-			}
-
-			// 월드 행렬 읽기
-			_float4x4 WorldMatrix;
-			fread(&WorldMatrix, sizeof(WorldMatrix), 1, file);
-
-			m_pLoadingStaticObjectInfo[LEVEL_GAMEPLAY][i].strLayerName = wstrMyLayerName;
-			m_pLoadingStaticObjectInfo[LEVEL_GAMEPLAY][i].strPrototypeName = wstrMyPrototypeName;
-			m_pLoadingStaticObjectInfo[LEVEL_GAMEPLAY][i].strModelPrototypeName = wstrMyModelPrototypeName;
-			m_pLoadingStaticObjectInfo[LEVEL_GAMEPLAY][i].vWorldMatrix = WorldMatrix;
-
-			m_pLoadingStaticObjectInfo[LEVEL_GAMEPLAY][i].eModelType = (MODEL_CHECK_LIST)iObjectType;
-
-
-
-			for (size_t i = 0; i < iMeshesCount; i++)
-			{
-				Safe_Delete_Array(pDesc[i].pVertices);
-				Safe_Delete_Array(pDesc[i].pIndices);
-			}
-			Safe_Delete_Array(pDesc);
-		}
-
-
-
-		fread(&iObjectCount, sizeof(iObjectCount), 1, file);
-		m_iNumLoadingDynamicObject[LEVEL_GAMEPLAY] = iObjectCount;
-		m_pLoadingDynamicObjectInfo[LEVEL_GAMEPLAY] = new LOADING_OBJECT_INFO[iObjectCount];
-		for (size_t i = 0; i < iObjectCount; i++)
-		{
-			// 객체원형 //
-			fread(&iObjectType, sizeof(iObjectType), 1, file);
-
-			// 프로토타입 이름 읽기
-			ReadString(file, strMyPrototypeName);
-			wstrMyPrototypeName = stringToWstring(strMyPrototypeName);
-
-			// 레이어 이름 읽기
-			ReadString(file, strMyLayerName);
-			wstrMyLayerName = stringToWstring(strMyLayerName);
-
-
-			// 모델 //
-			fread(&PreTransformMatrix, sizeof(PreTransformMatrix), 1, file);
-
-			ReadString(file, strMyModelPrototypeName);
-			wstrMyModelPrototypeName = stringToWstring(strMyModelPrototypeName);
-
-			fread(&iModelType, sizeof(iModelType), 1, file);
-			ReadString(file, strMyModelFilePath); // 모델 fbx경로 _char* 를 요구하기에 string 으로 해야함
-
-			fread(&iMeshesCount, sizeof(iMeshesCount), 1, file);
-			fread(&iMaterialsCount, sizeof(iMaterialsCount), 1, file);
-
-			for (size_t i = 0; i < iMaterialsCount; i++)
-			{
-				for (size_t j = 0; j < AI_TEXTURE_TYPE_MAX; j++)
-				{
-					ReadString(file, strMaterialTexturePath);
-					wstrMaterialTexturePath[i][j] = stringToWstring(strMaterialTexturePath); // 머테리얼 경로
-				}
-			}
-
-			CMesh::MESH_DESC* pDesc = new CMesh::MESH_DESC[iMeshesCount];
-			//ZeroMemory(pDesc, sizeof(CMesh::MESH_DESC) * iMeshesCount);
-
-			for (size_t i = 0; i < iMeshesCount; i++)
-			{
-				fread(&pDesc[i].iMaterialIndex, sizeof(pDesc[i].iMaterialIndex), 1, file);
-				fread(&pDesc[i].iNumVertices, sizeof(pDesc[i].iNumVertices), 1, file);
-				fread(&pDesc[i].iVertexStride, sizeof(pDesc[i].iVertexStride), 1, file);
-
-				pDesc[i].pVertices = new VTXMESH[pDesc[i].iNumVertices];
-				fread(pDesc[i].pVertices, sizeof(VTXMESH) * pDesc[i].iNumVertices, 1, file);
-
-				fread(&pDesc[i].iNumIndices, sizeof(pDesc[i].iNumIndices), 1, file);
-				fread(&pDesc[i].iIndexStride, sizeof(pDesc[i].iIndexStride), 1, file);
-
-				pDesc[i].pIndices = new _uint[pDesc[i].iNumIndices];
-				fread(pDesc[i].pIndices, sizeof(_uint) * pDesc[i].iNumIndices, 1, file);
-
-				fread(&pDesc[i].eIndexFormat, sizeof(pDesc[i].eIndexFormat), 1, file);
-				fread(&pDesc[i].eTopology, sizeof(pDesc[i].eTopology), 1, file);
-
-				fread(&pDesc[i].vMinPos, sizeof(pDesc[i].vMinPos), 1, file);
-				fread(&pDesc[i].vMaxPos, sizeof(pDesc[i].vMaxPos), 1, file);
-			}
-
-			if (true == m_pGameInstance->IsFind_Model(LEVEL_GAMEPLAY, wstrMyModelPrototypeName)) // 내가 불러오고자 하는 모델이 이미 불러왔어?
-			{
-				// 모델을 찾았을 때의 처리
-			}
-			else
-			{
-				if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, wstrMyModelPrototypeName, // 모델 프로토타입 이름
-					CModel::Create(m_pDevice, m_pContext, (CModel::TYPE)iModelType, // 모델타입
-						strMyModelFilePath.c_str(), // 모델 fbx 경로
-						*wstrMaterialTexturePath, // 머테리얼 텍스쳐 경로
-						iMeshesCount, // 메쉬 갯수
-						iMaterialsCount, // 머테리얼 갯수
-						XMLoadFloat4x4(&PreTransformMatrix), // 더미
-						pDesc)))) // 메쉬를 이루기 위한 정보
-				{
-					_wstring msg = to_wstring(i) + L"번째" + L"모델이 로드가 안댐";
-					MSG_BOX(msg.c_str());
-					return E_FAIL;
-				}
-			}
-
-			// 월드 행렬 읽기
-			_float4x4 WorldMatrix;
-			fread(&WorldMatrix, sizeof(WorldMatrix), 1, file);
-
-			m_pLoadingDynamicObjectInfo[LEVEL_GAMEPLAY][i].strLayerName = wstrMyLayerName;
-			m_pLoadingDynamicObjectInfo[LEVEL_GAMEPLAY][i].strPrototypeName = wstrMyPrototypeName;
-			m_pLoadingDynamicObjectInfo[LEVEL_GAMEPLAY][i].strModelPrototypeName = wstrMyModelPrototypeName;
-			m_pLoadingDynamicObjectInfo[LEVEL_GAMEPLAY][i].vWorldMatrix = WorldMatrix;
-
-			m_pLoadingDynamicObjectInfo[LEVEL_GAMEPLAY][i].eModelType = (MODEL_CHECK_LIST)iObjectType;
-
-
-
-			for (size_t i = 0; i < iMeshesCount; i++)
-			{
-				Safe_Delete_Array(pDesc[i].pVertices);
-				Safe_Delete_Array(pDesc[i].pIndices);
-			}
-			Safe_Delete_Array(pDesc);
-		}
-
-
-
-
-		
-
-
-		fclose(file);	
-	
-	}
-	break;
-	case Client::LEVEL_END:
-		break;
-	default:
-		break;
-	}
-
-
-	return S_OK;
-}
-
-
-
-
 
 
 HRESULT CLoader::Create_PrototypeObject()
@@ -1636,6 +1839,7 @@ HRESULT CLoader::Create_PrototypeObject()
 
 	return S_OK;
 }
+
 
 HRESULT CLoader::Create_PrototypeAnimObject()
 {
@@ -1794,6 +1998,10 @@ HRESULT CLoader::Create_UI()
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/UI/Icon/target.png"), 1))))
 		return E_FAIL;
 
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_EnemyMarkerMC"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/UI/Icon/targetMC.png"), 1))))
+		return E_FAIL;
+
 
 	/* For. Prototype_Component_Texture_CrossHairUI */
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_CrossHair"),
@@ -1801,6 +2009,45 @@ HRESULT CLoader::Create_UI()
 		return E_FAIL;
 
 	
+	/* For. Prototype_Component_Texture_EnemyFindUI */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_EnemyFind"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/UI/Icon/EnemyFind.png"), 1))))
+		return E_FAIL;
+	
+	/* For. Prototype_Component_Texture_MiniMap */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_MiniMapPanel"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/UI/GR/MiniMapPanel.png"), 1))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_MiniMapMarker"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/UI/GR/MiniMapMarker.png"), 1))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_MiniMapPlayer"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/UI/GR/MiniMapPlayer.png"), 1))))
+		return E_FAIL;
+
+
+
+	/* For. Prototype_Component_Texture_KillCount*/
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_KillCount"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/UI/GR/KillCount.png"), 1))))
+		return E_FAIL;
+
+
+	/* For. Prototype_Component_Texture_BossHp*/
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BossHp"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/UI/GR/hp.png"), 1))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BossEnergy"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/UI/GR/energy.png"), 1))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BossPanel"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/UI/GR/separtor.png"), 1))))
+		return E_FAIL;
+
 
 
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_GrapplingPointUI"),
@@ -1819,6 +2066,10 @@ HRESULT CLoader::Create_UI()
 		CEnemyMarker::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_EnemyMarkerMC"),
+		CEnemyMarkerMC::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_CCrossHairUI"),
 		CCrossHairUI::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
@@ -1826,6 +2077,36 @@ HRESULT CLoader::Create_UI()
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_EventNotify"),
 		CEventNotify::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_EnemyFind"),
+		CEnemyFindUI::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_MiniMapPanel"),
+		CMiniMapPanel::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_MiniMapMarker"),
+		CMiniMapMarker::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_MiniMapPlayer"),
+		CMiniMapPlayer::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+	
+
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_BossHpPanel"),
+		CBossHpPanel::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_BossHpMain"),
+		CBossHpMain::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_BossHpEnergy"),
+		CBossHpEnergy::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 	
 	return S_OK;
 }
@@ -1908,9 +2189,9 @@ HRESULT CLoader::Create_Particle()
 
 HRESULT CLoader::Create_SwordTrail()
 {
-	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_SwordTrail"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Player/Particle/Trail.dds"), 1))))
-		return E_FAIL;
+	//if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_SwordTrail"),
+	//	CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Player/Particle/Trail2.dds"), 1))))
+	//	return E_FAIL;
 
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxSwordTrail"),
 		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxSwordTrail.hlsl"), VTXTRAILTEX::Elements, VTXTRAILTEX::iNumElements))))
@@ -1920,9 +2201,17 @@ HRESULT CLoader::Create_SwordTrail()
 		CVIBuffer_Trail::Create(m_pDevice, m_pContext , 80))))		// 마지막인자: 최대 트레일을 만들갯수
 		return E_FAIL;
 
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_EliteSwordTrail"),	 // 트레일 마다 공유해버리면 버텍스버퍼와 인덱스 버퍼를공유하기에 개별로 플토타입을 만들어줘야할것같다 ...
+		CVIBuffer_Trail::Create(m_pDevice, m_pContext, 150))))		// 마지막인자: 최대 트레일을 만들갯수
+		return E_FAIL;
+
 	/* For. Prototype_GameObject_Particle_Explosion */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_SwordTrail"),
 		CSwordTrail::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_EliteSwordTrail"),
+		CEliteSwordTrail::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
 	return S_OK;
@@ -1932,7 +2221,7 @@ HRESULT CLoader::Create_ShurikenTrail()
 {
 
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_MainShurikenTrail"),	 // 트레일 마다 공유해버리면 버텍스버퍼와 인덱스 버퍼를공유하기에 개별로 플토타입을 만들어줘야할것같다 ...
-		CVIBuffer_Trail::Create(m_pDevice, m_pContext, 150))))		// 마지막인자: 최대 트레일을 만들갯수
+		CVIBuffer_Trail::Create(m_pDevice, m_pContext, 250))))		// 마지막인자: 최대 트레일을 만들갯수
 		return E_FAIL;
 
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_SubShuriken0_Trail"),	 // 트레일 마다 공유해버리면 버텍스버퍼와 인덱스 버퍼를공유하기에 개별로 플토타입을 만들어줘야할것같다 ...
@@ -2075,7 +2364,6 @@ HRESULT CLoader::Create_NamiEffect()
 	return S_OK;
 }
 
-
 HRESULT CLoader::Create_Blood()
 {
 	// Blood Particle
@@ -2130,7 +2418,7 @@ HRESULT CLoader::Create_ShockWave()
 HRESULT CLoader::Create_EliteBlockEffect()
 {
 	CVIBuffer_Instancing::INSTANCE_DESC			ParticleDesc{};
-	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
+	ZeroMemory(&ParticleDesc, sizeof(ParticleDesc));
 	ParticleDesc.iNumInstance = 100;
 	ParticleDesc.vCenter = _float3(0.f, 0.f, 0.f);
 	ParticleDesc.vRange = _float3(2.f, 2.f, 2.f);
@@ -2139,6 +2427,20 @@ HRESULT CLoader::Create_EliteBlockEffect()
 	ParticleDesc.vSpeed = _float2(7.f, 10.f);
 	ParticleDesc.vLifeTime = _float2(0.5f, 1.f);
 	ParticleDesc.isLoop = false;
+
+
+	CVIBuffer_Instancing::INSTANCE_DESC			ParticlDasheDesc{};
+	ZeroMemory(&ParticlDasheDesc, sizeof(ParticlDasheDesc));
+	ParticlDasheDesc.iNumInstance = 100;
+	ParticlDasheDesc.vCenter = _float3(0.f, 0.f, 0.f);
+	ParticlDasheDesc.vRange = _float3(1.f, 1.f, 1.f);
+	ParticlDasheDesc.vSize = _float2(3.f, 5.f);
+	ParticlDasheDesc.vPivot = _float3(0.f, 0.f, 0.f);
+	ParticlDasheDesc.vSpeed = _float2(7.f, 10.f);
+	ParticlDasheDesc.vLifeTime = _float2(0.5f, 1.f);
+	ParticlDasheDesc.isLoop = false;
+
+
 
 
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_ParticleEliteBlock"),
@@ -2152,6 +2454,16 @@ HRESULT CLoader::Create_EliteBlockEffect()
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_EliteBlockEffect"),
 		CParticle_EliteBlock::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_EliteBlockDashEffect"),
+		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticlDasheDesc))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_EliteDashBlockEffect"),
+		CParticle_EliteDashBlock::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 
 	return S_OK;
 }
@@ -2183,7 +2495,7 @@ HRESULT CLoader::Create_ExplosionEffect()
 		return E_FAIL;
 
 	return S_OK;
-}
+}			
 
 
 void CLoader::ReadString(FILE* file, string& str)
@@ -2208,7 +2520,13 @@ HRESULT CLoader::Loading()
 		hr = Ready_Resources_For_LogoLevel();
 		break;
 	case LEVEL_GAMEPLAY:
+		//hr = Ready_Resources_For_GamePlayLevel();
+		break;
+	case LEVEL_STAGE1:
 		hr = Ready_Resources_For_GamePlayLevel();
+		break;
+	case LEVEL_STAGE1_BOSS:
+		hr = Ready_Resources_For_Stage1_BossLevel();
 		break;
 	}
 
@@ -2268,6 +2586,11 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	
 	if(FAILED(Load_OtherModel()))			// 인스턴싱할 오브젝트 (파티클 같은거)
 		return E_FAIL;
+
+	if (FAILED(Load_FinalMap()))			
+		return E_FAIL;
+	
+
 
 	lstrcpy(m_szLoadingText, TEXT("객체원형을(를) 로딩중입니다."));
 	if (FAILED(Create_PrototypeObject()))
@@ -2400,7 +2723,25 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CFreeCamera::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+
+
 	lstrcpy(m_szLoadingText, TEXT("로딩이 완료되었습니다."));
+
+	m_isFinished = true;
+
+	return S_OK;
+}
+
+HRESULT CLoader::Ready_Resources_For_Stage1_BossLevel()
+{
+	if (FAILED(Load_Anim_GameObject()))
+		return E_FAIL;
+
+	if (FAILED(Load_NonAnim_GameObject()))
+		return E_FAIL;
+
+	if (FAILED(Load_FinalMap()))
+		return E_FAIL;
 
 	m_isFinished = true;
 

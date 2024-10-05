@@ -10,7 +10,7 @@ class ENGINE_DLL CPartObject abstract : public CGameObject
 public:
 	typedef struct : public CGameObject::GAMEOBJECT_DESC
 	{
-		const _float4x4* pParentWorldMatrix = { nullptr };
+		_float4x4*	 pParentWorldMatrix = { nullptr };
 		CGameObject* pOwner = { nullptr };
 
 	}PARTOBJ_DESC;
@@ -39,7 +39,7 @@ public:
 
 protected:
 	/* m_pTransformCom->m_WorldMatrix * 부모의 월드 */
-	const _float4x4*		m_pParentMatrix = { nullptr };
+	_float4x4*				m_pParentMatrix = { nullptr };
 	_float4x4				m_WorldMatrix = {};
 
 	CGameObject*			m_pOwner = { nullptr };

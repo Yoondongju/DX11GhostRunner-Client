@@ -70,15 +70,12 @@ HRESULT CStatic_Object::Render()
     if (FAILED(m_pTransformCom->Bind_ShaderResource(m_pShaderCom, "g_WorldMatrix")))
         return E_FAIL;
 
-
     if (FAILED(m_pShaderCom->Bind_Matrix("g_ViewMatrix", &m_pGameInstance->Get_Transform_Float4x4((CPipeLine::D3DTS_VIEW)))))
         return E_FAIL;
 
     if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
         return E_FAIL;
 
-
-   
 
 
  
@@ -87,6 +84,9 @@ HRESULT CStatic_Object::Render()
     for (size_t i = 0; i < iNumMeshes; i++)
     {
         if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
+            return E_FAIL;
+
+        if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
             return E_FAIL;
 
         if (FAILED(m_pShaderCom->Begin(0)))
@@ -109,12 +109,9 @@ HRESULT CStatic_Object::Ready_Component()
 
   
     /* For.Com_Model*/
-    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, m_strModelPrototypeName,
+    if (FAILED(__super::Add_Component(g_CurLevel, m_strModelPrototypeName,
         TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModel), nullptr)))
         return E_FAIL;
-
-
-
 
     return S_OK;
 }
@@ -240,7 +237,7 @@ HRESULT CStatic_Object::Ready_HandleModelTypeTasks()
         if (TEXT("Prototype_Component_Model_Crane2") == m_strModelPrototypeName)
         {
             CGrapplingPointUI::GRAPPLINGPOINT_DESC Desc = { CGrapplingPointUI::GRAPPLINGPOINT_TYPE::TYPE_OUTRING , this };
-            if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, TEXT("Layer_GrapplingPointUI"),
+            if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(g_CurLevel, TEXT("Layer_GrapplingPointUI"),
                 TEXT("Prototype_GameObject_GrapplingPointUI"), TEXT("¾È ³Ö¾îµµ´ï"), &Desc)))
                 return E_FAIL;
         }

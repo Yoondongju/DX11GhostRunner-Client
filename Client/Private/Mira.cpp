@@ -57,7 +57,7 @@ HRESULT CMira::Initialize(void* pArg)
     m_pModel->SetUp_Animation(WALKIN_AROUND, true);
     m_pFsm->Set_State(WALKIN_AROUND);
 
-    m_pTransformCom->Scaling(2.6f, 2.6f, 2.6f);
+    m_pTransformCom->Scaling(2.8f, 2.8f, 2.8f);
 
 
   
@@ -77,18 +77,29 @@ void CMira::Update(_float fTimeDelta)
     if (true == m_isDead)
     {
         if (m_fDiscard >= 1.f)
-            m_pGameInstance->Delete(LEVEL_GAMEPLAY, CRenderer::RG_NONBLEND, this);
+            m_pGameInstance->Delete(g_CurLevel, CRenderer::RG_NONBLEND, this);
 
         m_fDiscard += fTimeDelta * 0.4f;
     }
-       
-    if (true == m_isMindControling)
-        m_Parts[PART_SHOCKWAVE]->SetActiveMyParticle(true);
         
 
     m_pFsm->Update(fTimeDelta);
     m_pModel->Play_Animation(fTimeDelta);
     
+
+    if (true == m_isMindControlReady)
+    {
+        _vector vTargetPos = m_pTargetEnemy->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+        m_pTransformCom->LookAt_XZ(vTargetPos);
+
+        m_pModel->SetUp_Animation(CMira::MIRA_ANIMATION::IDLE, true);
+        m_pFsm->Change_State(CMira::MIRA_ANIMATION::IDLE);
+    }
+
+
+
+
+
 
     m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
 
@@ -117,15 +128,12 @@ HRESULT CMira::Render()
         return E_FAIL;
 
 
-   
-
+  
 
     _uint iPassNum = 0;
     if (true == m_isDead)
     {
         iPassNum = 1;
-
-
 
         if (FAILED(m_pShaderCom->Bind_RawValue("g_fDissolveAmount", &m_fDiscard, sizeof(_float))))
             return E_FAIL;
@@ -143,6 +151,9 @@ HRESULT CMira::Render()
         m_pModel->Bind_MeshBoneMatrices(m_pShaderCom, "g_BoneMatrices", i);
 
         if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
+            return E_FAIL;
+
+        if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
             return E_FAIL;
 
         if (FAILED(m_pShaderCom->Begin(iPassNum)))
@@ -269,7 +280,7 @@ HRESULT CMira::Ready_Component()
 
 
     /* For.Com_VIBuffer */
-    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Mira"),
+    if (FAILED(__super::Add_Component(g_CurLevel, TEXT("Prototype_Component_Model_Mira"),
         TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModel), nullptr)))
         return E_FAIL;
 
@@ -343,8 +354,8 @@ HRESULT CMira::Reday_Parts()
     ShockWaveDesc.pOwner = this;
     ShockWaveDesc.InitWorldMatrix = XMMatrixIdentity();
     ShockWaveDesc.fSpeedPerSec = 20.f;
-    if (FAILED(__super::Add_PartObject(PART_SHOCKWAVE, TEXT("Prototype_GameObject_Particle_ShockWave"), &ShockWaveDesc)))
-        return E_FAIL;
+    //if (FAILED(__super::Add_PartObject(PART_SHOCKWAVE, TEXT("Prototype_GameObject_Particle_ShockWave"), &ShockWaveDesc)))
+    //    return E_FAIL;
 
 
     return S_OK;

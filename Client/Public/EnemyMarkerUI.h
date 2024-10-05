@@ -20,7 +20,6 @@ public:
 	{
 		class CEnemy*	pOwner = { nullptr };
 
-
 	}ENEMYMARKER_DESC;
 
 private:
@@ -47,7 +46,7 @@ private:
 	CTexture*			m_pTextureCom = { nullptr };
 	CVIBuffer_Rect*		m_pVIBufferCom = { nullptr };
 	class CEnemy*		m_pOwner = { nullptr };
-
+	
 
 	_float			m_fAlpha = { 1.f };
 	_float2			m_vTargetSize = {};

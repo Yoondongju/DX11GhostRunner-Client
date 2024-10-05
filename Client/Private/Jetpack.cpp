@@ -80,7 +80,7 @@ void CJetpack::Update(_float fTimeDelta)
     if (true == m_isDead)
     {
         if (m_fDiscard >= 1.f)
-            m_pGameInstance->Delete(LEVEL_GAMEPLAY, CRenderer::RG_NONBLEND, this);
+            m_pGameInstance->Delete(g_CurLevel, CRenderer::RG_NONBLEND, this);
 
         m_fDiscard += fTimeDelta * 0.4f;
     }
@@ -152,6 +152,9 @@ HRESULT CJetpack::Render()
         m_pModel->Bind_MeshBoneMatrices(m_pShaderCom, "g_BoneMatrices", i);
 
         if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
+            return E_FAIL;
+
+        if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
             return E_FAIL;
 
         if (FAILED(m_pShaderCom->Begin(iPassNum)))
@@ -249,7 +252,7 @@ HRESULT CJetpack::Ready_Component()
 
 
     /* For.Com_VIBuffer */
-    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Jetpack"),
+    if (FAILED(__super::Add_Component(g_CurLevel, TEXT("Prototype_Component_Model_Jetpack"),
         TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModel), nullptr)))
         return E_FAIL;
 

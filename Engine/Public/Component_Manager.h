@@ -43,6 +43,10 @@ public:
 
 
 public:
+	void	Clear(_uint iLevelIndex);
+
+
+public:
 	class CComponent* Find_Prototype(_uint iLevelIndex, const _wstring& strPrototypeTag);
 	_bool IsFind_Model(_uint iLevelIndex, const _wstring& strModelPrototypeName);
 

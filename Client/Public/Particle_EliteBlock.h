@@ -42,7 +42,7 @@ private:
 
 private:
 	_float3						m_SpwanPositionLocal = {};		// 스폰되는 위치
-	_float						m_fDisableTime = { 1.f };
+	_bool						m_isPreActive = { false };		// 이전 프레임에 활성화 된적잇니
 
 
 private:

@@ -20,8 +20,8 @@ public:
 
 
 private:
-    _float          m_fCanTurboDistance = 100.f;
-    _float          m_fCanTurboActiveTime = { 4.f };
+    _float          m_fCanTurboDistance = 250.f;
+    _float          m_fCanTurboActiveTime = { 1.1f };
 
     _bool           m_isAttackActive = { false };
 

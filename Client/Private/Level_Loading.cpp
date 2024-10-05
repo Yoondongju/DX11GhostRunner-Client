@@ -4,6 +4,8 @@
 
 #include "Level_Logo.h"
 #include "Level_GamePlay.h"
+#include "Level_Stage1.h"
+#include "Level_Stage1_Boss.h"
 
 #include "GameInstance.h"
 
@@ -34,7 +36,6 @@ void CLevel_Loading::Update(_float fTimeDelta)
 	{
 		CLevel*			pNewLevel = { nullptr };
 
-
 		LOAD_DATA_DESC Data;
 		Data.iDecorativeDataSize = m_pLoader->Get_Loading_DecorativeObject_Size(m_eNextLevelID);
 		Data.pDecorativeData = m_pLoader->Get_Loading_DecorativeObject_Info(m_eNextLevelID);
@@ -46,9 +47,6 @@ void CLevel_Loading::Update(_float fTimeDelta)
 		Data.pDynamicData = m_pLoader->Get_Loading_DynamicObject_Info(m_eNextLevelID);
 
 
-
-
-
 		Data.iAnimDataSize = m_pLoader->Get_Loading_AnimObject_Size(m_eNextLevelID);
 		Data.pAnimData = m_pLoader->Get_Loading_AnimObject_Info(m_eNextLevelID);
 
@@ -56,8 +54,11 @@ void CLevel_Loading::Update(_float fTimeDelta)
 		Data.iTerrainDataSize = m_pLoader->Get_Loading_Terrain_Size(m_eNextLevelID);
 		Data.pTerrainData = m_pLoader->Get_Loading_Terrain_Info(m_eNextLevelID);
 		
-		Data.pPlayerData = m_pLoader->Get_Loading_Player_Info(m_eNextLevelID);
+		Data.pPlayerData = m_pLoader->Get_Loading_Player_Info();
 
+
+		m_pGameInstance->Phys_Clear();
+			
 		switch (m_eNextLevelID)
 		{
 		case LEVEL_LOGO:
@@ -65,6 +66,12 @@ void CLevel_Loading::Update(_float fTimeDelta)
 			break;
 		case LEVEL_GAMEPLAY:
 			pNewLevel = CLevel_GamePlay::Create(m_pDevice, m_pContext,&Data);
+			break;
+		case LEVEL_STAGE1:
+			pNewLevel = CLevel_Stage1::Create(m_pDevice, m_pContext, &Data);
+			break;
+		case LEVEL_STAGE1_BOSS:
+			pNewLevel = CLevel_Stage1_Boss::Create(m_pDevice, m_pContext, &Data);
 			break;
 		}
 

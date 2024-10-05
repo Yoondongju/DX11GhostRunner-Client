@@ -25,24 +25,25 @@ HRESULT CPlayer_Sh_Dash::Start_State(void* pArg)
 	pRigidBody->Set_Velocity(_float3(0.f, 0.f, 0.f));
 	pRigidBody->Set_Accel(_float3(0.f, 0.f, 0.f));
 	pRigidBody->Set_ZeroTimer();
+	pRigidBody->Set_IsGravity(false);
 
 	switch (m_eDir)
 	{
 	case Engine::CState::FRONT:
-		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_LOOK), 70, Engine::CRigidBody::ACCELERATION);
-		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_LOOK), 170, Engine::CRigidBody::VELOCITYCHANGE);
+		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_LOOK), 200, Engine::CRigidBody::ACCELERATION);
+		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_LOOK), 450, Engine::CRigidBody::VELOCITYCHANGE);
 		break;
 	case Engine::CState::BACK:
-		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_LOOK), -70, Engine::CRigidBody::ACCELERATION);
-		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_LOOK), -170, Engine::CRigidBody::VELOCITYCHANGE);
+		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_LOOK), -200, Engine::CRigidBody::ACCELERATION);
+		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_LOOK), -450, Engine::CRigidBody::VELOCITYCHANGE);
 		break;
 	case Engine::CState::LEFT:
-		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_RIGHT), -70, Engine::CRigidBody::ACCELERATION);
-		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_RIGHT), -170, Engine::CRigidBody::VELOCITYCHANGE);
+		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_RIGHT), -200, Engine::CRigidBody::ACCELERATION);
+		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_RIGHT), -450, Engine::CRigidBody::VELOCITYCHANGE);
 		break;
 	case Engine::CState::RIGHT:
-		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_RIGHT), 70, Engine::CRigidBody::ACCELERATION);
-		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_RIGHT), 170, Engine::CRigidBody::VELOCITYCHANGE);
+		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_RIGHT), 200, Engine::CRigidBody::ACCELERATION);
+		pRigidBody->Add_Force_Direction(pTransform->Get_State(CTransform::STATE::STATE_RIGHT), 450, Engine::CRigidBody::VELOCITYCHANGE);
 		break;
 	case Engine::CState::STATE_DIR_END:
 		break;
@@ -84,6 +85,9 @@ void CPlayer_Sh_Dash::End_State()
 	CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
 	pPlayer->Set_StartCountDashTime(false);
 	pPlayer->Set_DashRemainingTime(0.f);
+
+	CRigidBody* pRigidBody = m_pOwner->Get_RigidBody();
+	pRigidBody->Set_IsGravity(true);
 }
 
 

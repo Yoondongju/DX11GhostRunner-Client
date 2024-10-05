@@ -15,7 +15,7 @@ public:
 
             // 거리 기준으로 비교
         bool operator<(const Float3Wrapper& other) const {
-            return fDistanceToPlayer > other.fDistanceToPlayer;  // 거리를 기준으로 오름차순 정렬
+            return fDistanceToPlayer < other.fDistanceToPlayer;  // 거리를 기준으로 오름차순 정렬
         }
     };
 
@@ -31,9 +31,8 @@ public:
 
 
 private:
-    priority_queue<Float3Wrapper>     m_TargetsPos = {};
-    priority_queue<Float3Wrapper>     m_TargetsLook = {};
-
+    vector<Float3Wrapper>     m_TargetsPos = {};
+   
 
     _float3            m_StartPos = {};
     _float             m_fAccScaling = 1.f;

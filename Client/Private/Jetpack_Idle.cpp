@@ -29,15 +29,13 @@ void CJetpack_Idle::Update(_float fTimeDelta)
 {
 	m_fAccTime += fTimeDelta;
 
-	if (m_fAccTime >= 2.f)
-	{
-		if (Check_Fly())
-			return;
-
-		m_fAccTime = 0.f;
-	}
-
-
+	//if (m_fAccTime >= 2.f)
+	//{
+	//	if (Check_Fly())
+	//		return;
+	//
+	//	m_fAccTime = 0.f;
+	//}
 
 }
 

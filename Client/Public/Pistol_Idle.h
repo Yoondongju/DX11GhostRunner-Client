@@ -21,7 +21,7 @@ public:
 
 
 private:
-    _float      m_fDetectRadius = { 100.f };     // 탐지 가능한 Range의 반지름
+    _float      m_fDetectRadius = { 160.f };     // 탐지 가능한 Range의 반지름
 
 private:
     _bool   Check_Detect();

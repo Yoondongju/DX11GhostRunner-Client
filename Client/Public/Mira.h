@@ -19,7 +19,7 @@ BEGIN(Client)
 class CMira final : public CEnemy
 {
 public:
-	enum PARTID { PART_EFFECT, PART_BULLET,  PART_SHOCKWAVE , PART_END};
+	enum PARTID { PART_EFFECT, PART_BULLET,PART_END};
 	enum MIRA_ANIMATION
 	{
 		WALKIN_AROUND,

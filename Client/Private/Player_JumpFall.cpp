@@ -102,7 +102,7 @@ _bool CPlayer_JumpFall::Check_HookUp()
 		_vector vPlayerPos = pPlayer->Get_Transform()->Get_State(CTransform::STATE_POSITION);
 		vPlayerPos = XMVectorSetY(vPlayerPos, 0.f);
 
-		list<CGameObject*>& GrapUIs = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_GrapplingPointUI");
+		list<CGameObject*>& GrapUIs = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_GrapplingPointUI");
 		_float fMinDistance = { 9999.f };
 		CGrapplingPointUI* pClosestGrapUI = nullptr;
 

@@ -33,6 +33,11 @@ void CSniper_Idle::Update(_float fTimeDelta)
 	if (Check_MindControling())
 		return;
 
+
+	if (true == static_cast<CEnemy*>(m_pOwner)->IsMindControlReady())
+		return;
+
+
 	m_fAccTime += fTimeDelta;
 	CModel* pModel = m_pOwner->Get_Model();
 
@@ -101,6 +106,8 @@ void CSniper_Idle::Update(_float fTimeDelta)
 
 		pModel->SetUp_Animation(CSniper::SNIPER_ANIMATION::ATTACK, true);
 		pFsm->Change_State(CSniper::SNIPER_ANIMATION::ATTACK);
+
+		static_cast<CEnemy*>(m_pOwner)->Set_FindPlayer(true);
 		return;
 	}
 

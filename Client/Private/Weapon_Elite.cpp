@@ -7,6 +7,8 @@
 
 #include "Body_Player.h"
 
+#include "EliteSwordTrail.h"
+
 CWeapon_Elite::CWeapon_Elite(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CPartObject{ pDevice, pContext }
 {
@@ -37,18 +39,21 @@ HRESULT CWeapon_Elite::Initialize(void* pArg)
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
 
+	if (FAILED(Reday_Trail()))
+		return E_FAIL;
+	
 
-	//_float4x4 InitWorldMatrix = {
-	//	0.181342006, 0.655698836, 0.207122847, 0.00000000,
-	//	-0.963511229, 0.238839343, 0.0874769986, 0.00000000,
-	//	0.0110353436, -0.301334143, 0.944287121, 0.00000000,
-	//	0.0750860050, -0.0355550535, 0.0480655581, 1.00000000
-	//};
+	_float4x4 InitWorldMatrix = {
+		0.181342006, 0.655698836, 0.207122847, 0.00000000,
+		-0.963511229, 0.238839343, 0.0874769986, 0.00000000,
+		0.0110353436, -0.301334143, 0.944287121, 0.00000000,
+		0.0750860050, -0.0355550535, 0.0480655581, 1.00000000
+	};
 
 
-	//m_pTransformCom->Set_WorldMatrix(InitWorldMatrix);
+	m_pTransformCom->Set_WorldMatrix(InitWorldMatrix);
 
-	m_pTransformCom->Scaling(2.f, 2.f, 2.f);
+	m_pTransformCom->Scaling(1.6f, 1.6f, 1.6f);
 
 	return S_OK;
 }
@@ -59,7 +64,7 @@ void CWeapon_Elite::Priority_Update(_float fTimeDelta)
 }
 
 void CWeapon_Elite::Update(_float fTimeDelta)
-{
+{	
 	_matrix		SocketMatrix = XMLoadFloat4x4(m_pSocketMatrix);
 
 	for (size_t i = 0; i < 3; i++)
@@ -70,12 +75,15 @@ void CWeapon_Elite::Update(_float fTimeDelta)
 	XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
 
 	m_pColliderCom->Update(&m_WorldMatrix);
+
+	m_pSwordTrail->Update(fTimeDelta);
 }
 
 void CWeapon_Elite::Late_Update(_float fTimeDelta)
 {
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 
+	m_pSwordTrail->Late_Update(fTimeDelta);
 
 #ifdef _DEBUG
 	m_pGameInstance->Add_DebugObject(m_pColliderCom);
@@ -102,12 +110,18 @@ HRESULT CWeapon_Elite::Render()
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
 			return E_FAIL;
 
+		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
+			return E_FAIL;
+
 		if (FAILED(m_pShaderCom->Begin(0)))
 			return E_FAIL;
 
 		if (FAILED(m_pModelCom->Render(i)))
 			return E_FAIL;
 	}
+
+
+
 
 	return S_OK;
 }
@@ -131,11 +145,13 @@ _bool CWeapon_Elite::Check_Collision()
 			CPlayer::PLAYER_ANIMATIONID::BLOCK_R3 == eCurState)
 		{
 			pPlayer->Get_Part(CPlayer::PARTID::PART_PARTICLE_BLOCK)->SetActiveMyParticle(true);
+
+			if (m_pColliderCom->IsBoundingCollisionEnter())
+				return true;
 		}	
 	}
 
-	if(m_pColliderCom->IsBoundingCollisionEnter())
-		return true;
+
 
 	
 	return false;
@@ -150,7 +166,7 @@ HRESULT CWeapon_Elite::Ready_Components()
 
 
 	/* FOR.Com_Model */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Player_Katana"),
+	if (FAILED(__super::Add_Component(g_CurLevel, TEXT("Prototype_Component_Model_Player_Katana"),
 		TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModelCom))))
 		return E_FAIL;
 
@@ -165,6 +181,18 @@ HRESULT CWeapon_Elite::Ready_Components()
 		TEXT("Com_Collider"), reinterpret_cast<CComponent**>(&m_pColliderCom), &ColliderDesc)))
 		return E_FAIL;
 
+
+	return S_OK;
+}
+
+HRESULT CWeapon_Elite::Reday_Trail()
+{
+	CEliteSwordTrail::EFFECT_DESC		SwordTrailDesc{};
+	SwordTrailDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+	SwordTrailDesc.pSocketBoneMatrix = m_pOwner->Get_Model()->Get_BoneCombindTransformationMatrix_Ptr("Gun_r");
+	SwordTrailDesc.pOwner = m_pOwner;			
+
+	m_pSwordTrail = static_cast<CEliteSwordTrail*>(m_pGameInstance->Clone_GameObject(TEXT("Prototype_GameObject_EliteSwordTrail"), &SwordTrailDesc));
 
 	return S_OK;
 }
@@ -204,4 +232,6 @@ void CWeapon_Elite::Free()
 	Safe_Release(m_pShaderCom);
 
 	Safe_Release(m_pModelCom);
+
+	Safe_Release(m_pSwordTrail);
 }

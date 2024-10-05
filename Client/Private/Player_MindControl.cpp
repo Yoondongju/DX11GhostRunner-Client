@@ -39,6 +39,22 @@ HRESULT CPlayer_MindControl::Start_State(void* pArg)
 		// 마인드컨트롤 가능
 		CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::MIND_CONTROL_START_START, true);
+
+
+		_uint iSize = m_VisibleEnemy.size();
+		for (_uint i = 0; i < iSize; i++)
+		{
+			CEnemy* pEnemy = static_cast<CEnemy*>(m_VisibleEnemy[i]);
+			CEnemy* pTargetEnemy = static_cast<CEnemy*>(m_VisibleEnemy[(i + 1) % iSize]);
+
+
+			// 각자의 Idle에서 Attack으로 변경해주고있는데 
+			// 마인드컨트롤 상태면 강제로 Attack으로 변경하되 방향도 지들이 지들을 바라봐야한다.
+
+			pEnemy->Set_MindControlReady(true, pTargetEnemy);
+		}
+
+
 	}
 	else
 	{
@@ -56,28 +72,37 @@ HRESULT CPlayer_MindControl::Start_State(void* pArg)
 
 void CPlayer_MindControl::Update(_float fTimeDelta)
 {
+
+	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+
+	_double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
+	_double Duration = pModel->Get_CurAnimation()->Get_Duration();
+
+
+	m_fAccTime += fTimeDelta;
+
+	if(m_fAccTime >= 2.f)
+		CommandToAttackEachEnemy();
+	else if (m_fAccTime >= 1.5f)
+	{		
+		if (CPlayer::PLAYER_ANIMATIONID::MIND_CONTROL_START_TO_IDLE != pModel->Get_CurAnimationIndex())
+			TrackPos = 0.f;
+
+		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::MIND_CONTROL_START_TO_IDLE, true);
+	}
+
+
 	if (true == m_isOrderCommand)		// 명령을 한번이상 내렸으면 
 	{
-		CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::MIND_CONTROL_START_TO_IDLE, true);
-		
-		_double TrackPos = pModel->Get_Referene_CurrentTrackPosition();
-		_double Duration = pModel->Get_CurAnimation()->Get_Duration();
-
-		m_pGameInstance->Set_TimeDelayActive(true);
-
 		if (0.9f <= TrackPos / (_float)Duration)
 		{
 			CFsm* pFsm = m_pOwner->Get_Fsm();
 			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::IDLE, true);
 			pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);
 			
-			m_pGameInstance->Set_TimeDelayActive(false);
 			return;
 		}
 	}
-
-	CommandToAttackEachEnemy();
 }
 
 void CPlayer_MindControl::End_State()
@@ -98,6 +123,8 @@ void CPlayer_MindControl::End_State()
 
 
 	m_isOrderCommand = false;
+
+	m_fAccTime = 0.f;
 }
 
 
@@ -112,7 +139,7 @@ void CPlayer_MindControl::FindVisiableEnemy()
 
 
 
-	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Sniper");
+	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Sniper");
 	for (auto& Sniper : Snipers)
 	{
 		if (m_VisibleEnemy.size() >= m_iCanVisibleNum)
@@ -138,7 +165,7 @@ void CPlayer_MindControl::FindVisiableEnemy()
 		}
 	}
 
-	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Pistol");
+	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Pistol");
 	for (auto& Pistol : Pistols)
 	{
 		if (m_VisibleEnemy.size() >= m_iCanVisibleNum)
@@ -164,7 +191,7 @@ void CPlayer_MindControl::FindVisiableEnemy()
 		}
 	}
 
-	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Mira");
+	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Mira");
 	for (auto& Mira : Miras)
 	{
 		if (m_VisibleEnemy.size() >= m_iCanVisibleNum)
@@ -197,6 +224,7 @@ void CPlayer_MindControl::CommandToAttackEachEnemy()
 {
 	if (true == m_isOrderCommand)	// 명령을 이미 내렸으면
 		return;
+
 
 	_uint iSize = m_VisibleEnemy.size();
 	for (_uint i = 0; i < iSize; i++)

@@ -70,7 +70,7 @@ public:
 	const LOADING_TERRAIN_INFO* Get_Loading_Terrain_Info(LEVELID eLevelID) { return m_pLoadingTerrainInfo[eLevelID]; }
 	const _uint				    Get_Loading_Terrain_Size(LEVELID eLevelID) { return m_iNumLoadingTerrain[eLevelID]; }
 
-	const LOADING_OBJECT_INFO*  Get_Loading_Player_Info(LEVELID eLevelID) { return m_pLoadingPlayerInfo[eLevelID]; }
+	const LOADING_OBJECT_INFO*  Get_Loading_Player_Info() { return m_pLoadingPlayerInfo[LEVEL_GAMEPLAY]; }
 
 
 public:
@@ -115,18 +115,23 @@ private:
 
 private:
 	HRESULT Ready_Resources_For_LogoLevel();
+
 	HRESULT Ready_Resources_For_GamePlayLevel();
 
+	HRESULT Ready_Resources_For_Stage1_BossLevel();
 
 private:
 	HRESULT Load_Terrain();
 
-	HRESULT Load_NonAnim_GameObject();
 
+	HRESULT Load_NonAnim_GameObject();
 	HRESULT Load_Anim_GameObject();
+	HRESULT	Load_OtherModel();
+	HRESULT	Load_FinalMap();
+
 
 	HRESULT Load_Player();
-	HRESULT	Load_OtherModel();
+
 
 
 
@@ -141,8 +146,14 @@ private:
 
 
 	HRESULT Create_Particle();
+
+
 	HRESULT Create_SwordTrail();				// 소드 트레일
 	HRESULT Create_ShurikenTrail();				// 수리켄 트레일
+
+
+
+
 
 
 	HRESULT Create_ShurikenEffect();			// 수리켄 이펙트

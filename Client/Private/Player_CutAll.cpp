@@ -100,7 +100,6 @@ void CPlayer_CutAll::Update(_float fTimeDelta)
 	}
 
 
-
 	if (true == m_isHuntStart)
 	{
 		if (m_iNumKill >= m_iNumHunt)
@@ -112,7 +111,6 @@ void CPlayer_CutAll::Update(_float fTimeDelta)
 			return;
 		}
 
-
 		_vector vDistance = XMVectorSubtract(XMLoadFloat3(&m_Targets[m_iNumKill].fValue), vPlayerPos);
 		_float fDistance = XMVectorGetX(XMVector3Length(vDistance));
 
@@ -123,7 +121,6 @@ void CPlayer_CutAll::Update(_float fTimeDelta)
 		pPlayerTransform->LookAt_Smooth(XMLoadFloat3(&m_Targets[m_iNumKill].fValue), fTimeDelta * 2, pPlayerRotationMatrix);
 
 
-		
 		if (fDistance <= 40.f)
 		{
 			Check_Collision();
@@ -192,7 +189,7 @@ void CPlayer_CutAll::FindVisiableEnemy()
 	_float fVisiableAngle = m_fVisibleAngle * 0.5f;
 
 
-	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Sniper");
+	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Sniper");
 	for (auto Sniper : Snipers)
 	{
 		_vector vSniperPos = Sniper->Get_Transform()->Get_State(CTransform::STATE_POSITION);
@@ -221,7 +218,7 @@ void CPlayer_CutAll::FindVisiableEnemy()
 		}
 	}
 
-	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Pistol");
+	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Pistol");
 	for (auto Pistol : Pistols)
 	{
 		_vector vPistolPos = Pistol->Get_Transform()->Get_State(CTransform::STATE_POSITION);
@@ -250,7 +247,7 @@ void CPlayer_CutAll::FindVisiableEnemy()
 		}
 	}
 
-	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Mira");
+	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Mira");
 	for (auto Mira : Miras)
 	{
 		_vector vMiraPos = Mira->Get_Transform()->Get_State(CTransform::STATE_POSITION);
@@ -282,7 +279,7 @@ void CPlayer_CutAll::FindVisiableEnemy()
 
 void CPlayer_CutAll::Check_Collision()
 {
-	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Sniper");
+	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Sniper");
 	for (auto& Sniper : Snipers)
 	{
 		if (true == static_cast<CSniper*>(Sniper)->Check_Collision())
@@ -296,7 +293,7 @@ void CPlayer_CutAll::Check_Collision()
 			
 	}
 
-	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Pistol");
+	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Pistol");
 	for (auto& Pistol : Pistols)
 	{
 		if (true == static_cast<CPistol*>(Pistol)->Check_Collision())
@@ -310,7 +307,7 @@ void CPlayer_CutAll::Check_Collision()
 			
 	}
 
-	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(LEVEL_GAMEPLAY, L"Layer_Mira");
+	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Mira");
 	for (auto& Mira : Miras)
 	{
 		if (true == static_cast<CMira*>(Mira)->Check_Collision())
