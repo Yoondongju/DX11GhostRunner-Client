@@ -21,6 +21,8 @@ HRESULT CElite_Alert::Initialize()
 HRESULT CElite_Alert::Start_State(void* pArg)
 {
 	
+
+
 	return S_OK;
 }
 
@@ -29,20 +31,40 @@ void CElite_Alert::Update(_float fTimeDelta)
 	if (Check_Death())
 		return;
 
-	if(m_fCanTurboActiveTime > 0.f)
-		m_fCanTurboActiveTime -= fTimeDelta;
+	CElite* pElite = static_cast<CElite*>(m_pOwner);
+
+	if (false == pElite->IsPage2())
+	{
+		if (m_fCanTurboActiveTime > 0.f)
+			m_fCanTurboActiveTime -= fTimeDelta;
+		else
+		{
+			if (Check_Turbo(fTimeDelta))
+			{
+				m_fCanTurboActiveTime = 1.5f;
+				return;
+			}
+		}
+	}
 	else
 	{
-		if (Check_Turbo(fTimeDelta))
+		if (m_fCanTurboActiveTime > 0.f)
+			m_fCanTurboActiveTime -= fTimeDelta;
+		else
 		{
-			m_fCanTurboActiveTime = 1.5f;
-			return;
-		}			
+			if (Check_Turbo(fTimeDelta))
+			{
+				m_fCanTurboActiveTime = 0.7f;
+				return;
+			}
+		}
 	}
 
 	
-	CModel* pModel = static_cast<CElite*>(m_pOwner)->Get_Model();
 
+	
+
+	CModel* pModel = pElite->Get_Model();
 	_double Duration = pModel->Get_CurAnimation()->Get_Duration();
 	_double TrackPos = pModel->Get_Referene_CurrentTrackPosition();
 
@@ -50,7 +72,6 @@ void CElite_Alert::Update(_float fTimeDelta)
 	{
 		pModel->SetUp_Animation(CElite::ELITE_ANIMATION::ALERT_LOOP, true);
 	}
-		
 
 }
 

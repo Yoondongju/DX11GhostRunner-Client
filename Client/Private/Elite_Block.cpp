@@ -75,16 +75,14 @@ void CElite_Block::Update(_float fTimeDelta)
 
 		_float fAdjustedSpeed = fMinSpeed + (fMaxSpeed - fMinSpeed) * fSpeedFactor;
 
+		static_cast<CWeapon_Elite*>(pElite->Get_Part(CElite::PART_WEAPON))->Check_Collision();
 
 		if (fDistance > 50.f)
 		{		
 			pEliteTransform->Go_Straight(fAdjustedSpeed * fTimeDelta);
 		}
 		else
-		{
-			if (static_cast<CWeapon_Elite*>(pElite->Get_Part(CElite::PART_WEAPON))->Check_Collision())
-				++m_iCountSuccessParrying;		// 패링 성공했으면 ++
-
+		{	
 			pElite->Get_Part(CElite::PARTID::PART_PARTICLE_DASHBLOCK)->SetActiveMyParticle(true);	// 플레이어 거리가 멀어지면 당연 안터지고
 			m_bDashBlock = false;
 		}			
@@ -95,8 +93,18 @@ void CElite_Block::Update(_float fTimeDelta)
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 
-		pModel->SetUp_Animation(CElite::ELITE_ANIMATION::IDLE_TO_ALERT, true);
-		pFsm->Change_State(CElite::ELITE_ANIMATION::IDLE_TO_ALERT);
+		_float fCurEnergy = pElite->Get_Energy();
+
+		if (fCurEnergy > 0.f)
+		{
+			pModel->SetUp_Animation(CElite::ELITE_ANIMATION::IDLE_TO_ALERT, true);
+			pFsm->Change_State(CElite::ELITE_ANIMATION::IDLE_TO_ALERT);
+		}
+		else
+		{
+			pModel->SetUp_Animation(CElite::ELITE_ANIMATION::HIT_STUN, true);
+			pFsm->Change_State(CElite::ELITE_ANIMATION::HIT_STUN);
+		}
 
 	}
 

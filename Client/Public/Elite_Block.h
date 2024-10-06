@@ -23,8 +23,6 @@ private:
     _bool       m_bDashBlock = { false };
     _float      m_fAccTime = {0.f};
 
-    _uint           m_iCountSuccessParrying = { 0 };
-
 private:
     _bool   Check_Death();
 

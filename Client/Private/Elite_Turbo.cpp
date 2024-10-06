@@ -74,9 +74,11 @@ void CElite_Turbo::Update(_float fTimeDelta)
 		0.9 <= TrackPos / (_float)Duration)
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();
-
+		CElite* pElite = static_cast<CElite*>(m_pOwner);
 		
-		if (m_iCountSuccessParrying < 3)
+		_float fCurEnergy = pElite->Get_Energy();
+
+		if (fCurEnergy > 0.f)
 		{
 			pModel->SetUp_Animation(CElite::ELITE_ANIMATION::WALK_B, true);
 			pFsm->Change_State(CElite::ELITE_ANIMATION::WALK_F, STATE_DIR::BACK);
@@ -85,8 +87,6 @@ void CElite_Turbo::Update(_float fTimeDelta)
 		{
 			pModel->SetUp_Animation(CElite::ELITE_ANIMATION::HIT_STUN, true);
 			pFsm->Change_State(CElite::ELITE_ANIMATION::HIT_STUN);
-
-			m_iCountSuccessParrying = 0;
 		}		
 	}
 
@@ -125,9 +125,8 @@ _bool CElite_Turbo::Check_TurboDash(_float fTimeDelta)
 	if (50.f >= fRemainingDistance) 
 	{
 		CElite* pElite = static_cast<CElite*>(m_pOwner);
-		
-		if (static_cast<CWeapon_Elite*>(pElite->Get_Part(CElite::PART_WEAPON))->Check_Collision())	
-			++m_iCountSuccessParrying;		// 패링 성공했으면 ++
+
+		static_cast<CWeapon_Elite*>(pElite->Get_Part(CElite::PART_WEAPON))->Check_Collision();
 
 
 		CModel* pModel = pElite->Get_Model();	

@@ -26,7 +26,7 @@ HRESULT CBossHpPanel::Initialize_Prototype()
 HRESULT CBossHpPanel::Initialize(void* pArg)
 {
 	BOSSHP_DESC* pDesc = static_cast<BOSSHP_DESC*>(pArg);
-
+	m_eBossType = pDesc->eBossType;
 	m_pOwner = pDesc->pOwner;
 	Safe_AddRef(m_pOwner);
 
@@ -57,10 +57,19 @@ void CBossHpPanel::Priority_Update(_float fTimeDelta)
 
 void CBossHpPanel::Update(_float fTimeDelta)
 {
-	if (false == m_bActivate)
+	if (nullptr == m_pOwner)
 		return;
 
+	if (true == m_pOwner->IsDead())		// 일단 이렇게 처리하고 나중에 panel지울때 삭 지우자
+	{
+		m_bActivate = false;
+		m_pOwner = nullptr;
 
+		return;
+	}
+
+	if (false == m_bActivate)
+		return;
 
 	for (auto& pChildUI : m_childUI_List)
 		pChildUI->Update(fTimeDelta);
@@ -126,7 +135,7 @@ HRESULT CBossHpPanel::Render()
 	m_pGameInstance->Render_Text(TEXT("Font_145"), L"Elite",
 		XMVectorSet(fPosX, m_fY - 50.f, 0.f, 1.f),
 		fFontSize,
-		XMVectorSet(1.f, 1.f, 1.f, 1.f),
+		XMVectorSet(1.f, 0.1f, 0.2f, 1.f),
 		0.f,
 		XMVectorSet(0.f, 0.f, 0.f, 1.f));
 
@@ -163,7 +172,7 @@ HRESULT CBossHpPanel::Ready_Child()
 	MainDesc.pOwner = m_pOwner;
 	MainDesc.fX = m_fX;
 	MainDesc.fY = m_fY;
-	MainDesc.fSizeX = m_fSizeX;
+	MainDesc.fSizeX = m_fSizeX * 0.5f;
 	MainDesc.fSizeY = m_fSizeY;
 	MainDesc.fSpeedPerSec = 10.f;
 	MainDesc.fRotationPerSec = XMConvertToRadians(90.0f);
@@ -177,7 +186,7 @@ HRESULT CBossHpPanel::Ready_Child()
 	EnergyDesc.pOwner = m_pOwner;
 	EnergyDesc.fX = m_fX;
 	EnergyDesc.fY = m_fY;
-	EnergyDesc.fSizeX = m_fSizeX;
+	EnergyDesc.fSizeX = m_fSizeX * 0.5f;
 	EnergyDesc.fSizeY = m_fSizeY;
 	EnergyDesc.fSpeedPerSec = 10.f;
 	EnergyDesc.fRotationPerSec = XMConvertToRadians(90.0f);

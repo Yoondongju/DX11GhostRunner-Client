@@ -15,6 +15,7 @@
 #include "Player.h"
 #include "SubShuriken.h"
 
+#include "Elite.h"
 
 CLevel_Stage1_Boss::CLevel_Stage1_Boss(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CLevel{ pDevice, pContext }
@@ -59,11 +60,11 @@ HRESULT CLevel_Stage1_Boss::Initialize(void* pArg)
 		-0.999953628, -2.83807822e-08, 0.00937000755, 0.00000000,
 		0.000709990622, 0.997123539, 0.0757577717, 0.00000000,
 		-0.00934499968, 0.0757606402, -0.997079849, 0.00000000,
-		-0.0156555176, 41.5378761, 1043.15942, 1.00000000
+		10.0502176, 51.9797173, 670.798157, 1.00000000
 	};
+
 	pPlayerTransform->Set_WorldMatrix(InitWorldMatrix);
 	
-
 	*(_float3*)InitWorldMatrix.m[3] = _float3(0.f, 0.f,0.f);
 
 	_float4x4* pRotationMatrix = pPlayer->Get_RotationMatrixPtr();

@@ -19,6 +19,7 @@
 #include "Elite_Walk.h"
 #include "Elite_Death.h"
 #include "Elite_Stun.h"
+#include "Elite_CutScene.h"
 
 #include "BossHpPanel.h"
 
@@ -68,16 +69,29 @@ HRESULT CElite::Initialize(void* pArg)
 
 
 
-    m_pModel->SetUp_Animation(CElite::ELITE_ANIMATION::IDLE, true);
-    m_pFsm->Set_State(CElite::ELITE_ANIMATION::IDLE);
+    m_pModel->SetUp_Animation(CElite::ELITE_ANIMATION::WALK_F, true);
+    m_pFsm->Set_State(CElite::ELITE_ANIMATION::CUTSCENE);
+
+
+    _vector vElitePos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+
+    _float4x4   InitWorldMatrix =
+    {
+        0.999939024, -2.95103746e-08, -0.0107781896, 0.00000000,
+        -0.000992476242, 0.995753646, -0.0920315087, 0.00000000,
+        0.0107342554, 0.0920358375, 0.995693147, 0.00000000,
+        1.39669776, XMVectorGetY(vElitePos), -3664.54541, 1.00000000
+    };
+
+
+    m_pTransformCom->Set_WorldMatrix(InitWorldMatrix);
 
     m_pTransformCom->Scaling(3.5f, 3.5f, 3.5f);
-
 
     m_fEnergy = 100.f;
     m_fHp = 100.f;
 
-
+    m_fCollisionCoolTime = 1.f;
 
 
 
@@ -104,6 +118,9 @@ void CElite::Update(_float fTimeDelta)
 
         m_fDiscard += fTimeDelta * 0.4f;
     }
+
+    if(m_fCollisionCoolTime > 0.f)
+        m_fCollisionCoolTime -= fTimeDelta;
 
 
     _float4x4* pWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
@@ -205,7 +222,7 @@ _bool CElite::Check_Collision()
     }
     
     
-    if (m_pColliderCom->IsBoundingCollisionEnter())
+    if (m_fCollisionCoolTime <= 0.f && m_pColliderCom->IsBoundingCollisionEnter())
     {
         _double& TrackPos = m_pModel->Get_Referene_CurrentTrackPosition();
         TrackPos = 0.0;
@@ -262,6 +279,15 @@ _bool CElite::Check_Collision()
        
 
         m_Parts[CElite::PARTID::PART_PARTICLE_BLOCK]->SetActiveMyParticle(true);
+
+        if(false == m_isEnterPage2)
+            m_fEnergy -= 100.f;
+        
+
+        if (m_fEnergy < 0.f)
+            m_fEnergy = 0.f;
+
+        m_fCollisionCoolTime = 1.f;
         return true;
     }
 
@@ -283,16 +309,36 @@ _bool CElite::Check_CollisionGroggy()       // 패링 3번 이상햇을때 켜짐
     }
 
 
-    if (CElite::ELITE_ANIMATION::DEATH_1 != m_pModel->Get_NextAnimationIndex() && m_pColliderCom->IsBoundingCollisionEnter())
+    if (m_fCollisionCoolTime <= 0.f && m_pColliderCom->IsBoundingCollisionEnter())
     {
         _double& TrackPos = m_pModel->Get_Referene_CurrentTrackPosition();
         TrackPos = 0.0;
 
-        m_pModel->SetUp_Animation(CElite::ELITE_ANIMATION::DEATH_1, true);
-        m_pFsm->Change_State(CElite::ELITE_ANIMATION::DEATH_1);
-
         static_cast<CParticle_Blood*>(m_Parts[PART_EFFECT])->SetActiveMyParticle(true);
+        m_fHp -= 17.f;
 
+        if (m_fHp <= 50.f)
+        {
+            if (false == m_isEnterPage2)
+            {
+                m_isEnterPage2 = true;
+                m_fEnergy = 100.f;
+
+                m_pModel->SetUp_Animation(CElite::ELITE_ANIMATION::WALK_B, true);
+                m_pFsm->Set_State(CElite::ELITE_ANIMATION::CUTSCENE);
+            }     
+        }
+
+        if (m_fHp < 0.f)
+        {
+            m_fHp = 0.f;
+            m_fEnergy = 0.f;
+
+            m_pModel->SetUp_Animation(ELITE_ANIMATION::DEATH_1, true);
+            m_pFsm->Change_State(ELITE_ANIMATION::DEATH_1);
+        }
+            
+        m_fCollisionCoolTime = 1.f;
         return true;
     }
 
@@ -454,6 +500,9 @@ HRESULT CElite::Ready_State()
 
     if (FAILED(m_pFsm->Add_State(CElite_Stun::Create(this))))
         return E_FAIL;
+
+    if (FAILED(m_pFsm->Add_State(CElite_CutScene::Create(this))))
+        return E_FAIL;
     
     return S_OK;
 }
@@ -508,15 +557,17 @@ void CElite::Ready_Modify_Animation()
 
 
     Animations[CElite::ELITE_ANIMATION::TURBO_TO_DASH]->Set_SpeedPerSec(15.f);
+    Animations[CElite::ELITE_ANIMATION::HIT_STUN]->Set_SpeedPerSec(15.f);
 }
 
 HRESULT CElite::Create_BossHp()
 {
     CBossHpPanel::BOSSHP_DESC PanelDesc = {};
+    PanelDesc.eBossType = CBossHpPanel::BOSSTYPE::ELITE;
     PanelDesc.pOwner = this;
     PanelDesc.fX = g_iWinSizeX * 0.5f;
     PanelDesc.fY = 100.f;
-    PanelDesc.fSizeX = 700;
+    PanelDesc.fSizeX = 1360;
     PanelDesc.fSizeY = 30;
     PanelDesc.fSpeedPerSec = 10.f;
     PanelDesc.fRotationPerSec = XMConvertToRadians(90.0f);

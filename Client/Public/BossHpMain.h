@@ -37,11 +37,16 @@ public:
 	virtual HRESULT Render() override;
 
 private:
-	CShader* m_pShaderCom = { nullptr };
-	CTexture* m_pTextureCom = { nullptr };
+	CShader*		m_pShaderCom = { nullptr };
+	CTexture*		m_pTextureCom = { nullptr };
 	CVIBuffer_Rect* m_pVIBufferCom = { nullptr };
 
-	class CEnemy* m_pOwner = { nullptr };
+	class CEnemy*	m_pOwner = { nullptr };
+
+
+private:
+	_float			m_fOriginalSizeX = {};
+	_float			m_fOriginalfX = {};
 
 private:
 	HRESULT Ready_Components();

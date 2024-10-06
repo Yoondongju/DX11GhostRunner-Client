@@ -40,6 +40,8 @@ public:
 		ALERT_LOOP,
 		DASH_TO_ALERDLB,
 
+		CUTSCENE,
+
 		ANIM_END
 	};
 
@@ -71,6 +73,15 @@ public:
 	_bool				IsGroggy() { return m_isGroggy; }
 
 public:
+	void				Set_Energy(_float f) { m_fEnergy = f; }
+	_float				Get_Energy() { return m_fEnergy; }
+
+	void				Set_Hp(_float f) { m_fHp = f; }
+	_float				Get_Hp() { return m_fHp; }
+
+	_bool				IsPage2() { return m_isEnterPage2; }
+
+public:
 	_bool Check_Collision();
 	_bool Check_CollisionGroggy();
 
@@ -90,6 +101,10 @@ private:
 private:
 	_float		m_fEnergy = {};
 	_float		m_fHp = {};
+	_bool		m_isEnterPage2 = { false };
+
+
+	_float		m_fCollisionCoolTime = {};
 
 
 private:

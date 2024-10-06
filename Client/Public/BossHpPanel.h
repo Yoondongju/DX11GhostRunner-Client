@@ -16,8 +16,10 @@ BEGIN(Client)
 class CBossHpPanel final : public CUIObject
 {
 public:
+	enum BOSSTYPE { ELITE , TYPE_END};
 	typedef struct : public CUIObject::UI_DESC
 	{
+		BOSSTYPE	  eBossType = {};
 		class CEnemy* pOwner = { nullptr };
 
 	}BOSSHP_DESC;
@@ -26,6 +28,10 @@ private:
 	CBossHpPanel(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CBossHpPanel(const CBossHpPanel& Prototype);
 	virtual ~CBossHpPanel() = default;
+
+	
+public:
+	BOSSTYPE	Get_BossType() { return m_eBossType; }
 
 
 public:
@@ -42,6 +48,7 @@ private:
 	CVIBuffer_Rect* m_pVIBufferCom = { nullptr };
 
 
+	BOSSTYPE		m_eBossType = {};
 	class CEnemy*	m_pOwner = { nullptr };
 
 private:

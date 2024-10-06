@@ -4,6 +4,7 @@
 #include "GameInstance.h"
 
 #include "Player.h"
+#include "Elite.h"
 
 CFreeCamera::CFreeCamera(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CCamera { pDevice, pContext }
@@ -31,7 +32,8 @@ HRESULT CFreeCamera::Initialize(void * pArg)
 
 
 	XMStoreFloat4(&m_OffsetByPlayer, XMVectorSet(0.f, 16.12215824f, 2.2040216f, 1.f));
-	
+
+	XMStoreFloat4(&m_OffsetByElite, XMVectorSet(0.f, 1.f, -2.f, 1.f));
 	
 	XMStoreFloat4(&m_OffsetByShuriken, XMVectorSet(0.f, -1.f, -6.f, 1.f));
 
@@ -60,9 +62,11 @@ void CFreeCamera::Late_Update(_float fTimeDelta)
 	if (nullptr == pPlayer)
 		return;
 
+	if(true == m_isActiveFollowPlayer)
+		FollowPlayer(pPlayer);
 
 
-	FollowPlayer(pPlayer);
+
 
 
 
@@ -90,6 +94,28 @@ void CFreeCamera::FollowPlayer(CPlayer* pPlayer)
 	m_pTransformCom->Set_State(CTransform::STATE_RIGHT, pPlayerTransform->Get_State(CTransform::STATE_RIGHT));
 	m_pTransformCom->Set_State(CTransform::STATE_UP, pPlayerTransform->Get_State(CTransform::STATE_UP));
 	m_pTransformCom->Set_State(CTransform::STATE_LOOK, pPlayerTransform->Get_State(CTransform::STATE_LOOK));
+}
+
+
+void CFreeCamera::FollowElite(CElite* pElite)
+{
+
+	CTransform* pEliteTransform = pElite->Get_Transform();
+
+
+	_vector vElitePosition = pEliteTransform->Get_State(CTransform::STATE_POSITION);
+
+
+	_matrix WorldMatrix = m_pTransformCom->Get_WorldMatrix();
+
+	WorldMatrix.r[3] = XMVectorSet(0.f, 0.f, 0.f, 1.f);
+
+	_vector RotationOffset = XMVector3TransformCoord(XMLoadFloat4(&m_OffsetByElite), WorldMatrix);
+
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, vElitePosition + RotationOffset);
+	//m_pTransformCom->Set_State(CTransform::STATE_RIGHT, pEliteTransform->Get_State(CTransform::STATE_RIGHT));
+	//m_pTransformCom->Set_State(CTransform::STATE_UP, pEliteTransform->Get_State(CTransform::STATE_UP));
+	//m_pTransformCom->Set_State(CTransform::STATE_LOOK, pEliteTransform->Get_State(CTransform::STATE_LOOK));
 }
 
 

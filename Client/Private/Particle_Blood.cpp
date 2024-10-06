@@ -44,6 +44,17 @@ void CParticle_Blood::Update(_float fTimeDelta)
 {
 	if (m_isActiveMyParticle)
 	{
+		if (m_fDisableTime <= 0.f)
+		{
+			m_isActiveMyParticle = false;
+			m_fDisableTime = 1.f;
+			m_pVIBufferCom->ResetTranslation();
+		}
+
+		m_fDisableTime -= fTimeDelta;
+
+
+
 		_int iRandom = m_pGameInstance->Get_Random_Interger(0, 3);
 		switch (iRandom)
 		{
@@ -147,7 +158,6 @@ CParticle_Blood* CParticle_Blood::Create(ID3D11Device* pDevice, ID3D11DeviceCont
 
 	return pInstance;
 }
-
 
 
 CGameObject* CParticle_Blood::Clone(void* pArg)

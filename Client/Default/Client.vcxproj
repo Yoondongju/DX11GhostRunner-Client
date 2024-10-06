@@ -179,6 +179,7 @@
     <ClInclude Include="..\Public\EliteTurboTrail.h" />
     <ClInclude Include="..\Public\Elite_Alert.h" />
     <ClInclude Include="..\Public\Elite_Block.h" />
+    <ClInclude Include="..\Public\Elite_CutScene.h" />
     <ClInclude Include="..\Public\Elite_Death.h" />
     <ClInclude Include="..\Public\Elite_Idle.h" />
     <ClInclude Include="..\Public\Elite_Stun.h" />
@@ -292,6 +293,7 @@
     <ClCompile Include="..\Private\EliteTurboTrail.cpp" />
     <ClCompile Include="..\Private\Elite_Alert.cpp" />
     <ClCompile Include="..\Private\Elite_Block.cpp" />
+    <ClCompile Include="..\Private\Elite_CutScene.cpp" />
     <ClCompile Include="..\Private\Elite_Death.cpp" />
     <ClCompile Include="..\Private\Elite_Idle.cpp" />
     <ClCompile Include="..\Private\Elite_Stun.cpp" />

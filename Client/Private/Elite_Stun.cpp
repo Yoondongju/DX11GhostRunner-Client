@@ -22,7 +22,12 @@ HRESULT CElite_Stun::Initialize()
 
 HRESULT CElite_Stun::Start_State(void* pArg)
 {
+	CModel* pModel = m_pOwner->Get_Model();
+	_double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
 
+	TrackPos = 0.0;
+
+	m_fStunTime = 2.f;
 
 	return S_OK;
 }
@@ -30,21 +35,17 @@ HRESULT CElite_Stun::Start_State(void* pArg)
 
 void CElite_Stun::Update(_float fTimeDelta)
 {
-	m_pOwner->Get_Transform()->Go_Backward(fTimeDelta * 1.5f);
+	m_pOwner->Get_Transform()->Go_Backward(fTimeDelta * 0.3f);
 
 	static_cast<CElite*>(m_pOwner)->Set_Groggy(true);
-
-
 
 	CModel* pModel = m_pOwner->Get_Model();
 	CFsm* pFsm = m_pOwner->Get_Fsm();
 
-	_double Duration = pModel->Get_CurAnimation()->Get_Duration();
-	_double TrackPos = pModel->Get_Referene_CurrentTrackPosition();
 
+	m_fStunTime -= fTimeDelta;
 
-	if (CElite::ELITE_ANIMATION::HIT_STUN == pModel->Get_CurAnimationIndex() &&
-		0.9 <= TrackPos / (_float)Duration)
+	if (m_fStunTime <= 0.f)
 	{
 		_bool	bDashBlock = true;
 
@@ -56,6 +57,9 @@ void CElite_Stun::Update(_float fTimeDelta)
 
 void CElite_Stun::End_State()
 {
+	CElite* pElite = static_cast<CElite*>(m_pOwner);
+	pElite->Set_Energy(100.f);
+
 	static_cast<CElite*>(m_pOwner)->Set_Groggy(false);
 }
 

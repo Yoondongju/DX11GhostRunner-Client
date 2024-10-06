@@ -39,6 +39,10 @@ public:
 	virtual void Drop(_float fTimeDelta) override;
 
 public:
+	void		 ResetTranslation();
+
+
+public:
 	static CVIBuffer_Mesh_Instance* Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, const CVIBuffer_Mesh_Instance::MESHINSTANCE_DESC& Desc);
 	virtual CComponent* Clone(void* pArg) override;
 	virtual void Free() override;

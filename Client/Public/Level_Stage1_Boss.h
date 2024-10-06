@@ -19,7 +19,11 @@ public:
 	virtual HRESULT Render() override;
 
 
-public:
+private:
+
+
+
+private:
 	HRESULT Ready_Lights();
 	HRESULT Ready_Layer_BackGround(void* pArg);
 

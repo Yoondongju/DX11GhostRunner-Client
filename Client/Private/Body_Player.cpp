@@ -70,27 +70,6 @@ void CBody_Player::Update(_float fTimeDelta)
 	m_pModelCom->Play_Animation(fTimeDelta);
 
 
-	// 내 점프 시간이 길었을때
-	_float fJumpProgresstime = pPlayer->Get_JumpProgressTime();
-
-	if (fJumpProgresstime > 1.5f)
-	{
-		_double CurTrackPosition = m_pModelCom->Get_Referene_CurrentTrackPosition();
-		_double Duration = m_pModelCom->Get_CurAnimation()->Get_Duration();
-
-		if (0.6 <= CurTrackPosition / Duration)
-		{
-			if (false == pPlayer->Get_Shaking())
-			{
-				_vector vRightVector = pPlayerTransform->Get_State(CTransform::STATE_RIGHT);
-				vRightVector = XMVector3Normalize(vRightVector);
-
-				pPlayer->Set_Shake(fJumpProgresstime * 3.f / 60.f, fJumpProgresstime * 3.f / 60.f, vRightVector);
-			}
-		}
-	}
-
-
 	m_PxTransform.p = { m_WorldMatrix.m[3][0], m_WorldMatrix.m[3][1] + pPlayer->Get_OffsetY() * 0.5f  , m_WorldMatrix.m[3][2] };
 	m_pPxRigidDynamic->setGlobalPose(m_PxTransform);
 

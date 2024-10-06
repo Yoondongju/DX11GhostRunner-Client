@@ -240,3 +240,16 @@ void CVIBuffer_Mesh_Instance::Free()
 	__super::Free();
 
 }
+
+void CVIBuffer_Mesh_Instance::ResetTranslation()
+{
+	D3D11_MAPPED_SUBRESOURCE	SubResource{};
+
+	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_DISCARD, 0, &SubResource);
+
+	VTXMESHINSTANCE* pVertices = static_cast<VTXMESHINSTANCE*>(SubResource.pData);
+
+	memcpy(pVertices, m_pInstanceVertices, sizeof(VTXMESHINSTANCE) * m_iNumInstance);
+
+	m_pContext->Unmap(m_pVBInstance, 0);
+}

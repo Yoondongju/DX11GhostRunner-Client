@@ -17,7 +17,7 @@ class CBossHpEnergy final : public CUIObject
 {
 public:
 	typedef struct : public CUIObject::UI_DESC
-	{
+	{		
 		class CEnemy* pOwner = { nullptr };
 
 	}BOSSHP_DESC;
@@ -41,7 +41,11 @@ private:
 	CTexture*		m_pTextureCom = { nullptr };
 	CVIBuffer_Rect* m_pVIBufferCom = { nullptr };
 
-	class CEnemy* m_pOwner = { nullptr };
+	class CEnemy*	m_pOwner = { nullptr };
+
+private:
+	_float			m_fOriginalSizeX = {};
+	_float			m_fOriginalfX = {};
 
 private:
 	HRESULT Ready_Components();

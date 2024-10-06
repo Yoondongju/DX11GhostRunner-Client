@@ -379,6 +379,9 @@
     <Filter Include="02.GameObjects\GameUI\BossHp\Energy">
       <UniqueIdentifier>{ba0f905d-7c19-4a9c-b84d-04147128b9bc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Elite\EliteState\CutScene">
+      <UniqueIdentifier>{49453eb5-570c-4712-b8c0-81db7adf3199}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -714,6 +717,9 @@
     <ClInclude Include="..\Public\BossHpEnergy.h">
       <Filter>02.GameObjects\GameUI\BossHp\Energy</Filter>
     </ClInclude>
+    <ClInclude Include="..\Public\Elite_CutScene.h">
+      <Filter>02.GameObjects\02.Monster\Elite\EliteState\CutScene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -1039,6 +1045,9 @@
     </ClCompile>
     <ClCompile Include="..\Private\BossHpEnergy.cpp">
       <Filter>02.GameObjects\GameUI\BossHp\Energy</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Elite_CutScene.cpp">
+      <Filter>02.GameObjects\02.Monster\Elite\EliteState\CutScene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

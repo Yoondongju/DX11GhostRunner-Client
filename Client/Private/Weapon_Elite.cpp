@@ -9,6 +9,8 @@
 
 #include "EliteSwordTrail.h"
 
+#include "Elite.h"
+
 CWeapon_Elite::CWeapon_Elite(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CPartObject{ pDevice, pContext }
 {
@@ -140,14 +142,38 @@ _bool CWeapon_Elite::Check_Collision()
 		CPlayer::PLAYER_ANIMATIONID eCurState = (CPlayer::PLAYER_ANIMATIONID)pFsm->Get_CurStateIndex();
 
 
-		if (CPlayer::PLAYER_ANIMATIONID::BLOCK_R1 == eCurState ||
-			CPlayer::PLAYER_ANIMATIONID::BLOCK_R2 == eCurState ||
-			CPlayer::PLAYER_ANIMATIONID::BLOCK_R3 == eCurState)
+		if (m_pColliderCom->IsBoundingCollisionEnter())
 		{
-			pPlayer->Get_Part(CPlayer::PARTID::PART_PARTICLE_BLOCK)->SetActiveMyParticle(true);
+			if (CPlayer::PLAYER_ANIMATIONID::BLOCK_R1 == eCurState ||
+				CPlayer::PLAYER_ANIMATIONID::BLOCK_R2 == eCurState ||
+				CPlayer::PLAYER_ANIMATIONID::BLOCK_R3 == eCurState)
+			{
+				pPlayer->Get_Part(CPlayer::PARTID::PART_PARTICLE_BLOCK)->SetActiveMyParticle(true);
+				
+				CElite* pElite = static_cast<CElite*>(m_pOwner);
 
-			if (m_pColliderCom->IsBoundingCollisionEnter())
+				_float fCurEnergy = pElite->Get_Energy();
+				fCurEnergy -= 15.f;
+
+				if (fCurEnergy < 0.f)
+					fCurEnergy = 0.f;
+
+				pElite->Set_Energy(fCurEnergy);
+
+
+				if (false == pPlayer->Get_Shaking())
+				{
+					CTransform* pPlayerTransform = pPlayer->Get_Transform();
+					_vector vRightVector = pPlayerTransform->Get_State(CTransform::STATE_RIGHT);
+					vRightVector = XMVector3Normalize(vRightVector);
+
+					pPlayer->Set_Shake(11, 0.75f, vRightVector);
+				}
+
+
 				return true;
+			}
+
 		}	
 	}
 

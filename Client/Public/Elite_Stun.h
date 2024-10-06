@@ -20,7 +20,7 @@ public:
 
 
 private:
-
+    _float          m_fStunTime = {};
 
 
 public:

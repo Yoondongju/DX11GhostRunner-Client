@@ -28,7 +28,6 @@ private:
  
     _float3         m_RushStartPos = {};                   // 돌진을 처음 시작한 거리
 
-    _uint           m_iCountSuccessParrying = { 0 };
 
 private:
     _bool   Check_Death();

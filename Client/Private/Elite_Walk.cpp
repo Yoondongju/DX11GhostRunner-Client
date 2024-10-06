@@ -32,7 +32,9 @@ void CElite_Walk::Update(_float fTimeDelta)
 	if (Check_Death())
 		return;
 
-	CModel* pModel = static_cast<CElite*>(m_pOwner)->Get_Model();
+	CElite* pElite = static_cast<CElite*>(m_pOwner);
+
+	CModel* pModel = pElite->Get_Model();
 	_double TrackPos = pModel->Get_Referene_CurrentTrackPosition();
 	_double Duration = pModel->Get_CurAnimation()->Get_Duration();
 
@@ -70,40 +72,37 @@ void CElite_Walk::Update(_float fTimeDelta)
 		CFsm* pFsm = m_pOwner->Get_Fsm();
 		if (CState::BACK == m_eDir)  	// 뒤로 백했으면	
 		{
-			_bool	bDashBlock = true;			// 테스트용
+			if (false == pElite->IsPage2())
+			{
+				_int iRandom = m_pGameInstance->Get_Random_Interger(0, 1);
+				switch (iRandom)
+				{
+				case 0:
+				{
+					pModel->SetUp_Animation(CElite::ELITE_ANIMATION::WALK_L, true);
+					pFsm->Change_State(CElite::ELITE_ANIMATION::WALK_F, CState::STATE_DIR::LEFT);
+				}
+				break;
+				case 1:
+				{
+					pModel->SetUp_Animation(CElite::ELITE_ANIMATION::WALK_R, true);
+					pFsm->Change_State(CElite::ELITE_ANIMATION::WALK_F, CState::STATE_DIR::RIGHT);
+				}
+				break;
+				default:
+					break;
+				}
+			}
+			else
+			{
+				_bool	bDashBlock = true;
 
-			pModel->SetUp_Animation(CElite::ELITE_ANIMATION::DASH_TO_ALERDLB, true);
-			pFsm->Change_State(CElite::ELITE_ANIMATION::BLOCK_F, -1, &bDashBlock);
-
-
-			//_int iRandom = m_pGameInstance->Get_Random_Interger(0, 2);
-			//switch (iRandom)
-			//{
-			//case 0:
-			//{
-			//	pModel->SetUp_Animation(CElite::ELITE_ANIMATION::WALK_L, true);
-			//	pFsm->Change_State(CElite::ELITE_ANIMATION::WALK_F, CState::STATE_DIR::LEFT);
-			//}
-			//break;
-			//case 1:
-			//{
-			//	pModel->SetUp_Animation(CElite::ELITE_ANIMATION::WALK_R, true);
-			//	pFsm->Change_State(CElite::ELITE_ANIMATION::WALK_F, CState::STATE_DIR::RIGHT);
-			//}
-			//break;
-			//case 2:
-			//{
-			//	_bool	bDashBlock = true;
-			//
-			//	pModel->SetUp_Animation(CElite::ELITE_ANIMATION::DASH_TO_ALERDLB, true);
-			//	pFsm->Change_State(CElite::ELITE_ANIMATION::BLOCK_F, -1, &bDashBlock);
-			//}
-			//break;
-			//default:
-			//	break;
-			//}
+				pModel->SetUp_Animation(CElite::ELITE_ANIMATION::DASH_TO_ALERDLB, true);
+				pFsm->Change_State(CElite::ELITE_ANIMATION::BLOCK_F, -1, &bDashBlock);
+			}
+	
 		}
-		else   // WALK   L ,R 
+		else   
 		{
 			pModel->SetUp_Animation(CElite::ELITE_ANIMATION::IDLE_TO_ALERT, true);
 			pFsm->Change_State(CElite::ELITE_ANIMATION::IDLE_TO_ALERT);

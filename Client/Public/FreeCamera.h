@@ -29,18 +29,28 @@ public:
 	virtual HRESULT Render() override;
 
 
+public:
+	void				Set_FollowPlayer(_bool b) { m_isActiveFollowPlayer = b; }
+	void				FollowElite(class CElite* pElite);
+	_float4&			Get_OffsetByEliteRef() { return m_OffsetByElite; }
+
 
 private:
 	_float				m_fSensor = { 0.f };
 
 private: 
 	_float4				m_OffsetByPlayer = {};
+	_float4				m_OffsetByElite = {};
+
 	_float4				m_OffsetByShuriken = {};
+
+
+	_bool				m_isActiveFollowPlayer = { true };
 
 
 private:
 	void				FollowPlayer(class CPlayer* pPlayer);
-
+	
 
 
 
