@@ -47,12 +47,16 @@ void CElite_Walk::Update(_float fTimeDelta)
 
 		CTransform* pEliteTransform = m_pOwner->Get_Transform();
 
+		_float fSpeed = 1.f;
+		if (true == pElite->IsPage2())
+			fSpeed = 1.8f;
+
 		switch (m_eDir)
 		{
 		case Engine::CState::FRONT:		// ¾ø¼­
 			break;
 		case Engine::CState::BACK:
-			pEliteTransform->Go_Backward(fTimeDelta * 5.f);
+			pEliteTransform->Go_Backward(fTimeDelta * 5.f * fSpeed);
 			break;
 		case Engine::CState::LEFT:
 			pEliteTransform->Go_Left(fTimeDelta * 5.f);

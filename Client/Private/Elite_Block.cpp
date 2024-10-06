@@ -77,7 +77,7 @@ void CElite_Block::Update(_float fTimeDelta)
 
 		static_cast<CWeapon_Elite*>(pElite->Get_Part(CElite::PART_WEAPON))->Check_Collision();
 
-		if (fDistance > 50.f)
+		if (fDistance > 45.f)
 		{		
 			pEliteTransform->Go_Straight(fAdjustedSpeed * fTimeDelta);
 		}

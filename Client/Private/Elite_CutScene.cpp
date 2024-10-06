@@ -16,9 +16,9 @@ CElite_CutScene::CElite_CutScene(class CGameObject* pOwner)
 
 HRESULT CElite_CutScene::Initialize()
 {
-	m_CutSceneExitPointPage1 = { 33.1385498, 17.1262779, -720.377197, };
+	m_CutSceneExitPointPage1 = { 535.953247, 17.1262779, -1916.94250 };
 
-	m_CutSceneExitPointPage2 = { 33.1385498, 17.1262779, -4000.377197, };
+	m_CutSceneExitPointPage2 = { 535.953247, 17.1262779, -3869.74463 };
 
 	return S_OK;
 }
@@ -35,8 +35,10 @@ HRESULT CElite_CutScene::Start_State(void* pArg)
 			0.999939024, -2.95103746e-08, -0.0107781896, 0.00000000,
 			-0.000992476242, 0.995753646, -0.0920315087, 0.00000000,
 			0.0107342554, 0.0920358375, 0.995693147, 0.00000000,
-			33.1385498, 17.1262779, -720.377197, 1.00000000
+			535.953247, 17.1262779, -1416.94250, 1.00000000			// << Y 위치 내려야할ㄴ다
 		};
+
+		
 
 		pElite->Get_Transform()->Set_WorldMatrix(InitWorldMatrix);
 		pElite->Get_Transform()->Scaling(3.5f, 3.5f, 3.5f);
@@ -137,6 +139,9 @@ void CElite_CutScene::Update(_float fTimeDelta)
 			_bool	bDashBlock = true;
 			pModel->SetUp_Animation(CElite::ELITE_ANIMATION::IDLE_TO_ALERT, true);
 			pFsm->Change_State(CElite::ELITE_ANIMATION::IDLE_TO_ALERT);
+
+			_vector vPos = m_pOwner->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+			m_pOwner->Get_Transform()->Set_State(CTransform::STATE_POSITION, XMVectorSet(vPos.m128_f32[0], 4.0262779, vPos.m128_f32[2], 1.f));	
 		}
 
 		_float	fRotationSpeed = 90.f;

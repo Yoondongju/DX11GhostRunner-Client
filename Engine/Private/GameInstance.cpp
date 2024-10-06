@@ -394,6 +394,11 @@ HRESULT CGameInstance::Render_Lights(CShader* pShader, CVIBuffer_Rect* pVIBuffer
 	return m_pLight_Manager->Render(pShader, pVIBuffer);
 }
 
+void CGameInstance::Light_Clear()
+{
+	m_pLight_Manager->Clear();
+}
+
 HRESULT CGameInstance::Add_Font(const _wstring& strFontTag, const _tchar* pFontFilePath)
 {
 	return m_pFont_Manager->Add_Font(strFontTag, pFontFilePath);

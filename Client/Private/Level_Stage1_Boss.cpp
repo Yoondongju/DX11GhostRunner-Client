@@ -60,7 +60,7 @@ HRESULT CLevel_Stage1_Boss::Initialize(void* pArg)
 		-0.999953628, -2.83807822e-08, 0.00937000755, 0.00000000,
 		0.000709990622, 0.997123539, 0.0757577717, 0.00000000,
 		-0.00934499968, 0.0757606402, -0.997079849, 0.00000000,
-		10.0502176, 51.9797173, 670.798157, 1.00000000
+		535.953247, 51.9346428, -1229.84497, 1.00000000
 	};
 
 	pPlayerTransform->Set_WorldMatrix(InitWorldMatrix);
@@ -97,7 +97,7 @@ HRESULT CLevel_Stage1_Boss::Ready_Lights()
 	ZeroMemory(&LightDesc, sizeof LightDesc);
 	LightDesc.eType = LIGHT_DESC::TYPE_DIRECTIONAL;
 	LightDesc.vDirection = _float4(1.f, -1.f, 1.f, 0.f);	// ±¤¿øÀÌ ½î´Â ¹æÇâ 
-	LightDesc.vDiffuse = _float4(1.f, 1.f, 1.f, 1.f);
+	LightDesc.vDiffuse = _float4(1.f, 0.85f, 0.9f, 1.f);
 	LightDesc.vAmbient = _float4(0.6f, 0.6f, 0.6f, 1.f);
 	LightDesc.vSpecular = _float4(1.f, 1.f, 1.f, 1.f);
 

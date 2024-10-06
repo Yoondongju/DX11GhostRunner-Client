@@ -74,6 +74,10 @@ void CWeapon_Elite::Update(_float fTimeDelta)
 		SocketMatrix.r[i] = XMVector3Normalize(SocketMatrix.r[i]);
 	}
 
+	if (m_fCollisionCoolTime > 0.f)
+		m_fCollisionCoolTime -= fTimeDelta;
+
+
 	XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
 
 	m_pColliderCom->Update(&m_WorldMatrix);
@@ -142,7 +146,7 @@ _bool CWeapon_Elite::Check_Collision()
 		CPlayer::PLAYER_ANIMATIONID eCurState = (CPlayer::PLAYER_ANIMATIONID)pFsm->Get_CurStateIndex();
 
 
-		if (m_pColliderCom->IsBoundingCollisionEnter())
+		if (m_fCollisionCoolTime <= 0.f && m_pColliderCom->IsBoundingCollisionEnter())
 		{
 			if (CPlayer::PLAYER_ANIMATIONID::BLOCK_R1 == eCurState ||
 				CPlayer::PLAYER_ANIMATIONID::BLOCK_R2 == eCurState ||
@@ -170,16 +174,13 @@ _bool CWeapon_Elite::Check_Collision()
 					pPlayer->Set_Shake(11, 0.75f, vRightVector);
 				}
 
-
+				m_fCollisionCoolTime = 1.f;
 				return true;
 			}
 
 		}	
 	}
 
-
-
-	
 	return false;
 }
 

@@ -57,6 +57,10 @@ private:
 	_bool								m_bLandWall = { false };	// 벽을 탈수있니?
 	_bool								m_bClimbing = { false };    // 클라이밍 할수있니
 	
+	_bool								m_isChangeTexCoord = { false };		// 텍스쿠드를 바꿔야하는 오브젝트니
+
+	_float								m_fTextCoordTime = {};
+
 
 private:
 	HRESULT		Ready_Component();

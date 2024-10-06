@@ -75,16 +75,6 @@ HRESULT CElite::Initialize(void* pArg)
 
     _vector vElitePos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
 
-    _float4x4   InitWorldMatrix =
-    {
-        0.999939024, -2.95103746e-08, -0.0107781896, 0.00000000,
-        -0.000992476242, 0.995753646, -0.0920315087, 0.00000000,
-        0.0107342554, 0.0920358375, 0.995693147, 0.00000000,
-        1.39669776, XMVectorGetY(vElitePos), -3664.54541, 1.00000000
-    };
-
-
-    m_pTransformCom->Set_WorldMatrix(InitWorldMatrix);
 
     m_pTransformCom->Scaling(3.5f, 3.5f, 3.5f);
 
@@ -281,7 +271,7 @@ _bool CElite::Check_Collision()
         m_Parts[CElite::PARTID::PART_PARTICLE_BLOCK]->SetActiveMyParticle(true);
 
         if(false == m_isEnterPage2)
-            m_fEnergy -= 100.f;
+            m_fEnergy -= 40.f;
         
 
         if (m_fEnergy < 0.f)
@@ -359,7 +349,7 @@ void CElite::PhysXComputeCollision()
 
         //pWorldMatrix->m[3][0] += m_vDir.x * (m_vDepth + 0.1f);
         //pWorldMatrix->m[3][1] += m_vDir.y * (m_vDepth + 0.1f);
-        //pWorldMatrix->m[3][2] += m_vDir.z * (m_vDepth + 0.1f);            //   Y축 충돌이 섞여서 문제가 생겨 
+        //pWorldMatrix->m[3][2] += m_vDir.z * (m_vDepth + 0.1f);            // Y축 충돌이 섞여서 문제가 생겨 
 
         // 충돌한 객체가 벽을 탈수있는애인걸 확인해야함
 

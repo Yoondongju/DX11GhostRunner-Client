@@ -55,7 +55,7 @@ void CStatic_Object::Update(_float fTimeDelta)
 
     m_pPxRigidStatic->setGlobalPose(m_PxTransform);
 
-
+    m_fTextCoordTime += fTimeDelta;
    
 }
 
@@ -77,7 +77,6 @@ HRESULT CStatic_Object::Render()
         return E_FAIL;
 
 
-
  
     _uint iNumMeshes = m_pModel->Get_NumMeshes();
 
@@ -89,7 +88,24 @@ HRESULT CStatic_Object::Render()
         if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
             return E_FAIL;
 
-        if (FAILED(m_pShaderCom->Begin(0)))
+        _uint iPassNum = 0;
+        if (true == m_isChangeTexCoord)     // ±âÂ÷
+        {
+            iPassNum = 5;
+
+            if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_EmissiveTexture", aiTextureType_EMISSIVE, i)))
+                return E_FAIL;
+
+
+            if (FAILED(m_pShaderCom->Bind_RawValue("g_fTime", &m_fTextCoordTime, sizeof(_float))))
+                return E_FAIL;
+
+            _float fSpeed = 0.5f;
+            if (FAILED(m_pShaderCom->Bind_RawValue("g_fScrollSpeed", &fSpeed, sizeof(_float))))
+                return E_FAIL;
+        }
+
+        if (FAILED(m_pShaderCom->Begin(iPassNum)))
             return E_FAIL;
 
         if (FAILED(m_pModel->Render(i)))
@@ -248,6 +264,12 @@ HRESULT CStatic_Object::Ready_HandleModelTypeTasks()
     {
         m_bClimbing = true;
         m_strChangeLayerName = L"Layer_Climb_Object";
+    }
+    break;
+
+    case MODEL_CHECK_LIST::TRAIN:
+    {
+        m_isChangeTexCoord = true;
     }
     break;
 

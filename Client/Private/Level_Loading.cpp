@@ -58,6 +58,7 @@ void CLevel_Loading::Update(_float fTimeDelta)
 
 
 		m_pGameInstance->Phys_Clear();
+		m_pGameInstance->Light_Clear();
 			
 		switch (m_eNextLevelID)
 		{

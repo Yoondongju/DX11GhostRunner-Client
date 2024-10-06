@@ -26,6 +26,7 @@ HRESULT CElite_Turbo::Start_State(void* pArg)
 	pModel->SetUp_Animation(CElite::ELITE_ANIMATION::ALERT_TO_TURBO, true);
 
 	CEliteSwordTrail* pSwordTrail = static_cast<CWeapon_Elite*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CElite::PARTID::PART_WEAPON))->Get_SwordTrail();
+	pSwordTrail->Set_Active(false);
 	pSwordTrail->Set_Active(true);
 
 	// 플레이어가 못막으면 바로 사망으로 처리하자
@@ -39,7 +40,12 @@ void CElite_Turbo::Update(_float fTimeDelta)
 	if (Check_Death())
 		return;
 
-	if (true == m_bStartTurboDash && Check_TurboDash(fTimeDelta))
+	_float fSpeed = 1.f;
+	CElite* pElite = static_cast<CElite*>(m_pOwner);
+	if (true == pElite->IsPage2())
+		fSpeed = 1.6f;
+
+	if (true == m_bStartTurboDash && Check_TurboDash(fTimeDelta * fSpeed))
 		return;
 
 
@@ -121,7 +127,7 @@ _bool CElite_Turbo::Check_TurboDash(_float fTimeDelta)
 
 	_float fRemainingDistance = m_fMaxRushDistance - fAccRushedDistance;
 
-	
+
 	if (50.f >= fRemainingDistance) 
 	{
 		CElite* pElite = static_cast<CElite*>(m_pOwner);
