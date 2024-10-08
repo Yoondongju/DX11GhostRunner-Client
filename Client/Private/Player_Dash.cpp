@@ -54,6 +54,7 @@ HRESULT CPlayer_Dash::Start_State(void* pArg)
 	}
 
 	
+	m_pGameInstance->ActiveBlur(nullptr, CRenderer::BLUR_TYPE::MOTION_BLUR);
 
 	return S_OK;
 }
@@ -89,6 +90,9 @@ void CPlayer_Dash::End_State()
 
 	CRigidBody* pRigidBody = m_pOwner->Get_RigidBody();
 	pRigidBody->Set_IsGravity(true);
+
+
+	m_pGameInstance->UnActiveBlur();
 }
 
 

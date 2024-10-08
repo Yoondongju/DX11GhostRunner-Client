@@ -206,8 +206,7 @@ void CPlayer::Priority_Update(_float fTimeDelta)
     
    
 
-  
-    
+ 
     if (false == pBodyPlayer->IsLandingWall())
     {
         if (g_hWnd == GetFocus() && m_pGameInstance->Get_KeyState(KEY::RBUTTON) == KEY_STATE::HOLD)
@@ -399,6 +398,21 @@ HRESULT CPlayer::Ready_Component()
     if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Player_FSM"),
         TEXT("Com_Fsm"), reinterpret_cast<CComponent**>(&m_pFsm), nullptr)))
         return E_FAIL;
+
+
+
+    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_TimeStopRefraction"),
+        TEXT("Com_Tex1"), reinterpret_cast<CComponent**>(&m_pTimeStopRefractionTex), nullptr)))
+        return E_FAIL;
+    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_MindControlRefraction"),
+        TEXT("Com_Tex2"), reinterpret_cast<CComponent**>(&m_pMindControlRefractionTex), nullptr)))
+        return E_FAIL;
+    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BlurMask"),
+        TEXT("Com_Tex3"), reinterpret_cast<CComponent**>(&m_pBlurMaskTex), nullptr)))
+        return E_FAIL;
+
+
+    
 
     /* For.Com_RigidBody*/
     if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_RigidBody"),
@@ -717,6 +731,10 @@ void CPlayer::Free()
     //           3. 만약 레이어에 담기지 않는 오브젝트일경우 Layer쪽에서 호출이 안되기에 Free가 호출안되서 릭날 가능성도 있따...... 
 
 
+    Safe_Release(m_pTimeStopRefractionTex);
+    Safe_Release(m_pMindControlRefractionTex);
+
+    Safe_Release(m_pBlurMaskTex);
 
     Safe_Release(m_pFsm);
     Safe_Release(m_pRigidBody);

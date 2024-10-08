@@ -382,6 +382,63 @@
     <Filter Include="02.GameObjects\02.Monster\Elite\EliteState\CutScene">
       <UniqueIdentifier>{49453eb5-570c-4712-b8c0-81db7adf3199}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01.Levels\GamePlay\Stage2_Boss">
+      <UniqueIdentifier>{2205d5d5-d4ca-43de-820b-f4f43ee144c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel">
+      <UniqueIdentifier>{65f93e03-efce-485c-98a9-2bda29620452}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\Weapon">
+      <UniqueIdentifier>{9f458389-8b7f-4e76-9b1f-92ba3c9b1c36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\HelState">
+      <UniqueIdentifier>{4c9db4e1-6bfd-4e82-9413-e22109262c12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\Trail">
+      <UniqueIdentifier>{c7a31960-dbcf-440b-95fe-02a78a1a24a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\HelState\Sleep">
+      <UniqueIdentifier>{14808aa9-8e0b-4e12-993f-2cc133755370}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\HelState\Raise">
+      <UniqueIdentifier>{bb19a73b-e078-448c-bf67-e39f4cec0cfb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\HelState\Idle">
+      <UniqueIdentifier>{528582f9-b3ef-4a5e-bfff-b00b3b247227}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\HelState\Sprint">
+      <UniqueIdentifier>{a939be9f-f41b-4a26-81ef-4ab7755155e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\HelState\Back_Block">
+      <UniqueIdentifier>{f1698379-a63f-46ae-bced-dae1c1166b9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\HelState\Ready">
+      <UniqueIdentifier>{d2a2d59c-bea3-4f5b-9338-4d11a7dbc2c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\HelState\Run_Jump">
+      <UniqueIdentifier>{2a9de018-1e8e-4f39-a103-476f41f75a67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\HelState\Jump">
+      <UniqueIdentifier>{51180c19-e9b8-4584-a3a7-1d71c4d32e9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\HelState\Stun">
+      <UniqueIdentifier>{4541ae7b-7d95-44d2-a0a9-19bb159a927a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\HelState\Dash">
+      <UniqueIdentifier>{ad5234b3-854d-4f63-8ced-795b58d1cd94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\HelState\Dash_Attack">
+      <UniqueIdentifier>{eee7dc2b-e1b0-4d86-a80b-4967d5039fdc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\HelState\Attack">
+      <UniqueIdentifier>{4b34a514-2a3f-4cc6-8127-d8557b6dbf5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\HelState\CutScene">
+      <UniqueIdentifier>{92d82bd4-d416-4752-b385-544ef1c9299f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\HelState\Death">
+      <UniqueIdentifier>{b20d6203-4679-4889-b878-a66d839a07de}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -720,6 +777,60 @@
     <ClInclude Include="..\Public\Elite_CutScene.h">
       <Filter>02.GameObjects\02.Monster\Elite\EliteState\CutScene</Filter>
     </ClInclude>
+    <ClInclude Include="..\Public\Level_Stage2_Boss.h">
+      <Filter>01.Levels\GamePlay\Stage2_Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Hel.h">
+      <Filter>02.GameObjects\02.Monster\Hel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Weapon_Hel.h">
+      <Filter>02.GameObjects\02.Monster\Hel\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\HelSwordTrail.h">
+      <Filter>02.GameObjects\02.Monster\Hel\Trail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Hel_Idle.h">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Idle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Hel_BackBlock.h">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Back_Block</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Hel_Death.h">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Death</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Hel_Jump.h">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Jump</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Hel_Dash.h">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Dash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Hel_DashAttack.h">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Dash_Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Hel_Attack.h">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Hel_CutScene.h">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\CutScene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Hel_Raise.h">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Raise</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Hel_Ready.h">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Ready</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Hel_RunJump.h">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Run_Jump</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Hel_Stun.h">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Stun</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Hel_Sprint.h">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Sprint</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Hel_Sleep.h">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Sleep</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -1048,6 +1159,60 @@
     </ClCompile>
     <ClCompile Include="..\Private\Elite_CutScene.cpp">
       <Filter>02.GameObjects\02.Monster\Elite\EliteState\CutScene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Level_Stage2_Boss.cpp">
+      <Filter>01.Levels\GamePlay\Stage2_Boss</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Hel.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Weapon_Hel.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\HelSwordTrail.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\Trail</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Hel_Idle.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Idle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Hel_BackBlock.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Back_Block</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Hel_Death.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Death</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Hel_Jump.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Jump</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Hel_Dash.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Dash</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Hel_DashAttack.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Dash_Attack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Hel_Attack.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Attack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Hel_CutScene.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\CutScene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Hel_Raise.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Raise</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Hel_Ready.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Ready</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Hel_RunJump.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Run_Jump</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Hel_Stun.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Stun</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Hel_Sprint.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Sprint</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Hel_Sleep.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Sleep</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

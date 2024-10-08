@@ -7,6 +7,9 @@
 
 #include "FreeCamera.h"
 
+#include "PartObject.h"
+#include "Player.h"
+
 CElite_CutScene::CElite_CutScene(class CGameObject* pOwner)
 	: CState{ CElite::ELITE_ANIMATION::CUTSCENE , pOwner }
 {
@@ -30,27 +33,90 @@ HRESULT CElite_CutScene::Start_State(void* pArg)
 
 	if (true == pElite->IsPage2())
 	{
-		_float4x4   InitWorldMatrix =
+		CPlayer* pPlayer = static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY));
+
+		CTransform* pEliteTransform = pElite->Get_Transform();
+		CTransform* pPlayerTransform = pPlayer->Get_Transform();
+
+
+		_vector vElitePos = pEliteTransform->Get_State(CTransform::STATE_POSITION);
+		_vector vPlayerPos = pPlayerTransform->Get_State(CTransform::STATE_POSITION);
+	
+
+
+
+		_vector vRight = { -0.956862569, -3.20142135e-08, -0.290515333, 0.00000000 };
+		_vector vUp = { 0.0142296404, 0.998797059, -0.0468661934, 0.00000000 };
+		_vector vLook = { 0.290164500, -0.0489808470, -0.955717087, 0.00000000 };
+		pPlayerTransform->Set_State(CTransform::STATE_RIGHT, vRight);
+		pPlayerTransform->Set_State(CTransform::STATE_UP, vUp);
+		pPlayerTransform->Set_State(CTransform::STATE_LOOK, vLook);
+
+
+		vRight = XMVector3Normalize(vRight);
+		vUp = XMVector3Normalize(vUp);
+		vLook = XMVector3Normalize(vLook);
+
+		_float4x4 RotationMatrix =
 		{
-			0.999939024, -2.95103746e-08, -0.0107781896, 0.00000000,
-			-0.000992476242, 0.995753646, -0.0920315087, 0.00000000,
-			0.0107342554, 0.0920358375, 0.995693147, 0.00000000,
-			535.953247, 17.1262779, -1416.94250, 1.00000000			// << Y 위치 내려야할ㄴ다
+			XMVectorGetX(vRight),XMVectorGetY(vRight) , XMVectorGetZ(vRight), 0.00000000,
+			XMVectorGetX(vUp),XMVectorGetY(vUp) , XMVectorGetZ(vUp), 0.00000000,
+			 XMVectorGetX(vLook),XMVectorGetY(vLook) , XMVectorGetZ(vLook), 0.00000000,
+			 0.f,0.f,0.f,1.f
 		};
 
-		
+		_float4x4* pRotationMatrix = pPlayer->Get_RotationMatrixPtr();
 
-		pElite->Get_Transform()->Set_WorldMatrix(InitWorldMatrix);
-		pElite->Get_Transform()->Scaling(3.5f, 3.5f, 3.5f);
+		*pRotationMatrix = RotationMatrix;
+	
+
+
+		_vector vEliteRight = { 3.37232661, -0.00000000, 0.936715424, 0.00000000 };
+		_vector vEliteUp = { 0.00000000, 3.50000000, 0.00000000, 0.00000000 };
+		_vector vEliteLook = { -0.936715126, 0.00000000, 3.37232566, 0.00000000 };
+		pEliteTransform->Set_State(CTransform::STATE_RIGHT, vEliteRight);
+		pEliteTransform->Set_State(CTransform::STATE_UP, vEliteUp);
+		pEliteTransform->Set_State(CTransform::STATE_LOOK, vEliteLook);
+
+
+
+		_vector vPlayerLook = pPlayerTransform->Get_State(CTransform::STATE_LOOK);
+		_vector vTargetLook = { -0.0145271355, 0.0699414089, -0.997434914, 0.00000000 };
+		vTargetLook = XMVector3Normalize(vTargetLook);
+		vPlayerLook = XMVector3Normalize(vPlayerLook);
+
+
+
+		_vector vSetElitePos = {};
+		_vector vSetPlayerPos = { m_CutSceneExitPointPage1.x, XMVectorGetY(vPlayerPos) , m_CutSceneExitPointPage1.z};
+
+		pPlayerTransform->Set_State(CTransform::STATE_POSITION, vSetPlayerPos);
+
+		vSetPlayerPos += vPlayerLook * 40.f;
+		vSetElitePos = { XMVectorGetX(vSetPlayerPos), XMVectorGetY(vElitePos),XMVectorGetZ(vSetPlayerPos) };
+	
+		pEliteTransform->Set_State(CTransform::STATE_POSITION, vSetElitePos);
+	
+	
+
+		CModel* pModel = m_pOwner->Get_Model();
+		CFsm* pFsm = m_pOwner->Get_Fsm();
+
+
+		pPlayer->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model()->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::FURR_AIM_TRICUT, true);
+		pModel->SetUp_Animation(CElite::ELITE_ANIMATION::BLOCK_F, true);
+		pElite->Get_Part(CElite::PARTID::PART_PARTICLE_BLOCK)->SetActiveMyParticle(true);
+	}
+	else
+	{
+		CFreeCamera* pCamera = static_cast<CFreeCamera*>(m_pGameInstance->Find_Camera(LEVEL_GAMEPLAY));
+		CTransform* pCamTransform = pCamera->Get_Transform();
+
+		pCamTransform->Set_State(CTransform::STATE_RIGHT, XMVectorSet(1.f, 0.f, 0.f, 0.f));
+		pCamTransform->Set_State(CTransform::STATE_UP, XMVectorSet(0.f, 1.f, 0.f, 0.f));
+		pCamTransform->Set_State(CTransform::STATE_LOOK, XMVectorSet(0.f, 0.f, 1.f, 0.f));
 	}
 
-
-	CFreeCamera* pCamera = static_cast<CFreeCamera*>(m_pGameInstance->Find_Camera(LEVEL_GAMEPLAY));
-	CTransform* pCamTransform = pCamera->Get_Transform();
-
-	pCamTransform->Set_State(CTransform::STATE_RIGHT, XMVectorSet(1.f, 0.f, 0.f, 0.f));
-	pCamTransform->Set_State(CTransform::STATE_UP, XMVectorSet(0.f, 1.f, 0.f, 0.f));
-	pCamTransform->Set_State(CTransform::STATE_LOOK, XMVectorSet(0.f, 0.f, 1.f, 0.f));
 		
 	return S_OK;
 }
@@ -60,24 +126,25 @@ void CElite_CutScene::Update(_float fTimeDelta)
 {
 	CFreeCamera* pCamera = static_cast<CFreeCamera*>(m_pGameInstance->Find_Camera(LEVEL_GAMEPLAY));
 	CElite* pElite = static_cast<CElite*>(m_pOwner);
-	pCamera->Set_FollowPlayer(false);
-	pCamera->FollowElite(pElite);
 
 	_vector vCurPos = m_pOwner->Get_Transform()->Get_State(CTransform::STATE_POSITION);
 	_float4& OffsetEliteRef = pCamera->Get_OffsetByEliteRef();
 
 	if (false == pElite->IsPage2())
 	{		
+		pCamera->Set_FollowPlayer(false);
+		pCamera->FollowElite(pElite);
+
 		_float fDistance = XMVectorGetX(XMVector3Length(XMLoadFloat3(&m_CutSceneExitPointPage1) - vCurPos));
 		if (fDistance >= 30.f)
 		{
 			if (OffsetEliteRef.y <= 80.f)
-				OffsetEliteRef.y += fTimeDelta * 7.f;
+				OffsetEliteRef.y += fTimeDelta * 8.f;
 
 			if (OffsetEliteRef.z >= -90.f)
-				OffsetEliteRef.z -= fTimeDelta * 7.3f;
+				OffsetEliteRef.z -= fTimeDelta * 10.f;
 
-			m_pOwner->Get_Transform()->Go_Straight(fTimeDelta * 10.f * m_fSpeed);
+			m_pOwner->Get_Transform()->Go_Straight(fTimeDelta * 50.f * m_fSpeed);
 		}
 		else
 		{
@@ -123,48 +190,102 @@ void CElite_CutScene::Update(_float fTimeDelta)
 	}
 	else         // Page 2일때
 	{
-		_float fDistance = XMVectorGetX(XMVector3Length(XMLoadFloat3(&m_CutSceneExitPointPage2) - vCurPos));
-		if (fDistance >= 50.f)
+		if (m_fAccRotationSpeed >= 377.8f)
 		{
-			OffsetEliteRef.y = 70.f;
-			OffsetEliteRef.z = -80.f;
+			pCamera->Set_FollowPlayer(false);
+			pCamera->FollowElite(pElite);
 
-			m_pOwner->Get_Transform()->Go_Backward(fTimeDelta * 22.f * m_fSpeed);
-		}
-		else
-		{
 			CModel* pModel = m_pOwner->Get_Model();
 			CFsm* pFsm = m_pOwner->Get_Fsm();
+			pModel->SetUp_Animation(CElite::ELITE_ANIMATION::WALK_B, true);
 
-			_bool	bDashBlock = true;
-			pModel->SetUp_Animation(CElite::ELITE_ANIMATION::IDLE_TO_ALERT, true);
-			pFsm->Change_State(CElite::ELITE_ANIMATION::IDLE_TO_ALERT);
+			_float fDistance = XMVectorGetX(XMVector3Length(XMLoadFloat3(&m_CutSceneExitPointPage2) - vCurPos));
+			if (fDistance >= 175.f)
+			{
+				OffsetEliteRef.y = 80.f;
 
-			_vector vPos = m_pOwner->Get_Transform()->Get_State(CTransform::STATE_POSITION);
-			m_pOwner->Get_Transform()->Set_State(CTransform::STATE_POSITION, XMVectorSet(vPos.m128_f32[0], 4.0262779, vPos.m128_f32[2], 1.f));	
-		}
+				m_pOwner->Get_Transform()->Go_Backward(fTimeDelta * 22.f * m_fSpeed);
+			}
+			else
+			{
+				_bool	bDashBlock = true;
 
-		_float	fRotationSpeed = 90.f;
-		_float	fCurRotationSpeed = fRotationSpeed * fTimeDelta * 0.2f;
+				CPlayer* pPlayer = static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY));
+				pPlayer->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model()->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::IDLE, true);
+				pPlayer->Get_Fsm()->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);
 
-		CTransform* pCamTransform = pCamera->Get_Transform();
+				pModel->SetUp_Animation(CElite::ELITE_ANIMATION::IDLE_TO_ALERT, true);
+				pFsm->Change_State(CElite::ELITE_ANIMATION::IDLE_TO_ALERT);
 
-		if (m_fAccRotationSpeed + fCurRotationSpeed <= fRotationSpeed)
-		{
-			_matrix RotationMatrix = XMMatrixRotationAxis(XMVectorSet(0.f, 1.f, 0.f, 0.f), XMConvertToRadians(fCurRotationSpeed));
-			pCamTransform->Turn(RotationMatrix, nullptr);
-
-			m_fAccRotationSpeed += fCurRotationSpeed;
+				_vector vPos = m_pOwner->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+				m_pOwner->Get_Transform()->Set_State(CTransform::STATE_POSITION, XMVectorSet(vPos.m128_f32[0], 4.0262779, vPos.m128_f32[2], 1.f));
+			}
 		}
 		else
 		{
-			_float fRemainingRotation = fRotationSpeed - m_fAccRotationSpeed;
+			_float	fRotationSpeed = 377.8f;
+			_float	fCurRotationSpeed = fRotationSpeed * fTimeDelta * 0.55f;
 
-			_matrix RotationMatrix = XMMatrixRotationAxis(XMVectorSet(0.f, 1.f, 0.f, 0.f), XMConvertToRadians(fRemainingRotation));
-			pCamTransform->Turn(RotationMatrix, nullptr);
+			CPlayer* pPlayer = static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY));
+			_float4x4* pPlayerRotationMatrix = pPlayer->Get_RotationMatrixPtr();
 
-			m_fAccRotationSpeed = fRotationSpeed;
+			CTransform* pEliteTransform = pElite->Get_Transform();
+			CTransform* pPlayerTransform = pPlayer->Get_Transform();
+
+
+			m_fAccTime += fTimeDelta;
+			if (m_fAccTime >= 0.5f)
+			{
+				if(true == pElite->Get_Part(CElite::PARTID::PART_PARTICLE_BLOCK)->IsActiveMyParticle())
+					pElite->Get_Part(CElite::PARTID::PART_PARTICLE_BLOCK)->SetActiveMyParticle(false);
+				else
+					pElite->Get_Part(CElite::PARTID::PART_PARTICLE_BLOCK)->SetActiveMyParticle(true);
+
+				m_fAccTime = 0.f;
+			}
+				
+
+
+			if (m_fAccRotationSpeed + fCurRotationSpeed <= fRotationSpeed)
+			{
+				_matrix RotationMatrix = XMMatrixRotationAxis(XMVectorSet(0.f, 1.f, 0.f, 0.f), XMConvertToRadians(fCurRotationSpeed));
+				pPlayerTransform->Turn(RotationMatrix, pPlayerRotationMatrix);
+				pEliteTransform->Turn(RotationMatrix, nullptr);
+
+				_vector vNewPlayerLook = pPlayerTransform->Get_State(CTransform::STATE_LOOK);
+				_vector vElitePos = pEliteTransform->Get_State(CTransform::STATE_POSITION);
+				_vector vSetPlayerPos = pPlayerTransform->Get_State(CTransform::STATE_POSITION);
+				_vector vSetElitePos = {};
+
+
+				vSetPlayerPos += XMVector3Normalize(vNewPlayerLook) * 40.f;
+				vSetElitePos = { XMVectorGetX(vSetPlayerPos), XMVectorGetY(vElitePos),XMVectorGetZ(vSetPlayerPos) };
+				pEliteTransform->Set_State(CTransform::STATE_POSITION, vSetElitePos);
+
+				m_fAccRotationSpeed += fabs(fCurRotationSpeed);
+			}
+			else
+			{
+				_float fRemainingRotation = fRotationSpeed - m_fAccRotationSpeed;
+
+				_matrix RotationMatrix = XMMatrixRotationAxis(XMVectorSet(0.f, 1.f, 0.f, 0.f), XMConvertToRadians(fRemainingRotation));
+				pPlayerTransform->Turn(RotationMatrix, pPlayerRotationMatrix);
+				pEliteTransform->Turn(RotationMatrix, nullptr);
+
+				_vector vNewPlayerLook = pPlayerTransform->Get_State(CTransform::STATE_LOOK);
+				_vector vElitePos = pEliteTransform->Get_State(CTransform::STATE_POSITION);
+				_vector vSetPlayerPos = pPlayerTransform->Get_State(CTransform::STATE_POSITION);
+				_vector vSetElitePos = {};
+
+
+				vSetPlayerPos += XMVector3Normalize(vNewPlayerLook) * 40.f;
+				vSetElitePos = { XMVectorGetX(vSetPlayerPos), XMVectorGetY(vElitePos),XMVectorGetZ(vSetPlayerPos) };
+				pEliteTransform->Set_State(CTransform::STATE_POSITION, vSetElitePos);
+
+				m_fAccRotationSpeed = fRotationSpeed;
+			}
 		}
+
 	}
 	
 }
@@ -172,6 +293,7 @@ void CElite_CutScene::Update(_float fTimeDelta)
 void CElite_CutScene::End_State()
 {
 	m_fSpeed = 1.f;
+	m_fAccTime = 0.f;
 	m_fAccRotationSpeed = 0.f;
 
 	CFreeCamera* pCamera = static_cast<CFreeCamera*>(m_pGameInstance->Find_Camera(LEVEL_GAMEPLAY));

@@ -26,7 +26,7 @@ private:
     _float          m_fAccRotationSpeed = { 0.f };
     _float          m_fSpeed = { 1.f };
 
-
+    
 
 public:
     static CElite_CutScene* Create(class CGameObject* pOwner);

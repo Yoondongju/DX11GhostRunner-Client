@@ -126,7 +126,7 @@ HRESULT CGraphic_Device::Ready_SwapChain(HWND hWnd, _bool isWindowed, _uint iWin
 	SwapChain.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 	SwapChain.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	SwapChain.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-	SwapChain.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	SwapChain.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
 	SwapChain.BufferCount = 1;
 
 	/*스왑하는 형태*/
@@ -172,7 +172,10 @@ HRESULT CGraphic_Device::Ready_BackBufferRenderTargetView()
 	/* 실제 렌더타겟용도로 사용할 수 있는 텍스쳐 타입(ID3D11RenderTargetView)의 객체를 생성ㅎ나다. */
 	if (FAILED(m_pDevice->CreateRenderTargetView(pBackBufferTexture, nullptr, &m_pBackBufferRTV)))
 		return E_FAIL;	
+	if (FAILED(m_pDevice->CreateShaderResourceView(pBackBufferTexture, nullptr, &m_pBackBufferSRV)))
+		return E_FAIL;
 
+	Safe_Release(pBackBufferTexture);
 	Safe_Release(pBackBufferTexture);
 
 	return S_OK;
@@ -236,6 +239,7 @@ void CGraphic_Device::Free()
 {
 	Safe_Release(m_pSwapChain);
 	Safe_Release(m_pDepthStencilView);
+	Safe_Release(m_pBackBufferSRV);
 	Safe_Release(m_pBackBufferRTV);
 	Safe_Release(m_pDeviceContext);
 	Safe_Release(m_pDepthTexture);

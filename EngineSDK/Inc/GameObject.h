@@ -50,7 +50,7 @@ public:
 	virtual void Update(_float fTimeDelta);
 	virtual void Late_Update(_float fTimeDelta);
 	virtual HRESULT Render();
-
+	virtual HRESULT Render_LightDepth() { return S_OK; }
 
 public:
 	class CComponent* Find_Component(const _wstring& strComponentTag);

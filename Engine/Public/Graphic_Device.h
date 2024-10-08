@@ -16,7 +16,11 @@ public:
 	virtual ~CGraphic_Device() = default;
 
 public:
+	ID3D11ShaderResourceView* Get_BackBuffer_SRV() const {
+		return m_pBackBufferSRV;
+	}
 
+public:
 	/* 그래픽 디바이스의 초기화. */
 	HRESULT Initialize(HWND hWnd, _bool isWindowed, _uint iWinSizeX, _uint iWinSizeY,
 		_Inout_ ID3D11Device** ppDevice, _Inout_ ID3D11DeviceContext** ppContext);
@@ -54,6 +58,7 @@ private:
 	/* ID3D11RenderTargetView : 렌더타겟용으로 사용될 수 있는 텍스처 타입. */
 	/* ID3D11DepthStencilView : 깊이스텐실 버퍼로서 사용될 수 있는 타입.  */
 	ID3D11RenderTargetView*		m_pBackBufferRTV = { nullptr };
+	ID3D11ShaderResourceView*	m_pBackBufferSRV = { nullptr };
 	ID3D11Texture2D*			m_pDepthTexture = { nullptr };
 	ID3D11DepthStencilView*		m_pDepthStencilView = { nullptr };
 

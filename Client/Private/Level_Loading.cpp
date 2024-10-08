@@ -6,6 +6,7 @@
 #include "Level_GamePlay.h"
 #include "Level_Stage1.h"
 #include "Level_Stage1_Boss.h"
+#include "Level_Stage2_Boss.h"
 
 #include "GameInstance.h"
 
@@ -73,6 +74,9 @@ void CLevel_Loading::Update(_float fTimeDelta)
 			break;
 		case LEVEL_STAGE1_BOSS:
 			pNewLevel = CLevel_Stage1_Boss::Create(m_pDevice, m_pContext, &Data);
+			break;
+		case LEVEL_STAGE2_BOSS:
+			pNewLevel = CLevel_Stage2_Boss::Create(m_pDevice, m_pContext, &Data);
 			break;
 		}
 

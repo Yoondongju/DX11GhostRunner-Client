@@ -16,7 +16,7 @@ BEGIN(Client)
 class CBossHpPanel final : public CUIObject
 {
 public:
-	enum BOSSTYPE { ELITE , TYPE_END};
+	enum BOSSTYPE { ELITE , HEL , TYPE_END};
 	typedef struct : public CUIObject::UI_DESC
 	{
 		BOSSTYPE	  eBossType = {};

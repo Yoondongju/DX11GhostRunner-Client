@@ -64,6 +64,8 @@ HRESULT CPlayer_CutAll::Start_State(void* pArg)
 		static_cast<CEventNotify*>(m_pGameInstance->Find_Notify(LEVEL_GAMEPLAY))->Set_Active(true, CEventNotify::TEXT_EVENT::UNABLE_CUTALL);
 	}
 
+	m_pGameInstance->ActiveBlur(nullptr, CRenderer::BLUR_TYPE::MOTION_BLUR);
+
 	return S_OK;
 }
 
@@ -172,10 +174,12 @@ void CPlayer_CutAll::End_State()
 	m_isHuntStart = false;
 	m_iNumKill = 0;
 
-	
 
 	CSwordTrail* pSwordTrail = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON))->Get_SwordTrail();
 	pSwordTrail->Set_Active(false);
+
+	m_pGameInstance->UnActiveBlur();
+
 }
 
 

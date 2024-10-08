@@ -127,18 +127,40 @@ HRESULT CBossHpPanel::Render()
 
 
 
+	
+
+	_uint				iTextLength = {};
+	const _tchar*		pName = {nullptr};
+
+	switch (m_eBossType)
+	{
+	case Client::CBossHpPanel::ELITE:
+	{
+		pName = L"Elite";
+		iTextLength = wcslen(pName);		// 글자 길이;
+	}
+		break;
+	case Client::CBossHpPanel::HEL:
+	{
+		pName = L"Hel";
+		iTextLength = wcslen(pName);		// 글자 길이;
+	}
+		break;
+	case Client::CBossHpPanel::TYPE_END:
+		break;
+	default:
+		break;
+	}
+
+
+	_float  fPosX = (g_iWinSizeX - iTextLength * 15) * 0.5f;
 	_float	fFontSize = 0.8f;
-	_uint iTextLength = wcslen(L"Elite");		// 글자 길이
-
-	_float fPosX = (g_iWinSizeX - iTextLength * 15) * 0.5f;
-
-	m_pGameInstance->Render_Text(TEXT("Font_145"), L"Elite",
+	m_pGameInstance->Render_Text(TEXT("Font_145"), pName,
 		XMVectorSet(fPosX, m_fY - 50.f, 0.f, 1.f),
 		fFontSize,
 		XMVectorSet(1.f, 0.1f, 0.2f, 1.f),
 		0.f,
 		XMVectorSet(0.f, 0.f, 0.f, 1.f));
-
 
 	return S_OK;
 }

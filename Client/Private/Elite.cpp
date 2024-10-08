@@ -270,14 +270,16 @@ _bool CElite::Check_Collision()
 
         m_Parts[CElite::PARTID::PART_PARTICLE_BLOCK]->SetActiveMyParticle(true);
 
-        if(false == m_isEnterPage2)
-            m_fEnergy -= 40.f;
-        
-
+        if (false == m_isEnterPage2)
+        {
+            m_fEnergy -= 100.f;
+            m_fCollisionCoolTime = 1.f;
+        }
+           
         if (m_fEnergy < 0.f)
             m_fEnergy = 0.f;
 
-        m_fCollisionCoolTime = 1.f;
+       
         return true;
     }
 
@@ -313,9 +315,8 @@ _bool CElite::Check_CollisionGroggy()       // 패링 3번 이상햇을때 켜짐
             {
                 m_isEnterPage2 = true;
                 m_fEnergy = 100.f;
-
-                m_pModel->SetUp_Animation(CElite::ELITE_ANIMATION::WALK_B, true);
-                m_pFsm->Set_State(CElite::ELITE_ANIMATION::CUTSCENE);
+            
+                m_pFsm->Change_State(CElite::ELITE_ANIMATION::CUTSCENE);
             }     
         }
 

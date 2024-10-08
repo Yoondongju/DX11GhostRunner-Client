@@ -45,6 +45,9 @@ HRESULT CPlayer_Hook::Start_State(void* pArg)
 
 
 	static_cast<CWire_Player*>(pPlayer->Get_Part(CPlayer::PARTID::PART_WIRE))->Set_Active(true);
+
+	m_pGameInstance->ActiveBlur(nullptr, CRenderer::BLUR_TYPE::MOTION_BLUR);
+
 	return S_OK;
 }
 
@@ -114,6 +117,8 @@ void CPlayer_Hook::End_State()
 	m_isStartHook = false;
 
 	Safe_Release(m_pGrapUI);
+
+	m_pGameInstance->UnActiveBlur();
 }
 
 

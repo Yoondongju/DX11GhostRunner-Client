@@ -77,7 +77,11 @@ HRESULT CLevel_Stage1_Boss::Initialize(void* pArg)
 
 void CLevel_Stage1_Boss::Update(_float fTimeDelta)
 {
-
+	if (m_pGameInstance->Get_KeyState(KEY::B) == KEY_STATE::TAP)
+	{
+		if (FAILED(m_pGameInstance->Change_Level(LEVEL_LOADING, CLevel_Loading::Create(m_pDevice, m_pContext, LEVEL_STAGE2_BOSS))))
+			return;
+	}
 }
 
 

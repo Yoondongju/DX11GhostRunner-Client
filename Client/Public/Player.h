@@ -132,13 +132,19 @@ private:
 	virtual ~CPlayer() = default;
 
 public:
-	class CFsm*		   Get_Fsm() override { return m_pFsm; }
-	class CRigidBody*  Get_RigidBody() override { return m_pRigidBody; }
+	CFsm*			Get_Fsm() override { return m_pFsm; }
+	CRigidBody*		Get_RigidBody() override { return m_pRigidBody; }
+
+	CTexture*		Get_TimeStopRefractionTex() const { return m_pTimeStopRefractionTex; }
+	CTexture*		Get_MindControlRefractionTex() const { return m_pMindControlRefractionTex; }
+
+	CTexture*		Get_BlurMaskTex() const { return m_pBlurMaskTex; }
+
 
 	PLAYER_ANIMATIONID	Get_CurAnimationID() { return m_eCurAnimationID; }
 
-	const _float4x4& Get_RotationMatrix() { return m_RotationMatrix; }
-	_float4x4*		 Get_RotationMatrixPtr() { return &m_RotationMatrix; }
+	const _float4x4&	Get_RotationMatrix() { return m_RotationMatrix; }
+	_float4x4*			Get_RotationMatrixPtr() { return &m_RotationMatrix; }
 
 public:
 	_float				Get_OffsetY() { return m_fOffsetY; }
@@ -280,6 +286,13 @@ private:
 	CFsm*					m_pFsm = { nullptr };
 	CRigidBody*				m_pRigidBody = { nullptr };
 
+	CTexture*				m_pTimeStopRefractionTex = { nullptr };
+	CTexture*				m_pMindControlRefractionTex = { nullptr };
+
+	CTexture*				m_pBlurMaskTex = { nullptr };
+
+
+
 	PLAYER_ANIMATIONID		m_eCurAnimationID = { PLAYER_ANIMATION_END };
 	POINT					m_ptOldMousePos = {};
 
@@ -306,7 +319,6 @@ private:
 
 private:
 	_float				m_fJumpProgressTime = { 0.f };	// 점프 진행시간
-
 
 	_bool				m_isCanSwapWeapon = { true };
 

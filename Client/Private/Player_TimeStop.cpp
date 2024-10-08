@@ -20,7 +20,7 @@ HRESULT CPlayer_TimeStop::Initialize()
 
 HRESULT CPlayer_TimeStop::Start_State(void* pArg)
 {
-
+	m_pGameInstance->ActiveRefraction(static_cast<CPlayer*>(m_pOwner)->Get_TimeStopRefractionTex() , CRenderer::REFRACTION_TYPE::TIMESTOP);
 
 	return S_OK;
 }
@@ -62,6 +62,8 @@ void CPlayer_TimeStop::End_State()
 	pPlayer->Set_TimeStopRemainingTime(0.f);
 
 	m_pGameInstance->Set_TimeDelayActive(false);
+
+	m_pGameInstance->UnActiveRefraction();
 }
 
 

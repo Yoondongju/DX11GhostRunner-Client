@@ -65,7 +65,7 @@ HRESULT CPlayer_MindControl::Start_State(void* pArg)
 		return S_OK;
 	}
 
-
+	m_pGameInstance->ActiveRefraction(static_cast<CPlayer*>(m_pOwner)->Get_MindControlRefractionTex(), CRenderer::REFRACTION_TYPE::MINDCONTROL);
 
 	return S_OK;
 }
@@ -125,6 +125,8 @@ void CPlayer_MindControl::End_State()
 	m_isOrderCommand = false;
 
 	m_fAccTime = 0.f;
+
+	m_pGameInstance->UnActiveRefraction();	
 }
 
 

@@ -37,6 +37,9 @@
 #include "Elite.h"
 #include "Weapon_Elite.h"
 
+#include "Hel.h"
+#include "Weapon_Hel.h"
+
 #include "Jetpack.h"
 #include "Weapon_Jetpack.h"
 #include "BackPack_Jetpack.h"
@@ -70,6 +73,7 @@
 
 #include "SwordTrail.h"
 #include "EliteSwordTrail.h"
+#include "HelSwordTrail.h"
 
 #include "ShurikenTrail.h"
 #include "Particle_ShurikenEffect.h"
@@ -263,10 +267,14 @@ HRESULT CLoader::Load_Anim_GameObject()
 		fopen_s(&file, "../Bin/Stage1/Anim_Model_Data.bin", "rb");
 	}
 		break;
-
 	case Client::LEVEL_STAGE1_BOSS:
 	{
 		fopen_s(&file, "../Bin/Stage1_BossMap/Anim_Model_Data.bin", "rb");
+	}
+		break;
+	case Client::LEVEL_STAGE2_BOSS:
+	{
+		fopen_s(&file, "../Bin/Stage2_BossMap/Anim_Model_Data.bin", "rb");
 	}
 		break;
 	case Client::LEVEL_END:
@@ -555,7 +563,8 @@ HRESULT CLoader::Load_Anim_GameObject()
 		if (MODEL_CHECK_LIST::ELITE == iObjectType ||
 			MODEL_CHECK_LIST::JETPACK == iObjectType ||
 			MODEL_CHECK_LIST::PISTOL == iObjectType ||
-			MODEL_CHECK_LIST::SNIPER == iObjectType)
+			MODEL_CHECK_LIST::SNIPER == iObjectType ||
+			MODEL_CHECK_LIST::HEL == iObjectType)
 		{
 			fread(reinterpret_cast<char*>(&iObjectType), sizeof(iObjectType), 1, file);
 
@@ -712,13 +721,16 @@ HRESULT CLoader::Load_NonAnim_GameObject()
 		fopen_s(&file, "../Bin/Stage1/NonAnim_Model_Data.bin", "rb");
 	}
 	break;
-
 	case Client::LEVEL_STAGE1_BOSS:
 	{
 		fopen_s(&file, "../Bin/Stage1_BossMap/NonAnim_Model_Data.bin", "rb");
 	}
-		break;
-
+	break;
+	case Client::LEVEL_STAGE2_BOSS:
+	{
+		fopen_s(&file, "../Bin/Stage2_BossMap/NonAnim_Model_Data.bin", "rb");
+	}
+	break;
 	case Client::LEVEL_END:
 		break;
 	default:
@@ -1102,7 +1114,7 @@ HRESULT CLoader::Load_OtherModel()
 	break;
 	case Client::LEVEL_STAGE1:
 	{
-		fopen_s(&fin, "../Bin/Stage1/Ohter_Model_Data.bin", "rb");
+		fopen_s(&fin, "../Bin/Stage1/Ohter_Model_Data.bin", "rb");		// 총알 ,불렛 .. 
 	}
 	break;
 	case Client::LEVEL_END:
@@ -1254,6 +1266,11 @@ HRESULT CLoader::Load_FinalMap()
 	case Client::LEVEL_STAGE1_BOSS:
 	{
 		fopen_s(&fin, "../Bin/Stage1_BossMap/FinalMap_Data.bin", "rb");
+	}
+	break;
+	case Client::LEVEL_STAGE2_BOSS:
+	{
+		fopen_s(&fin, "../Bin/Stage2_BossMap/FinalMap_Data.bin", "rb");
 	}
 	break;
 	case Client::LEVEL_END:
@@ -1854,6 +1871,12 @@ HRESULT CLoader::Create_PrototypeAnimObject()
 		CWeapon_Elite::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Hel"),
+		CHel::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Weapon_Hel"),
+		CWeapon_Hel::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 
 
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Jetpack"),
@@ -2198,12 +2221,17 @@ HRESULT CLoader::Create_SwordTrail()
 		return E_FAIL;
 
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_SwordTrail"),	 // 트레일 마다 공유해버리면 버텍스버퍼와 인덱스 버퍼를공유하기에 개별로 플토타입을 만들어줘야할것같다 ...
-		CVIBuffer_Trail::Create(m_pDevice, m_pContext , 80))))		// 마지막인자: 최대 트레일을 만들갯수
+		CVIBuffer_Trail::Create(m_pDevice, m_pContext , 80))))	// Player SwordTrail
 		return E_FAIL;
 
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_EliteSwordTrail"),	 // 트레일 마다 공유해버리면 버텍스버퍼와 인덱스 버퍼를공유하기에 개별로 플토타입을 만들어줘야할것같다 ...
-		CVIBuffer_Trail::Create(m_pDevice, m_pContext, 150))))		// 마지막인자: 최대 트레일을 만들갯수
+		CVIBuffer_Trail::Create(m_pDevice, m_pContext, 150))))	// Elite SwordTrail
 		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_HelSwordTrail"),	 // 트레일 마다 공유해버리면 버텍스버퍼와 인덱스 버퍼를공유하기에 개별로 플토타입을 만들어줘야할것같다 ...
+		CVIBuffer_Trail::Create(m_pDevice, m_pContext, 150))))	// Hel SwordTrail
+		return E_FAIL;
+
 
 	/* For. Prototype_GameObject_Particle_Explosion */
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_SwordTrail"),
@@ -2212,6 +2240,10 @@ HRESULT CLoader::Create_SwordTrail()
 
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_EliteSwordTrail"),
 		CEliteSwordTrail::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_HelSwordTrail"),
+		CHelSwordTrail::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
 	return S_OK;
@@ -2528,6 +2560,9 @@ HRESULT CLoader::Loading()
 	case LEVEL_STAGE1_BOSS:
 		hr = Ready_Resources_For_Stage1_BossLevel();
 		break;
+	case LEVEL_STAGE2_BOSS:
+		hr = Ready_Resources_For_Stage2_BossLevel();
+		break;
 	}
 
 	LeaveCriticalSection(&m_CriticalSection);
@@ -2610,14 +2645,25 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		return E_FAIL;
 
 
-	// For. Prototype_Component_Texture_Terrain
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_DeadNoiseTexture"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_Inky_Smoke_Tile.png"), 1))))
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_Inky_Smoke_Tile.dds"), 1))))
 			return E_FAIL;
-
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_CreateDissolve"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/CreateDissolve.dds"), 1))))
 		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BlurMask"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_NoiseNormal.dds"), 1))))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_TimeStopRefraction"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_nami_swirl_n_01.dds"), 1))))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_MindControlRefraction"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_Shield_Cracks.dds"), 1))))
+		return E_FAIL;
+
+
+
 
 	
 	lstrcpy(m_szLoadingText, TEXT("파티클을 로딩중입니다."));
@@ -2628,6 +2674,10 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	lstrcpy(m_szLoadingText, TEXT("FSM을(를) 로딩중입니다."));
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Player_FSM"),
 		CFsm::Create(m_pDevice, m_pContext, CPlayer::PLAYER_ANIMATIONID::PLAYER_ANIMATION_END))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Hel_FSM"),
+		CFsm::Create(m_pDevice, m_pContext, CHel::HEL_ANIMATION::ANIM_END))))
 		return E_FAIL;
 
 	if(FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Elite_FSM"),
@@ -2733,6 +2783,22 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 }
 
 HRESULT CLoader::Ready_Resources_For_Stage1_BossLevel()
+{
+	if (FAILED(Load_Anim_GameObject()))
+		return E_FAIL;
+
+	if (FAILED(Load_NonAnim_GameObject()))
+		return E_FAIL;
+
+	if (FAILED(Load_FinalMap()))
+		return E_FAIL;
+
+	m_isFinished = true;
+
+	return S_OK;
+}
+
+HRESULT CLoader::Ready_Resources_For_Stage2_BossLevel()
 {
 	if (FAILED(Load_Anim_GameObject()))
 		return E_FAIL;

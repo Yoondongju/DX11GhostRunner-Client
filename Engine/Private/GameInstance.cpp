@@ -169,6 +169,11 @@ HRESULT CGameInstance::Clear(_uint iLevelIndex)
 	return S_OK;
 }
 
+ID3D11ShaderResourceView* CGameInstance::Get_BackBuffer_SRV() const
+{
+	return m_pGraphic_Device->Get_BackBuffer_SRV();
+}
+
 void CGameInstance::Render_Begin()
 {
 	/*m_pGraphic_Device->Render_Begin();*/
@@ -317,6 +322,28 @@ list<class CGameObject*>& CGameInstance::Get_RenderList(CRenderer::RENDERGROUP e
 {
 	return m_pRenderer->Get_RenderList(eGroup);
 }
+
+void CGameInstance::ActiveRefraction(CTexture* pRefractionTex ,CRenderer::REFRACTION_TYPE eRefractionType)
+{
+	m_pRenderer->ActiveRefraction(pRefractionTex, eRefractionType);
+}
+
+void CGameInstance::ActiveBlur(CTexture* pBlurMaskTex , CRenderer::BLUR_TYPE eBlurType)
+{
+	m_pRenderer->ActiveBlur(pBlurMaskTex , eBlurType);
+}
+
+void CGameInstance::UnActiveRefraction()
+{
+	m_pRenderer->UnActiveRefraction();
+}
+
+void CGameInstance::UnActiveBlur()
+{
+	m_pRenderer->UnActiveBlur();
+}
+
+
 #ifdef _DEBUG
 HRESULT CGameInstance::Add_DebugObject(CComponent* pDebugObject)
 {
@@ -420,9 +447,9 @@ HRESULT CGameInstance::Add_MRT(const _wstring& strMRTTag, const _wstring& strTar
 	return m_pTarget_Manager->Add_MRT(strMRTTag, strTargetTag);
 }
 
-HRESULT CGameInstance::Begin_MRT(const _wstring& strMRTTag)
+HRESULT CGameInstance::Begin_MRT(const _wstring& strMRTTag, ID3D11DepthStencilView* pDSV)
 {
-	return m_pTarget_Manager->Begin_MRT(strMRTTag);
+	return m_pTarget_Manager->Begin_MRT(strMRTTag , pDSV);
 }
 
 HRESULT CGameInstance::End_MRT()

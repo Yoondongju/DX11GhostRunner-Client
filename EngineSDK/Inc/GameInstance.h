@@ -53,6 +53,7 @@ public:
 	
 #pragma region GRAPHIC_DEVICE
 public:
+	ID3D11ShaderResourceView* Get_BackBuffer_SRV() const;
 	void Render_Begin();
 	void Render_End();
 #pragma endregion
@@ -105,6 +106,11 @@ public:
 	HRESULT Add_RenderObject(CRenderer::RENDERGROUP eRenderGroupID, class CGameObject* pRenderObject);
 	list<class CGameObject*>& Get_RenderList(CRenderer::RENDERGROUP eGroup);
 
+	void	ActiveRefraction(class CTexture* pRefractionTex, CRenderer::REFRACTION_TYPE eRefractionType);
+	void	ActiveBlur(class CTexture* pBlurMaskTex , CRenderer::BLUR_TYPE eBlurType);
+	void	UnActiveRefraction();
+	void	UnActiveBlur();
+
 #ifdef _DEBUG
 	HRESULT Add_DebugObject(class CComponent* pDebugObject);
 #endif
@@ -148,7 +154,7 @@ public:
 #pragma region TARGET_MANAGER
 	HRESULT Add_RenderTarget(const _wstring& strTargetTag, _uint iWidth, _uint iHeight, DXGI_FORMAT ePixelFormat, const _float4& vClearColor);
 	HRESULT Add_MRT(const _wstring& strMRTTag, const _wstring& strTargetTag);
-	HRESULT Begin_MRT(const _wstring& strMRTTag);
+	HRESULT Begin_MRT(const _wstring& strMRTTag, ID3D11DepthStencilView* pDSV = nullptr);
 	HRESULT End_MRT();
 	HRESULT Bind_RT_ShaderResource(class CShader* pShader, const _wstring& strTargetTag, const _char* pConstantName);
 

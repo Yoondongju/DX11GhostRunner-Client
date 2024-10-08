@@ -116,9 +116,11 @@ private:
 private:
 	HRESULT Ready_Resources_For_LogoLevel();
 
-	HRESULT Ready_Resources_For_GamePlayLevel();
+	HRESULT Ready_Resources_For_GamePlayLevel();			// STAGE 1
 
-	HRESULT Ready_Resources_For_Stage1_BossLevel();
+	HRESULT Ready_Resources_For_Stage1_BossLevel();			// STAGE 1 BOSS
+
+	HRESULT Ready_Resources_For_Stage2_BossLevel();			// STAGE 2 BOSS
 
 private:
 	HRESULT Load_Terrain();
