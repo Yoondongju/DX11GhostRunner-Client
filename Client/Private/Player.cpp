@@ -90,7 +90,7 @@ HRESULT CPlayer::Initialize(void* pArg)
 
 
     _vector vPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
-    _vector vNewPos = { XMVectorGetX(vPos) + 9 , m_fOffsetY, XMVectorGetZ(vPos)+15 };
+    _vector vNewPos = { XMVectorGetX(vPos) + 9 , m_fOffsetY, XMVectorGetZ(vPos) + 15 };
     m_pTransformCom->Set_State(CTransform::STATE_POSITION, vNewPos);
 
 
@@ -332,8 +332,6 @@ void CPlayer::Update(_float fTimeDelta)
 
 void CPlayer::Late_Update(_float fTimeDelta)
 {
-   
-
     if (true == m_pGameInstance->IsTimeDelayActive())
         fTimeDelta *= m_fTimeDelayLerpRatio;
 

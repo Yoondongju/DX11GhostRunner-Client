@@ -79,23 +79,23 @@ HRESULT CStatic_Object::Render()
 
  
     _uint iNumMeshes = m_pModel->Get_NumMeshes();
+    _uint iPassNum = 0;
 
     for (size_t i = 0; i < iNumMeshes; i++)
     {
-        if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
-            return E_FAIL;
-
+        if (S_FALSE == m_pModel->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i))
+        {
+            iPassNum = 6;
+        }      
         if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
             return E_FAIL;
-
-        _uint iPassNum = 0;
+    
         if (true == m_isChangeTexCoord)     // ±âÂ÷
         {
             iPassNum = 5;
 
             if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_EmissiveTexture", aiTextureType_EMISSIVE, i)))
                 return E_FAIL;
-
 
             if (FAILED(m_pShaderCom->Bind_RawValue("g_fTime", &m_fTextCoordTime, sizeof(_float))))
                 return E_FAIL;

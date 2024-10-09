@@ -73,7 +73,7 @@ void CBody_Player::Update(_float fTimeDelta)
 	m_PxTransform.p = { m_WorldMatrix.m[3][0], m_WorldMatrix.m[3][1] + pPlayer->Get_OffsetY() * 0.5f  , m_WorldMatrix.m[3][2] };
 	m_pPxRigidDynamic->setGlobalPose(m_PxTransform);
 
-
+	
 
 	ProcessCollision();		// 충돌했을때 해야하는것 처리
 
@@ -356,7 +356,6 @@ void CBody_Player::PhysXComputeCollision()
 						//pParentMatrix->m[3][1] += rayDirection.y * (fDistance);
 						//pParentMatrix->m[3][1] += hitInfo.block.position.y * 0.5f;
 						pParentMatrix->m[3][2] += hitInfo.block.normal.z * (m_fPreLandingDistance * 0.8f);
-
 					}
 				}
 

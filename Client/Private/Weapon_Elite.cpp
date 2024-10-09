@@ -171,7 +171,7 @@ _bool CWeapon_Elite::Check_Collision()
 					_vector vRightVector = pPlayerTransform->Get_State(CTransform::STATE_RIGHT);
 					vRightVector = XMVector3Normalize(vRightVector);
 
-					pPlayer->Set_Shake(11, 0.75f, vRightVector);
+					pPlayer->Set_Shake(4, 0.2f, vRightVector);
 				}
 
 				m_fCollisionCoolTime = 1.f;

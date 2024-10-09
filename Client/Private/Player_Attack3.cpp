@@ -12,6 +12,7 @@
 #include "Mira.h"
 #include "Jetpack.h"
 #include "Elite.h"
+#include "Hel.h"
 
 #include "SwordTrail.h"
 
@@ -110,6 +111,19 @@ void CPlayer_Attack3::Check_Collision()
 			b = pElite->Check_CollisionGroggy();
 		else
 			b = pElite->Check_Collision();
+	}
+
+
+	list<CGameObject*>& Hels = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Hel");
+	for (auto& Hel : Hels)
+	{
+		CHel* pHel = static_cast<CHel*>(Hel);
+		_bool b = {};
+
+		if (true == pHel->IsGroggy())
+			b = pHel->Check_CollisionGroggy();
+		//else
+		//	b = pHel->Check_Collision();
 	}
 
 }

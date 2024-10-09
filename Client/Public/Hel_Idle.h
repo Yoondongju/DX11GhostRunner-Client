@@ -19,6 +19,17 @@ public:
     virtual void    End_State();
 
 
+private:
+    _float      m_fDetectRadius = { 400.f };
+
+
+private:
+    _bool   Check_Detect();
+
+    _bool   Check_Attack();
+    _bool   Check_Jump();
+    _bool   Check_Dash();
+
 
 public:
     static CHel_Idle* Create(class CGameObject* pOwner);

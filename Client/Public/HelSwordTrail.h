@@ -63,8 +63,8 @@ private:
 	_bool				m_bActive = { false };
 	_float3				m_StartPos = {};		// 처음 활성화되고 켜진 거리
 
-	_float3				m_KatanaStartLocal = _float3(-0.0776796862, -0.202111647, 0.839834869);
-	_float3				m_KatanaEndLocal = _float3(0.0776796862, 1.43591797, 9.31558323);
+	_float3				m_KatanaStartLocal = _float3(-0.145653754 , -0.386195779 , 0.683916509);
+	_float3				m_KatanaEndLocal = _float3(0.112252407 , 0.402730137 , 8.51980686);
 
 
 	_float				m_fAccTime = { 0.f };

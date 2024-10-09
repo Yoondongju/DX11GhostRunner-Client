@@ -14,16 +14,16 @@ HRESULT CChannel::Initialize(CHANNEL_DESC* pDesc, const CModel* pModel)
 
 	m_iNumKeyFrames = pDesc->iNumKeyFrames;
 
-	m_KeyFrames.reserve(m_iNumKeyFrames);
+m_KeyFrames.reserve(m_iNumKeyFrames);
 
 
-	for (size_t i = 0; i < m_iNumKeyFrames; i++)
-	{
-		m_KeyFrames.emplace_back(pDesc->vecKeyFrames[i]);
-	}
+for (size_t i = 0; i < m_iNumKeyFrames; i++)
+{
+	m_KeyFrames.emplace_back(pDesc->vecKeyFrames[i]);
+}
 
 
-	return S_OK;
+return S_OK;
 }
 
 void CChannel::Update_TransformationMatrix(const vector<class CBone*>& Bones, _uint* pCurrentKeyFrameIndex, CChannel* pNextAniChannel, _double* pCurrentTrackPosition, _bool isTransitioning, _float fTimeDelta, _double TransitionTime)
@@ -113,7 +113,6 @@ void CChannel::Update_TransformationMatrix(const vector<class CBone*>& Bones, _u
 			/* 그거 내가 설명한거. */
 			_double		Ratio = (*pCurrentTrackPosition - m_KeyFrames[*pCurrentKeyFrameIndex].TrackPosition) / (m_KeyFrames[*pCurrentKeyFrameIndex + 1].TrackPosition - m_KeyFrames[*pCurrentKeyFrameIndex].TrackPosition);
 			
-
 
 			vScale = XMVectorLerp(vSourScale, vDestScale, (_float)Ratio);
 			vRotation = XMQuaternionSlerp(vSourRotation, vDestRotation, (_float)Ratio);

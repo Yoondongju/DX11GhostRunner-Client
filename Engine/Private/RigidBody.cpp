@@ -37,7 +37,6 @@ HRESULT CRigidBody::Initialize(void* pArg)
 
 void CRigidBody::Update(_float fTimeDelta, _float fTargetY, _bool isColl)
 {
-
 	m_fTime += fTimeDelta;
 
 	// 가속도가 있고 1초동안 속도를 증가시킨다.

@@ -88,7 +88,7 @@ void CHelSwordTrail::Update(_float fTimeDelta)
 
 	TrailInfo.CurStart = CurStart;
 	TrailInfo.CurEnd = CurEnd;
-	TrailInfo.fLifeTime = 0.5f;
+	TrailInfo.fLifeTime = 1.5f;
 
 
 	// 원래는 80개 채우면 넘어가는식인데 만약 이동이 빠를경우에 이전에 위치가 너무 동떨어져 있어서
@@ -139,7 +139,7 @@ HRESULT CHelSwordTrail::Render()
 
 
 
-	if (FAILED(m_pShaderCom->Begin(2)))
+	if (FAILED(m_pShaderCom->Begin(3)))
 		return E_FAIL;
 
 	if (FAILED(m_pVIBufferCom->Bind_Buffers()))

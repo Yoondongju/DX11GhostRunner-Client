@@ -31,9 +31,6 @@ void CElite_Idle::Update(_float fTimeDelta)
 		return;
 
 
-
-
-
 	if (Check_Detect())
 	{
 		CModel* pModel = m_pOwner->Get_Model();

@@ -51,6 +51,7 @@ _bool CAnimation::Update_TransformationMatrices(const vector<CBone*>& Bones, _do
 	for (auto& pChannel : m_Channels)
 	{												// 내 걷기 애니메이션에 사용하는 채널이 106개 잇꼬 거기서 0번째 채널
 		// 마지막인자 : 몇초에 걸쳐 변환시키라
+
 		pChannel->Update_TransformationMatrix(Bones, &CurrentKeyFrameIndices[iChannelIndex], NextAniChannels[iChannelIndex], pCurrentTrackPosition, isTransitioning, fTimeDelta, m_fNextAnimLerpDuration);
 		iChannelIndex++;
 	}

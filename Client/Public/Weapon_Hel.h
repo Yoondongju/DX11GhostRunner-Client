@@ -50,13 +50,13 @@ public:
 
 
 private:
-	CShader* m_pShaderCom = { nullptr };
-	CModel* m_pModelCom = { nullptr };
-	CCollider* m_pColliderCom = { nullptr };
+	CShader*			  m_pShaderCom = { nullptr };
+	CModel*				  m_pModelCom = { nullptr };
+	CCollider*			  m_pColliderCom = { nullptr };
 
 private:
-	const _float4x4* m_pSocketMatrix = { nullptr };
-	_float		     m_fCollisionCoolTime = {};
+	const _float4x4*	  m_pSocketMatrix = { nullptr };
+	_float				  m_fCollisionCoolTime = {};
 
 private:
 	class CHelSwordTrail* m_pSwordTrail = { nullptr };

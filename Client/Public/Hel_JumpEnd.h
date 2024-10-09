@@ -6,11 +6,11 @@
 
 BEGIN(Client)
 
-class CHel_Sprint final : public CState
+class CHel_JumpEnd final : public CState
 {
 private:
-    CHel_Sprint(class CGameObject* pOwner);
-    virtual ~CHel_Sprint() = default;
+    CHel_JumpEnd(class CGameObject* pOwner);
+    virtual ~CHel_JumpEnd() = default;
 
 public:
     virtual HRESULT Initialize();
@@ -19,12 +19,10 @@ public:
     virtual void    End_State();
 
 
-private:
-    _float      m_fAttackRange = { 0.f };
 
 
 public:
-    static CHel_Sprint* Create(class CGameObject* pOwner);
+    static CHel_JumpEnd* Create(class CGameObject* pOwner);
     virtual void Free() override;
 };
 

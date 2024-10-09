@@ -200,6 +200,7 @@
     <ClInclude Include="..\Public\Hel_Death.h" />
     <ClInclude Include="..\Public\Hel_Idle.h" />
     <ClInclude Include="..\Public\Hel_Jump.h" />
+    <ClInclude Include="..\Public\Hel_JumpEnd.h" />
     <ClInclude Include="..\Public\Hel_Raise.h" />
     <ClInclude Include="..\Public\Hel_Ready.h" />
     <ClInclude Include="..\Public\Hel_RunJump.h" />
@@ -332,6 +333,7 @@
     <ClCompile Include="..\Private\Hel_Death.cpp" />
     <ClCompile Include="..\Private\Hel_Idle.cpp" />
     <ClCompile Include="..\Private\Hel_Jump.cpp" />
+    <ClCompile Include="..\Private\Hel_JumpEnd.cpp" />
     <ClCompile Include="..\Private\Hel_Raise.cpp" />
     <ClCompile Include="..\Private\Hel_Ready.cpp" />
     <ClCompile Include="..\Private\Hel_RunJump.cpp" />

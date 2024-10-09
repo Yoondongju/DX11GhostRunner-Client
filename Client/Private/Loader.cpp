@@ -2656,7 +2656,7 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_NoiseNormal.dds"), 1))))
 		return E_FAIL;
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_TimeStopRefraction"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_nami_swirl_n_01.dds"), 1))))
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_Shield_Lines_Normal.dds"), 1))))
 		return E_FAIL;
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_MindControlRefraction"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_Shield_Cracks.dds"), 1))))

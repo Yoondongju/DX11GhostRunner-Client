@@ -5,7 +5,9 @@
 #include "Enemy.h"
 
 #include "BossHpPanel.h"
+
 #include "Elite.h"
+#include "Hel.h"
 
 CBossHpEnergy::CBossHpEnergy(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CUIObject{ pDevice, pContext }
@@ -69,6 +71,22 @@ void CBossHpEnergy::Update(_float fTimeDelta)
 	case Client::CBossHpPanel::ELITE:
 	{
 		_float fCurEnergy = static_cast<CElite*>(m_pOwner)->Get_Energy();
+		_float fRatio = fCurEnergy / 100.f;
+
+
+		m_fSizeX = m_fOriginalSizeX * fRatio;
+
+		if (m_fSizeX <= 0.f)
+			m_fSizeX = 1.f;
+
+
+		_float fSizeDifference = (m_fOriginalSizeX - m_fSizeX) * 0.5f;
+		m_fX = m_fOriginalfX - fSizeDifference;
+	}
+		break;
+	case Client::CBossHpPanel::HEL:
+	{
+		_float fCurEnergy = static_cast<CHel*>(m_pOwner)->Get_Energy();
 		_float fRatio = fCurEnergy / 100.f;
 
 

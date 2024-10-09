@@ -18,7 +18,9 @@ HRESULT CHel_Stun::Initialize()
 
 HRESULT CHel_Stun::Start_State(void* pArg)
 {
-
+	CModel* pModel = m_pOwner->Get_Model();
+	_double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
+	TrackPos = 0.0;
 
 	return S_OK;
 }
@@ -26,15 +28,33 @@ HRESULT CHel_Stun::Start_State(void* pArg)
 
 void CHel_Stun::Update(_float fTimeDelta)
 {
+	m_pOwner->Get_Transform()->Go_Backward(fTimeDelta * 0.1f);
+
+	static_cast<CHel*>(m_pOwner)->Set_Groggy(true);
+
+	CModel* pModel = m_pOwner->Get_Model();
+	CFsm* pFsm = m_pOwner->Get_Fsm();
+	_double Duration = pModel->Get_CurAnimation()->Get_Duration();
+	_double TrackPos = pModel->Get_Referene_CurrentTrackPosition();
+
+	if (0.9f < (_float)TrackPos / Duration)
+	{
+		CModel* pModel = m_pOwner->Get_Model();
+		CFsm* pFsm = m_pOwner->Get_Fsm();
 
 
+		pModel->SetUp_Animation(CHel::HEL_ANIMATION::IDLE_TO_JUMP, true);
+		pFsm->Change_State(CHel::HEL_ANIMATION::IDLE_TO_JUMP);
+	}
 }
-
 
 
 void CHel_Stun::End_State()
 {
+	CHel* pHel = static_cast<CHel*>(m_pOwner);
+	pHel->Set_Energy(100.f);
 
+	static_cast<CHel*>(m_pOwner)->Set_Groggy(false);
 }
 
 

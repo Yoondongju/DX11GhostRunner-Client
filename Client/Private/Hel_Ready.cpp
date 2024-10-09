@@ -26,8 +26,7 @@ HRESULT CHel_Ready::Start_State(void* pArg)
 
 void CHel_Ready::Update(_float fTimeDelta)
 {
-
-
+	
 }
 
 

@@ -11,6 +11,7 @@ class CTexture;
 class CModel;
 class CCollider;
 class CFsm;
+class CRigidBody;
 END
 
 
@@ -62,6 +63,7 @@ public:
 	virtual  CModel* Get_Model() override { return m_pModel; }
 	virtual  CFsm* Get_Fsm() override { return m_pFsm; }
 	virtual  CCollider* Get_Collider() override { return m_pColliderCom; }
+	virtual  CRigidBody* Get_RigidBody() override { return m_pRigidBody; }
 
 public:
 	virtual HRESULT Initialize_Prototype() override;
@@ -99,6 +101,8 @@ private:
 
 	CCollider*	m_pColliderCom = { nullptr };
 	CFsm*		m_pFsm = { nullptr };
+	CRigidBody* m_pRigidBody = { nullptr };
+	_float		m_fLandPosY = { -1000.f };
 
 private:
 	_bool		m_isDead = { false };
@@ -125,7 +129,7 @@ private:
 	PxVec3					m_vDir = {};
 	PxReal					m_vDepth = {};
 
-	CGameObject* m_pCollisionDestObject = { nullptr };		// 내가 충돌한 옵젝
+	CGameObject*			m_pCollisionDestObject = { nullptr };		// 내가 충돌한 옵젝
 
 
 private:

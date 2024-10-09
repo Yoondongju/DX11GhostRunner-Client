@@ -105,7 +105,6 @@ void CElite_Block::Update(_float fTimeDelta)
 			pModel->SetUp_Animation(CElite::ELITE_ANIMATION::HIT_STUN, true);
 			pFsm->Change_State(CElite::ELITE_ANIMATION::HIT_STUN);
 		}
-
 	}
 
 }

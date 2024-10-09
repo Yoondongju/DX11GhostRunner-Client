@@ -44,15 +44,13 @@ HRESULT CWeapon_Hel::Initialize(void* pArg)
 		return E_FAIL;
 
 
-	_float4x4 InitWorldMatrix = {
-		0.181342006, 0.655698836, 0.207122847, 0.00000000,
-		-0.963511229, 0.238839343, 0.0874769986, 0.00000000,
-		0.0110353436, -0.301334143, 0.944287121, 0.00000000,
-		0.0750860050, -0.0355550535, 0.0480655581, 1.00000000
-	};
-
-
-	m_pTransformCom->Set_WorldMatrix(InitWorldMatrix);
+	//_float4x4 InitWorldMatrix = {
+	//	0.181342006, 0.655698836, 0.207122847, 0.00000000,
+	//	-0.963511229, 0.238839343, 0.0874769986, 0.00000000,
+	//	0.0110353436, -0.301334143, 0.944287121, 0.00000000,
+	//	0.0750860050, -0.0355550535, 0.0480655581, 1.00000000
+	//};
+	//m_pTransformCom->Set_WorldMatrix(InitWorldMatrix);
 
 	m_pTransformCom->Scaling(1.6f, 1.6f, 1.6f);
 
@@ -170,13 +168,12 @@ _bool CWeapon_Hel::Check_Collision()
 					_vector vRightVector = pPlayerTransform->Get_State(CTransform::STATE_RIGHT);
 					vRightVector = XMVector3Normalize(vRightVector);
 
-					pPlayer->Set_Shake(11, 0.75f, vRightVector);
+					pPlayer->Set_Shake(4, 0.2f, vRightVector);
 				}
 
 				m_fCollisionCoolTime = 1.f;
 				return true;
 			}
-
 		}
 	}
 

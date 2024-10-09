@@ -344,8 +344,8 @@ private:		// CUTALL
 
 
 private:		// TimeStop
-	_float				m_fTimeStopCoolTime = { 5.f };		
-	_float				m_fTimeStopRemainingTime = { 5.f };
+	_float				m_fTimeStopCoolTime = { 4.f };		
+	_float				m_fTimeStopRemainingTime = { 4.f };
 	_bool				m_bTimeStopActive = { true };
 	_bool				m_bStartCountTimeStopTime = { false };
 
@@ -360,8 +360,8 @@ private:		// NAMI
 
 
 private:		// MINDCONTROL
-	_float				m_fMindControlCoolTime = { 3.f };		
-	_float				m_fMindControlRemainingTime = { 3.f };	
+	_float				m_fMindControlCoolTime = { 5.f };		
+	_float				m_fMindControlRemainingTime = { 5.f };	
 	_bool				m_bMindControlActive = { true };
 	_bool				m_bStartCountMindControlTime = { false };	
 

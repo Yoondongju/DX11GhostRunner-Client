@@ -19,6 +19,10 @@ public:
     virtual void    End_State();
 
 
+private:
+
+
+
 
 public:
     static CHel_Sleep* Create(class CGameObject* pOwner);

@@ -604,27 +604,33 @@ HRESULT CRenderer::Render_Refraction()
 		return E_FAIL;
 
 
-	if (m_fRefractAmount < 1.f)
-		m_fRefractAmount += 0.02;
-
-	if (FAILED(m_pShader->Bind_RawValue("g_RefractAmount", &m_fRefractAmount, sizeof(_float))))
-		return E_FAIL;
-
 	_uint iPassNum = {0};
 
 	switch (m_eRefractionType)
 	{
 	case Engine::CRenderer::TIMESTOP:
+	{
+		if (m_fRefractAmount < 1.f)
+			m_fRefractAmount += 0.02;
 		iPassNum = 8;
+	}		
 		break;
 	case Engine::CRenderer::MINDCONTROL:
+	{
+		if (m_fRefractAmount < 1.f)
+			m_fRefractAmount += 0.012;
 		iPassNum = 10;
+	}		
 		break;
 	case Engine::CRenderer::REFRACTION_END:
 		break;
 	default:
 		break;
 	}
+
+	if (FAILED(m_pShader->Bind_RawValue("g_RefractAmount", &m_fRefractAmount, sizeof(_float))))
+		return E_FAIL;
+
 
 	m_pShader->Begin(iPassNum);
 	m_pVIBuffer->Bind_Buffers();

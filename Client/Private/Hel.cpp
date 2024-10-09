@@ -17,6 +17,8 @@
 #include "Hel_Idle.h"
 #include "Hel_BackBlock.h"
 #include "Hel_Jump.h"
+#include "Hel_JumpEnd.h"
+
 #include "Hel_Dash.h"
 #include "Hel_DashAttack.h"
 #include "Hel_Attack.h"
@@ -81,8 +83,10 @@ HRESULT CHel::Initialize(void* pArg)
     m_pFsm->Set_State(CHel::HEL_ANIMATION::IDLE);
 
 
-    _vector vElitePos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+   
 
+    _vector vPso = { 2295.63745, 1700.f ,-24.8878574 , 1.f };
+    m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPso);
 
     m_pTransformCom->Scaling(3.5f, 3.5f, 3.5f);
 
@@ -119,16 +123,29 @@ void CHel::Update(_float fTimeDelta)
     if (m_fCollisionCoolTime > 0.f)
         m_fCollisionCoolTime -= fTimeDelta;
 
+    
+    
 
     _float4x4* pWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
-    m_PxTransform.p = { pWorldMatrix->m[3][0], pWorldMatrix->m[3][1] * 2.f + 30.f, pWorldMatrix->m[3][2] };
+
+    m_PxTransform.p = { pWorldMatrix->m[3][0], pWorldMatrix->m[3][1] + 40.f, pWorldMatrix->m[3][2] };
     m_pPxRigidDynamic->setGlobalPose(m_PxTransform);
 
     PhysXComputeCollision();
 
+    if (m_fEnergy <= 0.f)
+    {
+        if (CHel::HEL_ANIMATION::STUN_HIT != m_pFsm->Get_CurStateIndex())
+        {
+            m_pModel->SetUp_Animation(CHel::HEL_ANIMATION::STUN_HIT, true);
+            m_pFsm->Change_State(CHel::HEL_ANIMATION::STUN_HIT);
+        }  
+    }
 
-    m_pFsm->Update(fTimeDelta);
     m_pModel->Play_Animation(fTimeDelta);
+    m_pFsm->Update(fTimeDelta);
+    m_pRigidBody->Update(fTimeDelta, m_fLandPosY, m_pColliderCom->Get_CurPhysXCollision());
+
 
     for (auto& pPartObject : m_Parts)
         pPartObject->Update(fTimeDelta);
@@ -310,8 +327,35 @@ void CHel::PhysXComputeCollision()
         {
             
         }
-
     }
+
+
+    PxVec3 rayOrigin = m_PxTransform.p;
+
+    PxVec3 vEndPos = { 0.0f, -1.0f, 0.0f };
+
+    PxVec3 rayDirection = vEndPos;		// 내 업벡터의 반대방향
+
+    // 레이 길이는 충분히 크게 설정
+    _float rayLength = 500.0f; // 필요에 따라 조정 가능
+
+
+    PxRaycastBuffer hitInfo;
+    PxQueryFilterData data;
+    data.flags = PxQueryFlag::eSTATIC;
+
+
+    _bool status = m_pGameInstance->Get_Scene()->raycast(rayOrigin, rayDirection, rayLength, hitInfo, PxHitFlag::eDEFAULT, data);
+
+    if (status && hitInfo.hasBlock)
+    {
+        _float fMeshY = hitInfo.block.position.y;
+        _float fPlayerY = m_PxTransform.p.y;
+
+        m_fLandPosY = fMeshY;
+    }
+    else
+        m_fLandPosY = -9999.f;	// 지형이 없을때 맥시멈으로 떨어지는위치  
 }
 
 
@@ -327,6 +371,12 @@ HRESULT CHel::Ready_Component()
     if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Hel_FSM"),
         TEXT("Com_Fsm"), reinterpret_cast<CComponent**>(&m_pFsm), nullptr)))
         return E_FAIL;
+
+
+    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_RigidBody"),
+        TEXT("Com_RigidBody"), reinterpret_cast<CComponent**>(&m_pRigidBody), nullptr)))
+        return E_FAIL;
+    m_pRigidBody->Set_OwnerTransform(m_pTransformCom);
 
 
     /* For.Com_Collider */
@@ -368,8 +418,7 @@ HRESULT CHel::Ready_Parts()
         return E_FAIL;
 
 
-    CParticle_Blood::BLOOD_DESC	BloodDesc{};
-
+    CParticle_Blood::BLOOD_DESC	    BloodDesc{};
     BloodDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
     BloodDesc.pSocketBoneMatrix = m_pModel->Get_BoneCombindTransformationMatrix_Ptr("spine_01");
     BloodDesc.pOwner = this;
@@ -431,6 +480,9 @@ HRESULT CHel::Ready_State()
 
     if (FAILED(m_pFsm->Add_State(CHel_Jump::Create(this))))
         return E_FAIL;
+    if (FAILED(m_pFsm->Add_State(CHel_JumpEnd::Create(this))))
+        return E_FAIL;
+
 
     if (FAILED(m_pFsm->Add_State(CHel_Dash::Create(this))))
         return E_FAIL;
@@ -513,7 +565,10 @@ void CHel::Ready_Modify_Animation()
 {
     vector<CAnimation*>& Animations = m_pModel->Get_Animations();
 
-
+    Animations[HEL_ANIMATION::ATTACK3]->Set_SpeedPerSec(45.f);
+    Animations[HEL_ANIMATION::ATTACK4]->Set_SpeedPerSec(45.f);
+    
+    //Animations[HEL_ANIMATION::DASH_TO_IDLE_ATTACK]->Set_SpeedPerSec(80.f);
 }
 
 HRESULT CHel::Create_BossHp()
@@ -575,6 +630,7 @@ void CHel::Free()
 
     Safe_Release(m_pColliderCom);
     Safe_Release(m_pFsm);
+    Safe_Release(m_pRigidBody);
 
     Safe_Release(m_pCollisionDestObject);
 }

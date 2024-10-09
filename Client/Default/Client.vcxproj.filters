@@ -439,6 +439,12 @@
     <Filter Include="02.GameObjects\02.Monster\Hel\HelState\Death">
       <UniqueIdentifier>{b20d6203-4679-4889-b878-a66d839a07de}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\HelState\Jump\IdleToJump">
+      <UniqueIdentifier>{0e057049-fa7e-492f-ada1-e737ec2f65a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\HelState\Jump\JumpToIdle">
+      <UniqueIdentifier>{2c368da7-5d86-4b16-981f-0fd734ec409e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -798,17 +804,11 @@
     <ClInclude Include="..\Public\Hel_Death.h">
       <Filter>02.GameObjects\02.Monster\Hel\HelState\Death</Filter>
     </ClInclude>
-    <ClInclude Include="..\Public\Hel_Jump.h">
-      <Filter>02.GameObjects\02.Monster\Hel\HelState\Jump</Filter>
-    </ClInclude>
     <ClInclude Include="..\Public\Hel_Dash.h">
       <Filter>02.GameObjects\02.Monster\Hel\HelState\Dash</Filter>
     </ClInclude>
     <ClInclude Include="..\Public\Hel_DashAttack.h">
       <Filter>02.GameObjects\02.Monster\Hel\HelState\Dash_Attack</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Public\Hel_Attack.h">
-      <Filter>02.GameObjects\02.Monster\Hel\HelState\Attack</Filter>
     </ClInclude>
     <ClInclude Include="..\Public\Hel_CutScene.h">
       <Filter>02.GameObjects\02.Monster\Hel\HelState\CutScene</Filter>
@@ -830,6 +830,15 @@
     </ClInclude>
     <ClInclude Include="..\Public\Hel_Sleep.h">
       <Filter>02.GameObjects\02.Monster\Hel\HelState\Sleep</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Hel_Jump.h">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Jump\IdleToJump</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Hel_JumpEnd.h">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Jump\JumpToIdle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Hel_Attack.h">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Attack</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1181,9 +1190,6 @@
     <ClCompile Include="..\Private\Hel_Death.cpp">
       <Filter>02.GameObjects\02.Monster\Hel\HelState\Death</Filter>
     </ClCompile>
-    <ClCompile Include="..\Private\Hel_Jump.cpp">
-      <Filter>02.GameObjects\02.Monster\Hel\HelState\Jump</Filter>
-    </ClCompile>
     <ClCompile Include="..\Private\Hel_Dash.cpp">
       <Filter>02.GameObjects\02.Monster\Hel\HelState\Dash</Filter>
     </ClCompile>
@@ -1213,6 +1219,12 @@
     </ClCompile>
     <ClCompile Include="..\Private\Hel_Sleep.cpp">
       <Filter>02.GameObjects\02.Monster\Hel\HelState\Sleep</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Hel_Jump.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Jump\IdleToJump</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Hel_JumpEnd.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\HelState\Jump\JumpToIdle</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -19,7 +19,9 @@ public:
     virtual void    End_State();
 
 
-
+private:
+    _float      m_fAttackRange = { 0.f };
+    
 
 public:
     static CHel_Attack* Create(class CGameObject* pOwner);
