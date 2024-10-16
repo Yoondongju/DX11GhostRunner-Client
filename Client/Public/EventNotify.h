@@ -55,6 +55,7 @@ private:
 	TEXT_EVENT			m_eCurEvent = { TEXT_EVENT_END };
 	_float				m_fUnableTime = { 2.f };
 	_bool				m_isFirstTextRender = { false };
+	_bool				m_isVOSoundActive = { false };
 
 
 public:

@@ -202,9 +202,6 @@
     <Filter Include="02.GameObjects\02.Monster\Pistol\PistolState\Death">
       <UniqueIdentifier>{3c4c239c-1597-455b-8f3a-b0eb635493ee}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\02.Monster\Pistol\PistolState\Idle">
-      <UniqueIdentifier>{234b7ad0-2919-4750-accb-e94a23a5d48f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="02.GameObjects\02.Monster\Pistol\PistolState\Walk">
       <UniqueIdentifier>{7ac98922-165a-44ec-a0de-54db12fb50e9}</UniqueIdentifier>
     </Filter>
@@ -444,6 +441,30 @@
     </Filter>
     <Filter Include="02.GameObjects\02.Monster\Hel\HelState\Jump\JumpToIdle">
       <UniqueIdentifier>{2c368da7-5d86-4b16-981f-0fd734ec409e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\Particle">
+      <UniqueIdentifier>{551fb9d0-519e-4a46-a8cf-8933504cc818}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\Particle\Particle_Block">
+      <UniqueIdentifier>{f5c2186f-5d32-466b-a978-e398d3027b82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\Particle\Particle_Jump">
+      <UniqueIdentifier>{9c9bd954-7b7b-492b-8265-2365b6c8b7e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Player\PlayerState\Nami\HelCutSceneNami">
+      <UniqueIdentifier>{82bf7b35-1c7c-4647-a57f-7ab318e63809}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\Particle\Particle_BigSmoke">
+      <UniqueIdentifier>{25668fcf-4142-4a0e-9467-de5c73effd9e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\Particle\Particle_Swirl">
+      <UniqueIdentifier>{f4526b77-0e32-409b-b9c9-ce248bf4d198}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\Particle\Particle_Attack">
+      <UniqueIdentifier>{794f8b8b-180d-4ecd-9dcd-b7959b9f1125}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Pistol\PistolState\Idle">
+      <UniqueIdentifier>{234b7ad0-2919-4750-accb-e94a23a5d48f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -840,6 +861,24 @@
     <ClInclude Include="..\Public\Hel_Attack.h">
       <Filter>02.GameObjects\02.Monster\Hel\HelState\Attack</Filter>
     </ClInclude>
+    <ClInclude Include="..\Public\Particle_Piece.h">
+      <Filter>02.GameObjects\02.Monster\Hel\Particle\Particle_Block</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Particle_Jump.h">
+      <Filter>02.GameObjects\02.Monster\Hel\Particle\Particle_Jump</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Player_Nami_CutScene.h">
+      <Filter>02.GameObjects\Player\PlayerState\Nami\HelCutSceneNami</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Particle_BigSmoke.h">
+      <Filter>02.GameObjects\02.Monster\Hel\Particle\Particle_BigSmoke</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Particle_Swirl.h">
+      <Filter>02.GameObjects\02.Monster\Hel\Particle\Particle_Swirl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Particle_Attack.h">
+      <Filter>02.GameObjects\02.Monster\Hel\Particle\Particle_Attack</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -1225,6 +1264,24 @@
     </ClCompile>
     <ClCompile Include="..\Private\Hel_JumpEnd.cpp">
       <Filter>02.GameObjects\02.Monster\Hel\HelState\Jump\JumpToIdle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Particle_Piece.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\Particle\Particle_Block</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Particle_Jump.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\Particle\Particle_Jump</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Player_Nami_CutScene.cpp">
+      <Filter>02.GameObjects\Player\PlayerState\Nami\HelCutSceneNami</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Particle_BigSmoke.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\Particle\Particle_BigSmoke</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Particle_Swirl.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\Particle\Particle_Swirl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Particle_Attack.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\Particle\Particle_Attack</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

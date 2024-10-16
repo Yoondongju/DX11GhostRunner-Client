@@ -11,7 +11,7 @@ BEGIN(Engine)
 class CRenderer final : public CBase
 {
 public:
-	enum RENDERGROUP { RG_PRIORITY, RG_HEIGHT, RG_SHADOWOBJ, RG_NONBLEND, RG_NONLIGHT, RG_BLEND, RG_UI, RG_END };
+	enum RENDERGROUP { RG_PRIORITY, RG_HEIGHT, RG_SHADOWOBJ, RG_NONBLEND, RG_NONLIGHT, RG_BLOOM , RG_BLEND, RG_UI, RG_END };
 	enum BLUR_TYPE { GAUSSIAN_BLUR, MOTION_BLUR, BLUR_END};
 	enum REFRACTION_TYPE { TIMESTOP, MINDCONTROL, REFRACTION_END };
 
@@ -64,6 +64,8 @@ private:
 	_bool						m_isActiveBlur = { false };
 
 	_float						m_fRefractAmount = { 0.f };
+	_float						m_fRefractTime = { 0.f };
+	_bool						m_isShutDownRefract = { false };
 
 	class CTexture*				m_pRefractionTex = { nullptr };
 	class CTexture*				m_pBlurMaskTex = { nullptr };
@@ -92,6 +94,9 @@ private:
 
 	HRESULT Render_PreFinal();
 	HRESULT Render_Final();			// 디퍼드 연산까지 끝난 최종 나의 백버퍼를 Final 렌더타겟에 그림
+
+
+	HRESULT Render_BloomEffect();	// Bloom 효과
 
 
 	HRESULT Render_Blur();

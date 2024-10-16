@@ -7,6 +7,9 @@
 #include "GameInstance.h"
 #include "Animation.h"
 
+#include "HelSwordTrail.h"
+#include "Player.h"
+
 CHel_DashAttack::CHel_DashAttack(class CGameObject* pOwner)
 	: CState{ CHel::HEL_ANIMATION::DASH_TO_IDLE_ATTACK , pOwner }
 {
@@ -33,6 +36,17 @@ HRESULT CHel_DashAttack::Start_State(void* pArg)
 	_double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
 	TrackPos = 0.0;
 
+
+	CHel* pHel = static_cast<CHel*>(m_pOwner);
+	CHelSwordTrail* pSwordTrail = static_cast<CWeapon_Hel*>(pHel->Get_Part(CHel::PARTID::PART_WEAPON))->Get_SwordTrail();
+	pSwordTrail->Set_Active(false);
+	pSwordTrail->Set_Active(true);
+
+
+	if (true == pHel->IsPage2())
+		pHel->Get_Part(CHel::PARTID::PART_PARTICLE_BIGSMOKE)->SetActiveMyParticle(true);
+
+
 	return S_OK;
 }
 
@@ -47,8 +61,26 @@ void CHel_DashAttack::Update(_float fTimeDelta)
 	_double Duration = pModel->Get_CurAnimation()->Get_Duration();
 	_double TrackPos = pModel->Get_Referene_CurrentTrackPosition();
 
+
+	_float fSpeed = 4.f;
+	if (true == pHel->IsPage2())
+	{
+		fSpeed *= 2.f;
+
+
+		CTransform* pHelTransform = m_pOwner->Get_Transform();
+
+		CPlayer* pPlayer = static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY));
+		_float fOffSetY = pPlayer->Get_OffsetY();
+		_vector vPlayerPos = pPlayer->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+
+		pHelTransform->LookAt_XZ(vPlayerPos);
+	}
+		
+
+
 	CTransform* pHelTransform = m_pOwner->Get_Transform();
-	pHelTransform->Go_Straight(fTimeDelta * 3.5f);
+	pHelTransform->Go_Straight(fTimeDelta * fSpeed);
 
 	if (0.9f < (_float)TrackPos / Duration)
 	{

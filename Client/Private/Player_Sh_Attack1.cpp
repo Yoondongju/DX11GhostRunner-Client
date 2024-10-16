@@ -29,6 +29,9 @@ HRESULT CPlayer_Sh_Attack1::Initialize()
 
 HRESULT CPlayer_Sh_Attack1::Start_State(void* pArg)
 {
+
+	m_pGameInstance->Play_Sound(TEXT("genji_shuriken_2.mp3"), SOUND_PLAYER, 2.f);
+
 	return S_OK;
 }
 

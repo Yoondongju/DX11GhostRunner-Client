@@ -169,8 +169,29 @@ public:
 #pragma region PICKING
 	//void Transform_MouseRay_ToLocalSpace(const _float4x4& WorldMatrix);	
 	//_bool isPicked_InLocalSpace(const _float3& vPointA, const _float3& vPointB, const _float3& vPointC, _float3* pOut);
-
 #pragma endregion
+
+
+#pragma region FRUSTUM
+public:
+	_bool isIn_Frustum_WorldSpace(_fvector vPosition, _float fRadius = 0.f);
+	_bool isIn_Frustum_LocalSpace(_fvector vPosition, _float fRadius);
+	void Transform_ToLocalSpace(_fmatrix WorldMatrix);
+#pragma endregion
+
+
+#pragma region SOUND_MANAGER
+	void Play_Sound(const TCHAR* pSoundKey, _uint eID, _float fVolume);
+	void Play_SoundRepeat(const TCHAR* pSoundKey, _uint eID, _float fVolume);
+	void PlayBGM(const TCHAR* pSoundKey, _float fVolume);
+	void StopSound(_uint eID);
+	void StopAll();
+	void SetChannelVolume(_uint eID, _float fVolume);
+	void SetPlayeSpeed(_uint eID, _float fSpeedRatio);
+	void  Pause(_uint eID);
+	_bool Check_IsPlaying(_uint eID);
+#pragma endregion
+
 
 #pragma region PHYSX_MANAGER
 	PxPhysics* Get_Physics();
@@ -202,6 +223,7 @@ private:
 	class CLight_Manager*			m_pLight_Manager = { nullptr };
 	class CFont_Manager*			m_pFont_Manager = { nullptr };
 	class CTarget_Manager*			m_pTarget_Manager = { nullptr };
+	class CFrustum*					m_pFrustum = { nullptr };
 
 
 	/* 여기서부터 우리가 추가한 기능들*/
@@ -210,6 +232,7 @@ private:
 	class CUI_Manager*				m_pUI_Manager = { nullptr };
 
 	class CPhysXManager*			m_pPhysX_Manager = { nullptr };
+	class CSound_Manager*			m_pSound_Manager = { nullptr };
 
 
 	//class CPickingManager*		m_pPicking_Manager = { nullptr };

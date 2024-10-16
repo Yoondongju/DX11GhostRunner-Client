@@ -49,7 +49,7 @@ void CParticle_CutAll::Update(_float fTimeDelta)
 		if (m_fDisableTime <= 0.f)
 		{
 			m_isActiveMyParticle = false;
-			m_fDisableTime = 3.f;
+			m_fDisableTime = 2.f;
 			m_pVIBufferCom->ResetTranslation();
 		}
 
@@ -71,7 +71,7 @@ void CParticle_CutAll::Update(_float fTimeDelta)
 void CParticle_CutAll::Late_Update(_float fTimeDelta)
 {
 	if (m_isActiveMyParticle)
-		m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
+		m_pGameInstance->Add_RenderObject(CRenderer::RG_BLOOM, this);
 }
 
 HRESULT CParticle_CutAll::Render()

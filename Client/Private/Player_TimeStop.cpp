@@ -22,6 +22,8 @@ HRESULT CPlayer_TimeStop::Start_State(void* pArg)
 {
 	m_pGameInstance->ActiveRefraction(static_cast<CPlayer*>(m_pOwner)->Get_TimeStopRefractionTex() , CRenderer::REFRACTION_TYPE::TIMESTOP);
 
+	m_pGameInstance->Play_Sound(TEXT("TimeStop.ogg"), SOUND_PLAYEREFFECT, 4.f);
+
 	return S_OK;
 }
 

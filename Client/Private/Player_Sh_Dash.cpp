@@ -54,6 +54,8 @@ HRESULT CPlayer_Sh_Dash::Start_State(void* pArg)
 
 	m_pGameInstance->ActiveBlur(nullptr, CRenderer::BLUR_TYPE::MOTION_BLUR);
 
+	m_pGameInstance->Play_Sound(TEXT("Dash1.ogg"), SOUND_PLAYER_DASH, 4.f);
+
 	return S_OK;
 }
 
@@ -82,6 +84,7 @@ void CPlayer_Sh_Dash::Update(_float fTimeDelta)
 void CPlayer_Sh_Dash::End_State()
 {
 	m_fAccTime = 0.f;
+	
 
 	CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
 	pPlayer->Set_StartCountDashTime(false);

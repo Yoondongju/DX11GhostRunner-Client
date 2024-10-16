@@ -19,7 +19,9 @@ public:
     virtual void    End_State();
 
 
-
+private:
+    _bool       m_isJumpStart = { false };
+    _bool       m_isJumpExcute = { false };
 
 public:
     static CHel_Jump* Create(class CGameObject* pOwner);

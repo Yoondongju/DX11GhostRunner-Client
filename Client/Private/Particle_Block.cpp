@@ -13,6 +13,13 @@ CParticle_Block::CParticle_Block(const CParticle_Block& Prototype)
 {
 }
 
+void CParticle_Block::SetActiveMyParticle(_bool b)
+{
+	m_isActiveMyParticle = b;
+
+	m_pGameInstance->Play_Sound(TEXT("PlayerBlock.mp3"), SOUND_PLAYEREFFECT, 3.f);
+}
+
 HRESULT CParticle_Block::Initialize_Prototype()
 {
 	return S_OK;
@@ -46,10 +53,10 @@ void CParticle_Block::Update(_float fTimeDelta)
 {
 	if (m_isActiveMyParticle)
 	{
-		if(m_fDisableTime == 1.f)
-			m_pGameInstance->Set_TimeDelayActive(true);
-		else if (m_fDisableTime <= 0.65f)
-			m_pGameInstance->Set_TimeDelayActive(false);
+		//if(m_fDisableTime == 1.f)
+		//	m_pGameInstance->Set_TimeDelayActive(true);
+		//else if (m_fDisableTime <= 0.65f)
+		//	m_pGameInstance->Set_TimeDelayActive(false);
 
 
 		if (m_fDisableTime <= 0.f)
@@ -96,7 +103,7 @@ void CParticle_Block::Update(_float fTimeDelta)
 void CParticle_Block::Late_Update(_float fTimeDelta)
 {
 	if (m_isActiveMyParticle)
-		m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
+		m_pGameInstance->Add_RenderObject(CRenderer::RG_BLOOM, this);
 }
 
 HRESULT CParticle_Block::Render()

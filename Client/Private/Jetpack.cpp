@@ -86,7 +86,7 @@ void CJetpack::Update(_float fTimeDelta)
     }
 
     m_pFsm->Update(fTimeDelta);
-    m_pRigidBody->Update(fTimeDelta, -1.f, false);  // 중력 안쓸게
+    m_pRigidBody->Update(fTimeDelta, -9999.f, false);  // 중력 안쓸게
 
 
     
@@ -101,11 +101,14 @@ void CJetpack::Update(_float fTimeDelta)
 
 void CJetpack::Late_Update(_float fTimeDelta)
 {
-    m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+    if (true == m_pGameInstance->isIn_Frustum_WorldSpace(m_pTransformCom->Get_State(CTransform::STATE_POSITION), 3.f))
+    {
+        m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 
 #ifdef _DEBUG
-    m_pGameInstance->Add_DebugObject(m_pColliderCom);
+        m_pGameInstance->Add_DebugObject(m_pColliderCom);
 #endif
+    }
 
     for (auto& pPartObject : m_Parts)
         pPartObject->Late_Update(fTimeDelta);

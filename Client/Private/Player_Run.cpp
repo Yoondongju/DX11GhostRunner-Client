@@ -30,12 +30,22 @@ HRESULT CPlayer_Run::Start_State(void* pArg)
 	m_pOwner->Get_Transform()->Set_SpeedPerSec(fSpeedPerSec * 1.8);
 
 
+
+
 	return S_OK;
 }
 
 
 void CPlayer_Run::Update(_float fTimeDelta)
 {
+	m_fSoundTimer += fTimeDelta;
+	if (m_fSoundTimer > 0.2f)
+	{
+		m_pGameInstance->Play_Sound(TEXT("walk.ogg"), SOUND_PLAYER, g_fEffectVolume);
+		m_fSoundTimer = 0.f;
+	}
+	
+
 	m_fSwordSpinTime -= fTimeDelta;
 
 	CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);

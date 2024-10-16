@@ -7,8 +7,11 @@
 
 #include "Weapon_Hel.h"
 #include "Particle_Blood.h"
-#include "Particle_EliteBlock.h"
-#include "Particle_EliteDashBlock.h"
+#include "Particle_Piece.h"
+#include "Particle_Jump.h"
+#include "Particle_BigSmoke.h"
+#include "Particle_Swirl.h"
+#include "Particle_Attack.h"
 
 #include "Animation.h"
 
@@ -29,7 +32,6 @@
 #include "Hel_Sprint.h"
 #include "Hel_Raise.h"
 #include "Hel_Sleep.h"
-
 
 #include "BossHpPanel.h"
 
@@ -79,23 +81,18 @@ HRESULT CHel::Initialize(void* pArg)
 
 
 
-    m_pModel->SetUp_Animation(CHel::HEL_ANIMATION::IDLE, true);
+    m_pModel->SetUp_Animation(CHel::HEL_ANIMATION::SLEEP, true);
     m_pFsm->Set_State(CHel::HEL_ANIMATION::IDLE);
+    m_pFsm->Change_State(CHel::HEL_ANIMATION::CUTSCENE);
 
-
-   
-
-    _vector vPso = { 2295.63745, 1700.f ,-24.8878574 , 1.f };
-    m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPso);
 
     m_pTransformCom->Scaling(3.5f, 3.5f, 3.5f);
 
     m_fEnergy = 100.f;
-    m_fHp = 100.f;
+    m_fHp = 49.f;
 
     m_fCollisionCoolTime = 1.f;
-
-
+ 
 
     if (FAILED(Ready_PhysX()))          // 스케일까지 세팅해주고 피직스세팅
         return E_FAIL;
@@ -135,10 +132,10 @@ void CHel::Update(_float fTimeDelta)
 
     if (m_fEnergy <= 0.f)
     {
-        if (CHel::HEL_ANIMATION::STUN_HIT != m_pFsm->Get_CurStateIndex())
+        if (CHel::HEL_ANIMATION::STUN_TO_IDLE != m_pFsm->Get_CurStateIndex())
         {
-            m_pModel->SetUp_Animation(CHel::HEL_ANIMATION::STUN_HIT, true);
-            m_pFsm->Change_State(CHel::HEL_ANIMATION::STUN_HIT);
+            m_pModel->SetUp_Animation(CHel::HEL_ANIMATION::STUN_TO_IDLE, true);
+            m_pFsm->Change_State(CHel::HEL_ANIMATION::STUN_TO_IDLE);
         }  
     }
 
@@ -149,6 +146,40 @@ void CHel::Update(_float fTimeDelta)
 
     for (auto& pPartObject : m_Parts)
         pPartObject->Update(fTimeDelta);
+
+
+
+
+    _uint iSize = m_Particle_Attack.size();
+    if (true == m_isActiveParticleAttack)
+    {
+        m_fAccNextParticleIndexTime += fTimeDelta;
+        for (_uint i = 0; i < m_iNextUnActiveParticleIndex; ++i)
+        {    
+            _uint iCurrentIndex = (m_iNextUnActiveParticleIndex + i) % iSize;
+            if (false == m_Particle_Attack[iCurrentIndex]->IsActive())
+            {
+                m_Particle_Attack[iCurrentIndex]->Set_FirstActive(true);
+                m_Particle_Attack[iCurrentIndex]->Set_Active(true);
+            }
+        }
+        if (m_fAccNextParticleIndexTime >= 0.5f)
+        {
+            m_iNextUnActiveParticleIndex = (m_iNextUnActiveParticleIndex + 1) % iSize;
+            m_fAccNextParticleIndexTime = 0.f;
+        }        
+    }
+    else
+    {
+        m_fAccNextParticleIndexTime = 0.f;
+        m_iNextUnActiveParticleIndex = 0;
+    }
+
+    for (_uint i = 0; i < iSize; ++i)
+    {
+        if (m_Particle_Attack[i]->IsActive())
+            m_Particle_Attack[i]->Update(fTimeDelta);
+    }
 
 
     m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
@@ -165,6 +196,13 @@ void CHel::Late_Update(_float fTimeDelta)
     for (auto& pPartObject : m_Parts)
         pPartObject->Late_Update(fTimeDelta);
 
+
+    _uint iSize = m_Particle_Attack.size();
+    for (_uint i = 0; i < iSize; ++i)
+    {
+        if (m_Particle_Attack[i]->IsActive())
+            m_Particle_Attack[i]->Late_Update(fTimeDelta);
+    }
 }
 
 HRESULT CHel::Render()
@@ -237,7 +275,7 @@ _bool CHel::Check_Collision()
 
     if (m_fCollisionCoolTime <= 0.f && m_pColliderCom->IsBoundingCollisionEnter())
     {
-        m_Parts[CHel::PARTID::PART_PARTICLE_BLOCK]->SetActiveMyParticle(true);
+        m_Parts[CHel::PARTID::PART_PARTICLE_ATTACK]->SetActiveMyParticle(true);
 
         if (false == m_isEnterPage2)
         {
@@ -268,7 +306,6 @@ _bool CHel::Check_CollisionGroggy()       // 패링 3번 이상햇을때 켜짐
     {
         m_pColliderCom->Intersect(pCollider);
     }
-
 
     if (m_fCollisionCoolTime <= 0.f && m_pColliderCom->IsBoundingCollisionEnter())
     {
@@ -304,8 +341,6 @@ _bool CHel::Check_CollisionGroggy()       // 패링 3번 이상햇을때 켜짐
 
     return false;
 }
-
-
 
 void CHel::PhysXComputeCollision()
 {
@@ -357,7 +392,6 @@ void CHel::PhysXComputeCollision()
     else
         m_fLandPosY = -9999.f;	// 지형이 없을때 맥시멈으로 떨어지는위치  
 }
-
 
 HRESULT CHel::Ready_Component()
 {
@@ -426,12 +460,12 @@ HRESULT CHel::Ready_Parts()
     if (FAILED(__super::Add_PartObject(PART_EFFECT, TEXT("Prototype_GameObject_Particle_Blood"), &BloodDesc)))
         return E_FAIL;
 
+    
+   
 
 
-
-
-    _float3				KatanaStartLocal = _float3(-0.0776796862, -0.202111647, 0.839834869);
-    _float3				KatanaEndLocal = _float3(0.0776796862, 1.43591797, 9.31558323);
+    _float3				KatanaStartLocal = _float3(-0.145653754, -0.386195779, 0.683916509);
+    _float3				KatanaEndLocal = _float3(0.112252407, 0.402730137, 8.51980686);
     _float3             KatanaMiddleLocal;
 
     KatanaMiddleLocal.x = (KatanaStartLocal.x + KatanaEndLocal.x) * 0.5f;
@@ -440,29 +474,61 @@ HRESULT CHel::Ready_Parts()
 
 
 
-    CParticle_EliteBlock::PARTICLE_BLOCKEFFECT	EliteBlockDesc{};
+    CParticle_Piece::PARTICLE_DESC	AttackDesc{};
 
-    EliteBlockDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
-    EliteBlockDesc.pOwner = this;
-    EliteBlockDesc.SpwanPositionLocal = KatanaMiddleLocal;
-    if (FAILED(__super::Add_PartObject(PART_PARTICLE_BLOCK, TEXT("Prototype_GameObject_Particle_EliteBlockEffect"), &EliteBlockDesc)))
+    AttackDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    AttackDesc.pOwner = this;
+    AttackDesc.SpwanPositionLocal = KatanaMiddleLocal;
+    if (FAILED(__super::Add_PartObject(PART_PARTICLE_ATTACK, TEXT("Prototype_GameObject_Particle_Piece"), &AttackDesc)))
         return E_FAIL;
 
 
-    CParticle_EliteDashBlock::PARTICLE_DASHBLOCKEFFECT	EliteDashBlockDesc{};
+    CParticle_Jump::PARTICLE_JUMPEFFECT	    JumpDesc{};
+    JumpDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    JumpDesc.pSocketBoneMatrix = m_pModel->Get_BoneCombindTransformationMatrix_Ptr("foot_l");
+    JumpDesc.pOwner = this;
+    JumpDesc.InitWorldMatrix = XMMatrixIdentity();
+    if (FAILED(__super::Add_PartObject(PART_PARTICLE_JUMPSTART, TEXT("Prototype_GameObject_Particle_HelJumpEffect"), &JumpDesc)))
+        return E_FAIL;
+    
+    if (FAILED(__super::Add_PartObject(PART_PARTICLE_JUMPEND, TEXT("Prototype_GameObject_Particle_HelJumpEffect"), &JumpDesc)))
+        return E_FAIL;
 
-    EliteDashBlockDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
-    EliteDashBlockDesc.pOwner = this;
-    EliteDashBlockDesc.SpwanPositionLocal = KatanaMiddleLocal;
-    if (FAILED(__super::Add_PartObject(PART_PARTICLE_DASHBLOCK, TEXT("Prototype_GameObject_Particle_EliteDashBlockEffect"), &EliteBlockDesc)))
+
+    CParticle_BigSmoke::PARTICLE_EFFECT	    SmokeDesc{};
+    SmokeDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    SmokeDesc.pSocketBoneMatrix = m_pModel->Get_BoneCombindTransformationMatrix_Ptr("foot_l");
+    SmokeDesc.pOwner = this;
+    SmokeDesc.InitWorldMatrix = XMMatrixIdentity();
+    if (FAILED(__super::Add_PartObject(PART_PARTICLE_BIGSMOKE, TEXT("Prototype_GameObject_Particle_BigSmoke"), &SmokeDesc)))
         return E_FAIL;
 
 
 
+    CParticle_Swirl::PARTICLE_EFFECT	    SwirlDesc{};
+    SwirlDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+    SwirlDesc.pSocketBoneMatrix = m_pModel->Get_BoneCombindTransformationMatrix_Ptr("spine_01");
+    SwirlDesc.pOwner = this;
+    SwirlDesc.InitWorldMatrix = XMMatrixIdentity();
+    if (FAILED(__super::Add_PartObject(PART_PARTICLE_SWIRL, TEXT("Prototype_GameObject_Particle_Swirl"), &SwirlDesc)))
+        return E_FAIL;
 
 
+    m_Particle_Attack.reserve(50);
+    for (_uint i = 0; i < m_Particle_Attack.capacity(); i++)
+    {
+        CParticle_Attack::PARTICLE_EFFECT	    AttackDesc{};
+        AttackDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+        AttackDesc.pSocketBoneMatrix = m_pModel->Get_BoneCombindTransformationMatrix_Ptr("weapon_bone");
+        AttackDesc.pOwner = this;
+        AttackDesc.InitWorldMatrix = XMMatrixIdentity();
+
+        CParticle_Attack* pAttackParticle = static_cast<CParticle_Attack*>(m_pGameInstance->Clone_GameObject(TEXT("Prototype_GameObject_Particle_Attack"), &AttackDesc));
+        m_Particle_Attack.emplace_back(pAttackParticle);
+    }
 
 
+  
 
     return S_OK;
 }
@@ -568,7 +634,7 @@ void CHel::Ready_Modify_Animation()
     Animations[HEL_ANIMATION::ATTACK3]->Set_SpeedPerSec(45.f);
     Animations[HEL_ANIMATION::ATTACK4]->Set_SpeedPerSec(45.f);
     
-    //Animations[HEL_ANIMATION::DASH_TO_IDLE_ATTACK]->Set_SpeedPerSec(80.f);
+    Animations[HEL_ANIMATION::SPRINT]->Set_SpeedPerSec(18.f);
 }
 
 HRESULT CHel::Create_BossHp()
@@ -622,6 +688,12 @@ CGameObject* CHel::Clone(void* pArg)
 void CHel::Free()
 {
     __super::Free();
+
+    for (_uint i = 0; i < m_Particle_Attack.size(); i++)
+    {
+        Safe_Release(m_Particle_Attack[i]);
+    }
+    m_Particle_Attack.clear();
 
     Safe_Release(m_pDeadNoiseTexture);
 

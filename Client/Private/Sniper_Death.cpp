@@ -19,7 +19,20 @@ HRESULT CSniper_Death::Initialize()
 
 HRESULT CSniper_Death::Start_State(void* pArg)
 {
-
+	_uint iRandom = m_pGameInstance->Get_Random_Interger(0, 1);
+	switch (iRandom)
+	{
+	case 0:
+		m_pGameInstance->Play_Sound(TEXT("SniperDeath1.ogg"), SOUND_SNIPER, 3.f);
+		m_pGameInstance->Play_Sound(TEXT("HitBlood1.ogg"), SOUND_SNIPERBLOOD, 3.f);
+		break;
+	case 1:
+		m_pGameInstance->Play_Sound(TEXT("SniperDeath2.ogg"), SOUND_SNIPER, 3.f);
+		m_pGameInstance->Play_Sound(TEXT("HitBlood2.ogg"), SOUND_SNIPERBLOOD, 3.f);
+		break;
+	default:
+		break;
+	}
 
 	return S_OK;
 }

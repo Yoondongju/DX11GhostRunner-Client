@@ -90,6 +90,13 @@
 #include "Particle_Explosion.h"
 #include "Particle_ShockWave.h"
 
+#include "Particle_Piece.h"
+#include "Particle_Jump.h"
+#include "Particle_BigSmoke.h"
+#include "Particle_Swirl.h"
+#include "Particle_Attack.h"
+
+
 
 #include "Monster_Bullet.h"
 
@@ -1179,10 +1186,43 @@ HRESULT CLoader::Load_OtherModel()
 
 		_wstring ModelPrototypeName = stringToWstring(modelPrototypeName);
 
-		CMesh::MESH_DESC* pDesc = new CMesh::MESH_DESC[meshCount];
-		pDesc->isInstanceObject = true;
-		pDesc->InstanceBufferPrototypeTag = ModelPrototypeName + L"Instance";
+		CMesh::MESH_DESC* pDesc = new CMesh::MESH_DESC[meshCount]; 
+		if (i == 1)		// ÇÇ
+		{
+			pDesc->isInstanceObject = true;
+			pDesc->InstanceBufferPrototypeTag = ModelPrototypeName + L"Instance";
 
+			CVIBuffer_Mesh_Instance::MESHINSTANCE_DESC			Desc{};
+			Desc.iNumInstance = 60;
+			Desc.vCenter = _float3(0.f, 0.f, 0.f);
+			Desc.vRange = _float3(1.f, 2.5f, 1.f);
+			Desc.vSize = _float2(0.5f, 2.f);
+			Desc.vPivot = _float3(0.f, 0.f, 0.f);
+			Desc.vSpeed = _float2(10.f, 15.f);
+			Desc.vLifeTime = _float2(0.5f, 1.5f);
+			Desc.isLoop = false;
+
+			pDesc->MeshInstanceDesc = &Desc;
+		}
+		else if (i == 2)
+		{
+			pDesc->isInstanceObject = true;
+			pDesc->InstanceBufferPrototypeTag = ModelPrototypeName + L"Instance";
+
+			CVIBuffer_Mesh_Instance::MESHINSTANCE_DESC			Desc{};
+			Desc.iNumInstance = 70;
+			Desc.vCenter = _float3(0.f, 0.f, 0.f);
+			Desc.vRange = _float3(1.f, 1.f, 1.f);
+			Desc.vSize = _float2(3.f, 6.f);
+			Desc.vPivot = _float3(0.f, 0.f, 0.f);
+			Desc.vSpeed = _float2(5.f, 10.f);
+			Desc.vLifeTime = _float2(0.5f, 1.5f);
+			Desc.isLoop = false;
+			
+
+			pDesc->MeshInstanceDesc = &Desc;
+		}
+		
 
 		for (size_t i = 0; i < meshCount; i++)
 		{
@@ -2212,9 +2252,9 @@ HRESULT CLoader::Create_Particle()
 
 HRESULT CLoader::Create_SwordTrail()
 {
-	//if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_SwordTrail"),
-	//	CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Player/Particle/Trail2.dds"), 1))))
-	//	return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_SwordTrail"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_Fibers.dds"), 1))))
+		return E_FAIL;
 
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxSwordTrail"),
 		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxSwordTrail.hlsl"), VTXTRAILTEX::Elements, VTXTRAILTEX::iNumElements))))
@@ -2315,10 +2355,10 @@ HRESULT CLoader::Create_KatanaBlockEffect()
 	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
 	ParticleDesc.iNumInstance = 150;
 	ParticleDesc.vCenter = _float3(0.f, 0.f, 0.f);
-	ParticleDesc.vRange = _float3(2.f, 3.f, 2.f);
-	ParticleDesc.vSize = _float2(0.4f, 1.5f);
+	ParticleDesc.vRange = _float3(3.f, 3.f, 3.f);
+	ParticleDesc.vSize = _float2(0.5f, 1.5f);
 	ParticleDesc.vPivot = _float3(0.f, 0.f, 0.f);
-	ParticleDesc.vSpeed = _float2(7.f, 10.f);
+	ParticleDesc.vSpeed = _float2(1.f, 4.f);
 	ParticleDesc.vLifeTime = _float2(0.2f, 1.f);
 	ParticleDesc.isLoop = false;
 	
@@ -2342,13 +2382,13 @@ HRESULT CLoader::Create_CutAllEffect()
 {
 	CVIBuffer_Instancing::INSTANCE_DESC			ParticleDesc{};
 	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
-	ParticleDesc.iNumInstance = 70;
+	ParticleDesc.iNumInstance = 150;
 	ParticleDesc.vCenter = _float3(0.f, 0.f, 0.f);
 	ParticleDesc.vRange = _float3(2.f, 2.f, 2.f);
-	ParticleDesc.vSize = _float2(1.f, 3.5f);
+	ParticleDesc.vSize = _float2(5.f, 20.f);
 	ParticleDesc.vPivot = _float3(0.f, 0.f, 0.f);
 	ParticleDesc.vSpeed = _float2(1.f, 2.f);
-	ParticleDesc.vLifeTime = _float2(3.f, 3.f);		
+	ParticleDesc.vLifeTime = _float2(0.5f, 2.f);		
 	ParticleDesc.isLoop = false;
 
 
@@ -2373,13 +2413,13 @@ HRESULT CLoader::Create_NamiEffect()
 	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
 	ParticleDesc.iNumInstance = 150;
 	ParticleDesc.vCenter = _float3(0.f, 0.f, 0.f);
-	ParticleDesc.vRange = _float3(3.f, 3.f, 0.f);
+	ParticleDesc.vRange = _float3(5.f, 5.f, 0.f);
 	ParticleDesc.vSize = _float2(10.f, 15.f);
 	ParticleDesc.vPivot = _float3(0.f, 0.f, 0.f);
-	ParticleDesc.vSpeed = _float2(3.f, 7.f);
+	ParticleDesc.vSpeed = _float2(5.f, 10.f);
 	ParticleDesc.vLifeTime = _float2(3.f, 3.f);
 	ParticleDesc.isLoop = false;
-
+	ParticleDesc.isStartFromOrigin = true;
 
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_ParticleNami"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Player/Particle/Nami.dds"), 1))))
@@ -2398,16 +2438,13 @@ HRESULT CLoader::Create_NamiEffect()
 
 HRESULT CLoader::Create_Blood()
 {
-	// Blood Particle
-	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_Blood"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Blood/T_Blood_Atlas_01.dds"), 1))))
-		return E_FAIL;
-
-
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxMeshInstance"),
 		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxMeshInstance.hlsl"), VTXMESHINSTANCE::Elements, VTXMESHINSTANCE::iNumElements))))
 		return E_FAIL;
 
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_Blood"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Blood/T_Blood_Atlas_01.dds"), 1))))
+		return E_FAIL;
 
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Blood"),
 		CParticle_Blood::Create(m_pDevice, m_pContext))))
@@ -2527,7 +2564,123 @@ HRESULT CLoader::Create_ExplosionEffect()
 		return E_FAIL;
 
 	return S_OK;
-}			
+}
+
+HRESULT CLoader::Create_HelEffect()
+{
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Piece"),
+		CParticle_Piece::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	CVIBuffer_Instancing::INSTANCE_DESC			ParticleDesc{};
+	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
+	ParticleDesc.iNumInstance = 150;
+	ParticleDesc.vCenter = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vRange = _float3(5.f, 0.f, 5.f);
+	ParticleDesc.vSize = _float2(100.f, 150.f);
+	ParticleDesc.vPivot = _float3(0.f, 0.f, 0.f);
+	ParticleDesc.vSpeed = _float2(180.f, 220.f);
+	ParticleDesc.vLifeTime = _float2(1.f, 2.f);
+	ParticleDesc.isLoop = false;
+	ParticleDesc.isStartFromOrigin = true;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_HelJump"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_Smoke_8x4.dds"), 1))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_HelJumpEffect"),
+		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_HelJumpEffect"),
+		CParticle_Jump::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+
+
+	//////////////////////////////
+
+	CVIBuffer_Instancing::INSTANCE_DESC			ParticlSmokeeDesc{};
+	ZeroMemory(&ParticlSmokeeDesc, sizeof ParticlSmokeeDesc);
+	ParticlSmokeeDesc.iNumInstance = 150;
+	ParticlSmokeeDesc.vCenter = _float3(0.f, 2.f, 0.f);
+	ParticlSmokeeDesc.vRange = _float3(10.f, 10.f, 10.f);
+	ParticlSmokeeDesc.vSize = _float2(100.f, 150.f);
+	ParticlSmokeeDesc.vPivot = _float3(0.f, 0.f, 0.f);
+	ParticlSmokeeDesc.vSpeed = _float2(100.f, 200.f);
+	ParticlSmokeeDesc.vLifeTime = _float2(1.f, 2.f);
+	ParticlSmokeeDesc.isLoop = false;
+	//ParticlSmokeeDesc.isStartFromOrigin = true;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_HelBigSmoke"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_Smoke_Dark_Cloud_01.dds"), 1))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_HelBigSmokeEffect"),
+		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticlSmokeeDesc))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_BigSmoke"),
+		CParticle_BigSmoke::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+
+
+	///////////////////////////////
+
+	CVIBuffer_Instancing::INSTANCE_DESC			ParticlSwirlDesc{};
+	ZeroMemory(&ParticlSwirlDesc, sizeof ParticlSwirlDesc);
+	ParticlSwirlDesc.iNumInstance = 300;
+	ParticlSwirlDesc.vCenter = _float3(0.f, 0.f, 0.f);
+	ParticlSwirlDesc.vRange = _float3(10.f, 0.f, 10.f);
+	ParticlSwirlDesc.vSize = _float2(150.f, 200.f);
+	ParticlSwirlDesc.vPivot = _float3(0.f, 0.f, 0.f);
+	ParticlSwirlDesc.vSpeed = _float2(50.f, 220.f);
+	ParticlSwirlDesc.vLifeTime = _float2(3.f, 5.f);
+	ParticlSwirlDesc.isLoop = false;
+	ParticlSwirlDesc.isStartFromOrigin = true;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_HelSwirl"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_swirl_01.dds"), 1))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_HelSwirlEffect"),
+		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticlSwirlDesc))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Swirl"),
+		CParticle_Swirl::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/////////////////////////
+
+	CVIBuffer_Instancing::INSTANCE_DESC			ParticlAttackDesc{};
+	ZeroMemory(&ParticlAttackDesc, sizeof ParticlAttackDesc);
+	ParticlAttackDesc.iNumInstance = 80;
+	ParticlAttackDesc.vCenter = _float3(0.f, 0.f, 0.f);
+	ParticlAttackDesc.vRange = _float3(10.f, 10.f, 10.f);
+	ParticlAttackDesc.vSize = _float2(1.f, 4.f);
+	ParticlAttackDesc.vPivot = _float3(0.f, 0.f, 0.f);
+	ParticlAttackDesc.vSpeed = _float2(20.f, 40.f);
+	ParticlAttackDesc.vLifeTime = _float2(1.f, 2.f);
+	ParticlAttackDesc.isLoop = false;
+
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_HelAttack"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_Sentry_Decal.dds"), 1))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_HelAttackEffect"),
+		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticlAttackDesc))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Attack"),
+		CParticle_Attack::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+
+	return S_OK;
+}
 
 
 void CLoader::ReadString(FILE* file, string& str)
@@ -2659,7 +2812,7 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_Shield_Lines_Normal.dds"), 1))))
 		return E_FAIL;
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_MindControlRefraction"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_Shield_Cracks.dds"), 1))))
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_ripple_01.dds"), 1))))
 		return E_FAIL;
 
 
@@ -2808,6 +2961,10 @@ HRESULT CLoader::Ready_Resources_For_Stage2_BossLevel()
 
 	if (FAILED(Load_FinalMap()))
 		return E_FAIL;
+
+	if (FAILED(Create_HelEffect()))
+		return E_FAIL;
+	
 
 	m_isFinished = true;
 

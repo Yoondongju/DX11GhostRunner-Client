@@ -263,8 +263,16 @@ _bool CGrapplingPointUI::Find_Player(_float fTimeDelta)
 	_float fDot = XMVectorGetX(XMVector3Dot(vLookNor, vDirNor));
 	_float fAngle = XMConvertToDegrees(acos(fDot));
 
-	
-	if (600 >= fXdistance && 800.f >= fZdistance && fAngle <= 40.f)
+
+	_uint iDistanceX = 600.f;
+	_uint iDistanceZ = 800.f;
+	if(LEVEL_STAGE2_BOSS == g_CurLevel)
+	{ 
+		iDistanceX = 1000.f;
+		iDistanceZ = 1200.f;
+	}
+
+	if (iDistanceX >= fXdistance && iDistanceZ >= fZdistance && fAngle <= 40.f)
 	{
 		if (m_fAlpha < 1.f)
 			m_fAlpha += fTimeDelta * 0.7f;

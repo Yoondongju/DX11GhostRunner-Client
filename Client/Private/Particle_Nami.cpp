@@ -84,14 +84,14 @@ void CParticle_Nami::Update(_float fTimeDelta)
 		XMStoreFloat3((_float3*)m_WorldMatrix.m[3], XMVectorSetW(vPos,1.f));
 
 
-		m_pVIBufferCom->Spread(fTimeDelta);
+		m_pVIBufferCom->Spread_Side_XY(fTimeDelta);
 	}
 }
 
 void CParticle_Nami::Late_Update(_float fTimeDelta)
 {
 	if (m_isActiveMyParticle)
-		m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
+		m_pGameInstance->Add_RenderObject(CRenderer::RG_BLOOM, this);
 }
 
 HRESULT CParticle_Nami::Render()

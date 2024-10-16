@@ -16,7 +16,8 @@ WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
 
 int       g_CurLevel = 0;
-
+float     g_fBgmVolume = 0.3f;
+float     g_fEffectVolume = 1.f;
 
 // 이 코드 모듈에 들어 있는 함수의 정방향 선언입니다.
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -141,7 +142,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     return RegisterClassExW(&wcex);
 }
 
-//
+
 //   함수: InitInstance(HINSTANCE, int)
 //
 //   목적: 인스턴스 핸들을 저장하고 주 창을 만듭니다.
@@ -150,7 +151,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //
 //        이 함수를 통해 인스턴스 핸들을 전역 변수에 저장하고
 //        주 프로그램 창을 만든 다음 표시합니다.
-//
+
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    g_hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.

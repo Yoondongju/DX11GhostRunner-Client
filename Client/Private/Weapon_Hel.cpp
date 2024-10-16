@@ -43,15 +43,7 @@ HRESULT CWeapon_Hel::Initialize(void* pArg)
 	if (FAILED(Reday_Trail()))
 		return E_FAIL;
 
-
-	//_float4x4 InitWorldMatrix = {
-	//	0.181342006, 0.655698836, 0.207122847, 0.00000000,
-	//	-0.963511229, 0.238839343, 0.0874769986, 0.00000000,
-	//	0.0110353436, -0.301334143, 0.944287121, 0.00000000,
-	//	0.0750860050, -0.0355550535, 0.0480655581, 1.00000000
-	//};
-	//m_pTransformCom->Set_WorldMatrix(InitWorldMatrix);
-
+	
 	m_pTransformCom->Scaling(1.6f, 1.6f, 1.6f);
 
 	return S_OK;
@@ -152,9 +144,10 @@ _bool CWeapon_Hel::Check_Collision()
 				pPlayer->Get_Part(CPlayer::PARTID::PART_PARTICLE_BLOCK)->SetActiveMyParticle(true);
 
 				CHel* pHel = static_cast<CHel*>(m_pOwner);
+				pHel->Get_Part(CHel::PARTID::PART_PARTICLE_ATTACK)->SetActiveMyParticle(true);
 
 				_float fCurEnergy = pHel->Get_Energy();
-				fCurEnergy -= 15.f;
+				fCurEnergy -= 100.f;
 
 				if (fCurEnergy < 0.f)
 					fCurEnergy = 0.f;

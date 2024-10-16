@@ -56,9 +56,24 @@ HRESULT CRenderer::Initialize()
 	if (FAILED(m_pGameInstance->Add_RenderTarget(TEXT("Target_MotionBlur"), ViewportDesc.Width, ViewportDesc.Height, DXGI_FORMAT_B8G8R8A8_UNORM, _float4(1.f, 1.f, 1.f, 1.f))))
 		return E_FAIL;
 
-	if (FAILED(m_pGameInstance->Add_RenderTarget(TEXT("Target_Refraction"), ViewportDesc.Width, ViewportDesc.Height, DXGI_FORMAT_B8G8R8A8_UNORM, _float4(1.f, 1.f, 1.f, 1.f))))
+
+
+	if (FAILED(m_pGameInstance->Add_RenderTarget(TEXT("Target_OriginBloomEffect"), ViewportDesc.Width, ViewportDesc.Height, DXGI_FORMAT_B8G8R8A8_UNORM, _float4(0.f, 0.f, 0.f, 0.f))))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_RenderTarget(TEXT("Target_BloomBlur_X"), ViewportDesc.Width / 4.f, ViewportDesc.Height / 4.f, DXGI_FORMAT_B8G8R8A8_UNORM, _float4(0.f, 0.f, 0.f, 0.f))))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_RenderTarget(TEXT("Target_BloomBlur_Y"), ViewportDesc.Width / 4.f, ViewportDesc.Height / 4.f, DXGI_FORMAT_B8G8R8A8_UNORM, _float4(0.f, 0.f, 0.f, 0.f))))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_RenderTarget(TEXT("Target_BloomEffect"), ViewportDesc.Width, ViewportDesc.Height, DXGI_FORMAT_B8G8R8A8_UNORM, _float4(0.f, 0.f, 0.f, 0.f))))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_RenderTarget(TEXT("Target_FinalBloomEffect"), ViewportDesc.Width, ViewportDesc.Height, DXGI_FORMAT_B8G8R8A8_UNORM, _float4(0.f, 0.f, 0.f, 0.f))))
 		return E_FAIL;
 
+
+
+	if (FAILED(m_pGameInstance->Add_RenderTarget(TEXT("Target_Refraction"), ViewportDesc.Width, ViewportDesc.Height, DXGI_FORMAT_B8G8R8A8_UNORM, _float4(1.f, 1.f, 1.f, 1.f))))
+		return E_FAIL;
+	
 
 	/* MRT_GameObjects */
 	if (FAILED(m_pGameInstance->Add_MRT(TEXT("MRT_GameObjects"), TEXT("Target_Diffuse"))))
@@ -90,6 +105,22 @@ HRESULT CRenderer::Initialize()
 	if (FAILED(m_pGameInstance->Add_MRT(TEXT("MRT_PreFinal"), TEXT("Target_PreFinal"))))
 		return E_FAIL;
 
+
+	/* MRT_Bloom*/
+	if (FAILED(m_pGameInstance->Add_MRT(TEXT("MRT_BloomBlur_X"), TEXT("Target_BloomBlur_X"))))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_MRT(TEXT("MRT_BloomBlur_Y"), TEXT("Target_BloomBlur_Y"))))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_MRT(TEXT("MRT_BloomEffect"), TEXT("Target_BloomEffect"))))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_MRT(TEXT("MRT_OriginBloomEffect"), TEXT("Target_OriginBloomEffect"))))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_MRT(TEXT("MRT_FinalBloomEffect"), TEXT("Target_FinalBloomEffect"))))
+		return E_FAIL;
+
+	
+	
+	
 	/* MRT_Blur*/
 	if (FAILED(m_pGameInstance->Add_MRT(TEXT("MRT_Blur_X"), TEXT("Target_Blur_X"))))
 		return E_FAIL;
@@ -145,11 +176,26 @@ HRESULT CRenderer::Initialize()
 
 	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Final"), 500.f, ViewportDesc.Height - 100, 200.f, 200.f)))
 		return E_FAIL;
-	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Blur_X"), 700.f, ViewportDesc.Height - 100, 200.f, 200.f)))
+
+	
+	//if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Blur_X"), 700.f, ViewportDesc.Height - 100, 200.f, 200.f)))
+	//	return E_FAIL;
+	//if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Blur_Y"), 900.f, ViewportDesc.Height - 100, 200.f, 200.f)))
+	//	return E_FAIL;
+	//if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Refraction"), 1100.f, ViewportDesc.Height - 100, 200.f, 200.f)))
+	//	return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_OriginBloomEffect"), 700.f, ViewportDesc.Height - 300, 200.f, 200.f)))
 		return E_FAIL;
-	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Blur_Y"), 900.f, ViewportDesc.Height - 100, 200.f, 200.f)))
+	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_FinalBloomEffect"), 900.f, ViewportDesc.Height - 300, 200.f, 200.f)))
 		return E_FAIL;
-	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Refraction"), 1100.f, ViewportDesc.Height - 100, 200.f, 200.f)))
+
+
+	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_BloomBlur_X"), 700.f, ViewportDesc.Height - 100, 200.f, 200.f)))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_BloomBlur_Y"), 900.f, ViewportDesc.Height - 100, 200.f, 200.f)))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_BloomEffect"), 1100.f, ViewportDesc.Height - 100, 200.f, 200.f)))
 		return E_FAIL;
 
 #endif
@@ -177,18 +223,26 @@ HRESULT CRenderer::Draw()
 		return E_FAIL;
 	//if (FAILED(Render_Height()))
 	//	return E_FAIL;
+
+	
 	if (FAILED(Render_NonBlend()))
 		return E_FAIL;
 	if (FAILED(Render_Lights()))
 		return E_FAIL;
 	if (FAILED(Render_ShadowObj()))
 		return E_FAIL;
+
+	if (FAILED(Render_BloomEffect()))
+		return E_FAIL;
+	
 	if (FAILED(Render_Deferred()))
 		return E_FAIL;
 
 	if (FAILED(Render_Final()))				//  디퍼드연산까지 들어간 내 백버퍼를 Final 렌더타겟에 그린다.
 		return E_FAIL;	
 
+	// Final에서 불름효과를 먹인애들이 백버퍼와 함께 그려졌다  그 장면이 Final에 그려졌고  
+	// 후에 모션블러와 리플렉션효과에 불름효과가 먹엇다
 
 	if (true == m_isActiveBlur)
 	{		
@@ -216,13 +270,9 @@ HRESULT CRenderer::Draw()
 	if (FAILED(Render_PreFinal()))
 		return E_FAIL;
 
-	
 	if (true == m_isActiveRefraction && FAILED(Render_Refraction()))	// 얘네들은 매프레임 호출될 필요가없어 내가 스킬을 쓸때만 호출하면되잖니
 		return E_FAIL;
 	 
-
-
-
 	if (FAILED(Render_NonLights()))
 		return E_FAIL;
 	if (FAILED(Render_Blend()))
@@ -276,9 +326,14 @@ void CRenderer::UnActiveRefraction()
 {
 	m_isActiveRefraction = false;
 	m_fRefractAmount = 0.f;
+	m_fRefractTime = 0.f;
+	m_isShutDownRefract = false;
 
-	if(nullptr != m_pRefractionTex)
+	if (nullptr != m_pRefractionTex)
+	{
 		Safe_Release(m_pRefractionTex);
+		m_pRefractionTex = nullptr;
+	}		
 }
 
 void CRenderer::UnActiveBlur()
@@ -286,7 +341,10 @@ void CRenderer::UnActiveBlur()
 	m_isActiveBlur = false;
 
 	if (nullptr != m_pBlurMaskTex)
+	{
 		Safe_Release(m_pBlurMaskTex);
+		m_pBlurMaskTex = nullptr;
+	}
 }
 
 
@@ -474,9 +532,6 @@ HRESULT CRenderer::Render_PreFinal()
 
 HRESULT CRenderer::Render_Final()
 {
-	if (FAILED(m_pGameInstance->Begin_MRT(TEXT("MRT_Final"))))
-		return E_FAIL;
-
 	if (FAILED(m_pShader->Bind_Matrix("g_WorldMatrix", &m_WorldMatrix)))
 		return E_FAIL;
 	if (FAILED(m_pShader->Bind_Matrix("g_ViewMatrix", &m_ViewMatrix)))
@@ -484,7 +539,13 @@ HRESULT CRenderer::Render_Final()
 	if (FAILED(m_pShader->Bind_Matrix("g_ProjMatrix", &m_ProjMatrix)))
 		return E_FAIL;
 
+
+	if (FAILED(m_pGameInstance->Begin_MRT(TEXT("MRT_Final"))))
+		return E_FAIL;
+
 	if (FAILED(m_pShader->Bind_SRV("g_BackTexture", m_pGameInstance->Get_BackBuffer_SRV())))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_FinalBloomEffect"), "g_BloomEffectTexture")))
 		return E_FAIL;
 
 	m_pShader->Begin(4);
@@ -495,6 +556,117 @@ HRESULT CRenderer::Render_Final()
 
 	if (FAILED(m_pGameInstance->End_MRT()))
 		return E_FAIL;
+
+
+
+	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_Final"), "g_FinalTexture")))
+		return E_FAIL;
+	
+	m_pShader->Begin(16);
+
+	m_pVIBuffer->Bind_Buffers();
+
+	m_pVIBuffer->Render();
+
+
+	return S_OK;
+}
+
+HRESULT CRenderer::Render_BloomEffect()
+{
+	if (FAILED(m_pGameInstance->Begin_MRT(TEXT("MRT_OriginBloomEffect"))))
+		return E_FAIL;
+
+	for (auto& pGameObject : m_RenderObjects[RG_BLOOM])
+	{
+		if (nullptr != pGameObject)
+			pGameObject->Render();
+
+		Safe_Release(pGameObject);
+	}
+	m_RenderObjects[RG_BLOOM].clear();
+
+
+	if (FAILED(m_pGameInstance->End_MRT()))
+		return E_FAIL;
+
+
+
+	if (FAILED(m_pShader->Bind_Matrix("g_WorldMatrix", &m_WorldMatrix)))
+		return E_FAIL;
+	if (FAILED(m_pShader->Bind_Matrix("g_ViewMatrix", &m_ViewMatrix)))
+		return E_FAIL;
+	if (FAILED(m_pShader->Bind_Matrix("g_ProjMatrix", &m_ProjMatrix)))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Begin_MRT(TEXT("MRT_BloomBlur_X"))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_OriginBloomEffect"), "g_BloomEffectTexture")))
+		return E_FAIL;
+
+	m_pShader->Begin(12);
+
+	m_pVIBuffer->Bind_Buffers();
+
+	m_pVIBuffer->Render();
+
+	if (FAILED(m_pGameInstance->End_MRT()))
+		return E_FAIL;
+
+
+
+	if (FAILED(m_pGameInstance->Begin_MRT(TEXT("MRT_BloomBlur_Y"))))		
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_BloomBlur_X"), "g_BlurXTexture")))
+		return E_FAIL;
+
+	m_pShader->Begin(13);
+
+	m_pVIBuffer->Bind_Buffers();
+
+	m_pVIBuffer->Render();
+
+	if (FAILED(m_pGameInstance->End_MRT()))
+		return E_FAIL;
+
+
+	if (FAILED(m_pGameInstance->Begin_MRT(TEXT("MRT_BloomEffect"))))			//  << 이제 업샘플링가자 
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_BloomBlur_Y"), "g_BlurYTexture")))
+		return E_FAIL;
+
+	m_pShader->Begin(14);
+
+	m_pVIBuffer->Bind_Buffers();
+
+	m_pVIBuffer->Render();
+
+	if (FAILED(m_pGameInstance->End_MRT()))
+		return E_FAIL;
+
+
+
+	if (FAILED(m_pGameInstance->Begin_MRT(TEXT("MRT_FinalBloomEffect"))))			//  << 이제 업샘플링가자 
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_OriginBloomEffect"), "g_BloomOriginEffectTexture")))
+		return E_FAIL;							
+	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_BloomEffect"), "g_BloomEffectTexture")))	// 클리어하기전에 값을 던져준다면 ?
+		return E_FAIL;
+
+
+	m_pShader->Begin(15); 
+
+	m_pVIBuffer->Bind_Buffers();
+
+	m_pVIBuffer->Render();
+
+	if (FAILED(m_pGameInstance->End_MRT()))
+		return E_FAIL;
+
 
 	return S_OK;
 }
@@ -617,8 +789,37 @@ HRESULT CRenderer::Render_Refraction()
 		break;
 	case Engine::CRenderer::MINDCONTROL:
 	{
-		if (m_fRefractAmount < 1.f)
-			m_fRefractAmount += 0.012;
+		m_fRefractTime += 0.016;
+
+		//if (m_fRefractTime >= 0.2f)
+		{
+			if (!m_isShutDownRefract)
+			{
+				// RefractAmount를 0.33씩 증가시키고 최대 1.0까지 올라감
+				if (m_fRefractAmount < 1.f)
+				{
+					m_fRefractAmount += 0.1f;
+				}
+				else
+				{
+					// 최대에 도달하면 감소하는 단계로 전환
+					m_isShutDownRefract = true;
+				}
+			}
+			else
+			{
+				if (m_fRefractAmount > 0.f)
+				{
+					m_fRefractAmount -= 0.1f;
+				}
+				else
+				{
+					m_isShutDownRefract = false;
+				}
+			}
+			m_fRefractTime = 0.f;
+		}
+		
 		iPassNum = 10;
 	}		
 		break;
@@ -763,10 +964,18 @@ HRESULT CRenderer::Render_Debug()
 	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_ShadowObj"), m_pShader, m_pVIBuffer);
 
 	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_Final"), m_pShader, m_pVIBuffer);
-	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_Blur_X"), m_pShader, m_pVIBuffer);
-	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_Blur_Y"), m_pShader, m_pVIBuffer);
+	//m_pGameInstance->Render_MRT_Debug(TEXT("MRT_Blur_X"), m_pShader, m_pVIBuffer);
+	//m_pGameInstance->Render_MRT_Debug(TEXT("MRT_Blur_Y"), m_pShader, m_pVIBuffer);
 
-	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_Refraction"), m_pShader, m_pVIBuffer);
+	//m_pGameInstance->Render_MRT_Debug(TEXT("MRT_Refraction"), m_pShader, m_pVIBuffer);
+
+	
+	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_OriginBloomEffect"), m_pShader, m_pVIBuffer);
+	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_FinalBloomEffect"), m_pShader, m_pVIBuffer);
+
+	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_BloomBlur_X"), m_pShader, m_pVIBuffer);
+	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_BloomBlur_Y"), m_pShader, m_pVIBuffer);
+	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_BloomEffect"), m_pShader, m_pVIBuffer);
 
 	return S_OK;
 }

@@ -21,9 +21,12 @@ public:
 
 private:
     _float      m_fCanFindPlayerDistance = {160.f};
+    _float      m_fCanFollowPlayerDistance = { 320.f };
 
     _bool       m_isFindPlayer = { false };
-    
+    _float      m_fFlyTime = { 2.f };
+    _bool       m_isFlyUp = { false };
+    _bool       m_isForceVelocity = { false };
 
 
     _float3     m_fOriginRight = {};
@@ -32,7 +35,7 @@ private:
 
 private:
     _bool       Check_Detect();
-
+    _bool       Check_FollowDetect();
 
 public:
     static CJetpack_Fly* Create(class CGameObject* pOwner);

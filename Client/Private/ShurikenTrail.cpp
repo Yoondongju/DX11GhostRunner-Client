@@ -82,7 +82,7 @@ void CShurikenTrail::Update(_float fTimeDelta , const _float4x4* pWeaponMatrix)
 	CVIBuffer_Trail::TRAIL_INFO TrailInfo = {};
 	TrailInfo.CurStart = CurStart;
 	TrailInfo.CurEnd = CurEnd;
-	TrailInfo.fLifeTime = 1.5f;
+	TrailInfo.fLifeTime = 0.5f;
 
 
 	_vector vCurPos = WeaponMatrix.r[3];
@@ -106,7 +106,7 @@ void CShurikenTrail::Late_Update(_float fTimeDelta)
 	if (false == m_bActive)
 		return;
 
-	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
+	m_pGameInstance->Add_RenderObject(CRenderer::RG_BLOOM, this);
 }
 
 

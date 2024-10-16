@@ -17,10 +17,12 @@ HRESULT CHel_Idle::Initialize()
 }
 
 HRESULT CHel_Idle::Start_State(void* pArg)
-{
-	CModel* pModel = static_cast<CHel*>(m_pOwner)->Get_Model();
-	_double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
-	TrackPos = 0.0;
+{	
+	CHel* pHel = static_cast<CHel*>(m_pOwner);	
+	if (true == pHel->IsPage2())
+		m_fDetectRadius = 500.f;
+
+
 
 	return S_OK;
 }
@@ -31,14 +33,23 @@ void CHel_Idle::Update(_float fTimeDelta)
 	CModel* pModel = m_pOwner->Get_Model();
 	CFsm* pFsm = m_pOwner->Get_Fsm();
 
+
+	_vector vPlayerPos = m_pGameInstance->Find_Player(LEVEL_GAMEPLAY)->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+	CTransform* pHelTransform = m_pOwner->Get_Transform();
+	_vector vHelPos = pHelTransform->Get_State(CTransform::STATE_POSITION);
+
+
+	if (250 <= fabs(vPlayerPos.m128_f32[1] - vHelPos.m128_f32[1]))
+	{
+		pModel->SetUp_Animation(CHel::HEL_ANIMATION::IDLE_TO_JUMP, true);
+		pFsm->Change_State(CHel::HEL_ANIMATION::IDLE_TO_JUMP);
+
+		return;
+	}
+
 	if (Check_Detect())
 	{
 		// 다음상태에 들어가기전에 먼저 플레이어 쳐다보고 ㄱ
-		CTransform* pHelTransform = m_pOwner->Get_Transform();
-
-		_vector vPlayerPos = m_pGameInstance->Find_Player(LEVEL_GAMEPLAY)->Get_Transform()->Get_State(CTransform::STATE_POSITION);
-		_vector vHelPos = pHelTransform->Get_State(CTransform::STATE_POSITION);
-
 		_vector vHelLookNor = XMVector3Normalize(pHelTransform->Get_State(CTransform::STATE_LOOK));
 
 		_vector vHelToPlayerDir = XMVectorSubtract(vPlayerPos, vHelPos);
@@ -57,7 +68,21 @@ void CHel_Idle::Update(_float fTimeDelta)
 		{
 			_float fDistance = XMVectorGetX(XMVector3Length(vPlayerPos - vHelPos));
 			if (fDistance > 150.f && fDistance < 300.f)
+			{
+				CHel* pHel = static_cast<CHel*>(m_pOwner);
+				if (true == pHel->IsPage2())
+				{
+					_uint iCurAnimIndex = pModel->Get_CurAnimationIndex();
+					if (iCurAnimIndex != CHel::HEL_ANIMATION::ATTACK2)
+					{
+						pModel->SetUp_Animation(CHel::HEL_ANIMATION::ATTACK2, true);
+						pFsm->Change_State(CHel::HEL_ANIMATION::DASH_TO_IDLE_ATTACK);
+					}			
+				}
+
+
 				return;
+			}
 			else if (fDistance < 150.f)
 			{
 				_uint iCurAnimIndex = pModel->Get_CurAnimationIndex();
@@ -87,26 +112,29 @@ void CHel_Idle::Update(_float fTimeDelta)
 					return;
 				}
 			}
-
-			_int iRandom = m_pGameInstance->Get_Random_Interger(0, 1);    // 랜덤으로   Sprint, Run_Jump 
-			switch (iRandom)
+			else
 			{
-			case 0:
-			{
-				pModel->SetUp_Animation(CHel::HEL_ANIMATION::SPRINT, true);
-				pFsm->Change_State(CHel::HEL_ANIMATION::SPRINT);
-			}
+				_int iRandom = m_pGameInstance->Get_Random_Interger(0, 1);    // 랜덤으로   Sprint, Run_Jump 
+				switch (iRandom)
+				{
+				case 0:
+				{
+					pModel->SetUp_Animation(CHel::HEL_ANIMATION::SPRINT, true);
+					pFsm->Change_State(CHel::HEL_ANIMATION::SPRINT);
+				}
 				break;
-			case 1:
-			{
-				pModel->SetUp_Animation(CHel::HEL_ANIMATION::RUN_JUMP, true);
-				pFsm->Change_State(CHel::HEL_ANIMATION::RUN_JUMP);
-			}
+				case 1:
+				{
+					pModel->SetUp_Animation(CHel::HEL_ANIMATION::RUN_JUMP, true);
+					pFsm->Change_State(CHel::HEL_ANIMATION::RUN_JUMP);
+				}
 				break;
-			default:
-				break;
+				default:
+					break;
+				}
+				return;
 			}
-			return;		
+			
 		}	
 	}
 	else

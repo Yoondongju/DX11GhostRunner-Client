@@ -5,6 +5,8 @@
 #include "GameInstance.h"
 #include "Animation.h"
 
+#include "PartObject.h"
+
 CHel_Sprint::CHel_Sprint(class CGameObject* pOwner)
 	: CState{ CHel::HEL_ANIMATION::SPRINT , pOwner }
 {
@@ -20,7 +22,7 @@ HRESULT CHel_Sprint::Initialize()
 
 HRESULT CHel_Sprint::Start_State(void* pArg)
 {
-
+	
 
 	return S_OK;
 }
@@ -48,6 +50,7 @@ void CHel_Sprint::Update(_float fTimeDelta)
 		// 그냥 기본공격, 뒤로 대쉬한번갈기고 대쉬공격, 
 		CModel* pModel = m_pOwner->Get_Model();
 		CFsm* pFsm = m_pOwner->Get_Fsm();
+
 
 		_int iRandom = m_pGameInstance->Get_Random_Interger(0, 1);  
 		switch (iRandom)

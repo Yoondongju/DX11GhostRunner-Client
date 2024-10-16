@@ -18,10 +18,13 @@ public:
 		_float2		vLifeTime;
 		_bool		isLoop;
 
+		_bool		isStartFromOrigin = false;	// 원점에서 출발할거닝
+
 	}INSTANCE_DESC;
 protected:
 	CVIBuffer_Instancing(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CVIBuffer_Instancing(const CVIBuffer_Instancing& Prototype);
+	CVIBuffer_Instancing(const CVIBuffer_Instancing& Prototype, _bool isNoCopy);
 	virtual ~CVIBuffer_Instancing() = default;
 
 public:
@@ -48,6 +51,8 @@ protected:
 	_float2						m_vSize = {};
 	_float2						m_vLifeTime = {};
 	_bool						m_isLoop = {};
+	_bool						m_isStartFromOrigin = { false };	// 원점에서 출발할거니 
+
 
 	_float* m_pSpeed = { nullptr };
 

@@ -65,7 +65,11 @@ HRESULT CPlayer_MindControl::Start_State(void* pArg)
 		return S_OK;
 	}
 
+
 	m_pGameInstance->ActiveRefraction(static_cast<CPlayer*>(m_pOwner)->Get_MindControlRefractionTex(), CRenderer::REFRACTION_TYPE::MINDCONTROL);
+
+	m_pGameInstance->Play_Sound(TEXT("MindControlStart.ogg"), SOUND_PLAYEREFFECT, g_fEffectVolume);
+
 
 	return S_OK;
 }
@@ -84,13 +88,31 @@ void CPlayer_MindControl::Update(_float fTimeDelta)
 	if(m_fAccTime >= 2.f)
 		CommandToAttackEachEnemy();
 	else if (m_fAccTime >= 1.5f)
-	{		
+	{
 		if (CPlayer::PLAYER_ANIMATIONID::MIND_CONTROL_START_TO_IDLE != pModel->Get_CurAnimationIndex())
 			TrackPos = 0.f;
 
-		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::MIND_CONTROL_START_TO_IDLE, true);
-	}
 
+		if (false == m_isMCEndSoundActive)
+		{
+			m_pGameInstance->StopSound(SOUND_PLAYEREFFECT);
+			m_pGameInstance->Play_Sound(TEXT("MindControlEnd.ogg"), SOUND_PLAYEREFFECT, 3.f);
+			m_isMCEndSoundActive = true;
+		}
+
+		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::MIND_CONTROL_START_TO_IDLE, true);
+		m_pGameInstance->UnActiveRefraction();
+	}
+	if (m_fAccTime >= 0.8f)
+	{
+		if (false == m_isMCLoopSoundActive)
+		{
+			m_pGameInstance->StopSound(SOUND_PLAYEREFFECT);
+			m_pGameInstance->Play_Sound(TEXT("MindControlLoop.ogg"), SOUND_PLAYEREFFECT, 3.f);
+			m_isMCLoopSoundActive = true;
+		}	
+	}
+	
 
 	if (true == m_isOrderCommand)		// 명령을 한번이상 내렸으면 
 	{
@@ -123,10 +145,10 @@ void CPlayer_MindControl::End_State()
 
 
 	m_isOrderCommand = false;
+	m_isMCLoopSoundActive = false;
+	m_isMCEndSoundActive = false;
 
 	m_fAccTime = 0.f;
-
-	m_pGameInstance->UnActiveRefraction();	
 }
 
 

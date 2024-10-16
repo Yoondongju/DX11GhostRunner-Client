@@ -27,6 +27,9 @@ private:
     _bool                            m_isOrderCommand = { false };
     _uint                            m_iCanVisibleNum = { 3 };              // 내가 찾을수있는 몬스터갯수
 
+    _bool                            m_isMCLoopSoundActive = { false };
+    _bool                            m_isMCEndSoundActive = { false };
+
 private:
     void             FindVisiableEnemy();
     void             CommandToAttackEachEnemy();        

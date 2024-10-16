@@ -8,7 +8,7 @@ CVIBuffer_Instancing::CVIBuffer_Instancing(ID3D11Device* pDevice, ID3D11DeviceCo
 }
 
 CVIBuffer_Instancing::CVIBuffer_Instancing(const CVIBuffer_Instancing& Prototype)
-	: CVIBuffer{ Prototype }
+	: CVIBuffer{ Prototype}
 	, m_InstanceBufferDesc{ Prototype.m_InstanceBufferDesc }
 	, m_InstanceInitialData{ Prototype.m_InstanceInitialData }
 	, m_iNumInstance{ Prototype.m_iNumInstance }
@@ -22,7 +22,26 @@ CVIBuffer_Instancing::CVIBuffer_Instancing(const CVIBuffer_Instancing& Prototype
 	, m_pSpeed{ Prototype.m_pSpeed }
 	, m_vLifeTime{ Prototype.m_vLifeTime }
 	, m_isLoop{ Prototype.m_isLoop }
+	, m_isStartFromOrigin{ Prototype.m_isStartFromOrigin }
+{
+}
 
+CVIBuffer_Instancing::CVIBuffer_Instancing(const CVIBuffer_Instancing& Prototype, _bool isNoCopy)
+	: CVIBuffer{ Prototype , true }
+	, m_InstanceBufferDesc{ Prototype.m_InstanceBufferDesc }
+	, m_InstanceInitialData{ Prototype.m_InstanceInitialData }
+	, m_iNumInstance{ Prototype.m_iNumInstance }
+	, m_iIndexCountPerInstance{ Prototype.m_iIndexCountPerInstance }
+	, m_iInstanceStride{ Prototype.m_iInstanceStride }
+	, m_vCenterPos{ Prototype.m_vCenterPos }
+	, m_vPivotPos{ Prototype.m_vPivotPos }
+	, m_vRange{ Prototype.m_vRange }
+	, m_vSize{ Prototype.m_vSize }
+	, m_pInstanceVertices{ Prototype.m_pInstanceVertices }
+	, m_pSpeed{ Prototype.m_pSpeed }
+	, m_vLifeTime{ Prototype.m_vLifeTime }
+	, m_isLoop{ Prototype.m_isLoop }
+	, m_isStartFromOrigin{ Prototype.m_isStartFromOrigin }
 {
 }
 
@@ -35,6 +54,7 @@ HRESULT CVIBuffer_Instancing::Initialize_Prototype(const INSTANCE_DESC& Desc)
 	m_vPivotPos = Desc.vPivot;
 	m_vLifeTime = Desc.vLifeTime;
 	m_isLoop = Desc.isLoop;
+	m_isStartFromOrigin = Desc.isStartFromOrigin;
 
 	m_pSpeed = new _float[m_iNumInstance];
 

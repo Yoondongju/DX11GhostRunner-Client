@@ -44,7 +44,7 @@ private:
 private:
 	const _float4x4*			m_pSocketMatrix = { nullptr };
 
-	_float						m_fDisableTime = { 3.f };
+	_float						m_fDisableTime = { 2.f };
 
 private:
 	HRESULT Ready_Components();

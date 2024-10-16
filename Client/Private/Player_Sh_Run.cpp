@@ -31,6 +31,14 @@ HRESULT CPlayer_Sh_Run::Start_State(void* pArg)
 
 void CPlayer_Sh_Run::Update(_float fTimeDelta)
 {
+	m_fSoundTimer += fTimeDelta;
+	if (m_fSoundTimer > 0.2f)
+	{
+		m_pGameInstance->Play_Sound(TEXT("walk.ogg"), SOUND_PLAYER, g_fEffectVolume);
+		m_fSoundTimer = 0.f;
+	}
+
+
 	if (m_pGameInstance->Get_KeyState(KEY::LSHIFT) == KEY_STATE::NONE)
 	{
 		CFsm* pFsm = m_pOwner->Get_Fsm();

@@ -27,15 +27,24 @@ HRESULT CJetpack_Idle::Start_State(void* pArg)
 
 void CJetpack_Idle::Update(_float fTimeDelta)
 {
-	m_fAccTime += fTimeDelta;
+	_float fPosZ = m_pGameInstance->Find_Player(LEVEL_GAMEPLAY)->Get_Transform()->Get_State(CTransform::STATE_POSITION).m128_f32[2];
 
-	//if (m_fAccTime >= 2.f)
-	//{
-	//	if (Check_Fly())
-	//		return;
-	//
-	//	m_fAccTime = 0.f;
-	//}
+	if (5715.f <= fPosZ)
+	{
+		m_fAccTime += fTimeDelta;
+
+		if (m_fAccTime >= 2.f)
+		{
+			if (Check_Fly())
+				return;
+		
+			m_fAccTime = 0.f;
+		}
+	}
+
+
+
+	
 
 }
 

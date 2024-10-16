@@ -175,6 +175,14 @@ void CBody_Player::Ready_Modify_Animation()
 	vector<CAnimation*>& Animations = m_pModelCom->Get_Animations();
 
 	
+	Animations[CPlayer::PLAYER_ANIMATIONID::WALK]->Set_SpeedPerSec(60.f);
+	Animations[CPlayer::PLAYER_ANIMATIONID::RUN]->Set_SpeedPerSec(60.f);
+	Animations[CPlayer::PLAYER_ANIMATIONID::SH_WALK]->Set_SpeedPerSec(60.f);
+	Animations[CPlayer::PLAYER_ANIMATIONID::SH_RUN]->Set_SpeedPerSec(60.f);
+
+
+
+
 	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R1]->Set_SpeedPerSec(35.f);
 	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R2]->Set_SpeedPerSec(35.f);
 	Animations[CPlayer::PLAYER_ANIMATIONID::ATTACK_R3]->Set_SpeedPerSec(35.f);

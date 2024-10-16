@@ -20,7 +20,7 @@ public:
 
 
 private:
-
+    _bool           m_isDashSoundActive = { false };
 
 public:
     static CPlayer_Dash* Create(class CGameObject* pOwner);

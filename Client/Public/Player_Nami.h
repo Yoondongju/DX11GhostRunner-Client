@@ -31,15 +31,17 @@ private:
 
 private:
     _float3         m_TargetPos = _float3(0.f,0.f,0.f);
+    class CEnemy*   m_pTarget = nullptr;
     _float3         m_TargetLook = _float3(0.f, 0.f, 0.f);
     _float          m_fMinDistance = { 999999.f };
 
 private:
     _float          m_fAccSpeed = {0.f};
- 
-
     _float          m_fStartTime = {0.f};
 
+private:
+    _bool           m_isNamiAttackSoundActive = { false };
+    _bool           m_isFinalTargetSoundActive = { false };
 
 private:
     void        FindVisiableEnemy();

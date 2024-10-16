@@ -23,7 +23,12 @@ public:
 
 public:
 	void		 DirectionSpread(_float fTimeDelta, _fvector vDir);
-	void		 Spread_Side(_float fTimeDelta);	// 양 옆으로 퍼지는 스프레드
+	void		 Spread_Side_X(_float fTimeDelta);	// 양 옆으로 퍼지는 스프레드
+	void		 Spread_Side_XZ(_float fTimeDelta);
+	void		 Spread_Side_XY(_float fTimeDelta);
+
+	
+
 
 	void		 ForTrailLifeTimeMul(_float fTimeDelta, _fvector vDir, _float fTrailDuration);		// 궤적을 남길 방향  // 트레일을 위한 라이프타임 증식
 

@@ -14,6 +14,9 @@
 #include "../Public/Light_Manager.h"
 #include "../Public/Font_Manager.h"
 #include "../Public/Target_Manager.h"
+#include "../Public/SoundMager.h"
+#include "../Public/Frustum.h"
+
 
 
 IMPLEMENT_SINGLETON(CGameInstance)
@@ -41,6 +44,9 @@ HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, cons
 
 	m_hWnd = EngineDesc.hWnd;
 
+	m_pFrustum = CFrustum::Create();
+	if (nullptr == m_pFrustum)
+		return E_FAIL;
 
 	m_pTimer_Manager = CTimer_Manager::Create();
 	if (nullptr == m_pTimer_Manager)
@@ -102,6 +108,10 @@ HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, cons
 	if (nullptr == m_pUI_Manager)
 		return E_FAIL;
 
+	m_pSound_Manager = CSound_Manager::Create();
+	if (nullptr == m_pSound_Manager)
+		return E_FAIL;
+
 
 	m_pPhysX_Manager = CPhysXManager::Create();
 	if (nullptr == m_pPhysX_Manager)
@@ -120,12 +130,10 @@ void CGameInstance::Update_Engine(_float fTimeDelta)
 	//m_pInput_Device->Update();
 
 	m_pKey_Manager->Update();
-
 	m_pPipeLine->Update();
-
+	m_pFrustum->Update();
 
 	_float fAdjustedDeltaTime = fTimeDelta;
-	
 	if (true == m_bTimeDelayActive)
 		fAdjustedDeltaTime *= 0.15f;
 
@@ -177,7 +185,7 @@ ID3D11ShaderResourceView* CGameInstance::Get_BackBuffer_SRV() const
 void CGameInstance::Render_Begin()
 {
 	/*m_pGraphic_Device->Render_Begin();*/
-	m_pGraphic_Device->Clear_BackBuffer_View(_float4(0.f, 0.f, 1.f, 1.f));
+	m_pGraphic_Device->Clear_BackBuffer_View(_float4(0.1f, 0.1f, 0.1f, 1.f));
 	m_pGraphic_Device->Clear_DepthStencil_View();
 	
 }
@@ -511,7 +519,7 @@ void CGameInstance::Phys_Clear()
 
 void CGameInstance::Release_Engine()
 {		
-
+	Safe_Release(m_pFrustum);
 	Safe_Release(m_pTarget_Manager);
 	Safe_Release(m_pFont_Manager);
 	Safe_Release(m_pLight_Manager);
@@ -542,4 +550,64 @@ void CGameInstance::Free()
 {	
 	__super::Free();
 
+}
+
+_bool CGameInstance::isIn_Frustum_WorldSpace(_fvector vPosition, _float fRadius)
+{
+	return m_pFrustum->isIn_WorldSpace(vPosition, fRadius);
+}
+
+_bool CGameInstance::isIn_Frustum_LocalSpace(_fvector vPosition, _float fRadius)
+{
+	return m_pFrustum->isIn_LocalSpace(vPosition, fRadius);
+}
+
+void CGameInstance::Transform_ToLocalSpace(_fmatrix WorldMatrix)
+{
+	return m_pFrustum->Transform_ToLocalSpace(WorldMatrix);
+}
+
+void CGameInstance::Play_Sound(const TCHAR* pSoundKey, _uint eID, _float fVolume)
+{
+	m_pSound_Manager->PlaySound(pSoundKey, eID, fVolume);
+}
+
+void CGameInstance::Play_SoundRepeat(const TCHAR* pSoundKey, _uint eID, _float fVolume)
+{
+	m_pSound_Manager->Play_SoundRepeat(pSoundKey, eID, fVolume);
+}
+
+void CGameInstance::PlayBGM(const TCHAR* pSoundKey, _float fVolume)
+{
+	m_pSound_Manager->PlayBGM(pSoundKey, fVolume);
+}
+
+void CGameInstance::StopSound(_uint eID)
+{
+	m_pSound_Manager->StopSound(eID);
+}
+
+void CGameInstance::StopAll()
+{
+	m_pSound_Manager->StopAll();
+}
+
+void CGameInstance::SetChannelVolume(_uint eID, _float fVolume)
+{
+	m_pSound_Manager->SetChannelVolume(eID, fVolume);
+}
+
+void CGameInstance::SetPlayeSpeed(_uint eID, _float fSpeedRatio)
+{
+	m_pSound_Manager->SetPlayeSpeed(eID, fSpeedRatio);
+}
+
+void CGameInstance::Pause(_uint eID)
+{
+	m_pSound_Manager->Pause(eID);
+}
+
+_bool CGameInstance::Check_IsPlaying(_uint eID)
+{
+	return m_pSound_Manager->Check_IsPlaying(eID);
 }

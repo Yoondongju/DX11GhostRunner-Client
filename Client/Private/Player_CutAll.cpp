@@ -55,6 +55,8 @@ HRESULT CPlayer_CutAll::Start_State(void* pArg)
 		{
 			static_cast<CEnemy*>(m_Targets[i].pSelf)->Set_Targeting(true);
 		}
+
+		m_pGameInstance->ActiveBlur(nullptr, CRenderer::BLUR_TYPE::MOTION_BLUR);
 	}
 	else							// 사냥 불가능
 	{
@@ -63,8 +65,6 @@ HRESULT CPlayer_CutAll::Start_State(void* pArg)
 
 		static_cast<CEventNotify*>(m_pGameInstance->Find_Notify(LEVEL_GAMEPLAY))->Set_Active(true, CEventNotify::TEXT_EVENT::UNABLE_CUTALL);
 	}
-
-	m_pGameInstance->ActiveBlur(nullptr, CRenderer::BLUR_TYPE::MOTION_BLUR);
 
 	return S_OK;
 }
@@ -84,9 +84,11 @@ void CPlayer_CutAll::Update(_float fTimeDelta)
 
 	m_fTargetDeleteTime += fTimeDelta;
 
-	if (m_fTargetDeleteTime >= 0.3f && m_Targets.size() > m_iNumHunt)			// 4개   내가 죽일애 3마리
+	if (m_fTargetDeleteTime >= 0.2f && m_Targets.size() > m_iNumHunt)			// 4개   내가 죽일애 3마리
 	{
-		m_fTargetDeleteTime = 0.f;
+		m_fTargetDeleteTime = 0.f; 
+
+		m_pGameInstance->Play_Sound(TEXT("Target.ogg"), SOUND_FINALTARGET_UI, 3.f);
 
 		static_cast<CEnemy*>(m_Targets.back().pSelf)->Set_Targeting(false);
 		m_Targets.pop_back();
@@ -94,7 +96,10 @@ void CPlayer_CutAll::Update(_float fTimeDelta)
 	else if (m_Targets.size() == m_iNumHunt)
 	{
 		for (_uint i = 0; i < m_Targets.size(); i++)
-		{
+		{	
+			if(false == m_pGameInstance->Check_IsPlaying(SOUND_FINALTARGET_UI))
+				m_pGameInstance->Play_Sound(TEXT("FinalTarget.ogg"), SOUND_FINALTARGET_UI, 3.f);
+
 			static_cast<CEnemy*>(m_Targets[i].pSelf)->Set_FinalTargeting(true);
 		}
 
@@ -106,10 +111,16 @@ void CPlayer_CutAll::Update(_float fTimeDelta)
 	{
 		if (m_iNumKill >= m_iNumHunt)
 		{
-			m_isHuntStart = false;
-			CFsm* pFsm = m_pOwner->Get_Fsm();
-			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::IDLE, true);
-			pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);
+			_double Duration = pModel->Get_CurAnimation()->Get_Duration();
+			_double TrackPos = pModel->Get_Referene_CurrentTrackPosition();
+
+			if (0.9f < (_float)TrackPos / Duration)
+			{
+				m_isHuntStart = false;
+				CFsm* pFsm = m_pOwner->Get_Fsm();
+				pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::IDLE, true);
+				pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);
+			}		
 			return;
 		}
 
@@ -152,6 +163,25 @@ void CPlayer_CutAll::Update(_float fTimeDelta)
 
 				CSwordTrail* pSwordTrail = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON))->Get_SwordTrail();
 				pSwordTrail->Set_Active(false);
+
+
+				if (false == m_isCutAllSoundActive)
+				{
+					_uint iRandom = m_pGameInstance->Get_Random_Interger(0, 1);
+					switch (iRandom)
+					{
+					case 0:
+						m_pGameInstance->Play_Sound(TEXT("CutAll1.ogg"), SOUND_PLAYEREFFECT, 3.f);
+						break;
+					case 1:
+						m_pGameInstance->Play_Sound(TEXT("CutAll2.ogg"), SOUND_PLAYEREFFECT, 3.f);
+						break;
+					default:
+						break;
+					}
+
+					m_isCutAllSoundActive = true;
+				}			
 			}
 		}
 
@@ -173,6 +203,7 @@ void CPlayer_CutAll::End_State()
 
 	m_isHuntStart = false;
 	m_iNumKill = 0;
+	m_isCutAllSoundActive = false;
 
 
 	CSwordTrail* pSwordTrail = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON))->Get_SwordTrail();
@@ -293,6 +324,7 @@ void CPlayer_CutAll::Check_Collision()
 
 			m_fStartTime = 0.f;
 			m_fAccSpeed = 0.f;
+			m_isCutAllSoundActive = false;
 		}
 			
 	}
@@ -307,6 +339,7 @@ void CPlayer_CutAll::Check_Collision()
 
 			m_fStartTime = 0.f;
 			m_fAccSpeed = 0.f;
+			m_isCutAllSoundActive = false;
 		}
 			
 	}
@@ -321,6 +354,7 @@ void CPlayer_CutAll::Check_Collision()
 
 			m_fStartTime = 0.f;
 			m_fAccSpeed = 0.f;
+			m_isCutAllSoundActive = false;
 		}
 			
 	}

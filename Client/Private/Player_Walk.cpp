@@ -25,12 +25,20 @@ HRESULT CPlayer_Walk::Initialize()
 
 HRESULT CPlayer_Walk::Start_State(void* pArg)
 {
+	
 
 	return S_OK;
 }
 
 void CPlayer_Walk::Update(_float fTimeDelta)
 {
+	m_fSoundTimer += fTimeDelta;
+	if (m_fSoundTimer > 0.235f)
+	{
+		m_pGameInstance->Play_Sound(TEXT("walk.ogg"), SOUND_PLAYER, g_fEffectVolume);
+		m_fSoundTimer = 0.f;
+	}
+
 	m_fSwordSpinTime -= fTimeDelta;
 
 	CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();

@@ -19,6 +19,8 @@ public:
     virtual void    End_State();
 
 
+private:
+    _bool       m_isFirstParticleActive = { false };
 
 
 public:

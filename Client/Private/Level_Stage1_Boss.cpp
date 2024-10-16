@@ -117,7 +117,6 @@ HRESULT CLevel_Stage1_Boss::Ready_Lights()
 
 HRESULT CLevel_Stage1_Boss::Ready_Layer_BackGround(void* pArg)
 {
-
 	CLevel_Loading::LOAD_DATA_DESC* pDesc = static_cast<CLevel_Loading::LOAD_DATA_DESC*>(pArg);
 
 	_uint iTerrainDataSize = pDesc->iTerrainDataSize;

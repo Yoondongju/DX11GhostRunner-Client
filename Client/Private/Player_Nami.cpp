@@ -68,6 +68,7 @@ HRESULT CPlayer_Nami::Start_State(void* pArg)
 	
 	static_cast<CPlayer*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_PARTICLE_NAMI)->SetActiveMyParticle(true);
 
+	m_pGameInstance->Play_Sound(TEXT("NamiStart.ogg"), SOUND_PLAYEREFFECT, 3.f);
 
 	return S_OK;
 }
@@ -83,15 +84,31 @@ void CPlayer_Nami::Update(_float fTimeDelta)
 
 	if (false == XMVector3Equal(XMLoadFloat3(&m_TargetPos), XMVectorZero()))
 	{
+		_float fAngleGap = {};
+		_bool  isLookAtTarget = { true };
+
+		if (nullptr != m_pTarget)
+		{
+			m_pTarget->Set_FinalTargeting(true);
+			XMStoreFloat3(&m_TargetPos , m_pTarget->Get_Transform()->Get_State(CTransform::STATE::STATE_POSITION));
+
+
+			if (true == m_pTarget->IsDead())
+			{
+				isLookAtTarget = false;
+			}		
+		}
+			
+
 		_vector vDistance = XMVectorSubtract(XMLoadFloat3(&m_TargetPos), vPlayerPos);
 		_float fDistance = XMVectorGetX(XMVector3Length(vDistance));
 
-		_float4x4* pPlayerRotationMatrix = static_cast<CPlayer*>(m_pOwner)->Get_RotationMatrixPtr();
-
-
-		_float fAngleGap = {};
-
-		pPlayerTransform->LookAt_Smooth(XMLoadFloat3(&m_TargetPos), fTimeDelta, pPlayerRotationMatrix, &fAngleGap);
+		if (true == isLookAtTarget)
+		{
+			_float4x4* pPlayerRotationMatrix = static_cast<CPlayer*>(m_pOwner)->Get_RotationMatrixPtr();
+			pPlayerTransform->LookAt_Smooth(XMLoadFloat3(&m_TargetPos), fTimeDelta, pPlayerRotationMatrix, &fAngleGap);
+		}
+		
 
 
 		if (false == m_isFindTargets && fAngleGap < 30.f)		// 5도는 현재 디그리 각도임
@@ -104,10 +121,12 @@ void CPlayer_Nami::Update(_float fTimeDelta)
 			{
 				m_fTargetCreateTime += fTimeDelta;
 
-				if (m_fTargetCreateTime > 0.1f)
+				if (m_fTargetCreateTime > 0.2f)
 				{
 					static_cast<CEnemy*>(m_Targets[m_iTargetIndex++])->Set_Targeting(true);
 					m_fTargetCreateTime = 0.f;
+
+					m_pGameInstance->Play_Sound(TEXT("Target.ogg"), SOUND_TARGET_UI, 3.f);
 				}
 
 				return;
@@ -118,7 +137,7 @@ void CPlayer_Nami::Update(_float fTimeDelta)
 			m_fTargetCreateTime += fTimeDelta;
 
 
-			if (m_fTargetCreateTime >= 0.6f)
+			if (nullptr == m_pTarget && m_fTargetCreateTime >= 0.6f)
 			{
 				for (_uint i = 0; i < m_Targets.size(); i++)
 				{
@@ -128,7 +147,14 @@ void CPlayer_Nami::Update(_float fTimeDelta)
 
 					if (XMVector3Equal(vRealTargetPos, XMLoadFloat3(&m_TargetPos)))
 					{
-						static_cast<CEnemy*>(m_Targets[i])->Set_FinalTargeting(true);
+						if (false == m_isFinalTargetSoundActive)
+						{
+							m_pGameInstance->Play_Sound(TEXT("FinalTarget.ogg"), SOUND_FINALTARGET_UI, 3.f);
+
+							m_isFinalTargetSoundActive = true;
+						}
+
+						m_pTarget = static_cast<CEnemy*>(m_Targets[i]);
 						continue;
 					}
 					else
@@ -155,6 +181,12 @@ void CPlayer_Nami::Update(_float fTimeDelta)
 
 						CSwordTrail* pSwordTrail = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON))->Get_SwordTrail();
 						pSwordTrail->Set_Active(true);
+
+						if (false == m_isNamiAttackSoundActive)
+						{
+							m_pGameInstance->Play_Sound(TEXT("NamiAttack.ogg"), SOUND_PLAYEREFFECT, 3.f);
+							m_isNamiAttackSoundActive = true;
+						}						
 					}
 
 					else if (CPlayer::PLAYER_ANIMATIONID::NAMI_AIM_ATTACK_TO_IDLE == pModel->Get_CurAnimationIndex())
@@ -165,7 +197,6 @@ void CPlayer_Nami::Update(_float fTimeDelta)
 
 							pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::IDLE, true);
 							pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);
-
 						}
 					}
 				}
@@ -208,6 +239,9 @@ void CPlayer_Nami::End_State()
 	m_fTargetCreateTime = 0.f;
 	m_isFindTargets = false;
 	m_isHuntActive = false;
+	m_isNamiAttackSoundActive = false;
+	m_isFinalTargetSoundActive = false;
+	m_pTarget = nullptr;
 
 	m_pOwner->Get_RigidBody()->Set_GravityReduceRatio(1.f);		// 원상복구
 

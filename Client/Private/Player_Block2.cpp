@@ -20,6 +20,21 @@ HRESULT CPlayer_Block2::Initialize()
 HRESULT CPlayer_Block2::Start_State(void* pArg)
 {
 
+	_uint iRandom = m_pGameInstance->Get_Random_Interger(0, 2);
+	switch (iRandom)
+	{
+	case 0:
+		m_pGameInstance->Play_Sound(TEXT("PlayerBlockBase1.ogg"), SOUND_PLAYER, 3.f);
+		break;
+	case 1:
+		m_pGameInstance->Play_Sound(TEXT("PlayerBlockBase2.ogg"), SOUND_PLAYER, 3.f);
+		break;
+	case 2:
+		m_pGameInstance->Play_Sound(TEXT("PlayerBlockBase3.ogg"), SOUND_PLAYER, 3.f);
+		break;
+	default:
+		break;
+	}
 
 	return S_OK;
 }

@@ -120,7 +120,7 @@ void CHelSwordTrail::Late_Update(_float fTimeDelta)
 	if (false == m_bActive)
 		return;
 
-	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
+	m_pGameInstance->Add_RenderObject(CRenderer::RG_BLOOM, this);
 }
 
 HRESULT CHelSwordTrail::Render()
@@ -159,7 +159,7 @@ HRESULT CHelSwordTrail::Ready_Components()
 		return E_FAIL;
 
 	/* FOR.Com_Texture */				// Prototype_Component_Texture_ParticleShuriken
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_ParticleShuriken"),
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_SwordTrail"),
 		TEXT("Com_Texture"), reinterpret_cast<CComponent**>(&m_pTextureCom))))
 		return E_FAIL;
 

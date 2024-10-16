@@ -27,6 +27,12 @@ HRESULT CHel_RunJump::Start_State(void* pArg)
 	_double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
 	TrackPos = 0.0;
 
+
+	CHel* pHel = static_cast<CHel*>(m_pOwner);
+	if(true == pHel->IsPage2())
+		pHel->Get_Part(CHel::PARTID::PART_PARTICLE_BIGSMOKE)->SetActiveMyParticle(true);
+
+
 	return S_OK;
 }
 
@@ -47,7 +53,13 @@ void CHel_RunJump::Update(_float fTimeDelta)
 
 	_float fRatio = (_float)TrackPos / Duration;
 
-	pHelTransform->Go_Straight(fTimeDelta * 25.f * fRatio);
+
+	_float fSpeed = 25.f;
+	CHel* pHel = static_cast<CHel*>(m_pOwner);
+	if (true == pHel->IsPage2())
+		fSpeed = 30.f;
+
+	pHelTransform->Go_Straight(fTimeDelta * fSpeed * fRatio);
 
 	if (0.9f < fRatio)
 	{

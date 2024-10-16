@@ -49,6 +49,8 @@ void CSky::Late_Update(_float fTimeDelta)
 {
 	m_fTime += fTimeDelta * 0.5f;
 
+	m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), fTimeDelta * 5.f);
+
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_PRIORITY, this);
 }
 
@@ -59,24 +61,30 @@ HRESULT CSky::Render()
 
 	if (FAILED(m_pTransformCom->Bind_ShaderResource(m_pShaderCom, "g_WorldMatrix")))
 		return E_FAIL;
+
+
 	if (FAILED(m_pShaderCom->Bind_Matrix("g_ViewMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_VIEW))))
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
 		return E_FAIL;
+
 	if (FAILED(m_pTextureCom->Bind_ShadeResource(m_pShaderCom, "g_Texture", 0)))
 		return E_FAIL;
 
 	if (FAILED(m_pShaderCom->Bind_RawValue("g_fTime", &m_fTime, sizeof(_float))))
 		return E_FAIL;
 
+
 	if (FAILED(m_pShaderCom->Begin(0)))
 		return E_FAIL;
 
 
-	if (FAILED(m_pVIBufferCom->Bind_Buffers()))
+	if (FAILED(m_pModelCom->Bind_Buffers()))
 		return E_FAIL;
-	if (FAILED(m_pVIBufferCom->Render()))
+	if (FAILED(m_pModelCom->Render()))
 		return E_FAIL;
+	
+	
 
 	return S_OK;
 }
@@ -88,14 +96,14 @@ HRESULT CSky::Ready_Components()
 		TEXT("Com_Shader"), reinterpret_cast<CComponent**>(&m_pShaderCom))))
 		return E_FAIL;
 
-	/* FOR.Com_Texture */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Sky_Red"),
+	///* FOR.Com_Texture */
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Sky_Blue"),
 		TEXT("Com_Texture"), reinterpret_cast<CComponent**>(&m_pTextureCom))))
 		return E_FAIL;
 
 	/* FOR.Com_VIBuffer */
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Cube"),
-		TEXT("Com_VIBuffer"), reinterpret_cast<CComponent**>(&m_pVIBufferCom))))
+		TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModelCom))))
 		return E_FAIL;
 
 	return S_OK;
@@ -135,7 +143,7 @@ void CSky::Free()
 
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pTextureCom);
-	Safe_Release(m_pVIBufferCom);
+	Safe_Release(m_pModelCom);
 
 	Safe_Release(m_pFreeCameraTransform);
 }

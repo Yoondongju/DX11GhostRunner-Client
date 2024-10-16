@@ -40,9 +40,8 @@ void CJetpack_Fly::Update(_float fTimeDelta)
 
 	
 
-
 	m_fAccTime += fTimeDelta;
-	
+	m_fFlyTime -= fTimeDelta;
 
 	CRigidBody* pRigidBody = m_pOwner->Get_RigidBody();
 	CFsm* pFsm = m_pOwner->Get_Fsm();
@@ -54,46 +53,75 @@ void CJetpack_Fly::Update(_float fTimeDelta)
 
 		_vector fDirY = XMVectorSet(0.f, 1.f, 0.f, 0.f);
 
-		_float fRandom = m_pGameInstance->Get_Random(-80.f, 80.f);
-		_float fRandom2 = m_pGameInstance->Get_Random(-80.f, 80.f);
-
-		_float fJetpackY =  XMVectorGetY(vJetpackPos);
 		_float fPlayerY = XMVectorGetY(vPlayerPos);
+		fPlayerY += 35.f;
 
 
+
+		_float fJetpackY = XMVectorGetY(vJetpackPos);
 		_float fDistanceY = fabs(fJetpackY - fPlayerY);
 
-		if (fDistanceY > 30.f)
+		
+
+		if (m_fFlyTime <= 0.f || fDistanceY > 700.f)  // 5.f 이상의 차이가 나면 위치 보정
 		{
-			if (fPlayerY < fJetpackY)
+			m_fFlyTime = 2.f;      	// 처음 한번만 비교한다 .
+			m_isForceVelocity = false;
+
+			if (fPlayerY > fJetpackY)   
 			{
-				if (fRandom2 > 0)
-				{
-					fRandom2 *= -1.f;
-				}
-				if (fRandom > 0)
-				{
-					fRandom *= -1.f;
-				}
-				
+				m_isFlyUp = true;		
+			}
+
+			else if (fJetpackY > fPlayerY)
+			{
+				m_isFlyUp = false;	
 			}
 		}
 
+		if (false == m_isForceVelocity)
+		{
+			if (true == m_isFlyUp)
+			{
+				pRigidBody->Add_Force_Direction(fDirY, 90, Engine::CRigidBody::ACCELERATION);
+				pRigidBody->Add_Force_Direction(fDirY, 150, Engine::CRigidBody::VELOCITYCHANGE);
+			}
+			else
+			{
+				pRigidBody->Add_Force_Direction(-fDirY, 70, Engine::CRigidBody::ACCELERATION);
+				pRigidBody->Add_Force_Direction(-fDirY, 150, Engine::CRigidBody::VELOCITYCHANGE);
+			}
 
-		pRigidBody->Add_Force_Direction(fDirY, fRandom2, Engine::CRigidBody::ACCELERATION);
-		pRigidBody->Add_Force_Direction(fDirY, fRandom, Engine::CRigidBody::VELOCITYCHANGE);
+			m_isForceVelocity = true;
+		}
+		
 	}
+
+
+	pJetpackTransform->LookAt(vPlayerPos, nullptr);
+
+	if (Check_FollowDetect())
+	{
+		//pModel->SetUp_Animation(CJetpack::JETPACK_ANIMATION::FLY_F, true);
+		pJetpackTransform->Go_Straight(fTimeDelta * 60.f);
+
+		return;
+	}
+
 
 	if(Check_Detect())
 	{
 		if (m_fAccTime > 3.f)
 		{
-			pRigidBody->Set_Velocity(_float3(0.f, 0.f, 0.f));
-			pRigidBody->Set_Accel(_float3(0.f, 0.f, 0.f));
-			pRigidBody->Set_ZeroTimer();
+			_int iRandom = m_pGameInstance->Get_Random_Interger(0, 3);
+			if (3 != iRandom)
+			{
+				pRigidBody->Set_Velocity(_float3(0.f, 0.f, 0.f));
+				pRigidBody->Set_Accel(_float3(0.f, 0.f, 0.f));
+				pRigidBody->Set_ZeroTimer();
+			}
 
-			_float fRandom = m_pGameInstance->Get_Random(0.f, 5.f);
-			switch ((_int)fRandom)
+			switch (iRandom)
 			{
 			case 0:
 			{
@@ -131,17 +159,10 @@ void CJetpack_Fly::Update(_float fTimeDelta)
 
 			case 3:
 			{
-				pModel->SetUp_Animation(CJetpack::JETPACK_ANIMATION::ATTACK_1, true);
-				pFsm->Change_State(CJetpack::JETPACK_ANIMATION::ATTACK_1);
-			}
-				break;
-			
-			case 4:
-			{
 				pModel->SetUp_Animation(CJetpack::JETPACK_ANIMATION::ATTACK_2, true);
 				pFsm->Change_State(CJetpack::JETPACK_ANIMATION::ATTACK_1);
 			}
-			break;
+				break;
 
 			default:
 				break;
@@ -152,10 +173,9 @@ void CJetpack_Fly::Update(_float fTimeDelta)
 	}	
 	else
 	{
-		pJetpackTransform->LookAt(vPlayerPos , nullptr);
-		pJetpackTransform->Go_Straight(fTimeDelta * 6.f);
+		pJetpackTransform->Go_Straight(fTimeDelta * 3.f);
 	}
-		
+
 
 
 }
@@ -186,6 +206,24 @@ _bool CJetpack_Fly::Check_Detect()
 
 
 	return m_isFindPlayer = (fDistanceSquar <= (m_fCanFindPlayerDistance * m_fCanFindPlayerDistance));
+}
+
+_bool CJetpack_Fly::Check_FollowDetect()
+{
+	_vector vPlayerPos = m_pGameInstance->Find_Player(LEVEL_GAMEPLAY)->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+	_vector vJetpackPos = m_pOwner->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+
+	_float  fPlayerX = XMVectorGetX(vPlayerPos);
+	_float  fPlayerZ = XMVectorGetZ(vPlayerPos);
+
+	_float  fvJetpackPosX = XMVectorGetX(vJetpackPos);
+	_float  fvJetpackPosZ = XMVectorGetZ(vJetpackPos);
+
+
+	_float fDistanceSquar = (fPlayerX - fvJetpackPosX) * (fPlayerX - fvJetpackPosX) + (fPlayerZ - fvJetpackPosZ) * (fPlayerZ - fvJetpackPosZ);
+
+
+	return m_isFindPlayer = (fDistanceSquar > (m_fCanFollowPlayerDistance * m_fCanFollowPlayerDistance));
 }
 
 CJetpack_Fly* CJetpack_Fly::Create(class CGameObject* pOwner)

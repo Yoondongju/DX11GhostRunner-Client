@@ -22,6 +22,12 @@ CVIBuffer::CVIBuffer(const CVIBuffer & Prototype)
 	Safe_AddRef(m_pIB);	
 }
 
+CVIBuffer::CVIBuffer(const CVIBuffer& Prototype, _bool isNoCopy)
+	: CComponent{ Prototype }
+{
+
+}
+
 HRESULT CVIBuffer::Initialize_Prototype()
 {	
 	return S_OK;

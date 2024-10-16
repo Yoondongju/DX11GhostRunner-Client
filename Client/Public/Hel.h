@@ -20,7 +20,17 @@ BEGIN(Client)
 class CHel final : public CEnemy
 {
 public:
-	enum PARTID { PART_WEAPON, PART_EFFECT, PART_PARTICLE_BLOCK, PART_PARTICLE_DASHBLOCK, PART_END };
+	enum PARTID 
+	{ 
+		PART_WEAPON, 
+		PART_EFFECT, 
+		PART_PARTICLE_ATTACK,
+		PART_PARTICLE_JUMPSTART,
+		PART_PARTICLE_JUMPEND, 
+		PART_PARTICLE_BIGSMOKE,
+		PART_PARTICLE_SWIRL,
+		PART_END 
+	};
 	enum HEL_ANIMATION
 	{
 		SLEEP,
@@ -35,7 +45,7 @@ public:
 		IDLE_TO_JUMP,
 		JUMP_TO_IDLE,
 		
-		STUN_HIT,
+		STUN_HIT,			// 스턴맞고 점프함
 		STUN_TO_IDLE,
 		ATTACK_TO_STUN,
 
@@ -91,6 +101,10 @@ public:
 	_bool				IsPage2() { return m_isEnterPage2; }
 
 public:
+	void				Set_ActiveParticleAttack(_bool b) { m_isActiveParticleAttack = b; }		// 반드시 수작업으로 꺼야한다.
+
+
+public:
 	_bool Check_Collision();
 	_bool Check_CollisionGroggy();
 
@@ -103,6 +117,14 @@ private:
 	CFsm*		m_pFsm = { nullptr };
 	CRigidBody* m_pRigidBody = { nullptr };
 	_float		m_fLandPosY = { -1000.f };
+
+
+	vector<class CParticle_Attack*>		m_Particle_Attack;
+	_uint								m_iNextUnActiveParticleIndex = 0;	// 활성화되지 않은 다음 인덱스
+	_bool								m_isActiveParticleAttack = { false };
+	_float								m_fAccNextParticleIndexTime = { 0.f };
+
+
 
 private:
 	_bool		m_isDead = { false };

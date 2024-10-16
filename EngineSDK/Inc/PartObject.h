@@ -25,7 +25,7 @@ public:
 	_float4x4*    Get_PartObjectComBindWorldMatrixPtr() { return &m_WorldMatrix; }
 	
 public:
-	void					SetActiveMyParticle(_bool b) { m_isActiveMyParticle = b; }
+	virtual void		    SetActiveMyParticle(_bool b) { m_isActiveMyParticle = b; }
 	_bool					IsActiveMyParticle() { return m_isActiveMyParticle; }
 
 

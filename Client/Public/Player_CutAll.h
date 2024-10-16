@@ -52,6 +52,12 @@ private:
     _bool              m_isHuntStart = { false };
     _uint              m_iNumKill = { 0 };
 
+
+private:
+    _bool              m_isCutAllSoundActive = { false };
+   
+
+
 private:
     void        FindVisiableEnemy();
     void        Check_Collision();

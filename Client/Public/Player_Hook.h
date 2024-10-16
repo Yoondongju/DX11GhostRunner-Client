@@ -28,6 +28,12 @@ private:
     _bool                           m_isStartHook = { false };
 
 
+private:
+    _bool           m_isHookSoundActive = { false };
+
+
+
+
 public:
     static CPlayer_Hook* Create(class CGameObject* pOwner );
     virtual void Free() override;

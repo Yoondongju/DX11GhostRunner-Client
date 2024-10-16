@@ -48,6 +48,8 @@ void CEventNotify::Update(_float fTimeDelta)
 		if (m_fUnableTime <= 0.f)
 		{
 			m_bActivate = false;
+			m_isVOSoundActive = false;
+
 			m_fUnableTime = 2.f;
 		}
 		
@@ -84,28 +86,42 @@ void CEventNotify::Late_Update(_float fTimeDelta)
 HRESULT CEventNotify::Render()
 {
 	const _tchar*		pCurText = { nullptr };
+	const _tchar*		pCurSoundText = { nullptr };
 
+	
 	switch (m_eCurEvent)
 	{
 	case Client::CEventNotify::UNABLE_SKILL_COOLTIME:
 		pCurText = TEXT("아직 스킬을 사용할 수 없습니다.");
+		pCurSoundText = TEXT("NoSkill.ogg");
 		break;
 	case Client::CEventNotify::UNABLE_CUTALL:
 		pCurText = TEXT("스킬을 사용할 적이 시야에 없거나 그 수가 부족합니다.");
+		pCurSoundText = TEXT("NoEnemySight.ogg");
 		break;
 	case Client::CEventNotify::UNABLE_MINDCONTROL:
 		pCurText = TEXT("스킬을 사용할 적이 시야에 없거나 그 수가 부족합니다.");
+		pCurSoundText = TEXT("NoEnemySight.ogg");
 		break;
 	case Client::CEventNotify::UNABLE_HOMING_SH:
 		pCurText = TEXT("추적할 대상이 존재하지 않습니다.");
+		pCurSoundText = TEXT("NoTrackEnemy.ogg");
 		break;
 	case Client::CEventNotify::UNABLE_SWAPWEAPON:
 		pCurText = TEXT("아직 무기를 변경할 수 없습니다.");
+		pCurSoundText = TEXT("NoChangeWeapon.ogg");
 		break;
 	case Client::CEventNotify::TEXT_EVENT_END:
 		break;
 	default:
 		break;
+	}
+
+
+	if (false == m_isVOSoundActive)
+	{
+		m_pGameInstance->Play_Sound(pCurSoundText, SOUND_PLAYERVOICE, 2.f);
+		m_isVOSoundActive = true;
 	}
 
 	

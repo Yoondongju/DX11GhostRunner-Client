@@ -30,6 +30,8 @@
 #include "HomingShuriken.h"
 
 #include "Player_Nami.h"
+#include "Player_Nami_CutScene.h"
+
 #include "Player_MindControl.h"
 #include "Player_TimeStop.h"
 
@@ -106,7 +108,7 @@ HRESULT CPlayer::Initialize(void* pArg)
 
 void CPlayer::Priority_Update(_float fTimeDelta)
 {
-    if (true == m_pGameInstance->IsTimeDelayActive())
+    if (CPlayer::PLAYER_ANIMATIONID::TIME_STOP == m_pFsm->Get_CurStateIndex() && true == m_pGameInstance->IsTimeDelayActive())
         fTimeDelta *= m_fTimeDelayLerpRatio;
 
     if (m_pGameInstance->Get_KeyState(KEY::P) == KEY_STATE::TAP)
@@ -293,7 +295,7 @@ void CPlayer::Priority_Update(_float fTimeDelta)
 
 void CPlayer::Update(_float fTimeDelta)
 {
-    if (true == m_pGameInstance->IsTimeDelayActive())
+    if (CPlayer::PLAYER_ANIMATIONID::TIME_STOP == m_pFsm->Get_CurStateIndex() && true == m_pGameInstance->IsTimeDelayActive())
         fTimeDelta *= m_fTimeDelayLerpRatio;
 
 
@@ -332,7 +334,7 @@ void CPlayer::Update(_float fTimeDelta)
 
 void CPlayer::Late_Update(_float fTimeDelta)
 {
-    if (true == m_pGameInstance->IsTimeDelayActive())
+    if (CPlayer::PLAYER_ANIMATIONID::TIME_STOP == m_pFsm->Get_CurStateIndex() && true == m_pGameInstance->IsTimeDelayActive())
         fTimeDelta *= m_fTimeDelayLerpRatio;
 
     // 공중에 떠있니? 
@@ -357,7 +359,8 @@ void CPlayer::Late_Update(_float fTimeDelta)
                 PLAYER_ANIMATIONID::CLIMB != iCurStateIndex && 
                 PLAYER_ANIMATIONID::NAMI_AIM_ATTACK_TO_IDLE != iCurStateIndex &&
                 PLAYER_ANIMATIONID::NAMI_IDLE_TO_AIM != iCurStateIndex &&
-                PLAYER_ANIMATIONID::FURR_AIM_LOOP != iCurStateIndex )
+                PLAYER_ANIMATIONID::FURR_AIM_LOOP != iCurStateIndex && 
+                PLAYER_ANIMATIONID::DUMMY3 != iCurStateIndex)
             {
                 // 점프할때 포물선방정식이용한 점프 구현해야하고 
                 // 무조건 착지 전이면 점프 상태로 돌입 -> 점프상태일때 이동이 안되야하나?
@@ -460,6 +463,10 @@ HRESULT	CPlayer::Ready_State()
 
     if (FAILED(m_pFsm->Add_State(CPlayer_Nami::Create(this))))
         return E_FAIL;
+    if (FAILED(m_pFsm->Add_State(CPlayer_Nami_CutScene::Create(this))))
+        return E_FAIL;
+
+    
 
     if (FAILED(m_pFsm->Add_State(CPlayer_MindControl::Create(this))))
         return E_FAIL;

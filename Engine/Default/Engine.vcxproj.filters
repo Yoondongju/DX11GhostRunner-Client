@@ -199,6 +199,12 @@
     <Filter Include="01.Utility\96.CollisionManger">
       <UniqueIdentifier>{30d48264-48f6-42fa-898d-d41626842b52}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01.Utility\09.SoundManager">
+      <UniqueIdentifier>{975eef29-b676-4972-9036-62d285eaa3c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Utility\10.Frustum">
+      <UniqueIdentifier>{e5546789-d5c0-4ec4-8a93-93f5632466a5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Private\Base.cpp">
@@ -386,6 +392,12 @@
     </ClCompile>
     <ClCompile Include="..\Private\Target_Manager.cpp">
       <Filter>01.Utility\08.RenderTargets\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\SoundMager.cpp">
+      <Filter>01.Utility\09.SoundManager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Frustum.cpp">
+      <Filter>01.Utility\10.Frustum</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -589,6 +601,12 @@
     </ClInclude>
     <ClInclude Include="..\Public\Target_Manager.h">
       <Filter>01.Utility\08.RenderTargets\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\SoundMager.h">
+      <Filter>01.Utility\09.SoundManager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Frustum.h">
+      <Filter>01.Utility\10.Frustum</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

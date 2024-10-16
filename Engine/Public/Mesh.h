@@ -3,6 +3,8 @@
 #include "VIBuffer.h"
 #include "Model.h"
 
+#include "VIBuffer_Mesh_Instance.h"
+
 /* 모델 = 메시 + 메시 + 메시 .. */
 /* 메시로 구분하는 이유 : 파츠의 교체를 용이하게 만들어주기 위해서.*/
 /* 메시 = 정점버퍼 + 인덱스 */
@@ -39,8 +41,10 @@ public:
 		vector<_float4x4> vecOffsetMatrix;
 
 
-		_bool		isInstanceObject = { false };	// 인스턴싱 할 오브젝트니?
-		_wstring	InstanceBufferPrototypeTag = L"";
+		_bool						isInstanceObject = { false };	// 인스턴싱 할 오브젝트니?
+		_wstring					InstanceBufferPrototypeTag = L"";
+		CVIBuffer_Mesh_Instance::MESHINSTANCE_DESC*		MeshInstanceDesc;
+
 
 	}MESH_DESC;
 

@@ -29,8 +29,25 @@ HRESULT CPlayer_Attack3::Initialize()
 
 HRESULT CPlayer_Attack3::Start_State(void* pArg)
 {
-CSwordTrail* pSwordTrail = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON))->Get_SwordTrail();
+	CSwordTrail* pSwordTrail = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON))->Get_SwordTrail();
 	pSwordTrail->Set_Active(true);
+
+
+	_uint iRandom = m_pGameInstance->Get_Random_Interger(0, 2);
+	switch (iRandom)
+	{
+	case 0:
+		m_pGameInstance->Play_Sound(TEXT("Attack1.ogg"), SOUND_PLAYER, 3.f);
+		break;
+	case 1:
+		m_pGameInstance->Play_Sound(TEXT("Attack2.ogg"), SOUND_PLAYER, 3.f);
+		break;
+	case 2:
+		m_pGameInstance->Play_Sound(TEXT("Attack3.ogg"), SOUND_PLAYER, 3.f);
+		break;
+	default:
+		break;
+	}
 
 	return S_OK;
 }

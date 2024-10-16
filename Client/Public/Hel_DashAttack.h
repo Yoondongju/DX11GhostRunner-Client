@@ -21,6 +21,7 @@ public:
 
 
 
+
 public:
     static CHel_DashAttack* Create(class CGameObject* pOwner);
     virtual void Free() override;

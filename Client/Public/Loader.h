@@ -171,6 +171,9 @@ private:
 	HRESULT Create_EliteBlockEffect();
 	HRESULT Create_ExplosionEffect();
 
+	HRESULT Create_HelEffect();
+
+
 
 private:
 	void	ReadString(FILE* file, string& str);

@@ -6,7 +6,7 @@
 #include "Animation.h"
 
 CHel_Stun::CHel_Stun(class CGameObject* pOwner)
-	: CState{ CHel::HEL_ANIMATION::STUN_HIT , pOwner }
+	: CState{ CHel::HEL_ANIMATION::STUN_TO_IDLE , pOwner }
 {
 
 }
@@ -41,7 +41,6 @@ void CHel_Stun::Update(_float fTimeDelta)
 	{
 		CModel* pModel = m_pOwner->Get_Model();
 		CFsm* pFsm = m_pOwner->Get_Fsm();
-
 
 		pModel->SetUp_Animation(CHel::HEL_ANIMATION::IDLE_TO_JUMP, true);
 		pFsm->Change_State(CHel::HEL_ANIMATION::IDLE_TO_JUMP);

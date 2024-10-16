@@ -11,6 +11,7 @@ class ENGINE_DLL CVIBuffer abstract : public CComponent
 protected:
 	CVIBuffer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CVIBuffer(const CVIBuffer& Prototype);
+	CVIBuffer(const CVIBuffer& Prototype, _bool isNoCopy);
 	virtual ~CVIBuffer() = default;
 
 public:

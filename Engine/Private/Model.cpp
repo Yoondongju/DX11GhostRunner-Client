@@ -170,8 +170,10 @@ _bool CModel::Play_Animation(_float fTimeDelta)
 		m_iCurrentAnimIndex = m_iNextAnimIndex;
 	}
 
-	m_Bones[1]->Set_TransformationMatrix(XMMatrixIdentity());
 
+	XMStoreFloat3(&m_AnimLocalTranslationAmount , m_Bones[1]->Get_TransformationMatrix().r[3]);
+	m_Bones[1]->Set_TransformationMatrix(XMMatrixIdentity());
+	
 
 	for (auto& pBone : m_Bones)
 	{

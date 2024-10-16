@@ -56,11 +56,30 @@ HRESULT CPlayer_Dash::Start_State(void* pArg)
 	
 	m_pGameInstance->ActiveBlur(nullptr, CRenderer::BLUR_TYPE::MOTION_BLUR);
 
+	
+
 	return S_OK;
 }
 
 void CPlayer_Dash::Update(_float fTimeDelta)
 {
+	if (false == m_isDashSoundActive)
+	{
+		_uint iRandom = m_pGameInstance->Get_Random_Interger(0, 1);
+		switch (iRandom)
+		{
+		case 0:
+			m_pGameInstance->Play_Sound(TEXT("Dash1.ogg"), SOUND_PLAYER_DASH, 4.f);
+			break;
+		case 1:
+			m_pGameInstance->Play_Sound(TEXT("Dash2.ogg"), SOUND_PLAYER_DASH, 4.f);
+			break;
+		default:
+			break;
+		}
+		m_isDashSoundActive = true;
+	}
+
 	m_fAccTime += fTimeDelta;
 
 	if (m_fAccTime >= 0.5f)
@@ -91,6 +110,7 @@ void CPlayer_Dash::End_State()
 	CRigidBody* pRigidBody = m_pOwner->Get_RigidBody();
 	pRigidBody->Set_IsGravity(true);
 
+	m_isDashSoundActive = false;
 
 	m_pGameInstance->UnActiveBlur();
 }

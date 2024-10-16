@@ -95,6 +95,10 @@ HRESULT CPlayer_Jump::Start_State(void* pArg)
 
 	m_fAccTime = 0.3f;
 
+
+	m_pGameInstance->Play_Sound(TEXT("Jump.ogg"), SOUND_PLAYER, 7.f);
+	m_pGameInstance->Play_Sound(TEXT("JumpVO.ogg"), SOUND_PLAYERVOICE, 6.f);
+
 	return S_OK;
 }
 
@@ -427,6 +431,10 @@ _bool CPlayer_Jump::Check_DoubleJump()
 
 			m_fLastKeyPressTimeSpace = -1.f;
 			m_isCanDoubleJump = false;
+
+			m_pGameInstance->Play_Sound(TEXT("Jump.ogg"), SOUND_PLAYER, 7.f);
+			m_pGameInstance->Play_Sound(TEXT("JumpVO.ogg"), SOUND_PLAYERVOICE, 6.f);
+
 			return true;
 		}
 		m_fLastKeyPressTimeSpace = m_fAccTime;

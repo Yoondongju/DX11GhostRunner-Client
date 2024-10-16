@@ -48,11 +48,19 @@ HRESULT CPlayer_Hook::Start_State(void* pArg)
 
 	m_pGameInstance->ActiveBlur(nullptr, CRenderer::BLUR_TYPE::MOTION_BLUR);
 
+
 	return S_OK;
 }
 
 void CPlayer_Hook::Update(_float fTimeDelta)
 {
+	if (false == m_isHookSoundActive)
+	{
+		m_pGameInstance->Play_Sound(TEXT("Hook.ogg"), SOUND_PLAYER_HOOK, 3.f);
+		m_isHookSoundActive = true;
+	}
+
+
 	m_fAccTime += fTimeDelta;
 
 	if (m_fAccTime >= 0.3f)
@@ -115,6 +123,8 @@ void CPlayer_Hook::End_State()
 	static_cast<CWire_Player*>(static_cast<CPlayer*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WIRE))->Set_Active(false);
 	m_fAccTime = 0.f;
 	m_isStartHook = false;
+
+	m_isHookSoundActive = false;
 
 	Safe_Release(m_pGrapUI);
 

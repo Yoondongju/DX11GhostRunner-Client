@@ -111,7 +111,7 @@ void CRigidBody::Calculate_Gravity(_float fTargetY)
 	if (nullptr == m_pOwnerTransform)
 		return;
 
-
+	 
 	_vector vCurrentPosition = m_pOwnerTransform->Get_State(CTransform::STATE_POSITION);
 	_float currentHeight = XMVectorGetY(vCurrentPosition);
 

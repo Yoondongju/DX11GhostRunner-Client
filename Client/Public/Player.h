@@ -330,8 +330,8 @@ private:		// DASH
 
 
 private:		// BLOCK
-	_float				m_fBlockCoolTime = { 2.f };			// 막기 쿨타임
-	_float				m_fBlockRemainingTime = { 2.f };	// 막기 활성화까지 남은 시간
+	_float				m_fBlockCoolTime = { 1.f };			// 막기 쿨타임
+	_float				m_fBlockRemainingTime = { 1.f };	// 막기 활성화까지 남은 시간
 	_bool				m_bBlockActive = { true };
 	_bool				m_bStartCountBlockTime = { false };	// 막기 시간을 재야하는 시점
 

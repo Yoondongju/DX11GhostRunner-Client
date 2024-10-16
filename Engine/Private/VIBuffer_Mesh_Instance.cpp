@@ -149,9 +149,6 @@ void CVIBuffer_Mesh_Instance::Spread2(_float fTimeDelta)
 			pVertices[i].vTranslation = static_cast<VTXMESHINSTANCE*>(m_pInstanceVertices)[i].vTranslation;
 			pVertices[i].vLifeTime.y = 0.f;
 		}
-
-		// 속도 감소 (시간이 지남에 따라 피가 천천히 멈추는 효과)
-		m_pSpeed[i] = max(m_pSpeed[i] - (fTimeDelta * 0.5f), 0.0f); // 일정한 속도 감소
 	}
 
 	m_pContext->Unmap(m_pVBInstance, 0);
@@ -190,9 +187,6 @@ void CVIBuffer_Mesh_Instance::Spread3(_float fTimeDelta)
 			pVertices[i].vTranslation = static_cast<VTXMESHINSTANCE*>(m_pInstanceVertices)[i].vTranslation;
 			pVertices[i].vLifeTime.y = 0.f;
 		}
-
-		// 속도 감소 (시간이 지남에 따라 피가 천천히 멈추는 효과)
-		m_pSpeed[i] = max(m_pSpeed[i] - (fTimeDelta * 0.5f), 0.0f); // 일정한 속도 감소
 	}
 
 	m_pContext->Unmap(m_pVBInstance, 0);

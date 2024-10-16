@@ -81,7 +81,7 @@ void CParticle_ShockWave::Update(_float fTimeDelta)
 
 		XMStoreFloat3((_float3*)m_WorldMatrix.m[3], XMVectorSetW(vPos, 1.f));
 
-		m_pVIBufferCom->Spread_Side(fTimeDelta);
+		m_pVIBufferCom->Spread_Side_X(fTimeDelta);
 	}
 }
 

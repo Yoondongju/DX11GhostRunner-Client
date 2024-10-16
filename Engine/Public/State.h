@@ -30,6 +30,8 @@ protected:
     _uint 			        m_iStateIndex;
     _float                  m_fAccTime = { 0.f };
     STATE_DIR               m_eDir = { STATE_DIR_END };
+    _float			        m_fSoundTimer = 0.f;
+
 
 
     class CGameInstance* m_pGameInstance = { nullptr };

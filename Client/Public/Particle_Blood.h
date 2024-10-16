@@ -40,6 +40,8 @@ private:
 	CTexture*					m_pTextureCom = { nullptr };
 	CVIBuffer_Mesh_Instance*	m_pVIBufferCom = { nullptr };
 
+private:
+	_int						m_iRandomSpread = { 0 };
 
 private:
 	const _float4x4*			m_pSocketMatrix = { nullptr };

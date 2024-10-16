@@ -26,13 +26,18 @@ HRESULT CHel_Attack::Initialize()
 
 HRESULT CHel_Attack::Start_State(void* pArg)
 {
-	CModel* pModel = static_cast<CHel*>(m_pOwner)->Get_Model();
+	CHel* pHel = static_cast<CHel*>(m_pOwner);
+
+	CModel* pModel = pHel->Get_Model();
 	_double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
 	TrackPos = 0.0;
 
-	CHelSwordTrail* pSwordTrail = static_cast<CWeapon_Hel*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CHel::PARTID::PART_WEAPON))->Get_SwordTrail();
+	CHelSwordTrail* pSwordTrail = static_cast<CWeapon_Hel*>(pHel->Get_Part(CHel::PARTID::PART_WEAPON))->Get_SwordTrail();
 	pSwordTrail->Set_Active(false);
 	pSwordTrail->Set_Active(true);
+
+
+	pHel->Set_ActiveParticleAttack(true);
 
 	return S_OK;
 }
@@ -89,9 +94,16 @@ void CHel_Attack::Update(_float fTimeDelta)
 	}
 
 
-	if (m_fAttackRange < fCurDistance)
+	_float fSpeed = 2.f;
+	if (true == pHel->IsPage2())
 	{
-		pHelTransform->Go_Straight(fTimeDelta * 1.5f);
+		fSpeed *= 2.f;
+	}
+
+	if(0.1f <= (_float)TrackPos / Duration &&
+		m_fAttackRange < fCurDistance)
+	{
+		pHelTransform->Go_Straight(fTimeDelta * fSpeed);
 	}
 }
 
@@ -99,8 +111,12 @@ void CHel_Attack::Update(_float fTimeDelta)
 
 void CHel_Attack::End_State()
 {
-	CHelSwordTrail* pSwordTrail = static_cast<CWeapon_Hel*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CHel::PARTID::PART_WEAPON))->Get_SwordTrail();
+	CHel* pHel = static_cast<CHel*>(m_pOwner);
+
+	CHelSwordTrail* pSwordTrail = static_cast<CWeapon_Hel*>(pHel->Get_Part(CHel::PARTID::PART_WEAPON))->Get_SwordTrail();
 	pSwordTrail->Set_Active(false);
+	
+	pHel->Set_ActiveParticleAttack(false);
 }
 
 

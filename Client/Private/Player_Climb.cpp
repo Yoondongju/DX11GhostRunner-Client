@@ -56,6 +56,8 @@ HRESULT CPlayer_Climb::Start_State(void* pArg)
 	pRigidBody->Add_Force_Direction(vJumpDirection, 110, Engine::CRigidBody::VELOCITYCHANGE);
 
 
+	m_pGameInstance->Play_Sound(TEXT("ClimbVO.ogg"), SOUND_PLAYERVOICE, 2.f);
+
 	return S_OK;
 }
 

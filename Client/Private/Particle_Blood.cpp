@@ -49,14 +49,14 @@ void CParticle_Blood::Update(_float fTimeDelta)
 			m_isActiveMyParticle = false;
 			m_fDisableTime = 1.f;
 			m_pVIBufferCom->ResetTranslation();
+
+			m_iRandomSpread = m_pGameInstance->Get_Random_Interger(0, 2);
 		}
 
 		m_fDisableTime -= fTimeDelta;
 
 
-
-		_int iRandom = m_pGameInstance->Get_Random_Interger(0, 3);
-		switch (iRandom)
+		switch (m_iRandomSpread)
 		{
 		case 0:
 			m_pVIBufferCom->Spread(fTimeDelta * 2.f);
@@ -101,17 +101,17 @@ HRESULT CParticle_Blood::Render()
 	if (FAILED(m_pTextureCom->Bind_ShadeResource(m_pShaderCom, "g_Texture", 0)))
 		return E_FAIL;
 
-	_uint iRow = 3;
-	_uint iCol = 3;
-
-	_uint iRandomCoord = m_pGameInstance->Get_Random(0, iRow * iRow);
-
-	if (FAILED(m_pShaderCom->Bind_RawValue("g_iAtlasRow", &iRow, sizeof(iRow))))
-		return E_FAIL;
-	if (FAILED(m_pShaderCom->Bind_RawValue("g_iAtlasCol", &iCol, sizeof(iCol))))
-		return E_FAIL;
-	if (FAILED(m_pShaderCom->Bind_RawValue("g_iAtlasRandomIndex", &iRandomCoord, sizeof(iRandomCoord))))
-		return E_FAIL;
+	//_uint iRow = 3;
+	//_uint iCol = 3;
+	//
+	//_uint iRandomCoord = m_pGameInstance->Get_Random(0, iRow * iRow);
+	//
+	//if (FAILED(m_pShaderCom->Bind_RawValue("g_iAtlasRow", &iRow, sizeof(iRow))))
+	//	return E_FAIL;
+	//if (FAILED(m_pShaderCom->Bind_RawValue("g_iAtlasCol", &iCol, sizeof(iCol))))
+	//	return E_FAIL;
+	//if (FAILED(m_pShaderCom->Bind_RawValue("g_iAtlasRandomIndex", &iRandomCoord, sizeof(iRandomCoord))))
+	//	return E_FAIL;
 
 
 	if (FAILED(m_pShaderCom->Begin(0)))

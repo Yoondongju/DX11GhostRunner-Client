@@ -790,11 +790,13 @@ _bool CPlayer_Idle::Check_SwapWeapon()
 
 		if (CWeapon_Player::WEAPON_TYPE::KATANA == pWeapon->Get_CurType())
 		{
+			m_pGameInstance->Play_Sound(TEXT("KatanaToSh.ogg"), SOUND_PLAYER, 2.f);
 			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::SH_KAT_TO_SHUR, true);
 		}
 
 		else if (CWeapon_Player::WEAPON_TYPE::SHURIKEN == pWeapon->Get_CurType())
 		{
+			m_pGameInstance->Play_Sound(TEXT("ShToKatana.ogg"), SOUND_PLAYER, 2.f);
 			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::SH_SHUR_TO_KAT, true);
 		}
 

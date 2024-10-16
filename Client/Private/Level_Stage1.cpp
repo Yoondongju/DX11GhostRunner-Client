@@ -67,6 +67,9 @@ HRESULT CLevel_Stage1::Initialize(void* pArg)
 		return E_FAIL;
 
 
+	//m_pGameInstance->PlayBGM(TEXT("06_Daniel_Deluxe_-_The_Orb.ogg"), g_fBgmVolume);
+	
+
 	return S_OK;
 }
 

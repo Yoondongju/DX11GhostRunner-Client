@@ -50,7 +50,7 @@ public:
 	void						Set_NextAnimationIndex(_uint iNextAnimIndex) { m_iNextAnimIndex = iNextAnimIndex; }
 	_uint						Get_NextAnimationIndex() { return m_iNextAnimIndex; }
 
-
+	_float3*					Get_AnimLocalTranslationAmount_Ptr() { return &m_AnimLocalTranslationAmount; }
 
 
 public:
@@ -95,8 +95,8 @@ private:
 	vector<CBone*>					m_Bones;						// 내 모델의 전체 뼈
 
 private:
-	_bool							m_isLoop = { false };			// 애니 반복여부
-
+	_bool							m_isLoop = { false };					// 애니 반복여부
+	_float3							m_AnimLocalTranslationAmount = {};	// 애니가 로컬에서 움직인양
 
 	_uint							m_iNextAnimIndex = { 0 };		// 다음 애니메이션 인덱스
 	_uint							m_iCurrentAnimIndex = { 0 };	// 현재 내 애니 인덱스

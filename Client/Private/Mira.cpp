@@ -109,7 +109,14 @@ void CMira::Update(_float fTimeDelta)
 
 void CMira::Late_Update(_float fTimeDelta)
 {
-    m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+    if (true == m_pGameInstance->isIn_Frustum_WorldSpace(m_pTransformCom->Get_State(CTransform::STATE_POSITION), 3.f))
+    {
+        m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+
+#ifdef _DEBUG
+        m_pGameInstance->Add_DebugObject(m_pColliderCom);
+#endif
+    }
 
     for (auto& pPartObject : m_Parts)
         pPartObject->Late_Update(fTimeDelta);
@@ -162,10 +169,6 @@ HRESULT CMira::Render()
         if (FAILED(m_pModel->Render(i)))
             return E_FAIL;
     }
-
-#ifdef _DEBUG
-    m_pColliderCom->Render();
-#endif
 
     return S_OK;
 }

@@ -8,7 +8,7 @@ CVIBuffer_Point_Instance::CVIBuffer_Point_Instance(ID3D11Device* pDevice, ID3D11
 }
 
 CVIBuffer_Point_Instance::CVIBuffer_Point_Instance(const CVIBuffer_Point_Instance& Prototype)
-	: CVIBuffer_Instancing{ Prototype }
+	: CVIBuffer_Instancing{ Prototype ,true }
 {
 }
 
@@ -17,6 +17,12 @@ HRESULT CVIBuffer_Point_Instance::Initialize_Prototype(const CVIBuffer_Instancin
 	if (FAILED(__super::Initialize_Prototype(Desc)))
 		return E_FAIL;
 
+
+	return S_OK;
+}
+
+HRESULT CVIBuffer_Point_Instance::Initialize(void* pArg)
+{
 	m_iNumVertexBuffers = 2;
 	m_iNumVertices = 1;
 	m_iVertexStride = sizeof(VTXPOINT);
@@ -61,7 +67,7 @@ HRESULT CVIBuffer_Point_Instance::Initialize_Prototype(const CVIBuffer_Instancin
 	/* 인덱스버퍼의 내용을 채워주곡 */
 	ZeroMemory(&m_BufferDesc, sizeof m_BufferDesc);
 	m_BufferDesc.ByteWidth = m_iIndexStride * m_iNumIndices;
-	m_BufferDesc.Usage = D3D11_USAGE_DEFAULT; 
+	m_BufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	m_BufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	m_BufferDesc.CPUAccessFlags = 0;
 	m_BufferDesc.MiscFlags = 0;
@@ -82,10 +88,9 @@ HRESULT CVIBuffer_Point_Instance::Initialize_Prototype(const CVIBuffer_Instancin
 #pragma endregion
 
 #pragma region INSTANCE_BUFFER
-
 	ZeroMemory(&m_InstanceBufferDesc, sizeof m_InstanceBufferDesc);
 	m_InstanceBufferDesc.ByteWidth = m_iInstanceStride * m_iNumInstance;
-	m_InstanceBufferDesc.Usage = D3D11_USAGE_DYNAMIC; 
+	m_InstanceBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	m_InstanceBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	m_InstanceBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	m_InstanceBufferDesc.MiscFlags = 0;
@@ -98,32 +103,35 @@ HRESULT CVIBuffer_Point_Instance::Initialize_Prototype(const CVIBuffer_Instancin
 
 	for (size_t i = 0; i < m_iNumInstance; i++)
 	{
-
-
 		pInstanceVertices[i].vRight = _float4(1.f, 0.f, 0.f, 0.f);
 		pInstanceVertices[i].vUp = _float4(0.f, 1.f, 0.f, 0.f);
 		pInstanceVertices[i].vLook = _float4(0.f, 0.f, 1.f, 0.f);
-		pInstanceVertices[i].vTranslation = _float4(
-			m_pGameInstance->Get_Random(m_vCenterPos.x - m_vRange.x * 0.5f, m_vCenterPos.x + m_vRange.x * 0.5f),
-			m_pGameInstance->Get_Random(m_vCenterPos.y - m_vRange.y * 0.5f, m_vCenterPos.y + m_vRange.y * 0.5f),
-			m_pGameInstance->Get_Random(m_vCenterPos.z - m_vRange.z * 0.5f, m_vCenterPos.z + m_vRange.z * 0.5f),
-			1.f);
+
+
+		if (false == m_isStartFromOrigin)
+		{
+			pInstanceVertices[i].vTranslation = _float4(
+				m_pGameInstance->Get_Random(m_vCenterPos.x - m_vRange.x * 0.5f, m_vCenterPos.x + m_vRange.x * 0.5f),
+				m_pGameInstance->Get_Random(m_vCenterPos.y - m_vRange.y * 0.5f, m_vCenterPos.y + m_vRange.y * 0.5f),
+				m_pGameInstance->Get_Random(m_vCenterPos.z - m_vRange.z * 0.5f, m_vCenterPos.z + m_vRange.z * 0.5f),
+				1.f);
+		}
+		else
+		{
+			pInstanceVertices[i].vTranslation = _float4(0.f, 0.f, 0.f, 1.f);
+		}
+
 
 		pInstanceVertices[i].vLifeTime = _float2(m_pGameInstance->Get_Random(m_vLifeTime.x, m_vLifeTime.y), 0.0f);
 	}
 
 	ZeroMemory(&m_InstanceInitialData, sizeof m_InstanceInitialData);
 	m_InstanceInitialData.pSysMem = m_pInstanceVertices;
-
 #pragma endregion
 
 
 
-	return S_OK;
-}
 
-HRESULT CVIBuffer_Point_Instance::Initialize(void* pArg)
-{
 #pragma region INSTANCE_BUFFER
 
 	if (FAILED(__super::Initialize(pArg)))
@@ -218,7 +226,7 @@ void CVIBuffer_Point_Instance::DirectionSpread(_float fTimeDelta, _fvector vDir)
 }
 
 
-void CVIBuffer_Point_Instance::Spread_Side(_float fTimeDelta)
+void CVIBuffer_Point_Instance::Spread_Side_X(_float fTimeDelta)
 {
 	D3D11_MAPPED_SUBRESOURCE	SubResource{};
 
@@ -243,6 +251,82 @@ void CVIBuffer_Point_Instance::Spread_Side(_float fTimeDelta)
 			XMLoadFloat4(&pVertices[i].vTranslation) + XMVector3Normalize(vMoveDir) * m_pSpeed[i] * fTimeDelta + vRightMovement);
 
 
+
+
+
+		pVertices[i].vLifeTime.y += fTimeDelta;
+
+		if (true == m_isLoop && pVertices[i].vLifeTime.y >= pVertices[i].vLifeTime.x)
+		{
+			pVertices[i].vTranslation = static_cast<VTXPOINTINSTANCE*>(m_pInstanceVertices)[i].vTranslation;
+			pVertices[i].vLifeTime.y = 0.f;
+		}
+	}
+
+	m_pContext->Unmap(m_pVBInstance, 0);
+}
+
+
+void CVIBuffer_Point_Instance::Spread_Side_XZ(_float fTimeDelta)
+{
+	D3D11_MAPPED_SUBRESOURCE	SubResource{};
+
+	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
+
+	VTXPOINTINSTANCE* pVertices = static_cast<VTXPOINTINSTANCE*>(SubResource.pData);
+
+	for (size_t i = 0; i < m_iNumInstance; i++)
+	{
+		//_vector		vMoveDir = XMVectorSetW(XMLoadFloat4(&pVertices[i].vTranslation) - XMLoadFloat3(&m_vPivotPos), 0.f);
+		//vMoveDir.m128_f32[1] = 0.f;
+
+		_float fAngle = (2 * XM_PI / m_iNumInstance) * i; // 360도를 인스턴스 수로 나눠 각 인스턴스마다 고유한 각도 부여
+
+		_vector vMoveDir = XMVectorSet(cosf(fAngle), 0.f, sinf(fAngle), 0.f);
+
+		_vector vMovement = XMVector3Normalize(vMoveDir) * m_pSpeed[i] * fTimeDelta;
+
+
+		XMStoreFloat4(&pVertices[i].vTranslation,
+			XMLoadFloat4(&pVertices[i].vTranslation) + vMovement);
+
+		
+	
+		pVertices[i].vLifeTime.y += fTimeDelta;
+
+		if (true == m_isLoop && pVertices[i].vLifeTime.y >= pVertices[i].vLifeTime.x)
+		{
+			pVertices[i].vTranslation = static_cast<VTXPOINTINSTANCE*>(m_pInstanceVertices)[i].vTranslation;
+			pVertices[i].vLifeTime.y = 0.f;
+		}
+	}
+
+	m_pContext->Unmap(m_pVBInstance, 0);
+}
+
+
+void CVIBuffer_Point_Instance::Spread_Side_XY(_float fTimeDelta)
+{
+	D3D11_MAPPED_SUBRESOURCE	SubResource{};
+
+	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
+
+	VTXPOINTINSTANCE* pVertices = static_cast<VTXPOINTINSTANCE*>(SubResource.pData);
+
+	for (size_t i = 0; i < m_iNumInstance; i++)
+	{
+		//_vector		vMoveDir = XMVectorSetW(XMLoadFloat4(&pVertices[i].vTranslation) - XMLoadFloat3(&m_vPivotPos), 0.f);
+		//vMoveDir.m128_f32[1] = 0.f;
+
+		_float fAngle = (2 * XM_PI / m_iNumInstance) * i; // 360도를 인스턴스 수로 나눠 각 인스턴스마다 고유한 각도 부여
+
+		_vector vMoveDir = XMVectorSet(cosf(fAngle), sinf(fAngle), 0.f, 0.f);
+
+		_vector vMovement = XMVector3Normalize(vMoveDir) * m_pSpeed[i] * fTimeDelta;
+
+
+		XMStoreFloat4(&pVertices[i].vTranslation,
+			XMLoadFloat4(&pVertices[i].vTranslation) + vMovement);
 
 
 

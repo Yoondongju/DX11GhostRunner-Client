@@ -228,6 +228,10 @@
     <ClInclude Include="..\Public\Mira_WalkIn.h" />
     <ClInclude Include="..\Public\Monster_Bullet.h" />
     <ClInclude Include="..\Public\NumberUI.h" />
+    <ClInclude Include="..\Public\Particle_Attack.h" />
+    <ClInclude Include="..\Public\Particle_BigSmoke.h" />
+    <ClInclude Include="..\Public\Particle_Jump.h" />
+    <ClInclude Include="..\Public\Particle_Piece.h" />
     <ClInclude Include="..\Public\Particle_Block.h" />
     <ClInclude Include="..\Public\Particle_Blood.h" />
     <ClInclude Include="..\Public\Particle_CutAll.h" />
@@ -237,6 +241,7 @@
     <ClInclude Include="..\Public\Particle_Nami.h" />
     <ClInclude Include="..\Public\Particle_ShockWave.h" />
     <ClInclude Include="..\Public\Particle_ShurikenEffect.h" />
+    <ClInclude Include="..\Public\Particle_Swirl.h" />
     <ClInclude Include="..\Public\Pistol.h" />
     <ClInclude Include="..\Public\Pistol_Attack.h" />
     <ClInclude Include="..\Public\Pistol_Death.h" />
@@ -250,6 +255,7 @@
     <ClInclude Include="..\Public\Player_JumpFall.h" />
     <ClInclude Include="..\Public\Player_MindControl.h" />
     <ClInclude Include="..\Public\Player_Nami.h" />
+    <ClInclude Include="..\Public\Player_Nami_CutScene.h" />
     <ClInclude Include="..\Public\Player_Sh_Attack1.h" />
     <ClInclude Include="..\Public\Player_Sh_Dash.h" />
     <ClInclude Include="..\Public\Player_Sh_Run.h" />
@@ -361,6 +367,10 @@
     <ClCompile Include="..\Private\Mira_WalkIn.cpp" />
     <ClCompile Include="..\Private\Monster_Bullet.cpp" />
     <ClCompile Include="..\Private\NumberUI.cpp" />
+    <ClCompile Include="..\Private\Particle_Attack.cpp" />
+    <ClCompile Include="..\Private\Particle_BigSmoke.cpp" />
+    <ClCompile Include="..\Private\Particle_Jump.cpp" />
+    <ClCompile Include="..\Private\Particle_Piece.cpp" />
     <ClCompile Include="..\Private\Particle_Block.cpp" />
     <ClCompile Include="..\Private\Particle_Blood.cpp" />
     <ClCompile Include="..\Private\Particle_CutAll.cpp" />
@@ -370,6 +380,7 @@
     <ClCompile Include="..\Private\Particle_Nami.cpp" />
     <ClCompile Include="..\Private\Particle_ShockWave.cpp" />
     <ClCompile Include="..\Private\Particle_ShurikenEffect.cpp" />
+    <ClCompile Include="..\Private\Particle_Swirl.cpp" />
     <ClCompile Include="..\Private\Pistol.cpp" />
     <ClCompile Include="..\Private\Pistol_Attack.cpp" />
     <ClCompile Include="..\Private\Pistol_Death.cpp" />
@@ -383,6 +394,7 @@
     <ClCompile Include="..\Private\Player_JumpFall.cpp" />
     <ClCompile Include="..\Private\Player_MindControl.cpp" />
     <ClCompile Include="..\Private\Player_Nami.cpp" />
+    <ClCompile Include="..\Private\Player_Nami_CutScene.cpp" />
     <ClCompile Include="..\Private\Player_Sh_Attack1.cpp" />
     <ClCompile Include="..\Private\Player_Sh_Dash.cpp" />
     <ClCompile Include="..\Private\Player_Sh_Run.cpp" />

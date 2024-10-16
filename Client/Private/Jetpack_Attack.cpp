@@ -23,7 +23,11 @@ HRESULT CJetpack_Attack::Initialize()
 
 HRESULT CJetpack_Attack::Start_State(void* pArg)
 {
+	CModel* pModel = m_pOwner->Get_Model();
+	_double Duration = pModel->Get_CurAnimation()->Get_Duration();
+	_double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
 
+	TrackPos = 0.0;
 
 	return S_OK;
 }
@@ -43,7 +47,7 @@ void CJetpack_Attack::Update(_float fTimeDelta)
 		CJetpack::JETPACK_ANIMATION::ATTACK_2 == pModel->Get_CurAnimationIndex())
 	{
 		_double Duration = pModel->Get_CurAnimation()->Get_Duration();
-		const _double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
+		_double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
 
 		CWeapon_Jetpack* JetpackWeapon = static_cast<CWeapon_Jetpack*>(static_cast<CJetpack*>(m_pOwner)->Get_Part(CJetpack::PARTID::PART_WEAPON));
 		_float4x4*		 pWorldMatrix = JetpackWeapon->Get_PartObjectComBindWorldMatrixPtr();
@@ -75,12 +79,11 @@ void CJetpack_Attack::Update(_float fTimeDelta)
 			_vector vLookNor = XMVector3Normalize(pJetpackTransform->Get_State(CTransform::STATE_LOOK));
 			vLookNor = XMVectorSetY(vLookNor, XMVectorGetY(vLookNor) - 0.2f);  // 0.2f 만큼 아래로 내림
 
-			_vector vCompute_Result = (vLookNor) * 300.f * fTimeDelta;
+			_vector vCompute_Result = (vLookNor) * 200.f * fTimeDelta;
 
 			ComBindMatrix.r[3] += vCompute_Result;
 			XMStoreFloat4x4(pWorldMatrix, ComBindMatrix);
 		}
-
 	}
 
 }

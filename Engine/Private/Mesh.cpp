@@ -64,29 +64,27 @@ HRESULT CMesh::Initialize_Prototype(CModel* pModel, CModel::TYPE eModelType, _fm
 	if (true == pDesc->isInstanceObject)
 	{
 		// 음.. 여기서 인스턴싱 걔네들 만들까
-		CVIBuffer_Mesh_Instance::MESHINSTANCE_DESC			Desc{};
-		Desc.iNumInstance = 60;
-		Desc.vCenter = _float3(0.f, 0.f, 0.f);
-		Desc.vRange = _float3(1.f, 2.5f, 1.f);
-		Desc.vSize = _float2(0.5f, 2.f);
-		Desc.vPivot = _float3(0.f, 0.f, 0.f);
-		Desc.vSpeed = _float2(10.f, 15.f);
-		Desc.vLifeTime = _float2(0.5f, 1.5f);
-		Desc.isLoop = false;
+		//pDesc->MeshInstanceDesc.iNumInstance = 60;
+		//pDesc->MeshInstanceDesc.vCenter = _float3(0.f, 0.f, 0.f);
+		//pDesc->MeshInstanceDesc.vRange = _float3(1.f, 2.5f, 1.f);
+		//pDesc->MeshInstanceDesc.vSize = _float2(0.5f, 2.f);
+		//pDesc->MeshInstanceDesc.vPivot = _float3(0.f, 0.f, 0.f);
+		//pDesc->MeshInstanceDesc.vSpeed = _float2(10.f, 15.f);
+		//pDesc->MeshInstanceDesc.vLifeTime = _float2(0.5f, 1.5f);
+		//pDesc->MeshInstanceDesc.isLoop = false;
 
-		Desc.pVB = m_pVB;
-		Desc.pIB = m_pIB;
+		pDesc->MeshInstanceDesc->pVB = m_pVB;
+		pDesc->MeshInstanceDesc->pIB = m_pIB;
 
-		Desc.eIndexFormat = m_eIndexFormat;
-		Desc.eTopology = m_eTopology;
-		Desc.iIndexCountPerInstance = m_iNumIndices;
+		pDesc->MeshInstanceDesc->eIndexFormat = m_eIndexFormat;
+		pDesc->MeshInstanceDesc->eTopology = m_eTopology;
+		pDesc->MeshInstanceDesc->iIndexCountPerInstance = m_iNumIndices;
 
 		// 3이 LEVEL_GAMEPLAY임 일단
 		if (FAILED(m_pGameInstance->Add_Prototype(3, pDesc->InstanceBufferPrototypeTag,
-			CVIBuffer_Mesh_Instance::Create(m_pDevice, m_pContext, Desc))))
+			CVIBuffer_Mesh_Instance::Create(m_pDevice, m_pContext, *pDesc->MeshInstanceDesc))))
 			return E_FAIL;
 	}
-
 
 	return S_OK;
 }

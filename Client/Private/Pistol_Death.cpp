@@ -20,7 +20,20 @@ HRESULT CPistol_Death::Initialize()
 
 HRESULT CPistol_Death::Start_State(void* pArg)
 {
-
+	_uint iRandom = m_pGameInstance->Get_Random_Interger(0, 1);
+	switch (iRandom)
+	{
+	case 0:
+		m_pGameInstance->Play_Sound(TEXT("PistolDeath1.ogg"), SOUND_PISTOL, 3.f);
+		m_pGameInstance->Play_Sound(TEXT("HitBlood1.ogg"), SOUND_PISTOLBLOOD, 3.f);
+		break;
+	case 1:
+		m_pGameInstance->Play_Sound(TEXT("PistolDeath1.ogg"), SOUND_PISTOL, 3.f);
+		m_pGameInstance->Play_Sound(TEXT("HitBlood3.ogg"), SOUND_PISTOLBLOOD, 3.f);
+		break;
+	default:
+		break;
+	}
 
 	return S_OK;
 }
