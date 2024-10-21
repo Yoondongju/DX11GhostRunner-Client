@@ -93,7 +93,7 @@ HRESULT CHel::Initialize(void* pArg)
     m_pTransformCom->Scaling(3.5f, 3.5f, 3.5f);
 
     m_fEnergy = 100.f;
-    m_fHp = 49.f;
+    m_fHp = 100.f;
 
     m_fCollisionCoolTime = 1.f;
  

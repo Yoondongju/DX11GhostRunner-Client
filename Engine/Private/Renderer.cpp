@@ -74,6 +74,9 @@ HRESULT CRenderer::Initialize()
 	if (FAILED(m_pGameInstance->Add_RenderTarget(TEXT("Target_Refraction"), ViewportDesc.Width, ViewportDesc.Height, DXGI_FORMAT_B8G8R8A8_UNORM, _float4(1.f, 1.f, 1.f, 1.f))))
 		return E_FAIL;
 
+	if (FAILED(m_pGameInstance->Add_RenderTarget(TEXT("Target_Distortion"), ViewportDesc.Width, ViewportDesc.Height, DXGI_FORMAT_B8G8R8A8_UNORM, _float4(0.f, 0.f, 0.f, 0.f))))
+		return E_FAIL;
+
 	
 
 	/* MRT_GameObjects */
@@ -135,6 +138,8 @@ HRESULT CRenderer::Initialize()
 	if (FAILED(m_pGameInstance->Add_MRT(TEXT("MRT_Refraction"), TEXT("Target_Refraction"))))
 		return E_FAIL;
 
+	if (FAILED(m_pGameInstance->Add_MRT(TEXT("MRT_Distortion"), TEXT("Target_Distortion"))))
+		return E_FAIL;
 
 
 	m_pShader = CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_Deferred.hlsl"), VTXPOSTEX::Elements, VTXPOSTEX::iNumElements);
@@ -192,6 +197,10 @@ HRESULT CRenderer::Initialize()
 		return E_FAIL;
 	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Refraction"), 1100.f, ViewportDesc.Height - 300, 200.f, 200.f)))
 		return E_FAIL;
+	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Distortion"), 1100.f, ViewportDesc.Height - 500, 200.f, 200.f)))
+		return E_FAIL;
+
+	
 
 
 	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_BloomBlur_X"), 700.f, ViewportDesc.Height - 100, 200.f, 200.f)))
@@ -247,8 +256,12 @@ HRESULT CRenderer::Draw()
 	// Final에서 불름효과를 먹인애들이 백버퍼와 함께 그려졌다  그 장면이 Final에 그려졌고  
 	// 후에 모션블러와 리플렉션효과에 불름효과가 먹엇다
 
+	if (FAILED(Render_PreFinal()))
+		return E_FAIL;
+
+
 	if (true == m_isActiveBlur)
-	{		
+	{
 		switch (m_eBlurType)
 		{
 		case Engine::CRenderer::GAUSSIAN_BLUR:
@@ -256,25 +269,29 @@ HRESULT CRenderer::Draw()
 			if (FAILED(Render_Blur()))
 				return E_FAIL;
 		}
-			break;
+		break;
 		case Engine::CRenderer::MOTION_BLUR:
 		{
 			if (FAILED(Render_MotionBlur()))
 				return E_FAIL;
 		}
-			break;
+		break;
 		case Engine::CRenderer::BLUR_END:
 			break;
 		default:
 			break;
-		}	
+		}
 	}
 
-	if (FAILED(Render_PreFinal()))
-		return E_FAIL;
 
 	if (true == m_isActiveRefraction && FAILED(Render_Refraction()))	// 얘네들은 매프레임 호출될 필요가없어 내가 스킬을 쓸때만 호출하면되잖니
 		return E_FAIL;
+
+	
+	if (true == m_isActiveDistortion && FAILED(Render_Distortion()))	// 얘네들은 매프레임 호출될 필요가없어 내가 스킬을 쓸때만 호출하면되잖니
+		return E_FAIL;
+
+
 	 
 	if (FAILED(Render_NonLights()))
 		return E_FAIL;
@@ -306,13 +323,13 @@ void CRenderer::ActiveRefraction(CTexture* pRefractionTex, REFRACTION_TYPE eRefr
 	m_isActiveRefraction = true;
 	m_eRefractionType = eRefractionType;
 
-	if (nullptr != pRefractionTex)
+	if (nullptr == m_pRefractionTex && nullptr != pRefractionTex)		
 	{	
 		m_pRefractionTex = pRefractionTex;
 		Safe_AddRef(m_pRefractionTex);
 	}
 
-	if (nullptr != pBlockMaskTex)
+	if (nullptr == m_pBlockMaskTex && nullptr != pBlockMaskTex)
 	{
 		m_pBlockMaskTex = pBlockMaskTex;
 		Safe_AddRef(m_pBlockMaskTex);
@@ -325,10 +342,27 @@ void CRenderer::ActiveBlur(CTexture* pBlurMaskTex, BLUR_TYPE eBlurType)
 	m_isActiveBlur = true;
 	m_eBlurType = eBlurType;
 
-	if (nullptr != pBlurMaskTex)
+	if (nullptr == m_pBlurMaskTex && nullptr != pBlurMaskTex)
 	{	
 		m_pBlurMaskTex = pBlurMaskTex;
 		Safe_AddRef(m_pBlurMaskTex);
+	}
+}
+
+void CRenderer::ActiveDistortion(CTexture* pDistortionTex, DISTORTION_TYPE eDistortionType, const _float4x4* pWorldMatrix)
+{
+	m_isActiveDistortion = true;
+	m_eDistortionType = eDistortionType;
+
+	if (nullptr == m_pDistortionTex && nullptr != pDistortionTex)
+	{
+		m_pDistortionTex = pDistortionTex;
+		Safe_AddRef(m_pDistortionTex);
+	}
+
+	if (nullptr != pWorldMatrix)
+	{
+		m_pDistorionTexWorldMatrix = pWorldMatrix;
 	}
 }
 
@@ -362,6 +396,18 @@ void CRenderer::UnActiveBlur()
 		Safe_Release(m_pBlurMaskTex);
 		m_pBlurMaskTex = nullptr;
 	}
+}
+
+void CRenderer::UnActiveDistortion()
+{
+	m_isActiveDistortion = false;
+
+	if (nullptr != m_pDistortionTex)
+	{
+		Safe_Release(m_pDistortionTex);
+		m_pDistortionTex = nullptr;
+	}
+
 }
 
 
@@ -766,7 +812,6 @@ HRESULT CRenderer::Render_MotionBlur()
 	return S_OK;
 }
 
-
 HRESULT CRenderer::Render_Refraction()
 {
 	if (FAILED(m_pShader->Bind_Matrix("g_WorldMatrix", &m_WorldMatrix)))
@@ -877,7 +922,6 @@ HRESULT CRenderer::Render_Refraction()
 		iPassNum = 18;
 	}
 		break;
-	
 	case Engine::CRenderer::REFRACTION_END:
 		break;
 	default:
@@ -897,6 +941,68 @@ HRESULT CRenderer::Render_Refraction()
 
 
 	m_pShader->Begin(iPassNum);
+	m_pVIBuffer->Bind_Buffers();
+	m_pVIBuffer->Render();
+
+	return S_OK;
+}
+
+HRESULT CRenderer::Render_Distortion()
+{
+	if (FAILED(m_pGameInstance->Begin_MRT(TEXT("MRT_Distortion"))))
+		return E_FAIL;
+
+	if (nullptr != m_pDistortionTex)
+	{
+		if (FAILED(m_pDistortionTex->Bind_ShadeResource(m_pShader, "g_DistortionTex", 0)))
+			return E_FAIL;
+	}
+
+	switch (m_eDistortionType)
+	{
+	case Engine::CRenderer::WATERPUDDLE:
+	{
+		if (FAILED(m_pShader->Bind_Matrix("g_WorldMatrix", m_pDistorionTexWorldMatrix)))
+			return E_FAIL;
+		if (FAILED(m_pShader->Bind_Matrix("g_ViewMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_VIEW))))
+			return E_FAIL;
+		if (FAILED(m_pShader->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
+			return E_FAIL;
+	}
+		break;
+	case Engine::CRenderer::DISTORTION_END:
+		break;
+	default:
+		break;
+	}
+
+	m_pShader->Begin(19);
+	m_pVIBuffer->Bind_Buffers();
+	m_pVIBuffer->Render();
+
+	if (FAILED(m_pGameInstance->End_MRT()))
+		return E_FAIL; 
+
+
+	if (FAILED(m_pShader->Bind_Matrix("g_WorldMatrix", &m_WorldMatrix)))
+		return E_FAIL;
+	if (FAILED(m_pShader->Bind_Matrix("g_ViewMatrix", &m_ViewMatrix)))
+		return E_FAIL;
+	if (FAILED(m_pShader->Bind_Matrix("g_ProjMatrix", &m_ProjMatrix)))
+		return E_FAIL;
+
+
+	m_fUVTime += 0.016f;
+
+	if (FAILED(m_pShader->Bind_RawValue("g_fUVTime", &m_fUVTime, sizeof(_float))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_Final"), "g_FinalTexture")))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_Distortion"), "g_DistortionTex")))
+		return E_FAIL;
+	
+	m_pShader->Begin(20);
 	m_pVIBuffer->Bind_Buffers();
 	m_pVIBuffer->Render();
 
@@ -1028,8 +1134,8 @@ HRESULT CRenderer::Render_Debug()
 	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_OriginBloomEffect"), m_pShader, m_pVIBuffer);
 	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_FinalBloomEffect"), m_pShader, m_pVIBuffer);
 	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_Refraction"), m_pShader, m_pVIBuffer);
+	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_Distortion"), m_pShader, m_pVIBuffer);
 	
-
 
 	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_BloomBlur_X"), m_pShader, m_pVIBuffer);
 	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_BloomBlur_Y"), m_pShader, m_pVIBuffer);
@@ -1070,6 +1176,8 @@ void CRenderer::Free()
 	Safe_Release(m_pRefractionTex);
 	Safe_Release(m_pBlockMaskTex);
 	Safe_Release(m_pBlurMaskTex);
+	Safe_Release(m_pDistortionTex);
+
 
 	Safe_Release(m_pLightDepthStencilView);
 	Safe_Release(m_pShader);

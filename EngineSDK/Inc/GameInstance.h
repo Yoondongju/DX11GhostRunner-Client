@@ -112,8 +112,13 @@ public:
 
 	void	ActiveRefraction(class CTexture* pRefractionTex, CRenderer::REFRACTION_TYPE eRefractionType, class CTexture* pBlockMaskTex = nullptr);
 	void	ActiveBlur(class CTexture* pBlurMaskTex , CRenderer::BLUR_TYPE eBlurType);
+	void	ActiveDistortion(class CTexture* pDistortionTex, CRenderer::DISTORTION_TYPE eDistortionType, const _float4x4* pWorldMatrix);
+
+
 	void	UnActiveRefraction();
 	void	UnActiveBlur();
+	void	UnActiveDistortion();
+
 
 #ifdef _DEBUG
 	HRESULT Add_DebugObject(class CComponent* pDebugObject);

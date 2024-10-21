@@ -139,6 +139,11 @@ public:
 	CTexture*		Get_TimeStopRefractionTex() const { return m_pTimeStopRefractionTex; }
 	CTexture*		Get_MindControlRefractionTex() const { return m_pMindControlRefractionTex; }
 	CTexture*		Get_BlockMaskRefractionTex() const { return m_pBlockMaskRefractionTex; }
+	CTexture*		Get_WaterPuddleDistortionTex() const { return m_pWaterPuddleDistortionTex; }
+
+	const _float4x4* Get_WaterPuddle_WorldMatrix() { return &m_WaterPuddleTex_WorldMatrix; }
+
+
 
 public:
 	CTexture*		Get_BlurMaskTex() const { return m_pBlurMaskTex; }
@@ -304,6 +309,8 @@ private:
 	CTexture*				m_pTimeStopRefractionTex = { nullptr };
 	CTexture*				m_pMindControlRefractionTex = { nullptr };
 	CTexture*				m_pBlockMaskRefractionTex = { nullptr };
+	CTexture*				m_pWaterPuddleDistortionTex = { nullptr };
+	_float4x4				m_WaterPuddleTex_WorldMatrix = {};
 
 	CTexture*				m_pBlurMaskTex = { nullptr };
 
@@ -411,6 +418,8 @@ private:
 	void		Compute_NamiCoolTime(_float fTimeDelta);
 	void		Compute_MindControlCoolTime(_float fTimeDelta);
 	void		Compute_HomingShCoolTime(_float fTimeDelta);
+
+	void		Compute_Distortion(_float fTimeDelta);
 
 
 public:

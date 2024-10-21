@@ -333,7 +333,7 @@ _bool CElite::Check_CollisionGroggy()       // 패링 3번 이상햇을때 켜짐
         TrackPos = 0.0;
 
         static_cast<CParticle_Blood*>(m_Parts[PART_EFFECT])->SetActiveMyParticle(true);
-        m_fHp -= 17.f;
+        m_fHp -= 18.f;
 
         if (m_fHp <= 50.f)
         {

@@ -24,6 +24,7 @@ HRESULT CPlayer_Sh_Walk::Start_State(void* pArg)
 
 	m_pOwner->Get_Transform()->Set_SpeedPerSec(fSpeedPerSec * 1.4);
 
+
 	return S_OK;
 }
 

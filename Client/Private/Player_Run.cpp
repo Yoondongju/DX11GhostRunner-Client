@@ -30,6 +30,12 @@ HRESULT CPlayer_Run::Start_State(void* pArg)
 	m_pOwner->Get_Transform()->Set_SpeedPerSec(fSpeedPerSec * 1.8);
 
 
+	if (LEVEL_STAGE2_BOSS == g_CurLevel)
+	{
+		CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
+		m_pGameInstance->ActiveDistortion(pPlayer->Get_WaterPuddleDistortionTex(), CRenderer::DISTORTION_TYPE::WATERPUDDLE, pPlayer->Get_WaterPuddle_WorldMatrix());
+	}
+	
 
 
 	return S_OK;
@@ -173,6 +179,7 @@ void CPlayer_Run::End_State()
 	m_pOwner->Get_Transform()->Set_SpeedPerSec(fOriginSpeedPerSec);
 
 	
+	m_pGameInstance->UnActiveDistortion();
 }
 
 

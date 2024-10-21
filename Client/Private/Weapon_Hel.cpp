@@ -164,7 +164,7 @@ _bool CWeapon_Hel::Check_Collision()
 				
 
 				_float fCurEnergy = pHel->Get_Energy();
-				fCurEnergy -= 13.f;
+				fCurEnergy -= 15.f;
 
 				if (fCurEnergy <= 0.f)
 				{

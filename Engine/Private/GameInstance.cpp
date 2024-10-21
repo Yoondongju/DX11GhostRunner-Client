@@ -356,6 +356,11 @@ void CGameInstance::ActiveBlur(CTexture* pBlurMaskTex , CRenderer::BLUR_TYPE eBl
 	m_pRenderer->ActiveBlur(pBlurMaskTex , eBlurType);
 }
 
+void CGameInstance::ActiveDistortion(CTexture* pDistortionTex, CRenderer::DISTORTION_TYPE eDistortionType, const _float4x4* pWorldMatrix)
+{
+	m_pRenderer->ActiveDistortion(pDistortionTex, eDistortionType, pWorldMatrix);
+}
+
 void CGameInstance::UnActiveRefraction()
 {
 	m_pRenderer->UnActiveRefraction();
@@ -364,6 +369,11 @@ void CGameInstance::UnActiveRefraction()
 void CGameInstance::UnActiveBlur()
 {
 	m_pRenderer->UnActiveBlur();
+}
+
+void CGameInstance::UnActiveDistortion()
+{
+	m_pRenderer->UnActiveDistortion();
 }
 
 
@@ -585,7 +595,7 @@ void CGameInstance::Transform_ToLocalSpace(_fmatrix WorldMatrix)
 
 void CGameInstance::Play_Sound(const TCHAR* pSoundKey, _uint eID, _float fVolume)
 {
-	m_pSound_Manager->PlaySound(pSoundKey, eID, fVolume);
+     m_pSound_Manager->PlaySound(pSoundKey, eID, fVolume);
 }
 
 void CGameInstance::Play_Sound(const TCHAR* pSoundKey, _uint eID, _float* pVolume)

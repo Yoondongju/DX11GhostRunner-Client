@@ -1199,12 +1199,13 @@ HRESULT CLoader::Load_OtherModel()
 		_wstring ModelPrototypeName = stringToWstring(modelPrototypeName);
 
 		CMesh::MESH_DESC* pDesc = new CMesh::MESH_DESC[meshCount]; 
+		CVIBuffer_Mesh_Instance::MESHINSTANCE_DESC			Desc{};
 		if (i == 1)		// 피
 		{
 			pDesc->isInstanceObject = true;
 			pDesc->InstanceBufferPrototypeTag = ModelPrototypeName + L"Instance";
 
-			CVIBuffer_Mesh_Instance::MESHINSTANCE_DESC			Desc{};
+			
 			Desc.iNumInstance = 60;
 			Desc.vCenter = _float3(0.f, 0.f, 0.f);
 			Desc.vRange = _float3(1.f, 2.5f, 1.f);
@@ -1221,7 +1222,7 @@ HRESULT CLoader::Load_OtherModel()
 			pDesc->isInstanceObject = true;
 			pDesc->InstanceBufferPrototypeTag = ModelPrototypeName + L"Instance";
 
-			CVIBuffer_Mesh_Instance::MESHINSTANCE_DESC			Desc{};
+			
 			Desc.iNumInstance = 70;
 			Desc.vCenter = _float3(0.f, 0.f, 0.f);
 			Desc.vRange = _float3(1.f, 1.f, 1.f);
@@ -1239,7 +1240,7 @@ HRESULT CLoader::Load_OtherModel()
 			pDesc->isInstanceObject = true;
 			pDesc->InstanceBufferPrototypeTag = ModelPrototypeName + L"Instance";
 
-			CVIBuffer_Mesh_Instance::MESHINSTANCE_DESC			Desc{};
+			
 			Desc.iNumInstance = 70;
 			Desc.vCenter = _float3(0.f, 0.f, 0.f);
 			Desc.vRange = _float3(1.f, 1.f, 1.f);
@@ -1257,7 +1258,7 @@ HRESULT CLoader::Load_OtherModel()
 			pDesc->isInstanceObject = true;
 			pDesc->InstanceBufferPrototypeTag = ModelPrototypeName + L"Instance";
 
-			CVIBuffer_Mesh_Instance::MESHINSTANCE_DESC			Desc{};
+			
 			Desc.iNumInstance = 80;
 			Desc.vCenter = _float3(0.f, 0.f, 0.f);
 			Desc.vRange = _float3(1.f, 0.f, 1.f);
@@ -2978,11 +2979,10 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_DeadNoiseTexture"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_Inky_Smoke_Tile.dds"), 1))))
-			return E_FAIL;
+		return E_FAIL;
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_CreateDissolve"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/CreateDissolve.dds"), 1))))
 		return E_FAIL;
-
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BlurMask"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_NoiseNormal.dds"), 1))))
 		return E_FAIL;
@@ -2994,6 +2994,9 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		return E_FAIL;
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BlockMaskRefraction"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_RadialMask.dds"), 1))))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_WaterPuddleDistortion"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Water_Normal_01.dds"), 1))))
 		return E_FAIL;
 
 
@@ -3135,7 +3138,7 @@ HRESULT CLoader::Ready_Resources_For_Stage2_BossLevel()
 
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_STAGE2_BOSS, TEXT("Prototype_Component_Texture_Mossaic"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_CS_Mossaic_01.dds"), 1))))
-		return E_FAIL;
+		return E_FAIL;												// 원래 모자이크 경로:  T_CS_Mossaic_01    // T_Architect_VFX_atlas
 
 
 	if (FAILED(Load_Anim_GameObject()))

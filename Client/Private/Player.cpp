@@ -388,6 +388,10 @@ void CPlayer::Late_Update(_float fTimeDelta)
         m_pPlayerPointLight->vPosition.y = vPos.m128_f32[1] + 20.f;
         m_pPlayerPointLight->vPosition.z = vPos.m128_f32[2];
     }
+
+    
+    Compute_Distortion(fTimeDelta);
+
 }
 
 HRESULT CPlayer::Render()
@@ -426,6 +430,9 @@ HRESULT CPlayer::Ready_Component()
     if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BlockMaskRefraction"),
         TEXT("Com_Tex4"), reinterpret_cast<CComponent**>(&m_pBlockMaskRefractionTex), nullptr)))
         return E_FAIL; 
+    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_WaterPuddleDistortion"),
+        TEXT("Com_Tex5"), reinterpret_cast<CComponent**>(&m_pWaterPuddleDistortionTex), nullptr)))
+        return E_FAIL;
 
     
 
@@ -613,6 +620,37 @@ void CPlayer::Compute_HomingShCoolTime(_float fTimeDelta)
 }
 
 
+void CPlayer::Compute_Distortion(_float fTimeDelta)
+{
+    XMStoreFloat4x4(&m_WaterPuddleTex_WorldMatrix, XMMatrixIdentity());
+
+    _vector playerPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+    _vector playerLook = m_pTransformCom->Get_State(CTransform::STATE_LOOK);
+    _vector playerRight = m_pTransformCom->Get_State(CTransform::STATE_RIGHT);
+
+
+    playerLook = XMVector3Normalize(playerLook);
+    playerRight = XMVector3Normalize(playerRight);
+
+
+    float groundOffset = -20.0f;
+    _vector footPos = XMVectorSetY(playerPos, XMVectorGetY(playerPos) + groundOffset);
+
+
+    _vector textPos = footPos + playerLook * 40.0f;
+
+
+    _matrix TranslationMatrix = XMMatrixTranslationFromVector(textPos);
+    _float fScaleFactor = 80.0f;
+    _matrix ScaleMatrix = XMMatrixScaling(fScaleFactor, fScaleFactor, fScaleFactor);
+
+
+
+    XMMATRIX rotationMatrix = XMMatrixRotationX(XMConvertToRadians(70.f));  // (-XM_PIDIV2);  // X축으로 -90도 (눕히기)
+    XMMATRIX worldMatrix = ScaleMatrix * rotationMatrix * TranslationMatrix;
+
+    XMStoreFloat4x4(&m_WaterPuddleTex_WorldMatrix, worldMatrix);
+}
 
 
 HRESULT CPlayer::Ready_PartObjects()
@@ -753,6 +791,7 @@ void CPlayer::Free()
     Safe_Release(m_pTimeStopRefractionTex);
     Safe_Release(m_pMindControlRefractionTex);
     Safe_Release(m_pBlockMaskRefractionTex);
+    Safe_Release(m_pWaterPuddleDistortionTex);
 
     Safe_Release(m_pBlurMaskTex);
 

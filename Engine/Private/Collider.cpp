@@ -15,7 +15,9 @@ CCollider::CCollider(const CCollider& Prototype)
 	, m_pInputLayout{ Prototype.m_pInputLayout }
 #endif
 {
+#ifdef _DEBUG
 	Safe_AddRef(m_pInputLayout);
+#endif
 }
 
 

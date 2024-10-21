@@ -176,7 +176,7 @@ HRESULT CGraphic_Device::Ready_BackBufferRenderTargetView()
 		return E_FAIL;
 
 	Safe_Release(pBackBufferTexture);
-	Safe_Release(pBackBufferTexture);
+	//Safe_Release(pBackBufferTexture);			// << 이게맞아 ?다시봐 
 
 	return S_OK;
 }

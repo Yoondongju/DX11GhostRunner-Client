@@ -157,7 +157,7 @@ _bool CWeapon_Elite::Check_Collision()
 				CElite* pElite = static_cast<CElite*>(m_pOwner);
 
 				_float fCurEnergy = pElite->Get_Energy();
-				fCurEnergy -= 20.f;
+				fCurEnergy -= 27.f;
 
 				if (fCurEnergy <= 0.f)
 				{

@@ -25,7 +25,11 @@ HRESULT CPlayer_Walk::Initialize()
 
 HRESULT CPlayer_Walk::Start_State(void* pArg)
 {
-	
+	if (LEVEL_STAGE2_BOSS == g_CurLevel)
+	{
+		CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
+		m_pGameInstance->ActiveDistortion(pPlayer->Get_WaterPuddleDistortionTex(), CRenderer::DISTORTION_TYPE::WATERPUDDLE, pPlayer->Get_WaterPuddle_WorldMatrix());
+	}
 
 	return S_OK;
 }
@@ -162,7 +166,7 @@ void CPlayer_Walk::Update(_float fTimeDelta)
 
 void CPlayer_Walk::End_State()
 {
-	
+	m_pGameInstance->UnActiveDistortion();
 }
 
 
