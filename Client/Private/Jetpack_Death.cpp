@@ -6,6 +6,7 @@
 #include "GameInstance.h"
 #include "Animation.h"
 
+#include "KillCountUI.h"
 
 CJetpack_Death::CJetpack_Death(class CGameObject* pOwner)
 	: CState{ CJetpack::JETPACK_ANIMATION::FLY_FALL , pOwner }
@@ -20,7 +21,6 @@ HRESULT CJetpack_Death::Initialize()
 
 HRESULT CJetpack_Death::Start_State(void* pArg)
 {
-
 	_uint iRandom = m_pGameInstance->Get_Random_Interger(0, 1);
 	switch (iRandom)
 	{
@@ -35,6 +35,8 @@ HRESULT CJetpack_Death::Start_State(void* pArg)
 	default:
 		break;
 	}
+
+	static_cast<CKillCountUI*>(m_pGameInstance->Find_Object(LEVEL_GAMEPLAY, L"Layer_KillCount", 0))->Set_Active(true);
 
 	return S_OK;
 }

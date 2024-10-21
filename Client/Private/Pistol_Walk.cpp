@@ -4,6 +4,7 @@
 
 #include "Pistol.h"
 #include "GameInstance.h"
+#include "Player.h"
 
 
 CPistol_Walk::CPistol_Walk(class CGameObject* pOwner)
@@ -39,7 +40,9 @@ void CPistol_Walk::End_State()
 _bool CPistol_Walk::Check_Attack(_float fTimeDelta)
 {
 	CTransform* pOwnerTransform = m_pOwner->Get_Transform();
-	CTransform* pPlayerTransform = m_pGameInstance->Find_Player(LEVEL_GAMEPLAY)->Get_Transform();
+
+	CPlayer* pPlayer = static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY));
+	CTransform* pPlayerTransform = pPlayer->Get_Transform();
 
 
 	_vector vPlayerPos = pPlayerTransform->Get_State(CTransform::STATE_POSITION);
@@ -57,8 +60,12 @@ _bool CPistol_Walk::Check_Attack(_float fTimeDelta)
 	}
 	else
 	{
-		pOwnerTransform->LookAt_XZ(vPlayerPos);
-		pOwnerTransform->Go_Straight(fTimeDelta * 1.5f);
+		if (CPlayer::PLAYER_ANIMATIONID::FURR_AIM_LOOP != pPlayer->Get_Fsm()->Get_CurStateIndex())
+		{
+			pOwnerTransform->LookAt_XZ(vPlayerPos);
+			pOwnerTransform->Go_Straight(fTimeDelta * 1.5f);
+		}
+
 
 		if (m_fCanAttackDistance * 2 < fabs(XMVectorGetX(vPlayerPos) - XMVectorGetX(vPistolPos)) &&
 			m_fCanAttackDistance * 2 < fabs(XMVectorGetZ(vPlayerPos) - XMVectorGetZ(vPistolPos)))

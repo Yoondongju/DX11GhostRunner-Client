@@ -9,6 +9,8 @@
 #include "Weapon_Elite.h"
 #include "EliteSwordTrail.h"
 
+#include "EliteMotionTrail.h"
+
 CElite_Turbo::CElite_Turbo(class CGameObject* pOwner)
 	: CState{ CElite::ELITE_ANIMATION::ALERT_TO_TURBO , pOwner }
 {
@@ -31,6 +33,11 @@ HRESULT CElite_Turbo::Start_State(void* pArg)
 
 	// 플레이어가 못막으면 바로 사망으로 처리하자
 	// 패링을 강조하자
+
+	if (false == m_pGameInstance->Check_IsPlaying(SOUND_ELITE))
+	{
+		m_pGameInstance->Play_Sound(TEXT("EliteCharge.ogg"), SOUND_ELITE, 5.f);
+	}
 
 	return S_OK;
 }
@@ -75,7 +82,6 @@ void CElite_Turbo::Update(_float fTimeDelta)
 	}
 
 	// 터보 차지할때 스무스룩 하고 터보루프일때
-
 	else if (CElite::ELITE_ANIMATION::TURBO_TO_DASH == pModel->Get_CurAnimationIndex() &&
 		0.9 <= TrackPos / (_float)Duration)
 	{
@@ -106,6 +112,9 @@ void CElite_Turbo::End_State()
 
 	XMStoreFloat3(&m_GoDirNor, XMVectorZero());
 	XMStoreFloat3(&m_RushStartPos, XMVectorZero());
+
+	CElite* pElite = static_cast<CElite*>(m_pOwner);
+	pElite->Get_MotionTrail()->Set_Active(false);
 }
 
 
@@ -128,21 +137,45 @@ _bool CElite_Turbo::Check_TurboDash(_float fTimeDelta)
 	_float fRemainingDistance = m_fMaxRushDistance - fAccRushedDistance;
 
 
+	CElite* pElite = static_cast<CElite*>(m_pOwner);
+	pElite->Get_MotionTrail()->Set_Active(true);
+
+
 	if (50.f >= fRemainingDistance) 
 	{
-		CElite* pElite = static_cast<CElite*>(m_pOwner);
-
 		static_cast<CWeapon_Elite*>(pElite->Get_Part(CElite::PART_WEAPON))->Check_Collision();
-
 
 		CModel* pModel = pElite->Get_Model();	
 
 		if (CElite::ELITE_ANIMATION::TURBO_TO_DASH != pModel->Get_CurAnimationIndex())
 		{
 			_double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
-			TrackPos = 0.0;
-
+			//TrackPos = 0.0;
 			pModel->SetUp_Animation(CElite::ELITE_ANIMATION::TURBO_TO_DASH, true);
+
+			_int iRandom = m_pGameInstance->Get_Random_Interger(0,1);
+			switch (iRandom)
+			{
+			case 0:
+			{
+				if (false == m_pGameInstance->Check_IsPlaying(SOUND_ELITE))
+				{
+					m_pGameInstance->Play_Sound(TEXT("EliteSlash1.ogg"), SOUND_ELITE, 5.f);
+				}
+			}
+				break;
+			case 1:
+			{
+				if (false == m_pGameInstance->Check_IsPlaying(SOUND_ELITE))
+				{
+					m_pGameInstance->Play_Sound(TEXT("EliteSlash2.ogg"), SOUND_ELITE, 5.f);
+				}
+			}
+				break;
+
+			default:
+				break;
+			}
 		}
 
 		

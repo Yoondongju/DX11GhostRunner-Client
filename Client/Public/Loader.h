@@ -43,12 +43,10 @@ private:
 	virtual ~CLoader() = default;
 
 
-
 public:
 	_bool isFinished() const {
 		return m_isFinished;
 	}
-
 
 	const LOADING_OBJECT_INFO* Get_Loading_DecorativeObject_Info(LEVELID eLevelID) { return m_pLoadingDecorativeObjectInfo[eLevelID]; }
 	const _uint				   Get_Loading_DecorativeObject_Size(LEVELID eLevelID) { return m_iNumLoadingDecorativeObject[eLevelID]; }
@@ -89,7 +87,8 @@ private:
 	CRITICAL_SECTION			m_CriticalSection = {};
 	_bool						m_isFinished = { false };
 	_tchar						m_szLoadingText[MAX_PATH] = {};
-
+	_uint						m_iTextCount = { 0 };
+	_float						m_fTime = {0.f};
 
 						
 	_uint						m_iNumLoadingDecorativeObject[LEVELID::LEVEL_END] = { 0 };

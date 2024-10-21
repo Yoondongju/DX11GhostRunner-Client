@@ -30,6 +30,9 @@ HRESULT CHel_BackBlock::Start_State(void* pArg)
 
 void CHel_BackBlock::Update(_float fTimeDelta)
 {
+	CHel* pHel = static_cast<CHel*>(m_pOwner);
+	pHel->Set_ActiveParticleElectric(false);
+
 	CModel* pModel = m_pOwner->Get_Model();
 	CFsm* pFsm = m_pOwner->Get_Fsm();
 
@@ -42,7 +45,10 @@ void CHel_BackBlock::Update(_float fTimeDelta)
 		m_pGameInstance->Set_TimeDelayActive(true);
 		m_isStartBlock = true;
 
-		static_cast<CHel*>(m_pOwner)->Get_Part(CHel::PARTID::PART_PARTICLE_ATTACK)->SetActiveMyParticle(true);
+
+		pHel->Get_Part(CHel::PARTID::PART_PARTICLE_ATTACK)->SetActiveMyParticle(true);
+		pHel->Set_ActiveParticleElectric(true);
+		m_pGameInstance->Play_Sound(TEXT("Electric.ogg"), SOUND_HEL_ELECTRIC, 4.f);
 
 
 		CFreeCamera* pCamera = static_cast<CFreeCamera*>(m_pGameInstance->Find_Camera(LEVEL_GAMEPLAY));
@@ -77,7 +83,7 @@ void CHel_BackBlock::Update(_float fTimeDelta)
 
 void CHel_BackBlock::End_State()
 {
-
+	
 }
 
 

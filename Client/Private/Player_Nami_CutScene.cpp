@@ -78,13 +78,14 @@ void CPlayer_Nami_CutScene::Update(_float fTimeDelta)
 
 
 	m_fStartTime += fTimeDelta;
-	if (fDistance <= 60.f)
+	if (fDistance <= 45.f)
 	{
 		CModel* pModel = static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
 		_double Duration = pModel->Get_CurAnimation()->Get_Duration();
 		_double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
 
 		pRigidBody->Set_IsGravity(false);
+		pHel->Get_RigidBody()->Set_IsGravity(false);
 
 		if (CPlayer::PLAYER_ANIMATIONID::NAMI_AIM_ATTACK_TO_IDLE != pModel->Get_CurAnimationIndex())
 		{
@@ -96,8 +97,12 @@ void CPlayer_Nami_CutScene::Update(_float fTimeDelta)
 			Anims[CPlayer::PLAYER_ANIMATIONID::NAMI_AIM_ATTACK_TO_IDLE]->Set_SpeedPerSec(8.f);
 
 
-			if(false == m_pGameInstance->Check_IsPlaying(SOUND_PLAYEREFFECT))
+			if (false == m_pGameInstance->Check_IsPlaying(SOUND_PLAYEREFFECT))
+			{
 				m_pGameInstance->Play_Sound(TEXT("NamiAttack.ogg"), SOUND_PLAYEREFFECT, 3.f);
+				m_pGameInstance->Play_Sound(TEXT("HelCutSceneBlock.ogg"), SOUND_HEL_PIECE, 3.f);
+			}
+				
 
 
 			pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::NAMI_AIM_ATTACK_TO_IDLE, true);
@@ -113,6 +118,7 @@ void CPlayer_Nami_CutScene::Update(_float fTimeDelta)
 			if (0.45f <= TrackPos / (_float)Duration)
 			{
 				pRigidBody->Set_IsGravity(true);
+				pHel->Get_RigidBody()->Set_IsGravity(true);
 
 				CFsm* pFsm = m_pOwner->Get_Fsm();
 			

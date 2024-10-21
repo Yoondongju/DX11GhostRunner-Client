@@ -5,7 +5,7 @@
 #include "Elite.h"
 #include "GameInstance.h"
 #include "Animation.h"
-
+#include "Player.h"
 
 CElite_Alert::CElite_Alert(class CGameObject* pOwner)
 	: CState{ CElite::ELITE_ANIMATION::IDLE_TO_ALERT , pOwner }
@@ -32,39 +32,55 @@ void CElite_Alert::Update(_float fTimeDelta)
 		return;
 
 	CElite* pElite = static_cast<CElite*>(m_pOwner);
-
-	if (false == pElite->IsPage2())
-	{
-		if (m_fCanTurboActiveTime > 0.f)
-			m_fCanTurboActiveTime -= fTimeDelta;
-		else
-		{
-			if (Check_Turbo(fTimeDelta))
-			{
-				m_fCanTurboActiveTime = 1.5f;
-				return;
-			}
-		}
-	}
-	else
-	{
-		if (m_fCanTurboActiveTime > 0.f)
-			m_fCanTurboActiveTime -= fTimeDelta;
-		else
-		{
-			if (Check_Turbo(fTimeDelta))
-			{
-				m_fCanTurboActiveTime = 0.7f;
-				return;
-			}
-		}
-	}
-
-	
-
-	
-
 	CModel* pModel = pElite->Get_Model();
+	CFsm* pFsm = pElite->Get_Fsm();
+
+	if (false == pElite->IsPage2())				// Page 1
+	{
+		if (m_fCanTurboActiveTime > 0.f)
+			m_fCanTurboActiveTime -= fTimeDelta;
+		else
+		{
+			CPlayer* pPlayer = static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY));
+			_vector vPlayerPos = pPlayer->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+
+			CTransform* pEliteTransform = m_pOwner->Get_Transform();
+			
+			pEliteTransform->LookAt_XZ(vPlayerPos);
+			
+			if (m_pGameInstance->Get_KeyState(KEY::A) == KEY_STATE::HOLD)
+			{
+				pModel->SetUp_Animation(CElite::ELITE_ANIMATION::WALK_R, true);
+				pFsm->Change_State(CElite::ELITE_ANIMATION::WALK_F, STATE_DIR::RIGHT);
+			}
+	
+			if (m_pGameInstance->Get_KeyState(KEY::D) == KEY_STATE::HOLD)
+			{
+				pModel->SetUp_Animation(CElite::ELITE_ANIMATION::WALK_L, true);
+				pFsm->Change_State(CElite::ELITE_ANIMATION::WALK_F, STATE_DIR::LEFT);
+			}
+
+		}
+	}
+	else                                        // Page 2
+	{
+		if (m_fCanTurboActiveTime > 0.f)
+			m_fCanTurboActiveTime -= fTimeDelta;
+		else
+		{
+			if (Check_Turbo(fTimeDelta))
+			{
+				m_fCanTurboActiveTime = 0.4f;
+				return;
+			}
+		}
+	}
+
+	
+
+	
+
+	
 	_double Duration = pModel->Get_CurAnimation()->Get_Duration();
 	_double TrackPos = pModel->Get_Referene_CurrentTrackPosition();
 
@@ -79,7 +95,6 @@ void CElite_Alert::End_State()
 {
 	m_isAttackActive = false;
 }
-
 
 _bool CElite_Alert::Check_Death()
 {

@@ -10,6 +10,8 @@
 #include "HelSwordTrail.h"
 #include "Player.h"
 
+#include "HelMotionTrail.h"
+
 CHel_DashAttack::CHel_DashAttack(class CGameObject* pOwner)
 	: CState{ CHel::HEL_ANIMATION::DASH_TO_IDLE_ATTACK , pOwner }
 {
@@ -44,8 +46,14 @@ HRESULT CHel_DashAttack::Start_State(void* pArg)
 
 
 	if (true == pHel->IsPage2())
-		pHel->Get_Part(CHel::PARTID::PART_PARTICLE_BIGSMOKE)->SetActiveMyParticle(true);
+		pHel->Get_Part(CHel::PARTID::PART_PARTICLE_SWIRL)->SetActiveMyParticle(true);
 
+	pHel->Set_ActiveParticleAttack(true);
+	pHel->Set_ActiveParticleElectric(true);
+	pHel->Get_MotionTrail()->Set_Active(true);
+
+	m_pGameInstance->Play_Sound(TEXT("RunJump.ogg"), SOUND_HEL_MOVEMENT, 10.f);
+	m_pGameInstance->Play_Sound(TEXT("Electric.ogg"), SOUND_HEL_ELECTRIC, 1.7f);
 
 	return S_OK;
 }
@@ -62,25 +70,30 @@ void CHel_DashAttack::Update(_float fTimeDelta)
 	_double TrackPos = pModel->Get_Referene_CurrentTrackPosition();
 
 
-	_float fSpeed = 4.f;
+	CTransform* pHelTransform = m_pOwner->Get_Transform();
+
+	CPlayer* pPlayer = static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY));
+	_float fOffSetY = pPlayer->Get_OffsetY();
+	_vector vPlayerPos = pPlayer->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+
+
+	_float fSpeed = 5.2f;
 	if (true == pHel->IsPage2())
 	{
 		fSpeed *= 2.f;
-
-
-		CTransform* pHelTransform = m_pOwner->Get_Transform();
-
-		CPlayer* pPlayer = static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY));
-		_float fOffSetY = pPlayer->Get_OffsetY();
-		_vector vPlayerPos = pPlayer->Get_Transform()->Get_State(CTransform::STATE_POSITION);
-
 		pHelTransform->LookAt_XZ(vPlayerPos);
 	}
 		
 
+	_vector vHelPos = pHelTransform->Get_State(CTransform::STATE_POSITION);
+	vPlayerPos.m128_f32[1] -= fOffSetY;
+	_float fCurDistance = XMVectorGetX(XMVector3Length(vPlayerPos - vHelPos));
 
-	CTransform* pHelTransform = m_pOwner->Get_Transform();
-	pHelTransform->Go_Straight(fTimeDelta * fSpeed);
+
+	if (40.f < fCurDistance)
+	{
+		pHelTransform->Go_Straight(fTimeDelta * fSpeed);
+	}
 
 	if (0.9f < (_float)TrackPos / Duration)
 	{
@@ -96,7 +109,10 @@ void CHel_DashAttack::Update(_float fTimeDelta)
 
 void CHel_DashAttack::End_State()
 {
-
+	CHel* pHel = static_cast<CHel*>(m_pOwner);
+	pHel->Set_ActiveParticleAttack(false);
+	pHel->Set_ActiveParticleElectric(false);
+	pHel->Get_MotionTrail()->Set_Active(false);
 }
 
 

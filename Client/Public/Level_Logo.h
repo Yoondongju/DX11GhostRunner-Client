@@ -16,6 +16,11 @@ public:
 	virtual void Update(_float fTimeDelta) override;
 	virtual HRESULT Render() override;
 
+
+private:
+	_float		m_fAccTime = { 0.f };
+	_bool		m_isEnterGame = { false };
+
 private:
 	HRESULT Ready_Layer_BackGround(const _wstring& strLayerTag);
 

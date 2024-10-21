@@ -9,6 +9,7 @@
 #include "GrapplingPointUI.h"
 #include "IconUI.h"
 #include "MiniMapPanel.h"
+#include "KillCountUI.h"
 
 #include "Particle_ShurikenEffect.h"
 
@@ -27,9 +28,9 @@ HRESULT CLevel_Stage1::Initialize(void* pArg)
 	if (FAILED(Ready_Lights()))
 		return E_FAIL;
 
-
-	if (FAILED(Ready_Layer_Camera()))
-		return E_FAIL;
+	              
+	//if (FAILED(Ready_Layer_Camera()))
+	//	return E_FAIL;
 
 
 	if (FAILED(Ready_Layer_BackGround(pArg)))
@@ -51,6 +52,10 @@ HRESULT CLevel_Stage1::Initialize(void* pArg)
 		return E_FAIL;
 
 
+	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_STAGE1, L"Layer_BackGroundParticle", L"Prototype_GameObject_Particle_Rain", L"NoModel")))
+	//	return E_FAIL;
+
+
 	if (FAILED(Ready_Layer_Player(pArg)))
 		return E_FAIL;
 
@@ -67,7 +72,8 @@ HRESULT CLevel_Stage1::Initialize(void* pArg)
 		return E_FAIL;
 
 
-	//m_pGameInstance->PlayBGM(TEXT("06_Daniel_Deluxe_-_The_Orb.ogg"), g_fBgmVolume);
+	m_pGameInstance->StopAll();
+	m_pGameInstance->PlayBGM(TEXT("06_Daniel_Deluxe_-_The_Orb.ogg"), g_fBgmVolume);
 	
 
 	return S_OK;
@@ -78,7 +84,7 @@ void CLevel_Stage1::Update(_float fTimeDelta)
 {
 	if (m_pGameInstance->Get_KeyState(KEY::B) == KEY_STATE::TAP)
 	{
-		if (FAILED(m_pGameInstance->Change_Level(LEVEL_LOADING, CLevel_Loading::Create(m_pDevice, m_pContext, LEVEL_STAGE2_BOSS))))
+		if (FAILED(m_pGameInstance->Change_Level(LEVEL_LOADING, CLevel_Loading::Create(m_pDevice, m_pContext, LEVEL_STAGE1_BOSS))))
 			return;
 	}
 }
@@ -86,7 +92,6 @@ void CLevel_Stage1::Update(_float fTimeDelta)
 
 HRESULT CLevel_Stage1::Render()
 {
-	SetWindowText(g_hWnd, TEXT("LEVEL_STAGE1 _ 레벨입니다."));
 	return S_OK;
 }
 
@@ -97,16 +102,16 @@ HRESULT CLevel_Stage1::Ready_Lights()
 	/* 게임플레이 레벨에 필요한 광원을 준비한다. */
 
 	LIGHT_DESC			LightDesc{};
-
 	ZeroMemory(&LightDesc, sizeof LightDesc);
 	LightDesc.eType = LIGHT_DESC::TYPE_DIRECTIONAL;
 	LightDesc.vDirection = _float4(1.f, -1.f, 1.f, 0.f);	// 광원이 쏘는 방향 
 	LightDesc.vDiffuse = _float4(1.f, 1.f, 1.f, 1.f);
 	LightDesc.vAmbient = _float4(0.8f, 0.8f, 0.8f, 1.f);
 	LightDesc.vSpecular = _float4(1.f, 1.f, 1.f, 1.f);
-
 	if (FAILED(m_pGameInstance->Add_Light(LightDesc)))
 		return E_FAIL;
+
+
 
 
 	return S_OK;
@@ -319,7 +324,16 @@ HRESULT CLevel_Stage1::Ready_Layer_UI()
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, L"Layer_MiniMapPanel", L"Prototype_GameObject_MiniMapPanel", L"No Model", &MiniMapDesc)))
 		return E_FAIL;
 
+	CUIObject::UI_DESC KillCountDesc = {};
 
+	KillCountDesc.fX = g_iWinSizeX - 400;
+	KillCountDesc.fY = 300;
+	KillCountDesc.fSizeX = 80;
+	KillCountDesc.fSizeY = 80;
+	KillCountDesc.fSpeedPerSec = 10.f;
+	KillCountDesc.fRotationPerSec = XMConvertToRadians(90.0f);
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_GAMEPLAY, L"Layer_KillCount", L"Prototype_GameObject_KillCount", L"No Model", &KillCountDesc)))
+		return E_FAIL;
 
 	
 

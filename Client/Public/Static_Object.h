@@ -44,8 +44,11 @@ public:
 	virtual HRESULT Render_LightDepth() override;
 
 private:
-	CShader* m_pShaderCom = { nullptr };
-	CModel*  m_pModel = { nullptr };
+	CShader*		m_pShaderCom = { nullptr };
+	CModel*			m_pModel = { nullptr };
+
+	CTexture*		m_pCircuitTex = { nullptr };
+	CTexture*		m_pMossaicTex = { nullptr };
 
 
 private:

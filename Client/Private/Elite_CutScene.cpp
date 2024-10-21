@@ -106,6 +106,9 @@ HRESULT CElite_CutScene::Start_State(void* pArg)
 		pPlayer->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model()->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::FURR_AIM_TRICUT, true);
 		pModel->SetUp_Animation(CElite::ELITE_ANIMATION::BLOCK_F, true);
 		pElite->Get_Part(CElite::PARTID::PART_PARTICLE_BLOCK)->SetActiveMyParticle(true);
+
+		m_pGameInstance->StopSound(SOUND_BGM);
+		m_pGameInstance->PlayBGM(TEXT("ElitePage2.ogg"), 1.f);
 	}
 	else
 	{
@@ -115,6 +118,9 @@ HRESULT CElite_CutScene::Start_State(void* pArg)
 		pCamTransform->Set_State(CTransform::STATE_RIGHT, XMVectorSet(1.f, 0.f, 0.f, 0.f));
 		pCamTransform->Set_State(CTransform::STATE_UP, XMVectorSet(0.f, 1.f, 0.f, 0.f));
 		pCamTransform->Set_State(CTransform::STATE_LOOK, XMVectorSet(0.f, 0.f, 1.f, 0.f));
+
+		m_pGameInstance->StopSound(SOUND_BGM);
+		m_pGameInstance->PlayBGM(TEXT("ElitePage1.ogg"), 1.f);
 	}
 
 		
@@ -126,6 +132,13 @@ void CElite_CutScene::Update(_float fTimeDelta)
 {
 	CFreeCamera* pCamera = static_cast<CFreeCamera*>(m_pGameInstance->Find_Camera(LEVEL_GAMEPLAY));
 	CElite* pElite = static_cast<CElite*>(m_pOwner);
+
+	if (false == pElite->IsPage2() && false == m_pGameInstance->Check_IsPlaying(SOUND_ELITE))
+	{
+		m_pGameInstance->SetPlayeSpeed(SOUND_ELITE, 20.f);
+		m_pGameInstance->Play_Sound(TEXT("EliteCutSceneWalk.ogg"), SOUND_ELITE, 2.f);
+	}
+	
 
 	_vector vCurPos = m_pOwner->Get_Transform()->Get_State(CTransform::STATE_POSITION);
 	_float4& OffsetEliteRef = pCamera->Get_OffsetByEliteRef();
@@ -144,16 +157,25 @@ void CElite_CutScene::Update(_float fTimeDelta)
 			if (OffsetEliteRef.z >= -90.f)
 				OffsetEliteRef.z -= fTimeDelta * 10.f;
 
-			m_pOwner->Get_Transform()->Go_Straight(fTimeDelta * 50.f * m_fSpeed);
+			m_pOwner->Get_Transform()->Go_Straight(fTimeDelta * 30.f * m_fSpeed);
 		}
 		else
 		{
 			CModel* pModel = m_pOwner->Get_Model();
 			CFsm* pFsm = m_pOwner->Get_Fsm();
 
+			CPlayer* pPlayer = static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY));
+			CModel* pPlayerModel = pPlayer->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();
+			CFsm* pPlayerFsm = pPlayer->Get_Fsm();
+
 			_bool	bDashBlock = true;
 			pModel->SetUp_Animation(CElite::ELITE_ANIMATION::DASH_TO_ALERDLB, true);
 			pFsm->Change_State(CElite::ELITE_ANIMATION::BLOCK_F, -1, &bDashBlock);
+
+
+			pPlayerModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::TIME_STOP, true);
+			pPlayerFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::TIME_STOP);
+
 		}
 
 		if (fDistance <= 1700.f)
@@ -292,6 +314,9 @@ void CElite_CutScene::Update(_float fTimeDelta)
 
 void CElite_CutScene::End_State()
 {
+	m_pGameInstance->StopSound(SOUND_ELITE);
+
+
 	m_fSpeed = 1.f;
 	m_fAccTime = 0.f;
 	m_fAccRotationSpeed = 0.f;

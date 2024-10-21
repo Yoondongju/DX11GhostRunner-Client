@@ -43,6 +43,9 @@ HRESULT CHel_Raise::Start_State(void* pArg)
 
 void CHel_Raise::Update(_float fTimeDelta)
 {
+	CHel* pHel = static_cast<CHel*>(m_pOwner);
+	pHel->Set_ActiveParticleBigElectric(false);
+
 	CModel* pModel = m_pOwner->Get_Model();
 	CFsm* pFsm = m_pOwner->Get_Fsm();
 	_double Duration = pModel->Get_CurAnimation()->Get_Duration();
@@ -63,6 +66,9 @@ void CHel_Raise::End_State()
 	CFreeCamera* pCamera = static_cast<CFreeCamera*>(m_pGameInstance->Find_Camera(LEVEL_GAMEPLAY));
 	CTransform* pCamTransform = pCamera->Get_Transform();
 	pCamera->Set_FollowPlayer(true);
+
+
+	
 }
 
 

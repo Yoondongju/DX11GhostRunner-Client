@@ -75,11 +75,13 @@ void CWeapon_Pistol::Late_Update(_float fTimeDelta)
 
 	XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
 
+
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 }
 
 HRESULT CWeapon_Pistol::Render()
 {
+
 	if (FAILED(__super::Bind_WorldMatrix(m_pShaderCom, "g_WorldMatrix")))
 		return E_FAIL;
 

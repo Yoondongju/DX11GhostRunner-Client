@@ -141,16 +141,37 @@ _bool CWeapon_Hel::Check_Collision()
 				CPlayer::PLAYER_ANIMATIONID::BLOCK_R2 == eCurState ||
 				CPlayer::PLAYER_ANIMATIONID::BLOCK_R3 == eCurState)
 			{
-				pPlayer->Get_Part(CPlayer::PARTID::PART_PARTICLE_BLOCK)->SetActiveMyParticle(true);
+				pPlayer->Get_Part(CPlayer::PARTID::PART_PARTICLE_BLOCK)->SetActiveMyParticle(true, true);
 
 				CHel* pHel = static_cast<CHel*>(m_pOwner);
 				pHel->Get_Part(CHel::PARTID::PART_PARTICLE_ATTACK)->SetActiveMyParticle(true);
+				m_pGameInstance->Play_Sound(TEXT("HelPiece.ogg"), SOUND_HEL_PIECE, 1.f);
+
+				_int iRandom = m_pGameInstance->Get_Random_Interger(0, 3);
+				switch (iRandom)
+				{
+				case 0:
+					m_pGameInstance->Play_Sound(TEXT("HelHitVO1.ogg"), SOUND_HEL_VOICE, 19.f);
+					break;
+				case 1:
+					m_pGameInstance->Play_Sound(TEXT("HelHitVO2.ogg"), SOUND_HEL_VOICE, 19.f);
+					break;
+				case 2:
+					m_pGameInstance->Play_Sound(TEXT("HelHitVO3.ogg"), SOUND_HEL_VOICE, 19.f);
+					break;
+				}
+
+				
 
 				_float fCurEnergy = pHel->Get_Energy();
-				fCurEnergy -= 100.f;
+				fCurEnergy -= 13.f;
 
-				if (fCurEnergy < 0.f)
+				if (fCurEnergy <= 0.f)
+				{
 					fCurEnergy = 0.f;
+					m_pGameInstance->Set_TimeDelayActive(true, 1.f);
+				}
+					
 
 				pHel->Set_Energy(fCurEnergy);
 

@@ -7,6 +7,8 @@
 
 #include "Player.h"
 
+#include "HelMotionTrail.h"
+
 CHel_RunJump::CHel_RunJump(class CGameObject* pOwner)
 	: CState{ CHel::HEL_ANIMATION::RUN_JUMP , pOwner }
 {
@@ -30,8 +32,12 @@ HRESULT CHel_RunJump::Start_State(void* pArg)
 
 	CHel* pHel = static_cast<CHel*>(m_pOwner);
 	if(true == pHel->IsPage2())
-		pHel->Get_Part(CHel::PARTID::PART_PARTICLE_BIGSMOKE)->SetActiveMyParticle(true);
+		pHel->Get_Part(CHel::PARTID::PART_PARTICLE_SWIRL)->SetActiveMyParticle(true);
 
+
+	pHel->Get_MotionTrail()->Set_Active(true);
+
+	m_pGameInstance->Play_Sound(TEXT("RunJump.ogg"), SOUND_HEL_MOVEMENT, 10.f);
 
 	return S_OK;
 }
@@ -77,7 +83,8 @@ void CHel_RunJump::Update(_float fTimeDelta)
 
 void CHel_RunJump::End_State()
 {
-
+	CHel* pHel = static_cast<CHel*>(m_pOwner);
+	pHel->Get_MotionTrail()->Set_Active(false);
 }
 
 

@@ -13,7 +13,7 @@ CParticle_BigSmoke::CParticle_BigSmoke(const CParticle_BigSmoke& Prototype)
 {
 }
 
-void CParticle_BigSmoke::SetActiveMyParticle(_bool b)
+void CParticle_BigSmoke::SetActiveMyParticle(_bool b,_bool isOtherFlag)
 {
 	if (true == m_isActiveMyParticle &&
 		true == b &&

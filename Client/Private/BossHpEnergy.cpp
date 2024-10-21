@@ -45,6 +45,7 @@ HRESULT CBossHpEnergy::Initialize(void* pArg)
 
 	m_fOriginalSizeX = m_fSizeX;
 	m_fOriginalfX = m_fX;
+	m_fPreRatio = 1.f;
 
 	return S_OK;
 }
@@ -73,15 +74,42 @@ void CBossHpEnergy::Update(_float fTimeDelta)
 		_float fCurEnergy = static_cast<CElite*>(m_pOwner)->Get_Energy();
 		_float fRatio = fCurEnergy / 100.f;
 
+		if (m_fPreRatio != fRatio)
+		{
+			m_isStartDecrease = true;
+		}		
 
-		m_fSizeX = m_fOriginalSizeX * fRatio;
+		if (true == m_isStartDecrease)
+		{
+			_float fDecreaseRatio = m_fPreRatio - fRatio;	// 감소해야할 비율
+
+			_float fTargetSizeX = m_fOriginalSizeX * fRatio;
+			_float fTargetfX = m_fOriginalfX - (m_fOriginalSizeX - fTargetSizeX) * 0.5f;
+
+			_float fSizeRatio = m_fSizeX - fTargetSizeX;
+			_float fPosRatio = m_fX - fTargetfX;
+
+			if (fTargetSizeX < m_fSizeX)
+			{
+				m_fSizeX -= fTimeDelta * 2.f *  fSizeRatio;
+			}
+			else
+			{
+				m_fSizeX = fTargetSizeX;
+				m_fPreRatio = fRatio;
+				m_isStartDecrease = false;
+			}
+				
+			if (fTargetfX < m_fX)
+			{
+				m_fX -= fTimeDelta * 2.f * fPosRatio;
+			}
+			else
+				m_fX = fTargetfX;
+		}
 
 		if (m_fSizeX <= 0.f)
 			m_fSizeX = 1.f;
-
-
-		_float fSizeDifference = (m_fOriginalSizeX - m_fSizeX) * 0.5f;
-		m_fX = m_fOriginalfX - fSizeDifference;
 	}
 		break;
 	case Client::CBossHpPanel::HEL:
@@ -89,15 +117,42 @@ void CBossHpEnergy::Update(_float fTimeDelta)
 		_float fCurEnergy = static_cast<CHel*>(m_pOwner)->Get_Energy();
 		_float fRatio = fCurEnergy / 100.f;
 
+		if (m_fPreRatio != fRatio)
+		{
+			m_isStartDecrease = true;
+		}
 
-		m_fSizeX = m_fOriginalSizeX * fRatio;
+		if (true == m_isStartDecrease)
+		{
+			_float fDecreaseRatio = m_fPreRatio - fRatio;	// 감소해야할 비율
+
+			_float fTargetSizeX = m_fOriginalSizeX * fRatio;
+			_float fTargetfX = m_fOriginalfX - (m_fOriginalSizeX - fTargetSizeX) * 0.5f;
+
+			_float fSizeRatio = m_fSizeX - fTargetSizeX;
+			_float fPosRatio = m_fX - fTargetfX;
+
+			if (fTargetSizeX < m_fSizeX)
+			{
+				m_fSizeX -= fTimeDelta * 3.f * fSizeRatio;
+			}
+			else
+			{
+				m_fSizeX = fTargetSizeX;
+				m_fPreRatio = fRatio;
+				m_isStartDecrease = false;
+			}
+
+			if (fTargetfX < m_fX)
+			{
+				m_fX -= fTimeDelta * 3.f * fPosRatio;
+			}
+			else
+				m_fX = fTargetfX;
+		}
 
 		if (m_fSizeX <= 0.f)
 			m_fSizeX = 1.f;
-
-
-		_float fSizeDifference = (m_fOriginalSizeX - m_fSizeX) * 0.5f;
-		m_fX = m_fOriginalfX - fSizeDifference;
 	}
 		break;
 	case Client::CBossHpPanel::TYPE_END:

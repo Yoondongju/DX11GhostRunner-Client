@@ -58,8 +58,9 @@ private:
 
 public:
 	VTXMESH* Get_Vertices() { return m_pVertices; }
-	_uint* Get_Indices() { return m_pIndices; }
+	_uint*	 Get_Indices() { return m_pIndices; }
 
+	_uint	 Get_NumAffectBone() { return m_iNumBones; }
 
 public:
 	_uint Get_MaterialIndex() const { return m_iMaterialIndex; }
@@ -78,7 +79,7 @@ public:
 
 
 public:
-	HRESULT Bind_BoneMatrices(const CModel* pModel, class CShader* pShader, const _char* pConstantName);
+	HRESULT Bind_BoneMatrices(const CModel* pModel, class CShader* pShader, const _char* pConstantName, _float4x4* pOutBoneMatrix = nullptr);
 
 
 private:

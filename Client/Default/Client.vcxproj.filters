@@ -466,6 +466,42 @@
     <Filter Include="02.GameObjects\02.Monster\Pistol\PistolState\Idle">
       <UniqueIdentifier>{234b7ad0-2919-4750-accb-e94a23a5d48f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\GameUI\KillCountUI">
+      <UniqueIdentifier>{342edb73-5592-466b-aba1-ed28caa365d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\Particle\Particle_Electric">
+      <UniqueIdentifier>{6d88da03-e0ed-4e13-aafd-660b39bb4834}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\Particle\Particle_BigElectric">
+      <UniqueIdentifier>{0a206f49-8846-4a5e-b6ec-42bd0e466caf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\04.Particle\Rain">
+      <UniqueIdentifier>{3511b71e-57c2-4ee0-bc5d-502eedadd822}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI\LogoUI">
+      <UniqueIdentifier>{e3270e55-3b25-47ed-84d7-73c5c4c107bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI\LogoUI\LogoPanel">
+      <UniqueIdentifier>{1fb7107f-8866-45c1-a7fe-6191868b507c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI\LogoUI\LogoInnerRing">
+      <UniqueIdentifier>{7cebc369-d510-4c33-b0bf-60e1e80ba741}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI\LogoUI\LogoOutRing">
+      <UniqueIdentifier>{026d816f-fd5b-4874-8654-6a2313e2c2ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\GameUI\LogoUI\LogoName">
+      <UniqueIdentifier>{89bfd2e6-4624-43a8-8552-e3d45495bfca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\Trail\SwordTrail">
+      <UniqueIdentifier>{9c26daec-022b-460b-8c1f-0eb7807111f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Hel\Trail\MotionTrail">
+      <UniqueIdentifier>{d7270369-6fa0-4e6b-ad7a-b69e06dd2201}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\02.Monster\Elite\Trail\Motion">
+      <UniqueIdentifier>{a56a67d7-2360-4191-a483-7205590ee8fc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -813,9 +849,6 @@
     <ClInclude Include="..\Public\Weapon_Hel.h">
       <Filter>02.GameObjects\02.Monster\Hel\Weapon</Filter>
     </ClInclude>
-    <ClInclude Include="..\Public\HelSwordTrail.h">
-      <Filter>02.GameObjects\02.Monster\Hel\Trail</Filter>
-    </ClInclude>
     <ClInclude Include="..\Public\Hel_Idle.h">
       <Filter>02.GameObjects\02.Monster\Hel\HelState\Idle</Filter>
     </ClInclude>
@@ -878,6 +911,39 @@
     </ClInclude>
     <ClInclude Include="..\Public\Particle_Attack.h">
       <Filter>02.GameObjects\02.Monster\Hel\Particle\Particle_Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\KillCountUI.h">
+      <Filter>02.GameObjects\GameUI\KillCountUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Particle_Electric.h">
+      <Filter>02.GameObjects\02.Monster\Hel\Particle\Particle_Electric</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Particle_BigElectric.h">
+      <Filter>02.GameObjects\02.Monster\Hel\Particle\Particle_BigElectric</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Particle_Rain.h">
+      <Filter>02.GameObjects\04.Particle\Rain</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\LogoPanel.h">
+      <Filter>02.GameObjects\GameUI\LogoUI\LogoPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\LogoInnerRing.h">
+      <Filter>02.GameObjects\GameUI\LogoUI\LogoInnerRing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\LogoOutRing.h">
+      <Filter>02.GameObjects\GameUI\LogoUI\LogoOutRing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\LogoName.h">
+      <Filter>02.GameObjects\GameUI\LogoUI\LogoName</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\HelSwordTrail.h">
+      <Filter>02.GameObjects\02.Monster\Hel\Trail\SwordTrail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\HelMotionTrail.h">
+      <Filter>02.GameObjects\02.Monster\Hel\Trail\MotionTrail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\EliteMotionTrail.h">
+      <Filter>02.GameObjects\02.Monster\Elite\Trail\Motion</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1217,9 +1283,6 @@
     <ClCompile Include="..\Private\Weapon_Hel.cpp">
       <Filter>02.GameObjects\02.Monster\Hel\Weapon</Filter>
     </ClCompile>
-    <ClCompile Include="..\Private\HelSwordTrail.cpp">
-      <Filter>02.GameObjects\02.Monster\Hel\Trail</Filter>
-    </ClCompile>
     <ClCompile Include="..\Private\Hel_Idle.cpp">
       <Filter>02.GameObjects\02.Monster\Hel\HelState\Idle</Filter>
     </ClCompile>
@@ -1282,6 +1345,39 @@
     </ClCompile>
     <ClCompile Include="..\Private\Particle_Attack.cpp">
       <Filter>02.GameObjects\02.Monster\Hel\Particle\Particle_Attack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\KillCountUI.cpp">
+      <Filter>02.GameObjects\GameUI\KillCountUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Particle_Electric.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\Particle\Particle_Electric</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Particle_BigElectric.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\Particle\Particle_BigElectric</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Particle_Rain.cpp">
+      <Filter>02.GameObjects\04.Particle\Rain</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\LogoPanel.cpp">
+      <Filter>02.GameObjects\GameUI\LogoUI\LogoPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\LogoInnerRing.cpp">
+      <Filter>02.GameObjects\GameUI\LogoUI\LogoInnerRing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\LogoOutRing.cpp">
+      <Filter>02.GameObjects\GameUI\LogoUI\LogoOutRing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\LogoName.cpp">
+      <Filter>02.GameObjects\GameUI\LogoUI\LogoName</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\HelSwordTrail.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\Trail\SwordTrail</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\HelMotionTrail.cpp">
+      <Filter>02.GameObjects\02.Monster\Hel\Trail\MotionTrail</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\EliteMotionTrail.cpp">
+      <Filter>02.GameObjects\02.Monster\Elite\Trail\Motion</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

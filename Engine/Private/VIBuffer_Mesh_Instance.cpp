@@ -154,6 +154,75 @@ void CVIBuffer_Mesh_Instance::Spread2(_float fTimeDelta)
 	m_pContext->Unmap(m_pVBInstance, 0);
 }
 
+void CVIBuffer_Mesh_Instance::Spread_Side_XZ(_float fTimeDelta)
+{
+	D3D11_MAPPED_SUBRESOURCE	SubResource{};
+
+	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
+
+	VTXMESHINSTANCE* pVertices = static_cast<VTXMESHINSTANCE*>(SubResource.pData);
+
+	for (size_t i = 0; i < m_iNumInstance; i++)
+	{
+		_float fAngle = (2 * XM_PI / m_iNumInstance) * i; // 360도를 인스턴스 수로 나눠 각 인스턴스마다 고유한 각도 부여
+
+		_vector vMoveDir = XMVectorSet(cosf(fAngle), 0.f, sinf(fAngle), 0.f);
+
+		_vector vMovement = XMVector3Normalize(vMoveDir) * m_pSpeed[i] * fTimeDelta;
+
+
+		XMStoreFloat4(&pVertices[i].vTranslation,
+			XMLoadFloat4(&pVertices[i].vTranslation) + vMovement);
+
+
+
+		pVertices[i].vLifeTime.y += fTimeDelta;
+
+		if (true == m_isLoop && pVertices[i].vLifeTime.y >= pVertices[i].vLifeTime.x)
+		{
+			pVertices[i].vTranslation = static_cast<VTXMESHINSTANCE*>(m_pInstanceVertices)[i].vTranslation;
+			pVertices[i].vLifeTime.y = 0.f;
+		}
+	}
+
+	m_pContext->Unmap(m_pVBInstance, 0);
+}
+
+void CVIBuffer_Mesh_Instance::Spread_Side_XY(_float fTimeDelta)
+{
+	D3D11_MAPPED_SUBRESOURCE	SubResource{};
+
+	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
+
+	VTXMESHINSTANCE* pVertices = static_cast<VTXMESHINSTANCE*>(SubResource.pData);
+
+	for (size_t i = 0; i < m_iNumInstance; i++)
+	{
+
+		_float fAngle = (2 * XM_PI / m_iNumInstance) * i; // 360도를 인스턴스 수로 나눠 각 인스턴스마다 고유한 각도 부여
+
+		_vector vMoveDir = XMVectorSet(cosf(fAngle), sinf(fAngle), 0.f, 0.f);
+
+		_vector vMovement = XMVector3Normalize(vMoveDir) * m_pSpeed[i] * fTimeDelta;
+
+
+		XMStoreFloat4(&pVertices[i].vTranslation,
+			XMLoadFloat4(&pVertices[i].vTranslation) + vMovement);
+
+
+
+		pVertices[i].vLifeTime.y += fTimeDelta;
+
+		if (true == m_isLoop && pVertices[i].vLifeTime.y >= pVertices[i].vLifeTime.x)
+		{
+			pVertices[i].vTranslation = static_cast<VTXMESHINSTANCE*>(m_pInstanceVertices)[i].vTranslation;
+			pVertices[i].vLifeTime.y = 0.f;
+		}
+	}
+
+	m_pContext->Unmap(m_pVBInstance, 0);
+}
+
 
 
 void CVIBuffer_Mesh_Instance::Spread3(_float fTimeDelta)

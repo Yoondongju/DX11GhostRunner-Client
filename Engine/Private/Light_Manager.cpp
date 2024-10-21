@@ -5,7 +5,7 @@ CLight_Manager::CLight_Manager()
 {
 }
 
-const LIGHT_DESC* CLight_Manager::Get_LightDesc(_uint iIndex) const
+LIGHT_DESC* CLight_Manager::Get_LightDesc(_uint iIndex)
 {
 	auto	iter = m_Lights.begin();
 

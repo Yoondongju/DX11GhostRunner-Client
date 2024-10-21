@@ -152,16 +152,19 @@ _bool CWeapon_Elite::Check_Collision()
 				CPlayer::PLAYER_ANIMATIONID::BLOCK_R2 == eCurState ||
 				CPlayer::PLAYER_ANIMATIONID::BLOCK_R3 == eCurState)
 			{
-				pPlayer->Get_Part(CPlayer::PARTID::PART_PARTICLE_BLOCK)->SetActiveMyParticle(true);
+				pPlayer->Get_Part(CPlayer::PARTID::PART_PARTICLE_BLOCK)->SetActiveMyParticle(true , true);
 				
 				CElite* pElite = static_cast<CElite*>(m_pOwner);
 
 				_float fCurEnergy = pElite->Get_Energy();
-				fCurEnergy -= 15.f;
+				fCurEnergy -= 20.f;
 
-				if (fCurEnergy < 0.f)
+				if (fCurEnergy <= 0.f)
+				{
 					fCurEnergy = 0.f;
-
+					m_pGameInstance->Set_TimeDelayActive(true, 1.f);
+				}
+				
 				pElite->Set_Energy(fCurEnergy);
 
 

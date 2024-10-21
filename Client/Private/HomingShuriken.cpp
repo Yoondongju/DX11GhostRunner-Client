@@ -78,15 +78,36 @@ void CHomingShuriken::Update(_float fTimeDelta)
 
 	
 
-	if (m_fAccScaling < 15.f)
+
+	if (false == m_isHuntStart)
 	{
-		m_fAccScaling += fTimeDelta * 13.f;
+		if (m_fAccScaling < 15.f)
+		{
+			m_fAccScaling += fTimeDelta * 15.f;
+			pShurikenTransform->Scaling(m_fAccScaling, m_fAccScaling, m_fAccScaling);
+		}
+	}	
+	else if (true == m_isHuntStart && false == m_isDownScale)
+	{
+		if (m_fAccScaling >= 100.f)
+			m_fAccScaling = true;
+
+		m_fAccScaling += fTimeDelta * 110.f;
 		pShurikenTransform->Scaling(m_fAccScaling, m_fAccScaling, m_fAccScaling);
-	}		
+	}
+	else
+	{
+		if (m_fAccScaling <= 80.f)
+			m_fAccScaling = false;
+
+		m_fAccScaling -= fTimeDelta * 95.f;
+		pShurikenTransform->Scaling(m_fAccScaling, m_fAccScaling, m_fAccScaling);
+	}
 	
 
+
 	_vector vRightNor = XMVector3Normalize(pShurikenTransform->Get_State(CTransform::STATE_RIGHT));
-	pShurikenTransform->Turn(vRightNor, fTimeDelta * 10.f);	// 계속 돌아
+	pShurikenTransform->Turn(vRightNor, fTimeDelta * 150.f);	// 계속 돌아 whsskehfdk rmsid
 
 
 	if (m_fAccScaling >= 15.f)
@@ -94,12 +115,22 @@ void CHomingShuriken::Update(_float fTimeDelta)
 		m_isHuntStart = true;
 		pMainShuriken->Set_HomingStartHunt(true);
 
-		pMainShuriken->Get_Transform()->Set_WorldMatrix(*pMainShuriken->Get_PartObjectComBindWorldMatrixPtr());			// 원래 이 녀석의 고유한 행렬은 로컬의 오프셋잡아주기위함이엿지만 스킬일때 잠깐 바꿔치기해
+		_float3 ShScale = pShurikenTransform->Get_Scaled();
+		_float4x4* pWorldMatrix = pMainShuriken->Get_PartObjectComBindWorldMatrixPtr();
+
+		_float4x4* pBeforeWorldMatrix = pShurikenTransform->Get_WorldMatrix_Ptr();
+	
+
+		XMStoreFloat3((_float3*)pWorldMatrix->m[0],  XMVector3Normalize(XMLoadFloat3((_float3*)pBeforeWorldMatrix->m[0])) * ShScale.x);
+		XMStoreFloat3((_float3*)pWorldMatrix->m[1],  XMVector3Normalize(XMLoadFloat3((_float3*)pBeforeWorldMatrix->m[1])) * ShScale.y);
+		XMStoreFloat3((_float3*)pWorldMatrix->m[2],  XMVector3Normalize(XMLoadFloat3((_float3*)pBeforeWorldMatrix->m[2])) * ShScale.z);
+
+		pMainShuriken->Get_Transform()->Set_WorldMatrix(*pWorldMatrix);			// 원래 이 녀석의 고유한 행렬은 로컬의 오프셋잡아주기위함이엿지만 스킬일때 잠깐 바꿔치기해
 	}
 
 	if (true == m_isHuntStart)
 	{
-		if (m_iNumKill >= 3)
+		if (m_iNumKill > m_TargetsPos.size() - 1)		
 		{
 			m_fStartTime += fTimeDelta;
 
@@ -125,10 +156,8 @@ void CHomingShuriken::Update(_float fTimeDelta)
 		
 		if (fNewDistance <= 110.f) 
 		{			
-			if(m_iNumKill < m_TargetsPos.size() - 1)
+			if(m_iNumKill < m_TargetsPos.size())
 				++m_iNumKill;
-
-			
 
 			m_fStartTime = 0.f;
 			m_fAccSpeed = 0.f;
@@ -166,11 +195,11 @@ void CHomingShuriken::Update(_float fTimeDelta)
 			}
 			pShurikenTransform->Go_Dir(XMVector3Normalize(vDistance), m_fAccSpeed);
 		}
-		else
-		{
-			CShurikenTrail* pMainShurikenTrail = pMainShuriken->Get_ShurikenTrail();
-			pMainShurikenTrail->Set_Active(false);
-		}
+		//else
+		//{
+		//	CShurikenTrail* pMainShurikenTrail = pMainShuriken->Get_ShurikenTrail();
+		//	pMainShurikenTrail->Set_Active(false);
+		//}
 		
 	}
 }
@@ -196,6 +225,7 @@ void CHomingShuriken::End_State()
 
 	pMainShuriken->Get_Transform()->Scaling(1.f, 1.f, 1.f);
 	m_fAccScaling = 1.f;
+	m_isDownScale = false;
 
 	CShurikenTrail* pMainShurikenTrail = pMainShuriken->Get_ShurikenTrail();
 	pMainShurikenTrail->Set_Active(false);

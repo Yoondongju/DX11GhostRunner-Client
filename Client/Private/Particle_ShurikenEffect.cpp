@@ -49,7 +49,6 @@ void CParticle_ShurikenEffect::Update(_float fTimeDelta)
 {
 	CPartObject* pShuriken = static_cast<CPartObject*>(m_pShuriken);
 	CWeapon_Player* pMainShuriken = dynamic_cast<CWeapon_Player*>(pShuriken);
-
 	if (nullptr != pMainShuriken)
 	{
 		m_pTransformCom->Set_WorldMatrix(*pShuriken->Get_PartObjectComBindWorldMatrixPtr());
@@ -62,8 +61,9 @@ void CParticle_ShurikenEffect::Update(_float fTimeDelta)
 	if (false == m_bActive)
 		return;
 
-	
-	m_pVIBufferCom->Spread(fTimeDelta);
+
+	m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), fTimeDelta * 10.f);
+	m_pVIBufferCom->Spread_OriginPos(fTimeDelta);
 }
 
 void CParticle_ShurikenEffect::Late_Update(_float fTimeDelta)
@@ -71,7 +71,7 @@ void CParticle_ShurikenEffect::Late_Update(_float fTimeDelta)
 	if (false == m_bActive)
 		return;
 
-	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
+	m_pGameInstance->Add_RenderObject(CRenderer::RG_BLOOM, this);
 }
 
 HRESULT CParticle_ShurikenEffect::Render()
@@ -86,7 +86,6 @@ HRESULT CParticle_ShurikenEffect::Render()
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Bind_RawValue("g_vCamPosition", &m_pGameInstance->Get_CamPosition_Float4(), sizeof(_float4))))
 		return E_FAIL;
-
 	if (FAILED(m_pShaderCom->Begin(1)))
 		return E_FAIL;
 

@@ -46,10 +46,21 @@ HRESULT CVIBuffer_Point_Instance::Initialize(void* pArg)
 	VTXPOINT* pVertices = new VTXPOINT[m_iNumVertices];
 	ZeroMemory(pVertices, sizeof(VTXPOINT) * m_iNumVertices);
 
-	_float	fScale = m_pGameInstance->Get_Random(m_vSize.x, m_vSize.y);
-
 	pVertices->vPosition = _float3(0.f, 0.f, 0.f);
-	pVertices->vPSize = _float2(fScale, fScale);
+	if (nullptr != pArg)
+	{
+		if (false == static_cast<POINT_DESC*>(pArg)->isRandomSize)
+		{
+			pVertices->vPSize = _float2(m_vSize.x, m_vSize.y);
+		}
+	}
+	else
+	{
+		_float	fScale = m_pGameInstance->Get_Random(m_vSize.x, m_vSize.y);
+		pVertices->vPSize = _float2(fScale, fScale);
+	}
+	
+
 
 
 	ZeroMemory(&m_InitialData, sizeof m_InitialData);
@@ -214,6 +225,43 @@ void CVIBuffer_Point_Instance::DirectionSpread(_float fTimeDelta, _fvector vDir)
 		XMStoreFloat4(&pVertices[i].vTranslation,
 			XMLoadFloat4(&pVertices[i].vTranslation) + vFinalDir * m_pSpeed[i] * fTimeDelta);
 
+
+		if (true == m_isLoop && pVertices[i].vLifeTime.y >= pVertices[i].vLifeTime.x)
+		{
+			pVertices[i].vTranslation = static_cast<VTXPOINTINSTANCE*>(m_pInstanceVertices)[i].vTranslation;
+			pVertices[i].vLifeTime.y = 0.f;
+		}
+	}
+
+	m_pContext->Unmap(m_pVBInstance, 0);
+}
+
+
+void CVIBuffer_Point_Instance::Spread_OriginPos(_float fTimeDelta)
+{
+	D3D11_MAPPED_SUBRESOURCE	SubResource{};
+
+	m_pContext->Map(m_pVBInstance, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &SubResource);
+
+	VTXPOINTINSTANCE* pVertices = static_cast<VTXPOINTINSTANCE*>(SubResource.pData);
+
+	for (size_t i = 0; i < m_iNumInstance; i++)
+	{
+		//_vector		vMoveDir = XMVectorSetW(XMLoadFloat4(&pVertices[i].vTranslation) - XMLoadFloat3(&m_vPivotPos), 0.f);
+		//vMoveDir.m128_f32[1] = 0.f;
+
+		_float fAngle = (2 * XM_PI / m_iNumInstance) * i; // 360도를 인스턴스 수로 나눠 각 인스턴스마다 고유한 각도 부여
+
+		_vector vMoveDir = XMVectorSet(cosf(fAngle), sinf(fAngle), sinf(fAngle), 0.f);
+		_vector vMovement = XMVector3Normalize(vMoveDir) * m_pSpeed[i] * fTimeDelta;
+
+
+		XMStoreFloat4(&pVertices[i].vTranslation,
+			XMLoadFloat4(&pVertices[i].vTranslation) + vMovement);
+
+
+
+		pVertices[i].vLifeTime.y += fTimeDelta;
 
 		if (true == m_isLoop && pVertices[i].vLifeTime.y >= pVertices[i].vLifeTime.x)
 		{

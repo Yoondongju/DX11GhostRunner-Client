@@ -7,6 +7,9 @@
 
 #include "PartObject.h"
 
+#include "Weapon_Hel.h"
+#include "HelSwordTrail.h"
+
 CHel_Jump::CHel_Jump(class CGameObject* pOwner)
 	: CState{ CHel::HEL_ANIMATION::IDLE_TO_JUMP , pOwner }
 {
@@ -34,6 +37,12 @@ HRESULT CHel_Jump::Start_State(void* pArg)
 	_double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
 	TrackPos = 0.0;
 
+
+
+	CHelSwordTrail* pSwordTrail = static_cast<CWeapon_Hel*>(pHel->Get_Part(CHel::PARTID::PART_WEAPON))->Get_SwordTrail();
+	pSwordTrail->Set_Active(false);
+	pSwordTrail->Set_Active(true);
+
 	return S_OK;
 }
 
@@ -47,6 +56,11 @@ void CHel_Jump::Update(_float fTimeDelta)
 
 	if (true == m_isJumpStart)
 	{
+		if (false == m_pGameInstance->Check_IsPlaying(SOUND_HEL_JUMPSTART))
+		{
+			m_pGameInstance->Play_Sound(TEXT("HelJumpStart.ogg"), SOUND_HEL_JUMPSTART, 1.f);
+		}
+
 		CRigidBody* pRigidBody = m_pOwner->Get_RigidBody();
 
 		pRigidBody->Add_Force_Direction(XMVectorSet(0.f, 1.f, 0.f, 0.f), 1200, Engine::CRigidBody::ACCELERATION);
@@ -82,6 +96,11 @@ void CHel_Jump::End_State()
 {
 	m_isJumpStart = false;
 	m_isJumpExcute = false;
+
+
+	CHel* pHel = static_cast<CHel*>(m_pOwner);
+	CHelSwordTrail* pSwordTrail = static_cast<CWeapon_Hel*>(pHel->Get_Part(CHel::PARTID::PART_WEAPON))->Get_SwordTrail();
+	pSwordTrail->Set_Active(false);
 }
 
 

@@ -249,7 +249,10 @@ void CWeapon_Player::Update(_float fTimeDelta)
 
 void CWeapon_Player::Late_Update(_float fTimeDelta)
 {
-	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+	if(m_eCurType == SHURIKEN)
+		m_pGameInstance->Add_RenderObject(CRenderer::RG_BLOOM, this);
+	else
+		m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 
 	if (true == m_isHomingShurikenActive)
 	{

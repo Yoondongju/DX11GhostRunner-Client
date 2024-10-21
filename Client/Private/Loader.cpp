@@ -4,7 +4,11 @@
 #include "FreeCamera.h"
 
 
-#include "BackGround.h"
+#include "LogoPanel.h"
+#include "LogoInnerRing.h"
+#include "LogoOutRing.h"
+#include "LogoName.h"
+
 #include "GameInstance.h"
 
 #include <fstream>
@@ -69,6 +73,7 @@
 #include "BossHpPanel.h"
 #include "BossHpMain.h"
 #include "BossHpEnergy.h"
+#include "KillCountUI.h"
 
 
 #include "SwordTrail.h"
@@ -96,11 +101,15 @@
 #include "Particle_Swirl.h"
 #include "Particle_Attack.h"
 
+#include "Particle_Electric.h"
+#include "Particle_BigElectric.h"
 
+#include "Particle_Rain.h"
 
 #include "Monster_Bullet.h"
 
-
+#include "HelMotionTrail.h"
+#include "EliteMotionTrail.h"
 
 
 
@@ -253,7 +262,8 @@ HRESULT CLoader::Load_Terrain()
 
 HRESULT CLoader::Load_Anim_GameObject()
 {
-	lstrcpy(m_szLoadingText, TEXT("AnimObject를 로딩중.."));
+	m_iTextCount = 0;
+	lstrcpy(m_szLoadingText, TEXT("애니메이션 모델을 로딩중..."));
 
 	FILE* file = nullptr;
 
@@ -707,7 +717,8 @@ HRESULT CLoader::Load_Anim_GameObject()
 
 HRESULT CLoader::Load_NonAnim_GameObject()
 {
-	lstrcpy(m_szLoadingText, TEXT("NonAnim Object를 로딩중.."));
+	m_iTextCount = 0;
+	lstrcpy(m_szLoadingText, TEXT("정적 오브젝트를 로딩중..."));
 
 	FILE* file = nullptr;
 
@@ -1104,7 +1115,8 @@ HRESULT CLoader::Load_NonAnim_GameObject()
 
 HRESULT CLoader::Load_OtherModel()
 {
-	lstrcpy(m_szLoadingText, TEXT("Blood , Bullet, Etc 로딩중.."));
+	m_iTextCount = 0;
+	lstrcpy(m_szLoadingText, TEXT("인스턴싱 모델을 로딩중..."));
 
 	FILE* fin = nullptr;
 
@@ -1204,7 +1216,7 @@ HRESULT CLoader::Load_OtherModel()
 
 			pDesc->MeshInstanceDesc = &Desc;
 		}
-		else if (i == 2)
+		else if (i == 2)	// 유리조각
 		{
 			pDesc->isInstanceObject = true;
 			pDesc->InstanceBufferPrototypeTag = ModelPrototypeName + L"Instance";
@@ -1219,6 +1231,42 @@ HRESULT CLoader::Load_OtherModel()
 			Desc.vLifeTime = _float2(0.5f, 1.5f);
 			Desc.isLoop = false;
 			
+
+			pDesc->MeshInstanceDesc = &Desc;
+		}
+		else if (i == 5)		// Electric
+		{
+			pDesc->isInstanceObject = true;
+			pDesc->InstanceBufferPrototypeTag = ModelPrototypeName + L"Instance";
+
+			CVIBuffer_Mesh_Instance::MESHINSTANCE_DESC			Desc{};
+			Desc.iNumInstance = 70;
+			Desc.vCenter = _float3(0.f, 0.f, 0.f);
+			Desc.vRange = _float3(1.f, 1.f, 1.f);
+			Desc.vSize = _float2(0.1f, 0.5f);
+			Desc.vPivot = _float3(0.f, 0.f, 0.f);
+			Desc.vSpeed = _float2(2.f, 7.f);
+			Desc.vLifeTime = _float2(0.5f, 1.5f);
+			Desc.isLoop = false;
+
+
+			pDesc->MeshInstanceDesc = &Desc;
+		}
+		else if (i == 6)		// BigElectric
+		{
+			pDesc->isInstanceObject = true;
+			pDesc->InstanceBufferPrototypeTag = ModelPrototypeName + L"Instance";
+
+			CVIBuffer_Mesh_Instance::MESHINSTANCE_DESC			Desc{};
+			Desc.iNumInstance = 80;
+			Desc.vCenter = _float3(0.f, 0.f, 0.f);
+			Desc.vRange = _float3(1.f, 0.f, 1.f);
+			Desc.vSize = _float2(1.f, 4.f);
+			Desc.vPivot = _float3(0.f, 0.f, 0.f);
+			Desc.vSpeed = _float2(1.f, 90.f);
+			Desc.vLifeTime = _float2(0.5f, 2.f);
+			Desc.isLoop = false;
+			Desc.isStartFromOrigin = true;
 
 			pDesc->MeshInstanceDesc = &Desc;
 		}
@@ -1283,7 +1331,8 @@ HRESULT CLoader::Load_OtherModel()
 
 HRESULT CLoader::Load_FinalMap()
 {
-	lstrcpy(m_szLoadingText, TEXT("Final Map을 로딩중.."));
+	m_iTextCount = 0;
+	lstrcpy(m_szLoadingText, TEXT("맵 데이터를 로딩중..."));
 
 	FILE* fin = nullptr;
 
@@ -1439,7 +1488,8 @@ HRESULT CLoader::Load_FinalMap()
 
 HRESULT CLoader::Load_Player()
 {
-	lstrcpy(m_szLoadingText, TEXT("Player를 로딩중.."));
+	m_iTextCount = 0;
+	lstrcpy(m_szLoadingText, TEXT("플레이어를 로딩중.."));
 
 	FILE* file;
 
@@ -1879,7 +1929,6 @@ HRESULT CLoader::Load_Player()
 	return S_OK;
 }
 
-
 HRESULT CLoader::Create_PrototypeObject()
 {
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Decorative_Object"),
@@ -1896,7 +1945,6 @@ HRESULT CLoader::Create_PrototypeObject()
 
 	return S_OK;
 }
-
 
 HRESULT CLoader::Create_PrototypeAnimObject()
 {
@@ -2170,6 +2218,11 @@ HRESULT CLoader::Create_UI()
 		CBossHpEnergy::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_KillCount"),
+		CKillCountUI::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+	
+	
 	
 	return S_OK;
 }
@@ -2213,6 +2266,32 @@ HRESULT CLoader::Create_Particle()
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxPointInstance"),
 		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxPointInstance.hlsl"), VTXPOINTINSTANCE::Elements, VTXPOINTINSTANCE::iNumElements))))
 		return E_FAIL;
+
+	CVIBuffer_Instancing::INSTANCE_DESC			ParticleRainDesc{};
+	ZeroMemory(&ParticleRainDesc, sizeof ParticleRainDesc);
+	ParticleRainDesc.iNumInstance = 3000;
+	ParticleRainDesc.vCenter = _float3(0.f, 70.f, 0.f);
+	ParticleRainDesc.vRange = _float3(600.f, 70.f, 600.f);
+	ParticleRainDesc.vSize = _float2(1.2f, 150.f);
+	ParticleRainDesc.vPivot = _float3(0.f, 0.f, 0.f);
+	ParticleRainDesc.vSpeed = _float2(50.f, 300.f);
+	ParticleRainDesc.vLifeTime = _float2(3.f, 6.f);
+	ParticleRainDesc.isLoop = true;
+
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_Rain"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/rain_drop.dds"), 1))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Rain"),
+		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleRainDesc))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Rain"),
+		CParticle_Rain::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+
 
 
 	if (FAILED(Create_SwordTrail()))
@@ -2286,6 +2365,16 @@ HRESULT CLoader::Create_SwordTrail()
 		CHelSwordTrail::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_HelMotionTrail"),				//  모  션 트  레   일 !!!
+		CHelMotionTrail::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_EliteMotionTrail"),				//  모  션 트  레   일 !!!
+		CEliteMotionTrail::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+
 	return S_OK;
 }
 
@@ -2321,21 +2410,20 @@ HRESULT CLoader::Create_ShurikenEffect()
 	ParticleDesc.iNumInstance = 90;
 	ParticleDesc.vCenter = _float3(0.f, 0.f, 0.f);
 	ParticleDesc.vRange = _float3(2.f, 2.f, 2.f);
-	ParticleDesc.vSize = _float2(1.f, 3.f);
+	ParticleDesc.vSize = _float2(10.f, 15.f);
 	ParticleDesc.vPivot = _float3(0.f, 0.f, 0.f);
-	ParticleDesc.vSpeed = _float2(0.5f, 1.f);
+	ParticleDesc.vSpeed = _float2(2.f, 10.f);
 	ParticleDesc.vLifeTime = _float2(0.5f, 1.5f);		// x ~ y 중에서의 랜덤값이 x에 들어가고 y는 0이다 따라서 y가 x에 도달하는게 라이프타임임
 	ParticleDesc.isLoop = true;
+	ParticleDesc.isStartFromOrigin = true;
 
 
-	
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Lightning"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Player/Particle/Lightning.dds"), 1))))
 		return E_FAIL;
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_ParticleShuriken"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Player/Particle/T_Star_Bright.dds"), 1))))
 		return E_FAIL;
-
 
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_ShurikenEffect"),
 		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleDesc))))
@@ -2568,9 +2656,50 @@ HRESULT CLoader::Create_ExplosionEffect()
 
 HRESULT CLoader::Create_HelEffect()
 {
+	m_iTextCount = 0;
+	lstrcpy(m_szLoadingText, TEXT("Hel파티클을 로딩중..."));
+
 	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Piece"),
 		CParticle_Piece::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Electric"),
+		CParticle_Electric::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_BigElectric"),
+		CParticle_BigElectric::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+
+	//CVIBuffer_Instancing::INSTANCE_DESC			ParticleRainDesc{};
+	//ZeroMemory(&ParticleRainDesc, sizeof ParticleRainDesc);
+	//ParticleRainDesc.iNumInstance = 3000;
+	//ParticleRainDesc.vCenter = _float3(0.f, 0.f, 0.f);
+	//ParticleRainDesc.vRange = _float3(500.f, 50.f, 500.f);
+	//ParticleRainDesc.vSize = _float2(0.1f, 20.f);
+	//ParticleRainDesc.vPivot = _float3(0.f, 0.f, 0.f);
+	//ParticleRainDesc.vSpeed = _float2(20.f, 30.f);
+	//ParticleRainDesc.vLifeTime = _float2(4.f, 7.f);
+	//ParticleRainDesc.isLoop = true;
+	//
+	//
+	//if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_Rain"),
+	//	CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/rain_drop.dds"), 1))))
+	//	return E_FAIL;
+	//
+	//if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_Rain"),
+	//	CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, ParticleRainDesc))))
+	//	return E_FAIL;
+	//
+	//if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Rain"),
+	//	CParticle_Rain::Create(m_pDevice, m_pContext))))
+	//	return E_FAIL;
+
+
+
+
+
 
 	CVIBuffer_Instancing::INSTANCE_DESC			ParticleDesc{};
 	ZeroMemory(&ParticleDesc, sizeof ParticleDesc);
@@ -2598,8 +2727,6 @@ HRESULT CLoader::Create_HelEffect()
 
 
 
-	//////////////////////////////
-
 	CVIBuffer_Instancing::INSTANCE_DESC			ParticlSmokeeDesc{};
 	ZeroMemory(&ParticlSmokeeDesc, sizeof ParticlSmokeeDesc);
 	ParticlSmokeeDesc.iNumInstance = 150;
@@ -2607,10 +2734,10 @@ HRESULT CLoader::Create_HelEffect()
 	ParticlSmokeeDesc.vRange = _float3(10.f, 10.f, 10.f);
 	ParticlSmokeeDesc.vSize = _float2(100.f, 150.f);
 	ParticlSmokeeDesc.vPivot = _float3(0.f, 0.f, 0.f);
-	ParticlSmokeeDesc.vSpeed = _float2(100.f, 200.f);
+	ParticlSmokeeDesc.vSpeed = _float2(30.f, 200.f);
 	ParticlSmokeeDesc.vLifeTime = _float2(1.f, 2.f);
 	ParticlSmokeeDesc.isLoop = false;
-	//ParticlSmokeeDesc.isStartFromOrigin = true;
+	ParticlSmokeeDesc.isStartFromOrigin = true;
 
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_HelBigSmoke"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_Smoke_Dark_Cloud_01.dds"), 1))))
@@ -2635,8 +2762,8 @@ HRESULT CLoader::Create_HelEffect()
 	ParticlSwirlDesc.vRange = _float3(10.f, 0.f, 10.f);
 	ParticlSwirlDesc.vSize = _float2(150.f, 200.f);
 	ParticlSwirlDesc.vPivot = _float3(0.f, 0.f, 0.f);
-	ParticlSwirlDesc.vSpeed = _float2(50.f, 220.f);
-	ParticlSwirlDesc.vLifeTime = _float2(3.f, 5.f);
+	ParticlSwirlDesc.vSpeed = _float2(10.f, 220.f);
+	ParticlSwirlDesc.vLifeTime = _float2(1.f, 2.f);
 	ParticlSwirlDesc.isLoop = false;
 	ParticlSwirlDesc.isStartFromOrigin = true;
 
@@ -2723,9 +2850,37 @@ HRESULT CLoader::Loading()
 	return hr;
 }
 
+
 void CLoader::Draw_LoadingText()
 {
-	SetWindowText(g_hWnd, m_szLoadingText);
+	_float	fFontSize = 0.7f;
+	_uint iTextLength = wcslen(m_szLoadingText);		// 글자 길이
+	
+
+	if (m_fTime >= 0.03f)
+	{
+		m_fTime = 0.f;
+		if(m_iTextCount < iTextLength - 1 )
+			++m_iTextCount;	
+	}
+
+	_tchar Test[2] = {};
+	for (_uint i = 0; i < m_iTextCount; i++)
+	{
+		_float fPosX = (600 + (i * 23));
+
+		Test[0] = m_szLoadingText[i];
+		Test[1] = '\0';
+
+		m_pGameInstance->Render_Text(TEXT("Font_145"), Test,
+			XMVectorSet(fPosX, g_iWinSizeY - 200.f, 0.f, 1.f),
+			fFontSize,
+			XMVectorSet(1.f / 1.f, 1.f, 1.f, 1.f),
+			0.f,
+			XMVectorSet(0.f, 0.f, 0.f, 1.f));
+	}
+
+	m_fTime += 0.016f;
 }
 
 
@@ -2733,26 +2888,49 @@ void CLoader::Draw_LoadingText()
 
 HRESULT CLoader::Ready_Resources_For_LogoLevel()
 {
+	m_iTextCount = 0;
 	lstrcpy(m_szLoadingText, TEXT("텍스쳐를 로딩중입니다."));
 	/* For. Prototype_Component_Texture_BackGround */
-	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_LOGO, TEXT("Prototype_Component_Texture_BackGround"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Default%d.jpg"), 2))))
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_LogoPanel"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/UI/Loading/T_GR_sword_ref.png"), 1))))
 		return E_FAIL;
 
-	lstrcpy(m_szLoadingText, TEXT("모델을(를) 로딩중입니다."));
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_LogoInnerRing"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/UI/Loading/Loading_innerrCirlcle.png"), 1))))
+		return E_FAIL;
 
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_LogoOutRing"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/UI/Loading/Loading_outerCircle.png"), 1))))
+		return E_FAIL;
 
-	lstrcpy(m_szLoadingText, TEXT("사운드을(를) 로딩중입니다."));
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_LogoName"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/UI/Loading/gr_logo_clean.png"), 1))))
+		return E_FAIL;
 
-
+	
+	m_iTextCount = 0;
 	lstrcpy(m_szLoadingText, TEXT("객체원형을(를) 로딩중입니다."));
-	/* For. Prototype_GameObject_BackGround */
-	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_BackGround"),
-		CBackGround::Create(m_pDevice, m_pContext))))
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_LogoPanel"),
+		CLogoPanel::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_LogoInnerRing"),
+		CLogoInnerRing::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_LogoOutRing"),
+		CLogoOutRing::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_LogoName"),
+		CLogoName::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
-	lstrcpy(m_szLoadingText, TEXT("로딩이 완료되었습니다."));
 
+	/* For. Prototype_GameObject_FreeCamera */
+	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_FreeCamera"),
+		CFreeCamera::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	m_iTextCount = 0;
+	lstrcpy(m_szLoadingText, TEXT("로딩이 완료되었습니다."));
 	m_isFinished = true;
 
 	return S_OK;
@@ -2760,8 +2938,8 @@ HRESULT CLoader::Ready_Resources_For_LogoLevel()
 
 HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 {
-	if (FAILED(Load_Terrain()))
-		return E_FAIL;
+	//if (FAILED(Load_Terrain()))
+	//	return E_FAIL;
 
 	if (FAILED(Load_Anim_GameObject()))
 		return E_FAIL;
@@ -2779,21 +2957,21 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		return E_FAIL;
 	
 
-
-	lstrcpy(m_szLoadingText, TEXT("객체원형을(를) 로딩중입니다."));
+	m_iTextCount = 0;
+	lstrcpy(m_szLoadingText, TEXT("객체원형을 로딩중..."));
 	if (FAILED(Create_PrototypeObject()))
 		return E_FAIL;
-
-	lstrcpy(m_szLoadingText, TEXT("Anim객체원형을 로딩중입니다."));
 	if (FAILED(Create_PrototypeAnimObject()))
 		return E_FAIL;
 
-	lstrcpy(m_szLoadingText, TEXT("UI 자원을 로딩중입니다."));
+
+	m_iTextCount = 0;
+	lstrcpy(m_szLoadingText, TEXT("UI를 로딩중..."));
 	if (FAILED(Create_UI()))
 		return E_FAIL;
 
-	
-	lstrcpy(m_szLoadingText, TEXT("하늘을 로딩중입니다."));
+	m_iTextCount = 0;
+	lstrcpy(m_szLoadingText, TEXT("하늘을 로딩중..."));
 	if (FAILED(Create_Sky()))
 		return E_FAIL;
 
@@ -2814,17 +2992,19 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_MindControlRefraction"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_ripple_01.dds"), 1))))
 		return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BlockMaskRefraction"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_RadialMask.dds"), 1))))
+		return E_FAIL;
 
 
 
-
-	
-	lstrcpy(m_szLoadingText, TEXT("파티클을 로딩중입니다."));
+	m_iTextCount = 0;
+	lstrcpy(m_szLoadingText, TEXT("파티클을 로딩중..."));
 	if(FAILED(Create_Particle()))
 		return E_FAIL;
 
-	
-	lstrcpy(m_szLoadingText, TEXT("FSM을(를) 로딩중입니다."));
+	m_iTextCount = 0;
+	lstrcpy(m_szLoadingText, TEXT("FSM을 로딩중..."));
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Player_FSM"),
 		CFsm::Create(m_pDevice, m_pContext, CPlayer::PLAYER_ANIMATIONID::PLAYER_ANIMATION_END))))
 		return E_FAIL;
@@ -2854,16 +3034,16 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 		return E_FAIL;
 
 
-
-	lstrcpy(m_szLoadingText, TEXT("RigidBody을(를) 로딩중입니다."));
+	m_iTextCount = 0;
+	lstrcpy(m_szLoadingText, TEXT("RigidBody을 로딩중..."));
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_RigidBody"),
 		CRigidBody::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
 
 
-
-	lstrcpy(m_szLoadingText, TEXT("Collider을(를) 로딩중입니다."));
+	m_iTextCount = 0;
+	lstrcpy(m_szLoadingText, TEXT("Collider를 로딩중..."));
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_CCollider_PhysX"),
 		CCollider::Create(m_pDevice, m_pContext, CCollider::TYPE_PHYSX))))
 		return E_FAIL;
@@ -2882,8 +3062,8 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 
 
 
-
-	lstrcpy(m_szLoadingText, TEXT("셰이더을(를) 로딩중입니다."));
+	m_iTextCount = 0;
+	lstrcpy(m_szLoadingText, TEXT("셰이더를 로딩중..."));
 	/* For. Prototype_Component_Shader_VtxNorTex*/
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxNorTex"),
 		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxNorTex.hlsl"), VTXNORTEX::Elements, VTXNORTEX::iNumElements))))
@@ -2916,18 +3096,7 @@ HRESULT CLoader::Ready_Resources_For_GamePlayLevel()
 
 
 
-	lstrcpy(m_szLoadingText, TEXT("사운드을(를) 로딩중입니다."));
-
-
-	
-
-	/* For. Prototype_GameObject_FreeCamera */
-	if (FAILED(m_pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_FreeCamera"),
-		CFreeCamera::Create(m_pDevice, m_pContext))))
-		return E_FAIL;
-
-
-
+	m_iTextCount = 0;
 	lstrcpy(m_szLoadingText, TEXT("로딩이 완료되었습니다."));
 
 	m_isFinished = true;
@@ -2946,6 +3115,9 @@ HRESULT CLoader::Ready_Resources_For_Stage1_BossLevel()
 	if (FAILED(Load_FinalMap()))
 		return E_FAIL;
 
+
+	m_iTextCount = 0;
+	lstrcpy(m_szLoadingText, TEXT("로딩이 완료되었습니다."));
 	m_isFinished = true;
 
 	return S_OK;
@@ -2953,6 +3125,19 @@ HRESULT CLoader::Ready_Resources_For_Stage1_BossLevel()
 
 HRESULT CLoader::Ready_Resources_For_Stage2_BossLevel()
 {
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_FlowMap"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/FlowMap_Swirl_Detailed_A.dds"), 1))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_STAGE2_BOSS, TEXT("Prototype_Component_Texture_Circuit"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_Circuit_board_01.dds"), 1))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_STAGE2_BOSS, TEXT("Prototype_Component_Texture_Mossaic"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_CS_Mossaic_01.dds"), 1))))
+		return E_FAIL;
+
+
 	if (FAILED(Load_Anim_GameObject()))
 		return E_FAIL;
 
@@ -2964,8 +3149,15 @@ HRESULT CLoader::Ready_Resources_For_Stage2_BossLevel()
 
 	if (FAILED(Create_HelEffect()))
 		return E_FAIL;
-	
 
+
+
+
+
+
+
+	m_iTextCount = 0;
+	lstrcpy(m_szLoadingText, TEXT("로딩이 완료되었습니다."));
 	m_isFinished = true;
 
 	return S_OK;

@@ -26,7 +26,7 @@ private:
 	virtual ~CParticle_BigSmoke() = default;
 
 public:
-	virtual void		SetActiveMyParticle(_bool b) override;
+	virtual void			SetActiveMyParticle(_bool b, _bool isOtherFlag = false) override;
 
 
 public:

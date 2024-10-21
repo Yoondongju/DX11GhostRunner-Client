@@ -50,7 +50,9 @@ public:
 private:
 	LEVELID						m_eNextLevelID = { LEVEL_END };
 	CLoader*					m_pLoader = { nullptr };
-		
+	
+
+
 private:
 	HRESULT Ready_Layer_BackGround();
 

@@ -49,7 +49,7 @@ void CSky::Late_Update(_float fTimeDelta)
 {
 	m_fTime += fTimeDelta * 0.5f;
 
-	m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), fTimeDelta * 5.f);
+	
 
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_PRIORITY, this);
 }
@@ -75,7 +75,15 @@ HRESULT CSky::Render()
 		return E_FAIL;
 
 
-	if (FAILED(m_pShaderCom->Begin(0)))
+	_uint iPassNum = 0;
+	if (LEVEL_STAGE2_BOSS == g_CurLevel)
+	{
+		iPassNum = 1;
+	}
+
+
+
+	if (FAILED(m_pShaderCom->Begin(iPassNum)))
 		return E_FAIL;
 
 

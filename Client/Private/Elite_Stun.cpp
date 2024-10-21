@@ -29,6 +29,11 @@ HRESULT CElite_Stun::Start_State(void* pArg)
 
 	m_fStunTime = 2.f;
 
+	if (false == m_pGameInstance->Check_IsPlaying(SOUND_ELITE_STUN))
+	{
+		m_pGameInstance->Play_Sound(TEXT("EliteStun.ogg"), SOUND_ELITE_STUN, 2.f);
+	}
+
 	return S_OK;
 }
 
@@ -41,7 +46,6 @@ void CElite_Stun::Update(_float fTimeDelta)
 
 	CModel* pModel = m_pOwner->Get_Model();
 	CFsm* pFsm = m_pOwner->Get_Fsm();
-
 
 	m_fStunTime -= fTimeDelta;
 

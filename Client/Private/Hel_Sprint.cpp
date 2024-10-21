@@ -7,6 +7,8 @@
 
 #include "PartObject.h"
 
+#include "HelMotionTrail.h"
+
 CHel_Sprint::CHel_Sprint(class CGameObject* pOwner)
 	: CState{ CHel::HEL_ANIMATION::SPRINT , pOwner }
 {
@@ -22,7 +24,10 @@ HRESULT CHel_Sprint::Initialize()
 
 HRESULT CHel_Sprint::Start_State(void* pArg)
 {
-	
+	CHel* pHel = static_cast<CHel*>(m_pOwner);
+	pHel->Get_MotionTrail()->Set_Active(true);
+
+	m_pGameInstance->Play_Sound(TEXT("Sprint.ogg"), SOUND_HEL_MOVEMENT, 1.f);
 
 	return S_OK;
 }
@@ -80,7 +85,8 @@ void CHel_Sprint::Update(_float fTimeDelta)
 
 void CHel_Sprint::End_State()
 {
-
+	CHel* pHel = static_cast<CHel*>(m_pOwner);
+	pHel->Get_MotionTrail()->Set_Active(false);
 }
 
 

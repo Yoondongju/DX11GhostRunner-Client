@@ -13,7 +13,7 @@ class CRenderer final : public CBase
 public:
 	enum RENDERGROUP { RG_PRIORITY, RG_HEIGHT, RG_SHADOWOBJ, RG_NONBLEND, RG_NONLIGHT, RG_BLOOM , RG_BLEND, RG_UI, RG_END };
 	enum BLUR_TYPE { GAUSSIAN_BLUR, MOTION_BLUR, BLUR_END};
-	enum REFRACTION_TYPE { TIMESTOP, MINDCONTROL, REFRACTION_END };
+	enum REFRACTION_TYPE { TIMESTOP, MINDCONTROL, BLOCK, SCREENSPLIT, REFRACTION_END };
 
 private:
 	CRenderer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
@@ -25,7 +25,7 @@ public:
 	HRESULT Draw();
 
 public:
-	void	ActiveRefraction(class CTexture* pRefractionTex, REFRACTION_TYPE eRefractionType);
+	void	ActiveRefraction(class CTexture* pRefractionTex, REFRACTION_TYPE eRefractionType , class CTexture* pBlockMaskTex = nullptr);
 	void	ActiveBlur(class CTexture* pBlurMaskTex , BLUR_TYPE eBlurType);
 
 	void	UnActiveRefraction();
@@ -65,9 +65,13 @@ private:
 
 	_float						m_fRefractAmount = { 0.f };
 	_float						m_fRefractTime = { 0.f };
+	_float						m_fStopTime = { 0.f };
+
 	_bool						m_isShutDownRefract = { false };
 
 	class CTexture*				m_pRefractionTex = { nullptr };
+	class CTexture*				m_pBlockMaskTex = { nullptr };
+
 	class CTexture*				m_pBlurMaskTex = { nullptr };
 
 
@@ -101,6 +105,8 @@ private:
 
 	HRESULT Render_Blur();
 	HRESULT Render_MotionBlur();
+	HRESULT RenderScreenSplit();	// 반으로 갈라지는듯한 연출
+
 	HRESULT Render_Refraction();	// 굴절 효과	
 
 

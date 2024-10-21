@@ -6,6 +6,7 @@
 #include "GameInstance.h"
 #include "Animation.h"
 
+#include "Hel.h"
 
 CJetpack_Idle::CJetpack_Idle(class CGameObject* pOwner)
 	: CState{ CJetpack::JETPACK_ANIMATION::IDLE , pOwner }
@@ -29,18 +30,39 @@ void CJetpack_Idle::Update(_float fTimeDelta)
 {
 	_float fPosZ = m_pGameInstance->Find_Player(LEVEL_GAMEPLAY)->Get_Transform()->Get_State(CTransform::STATE_POSITION).m128_f32[2];
 
-	if (5715.f <= fPosZ)
+	if (LEVEL_STAGE1 == g_CurLevel)
 	{
-		m_fAccTime += fTimeDelta;
-
-		if (m_fAccTime >= 2.f)
+		if (5715.f <= fPosZ)
 		{
-			if (Check_Fly())
-				return;
-		
-			m_fAccTime = 0.f;
+			m_fAccTime += fTimeDelta;
+
+			if (m_fAccTime >= 2.f)
+			{
+				if (Check_Fly())
+					return;
+
+				m_fAccTime = 0.f;
+			}
 		}
 	}
+	else if (LEVEL_STAGE2_BOSS == g_CurLevel)
+	{
+		if (true == static_cast<CHel*>(m_pGameInstance->Find_Object(LEVEL_STAGE2_BOSS, L"Layer_Hel", 0))->IsPage2())
+		{
+			m_fAccTime += fTimeDelta;
+
+			if (m_fAccTime >= 10.f)
+			{
+				if (Check_Fly())
+					return;
+
+				m_fAccTime = 0.f;
+			}
+		}
+	}
+
+
+	
 
 
 
@@ -50,7 +72,7 @@ void CJetpack_Idle::Update(_float fTimeDelta)
 
 void CJetpack_Idle::End_State()
 {
-
+	m_fAccTime = 0.f;
 }
 
 

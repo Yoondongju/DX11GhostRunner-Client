@@ -343,7 +343,7 @@ void CPlayer::Late_Update(_float fTimeDelta)
     _float fDistance = fabs(fPlayerY - m_fLandPosY);
 
 
-    if (m_pGameInstance->Get_KeyState(KEY::SPACE) == KEY_STATE::NONE && fDistance  > 200.f) 
+    if (m_pGameInstance->Get_KeyState(KEY::SPACE) == KEY_STATE::NONE && fDistance > 200.f)
     {
         if (false == static_cast<CBody_Player*>(m_Parts[PARTID::PART_BODY])->IsLandingWall())
         {
@@ -354,28 +354,40 @@ void CPlayer::Late_Update(_float fTimeDelta)
                 PLAYER_ANIMATIONID::JUMP_START != iCurStateIndex &&
                 PLAYER_ANIMATIONID::JUMP_LOOP != iCurStateIndex &&
                 PLAYER_ANIMATIONID::JUMP_END != iCurStateIndex &&
-                PLAYER_ANIMATIONID::HOOK_UP != iCurStateIndex &&   
+                PLAYER_ANIMATIONID::HOOK_UP != iCurStateIndex &&
                 PLAYER_ANIMATIONID::SH_ATTACK != iCurStateIndex &&
-                PLAYER_ANIMATIONID::CLIMB != iCurStateIndex && 
+                PLAYER_ANIMATIONID::CLIMB != iCurStateIndex &&
                 PLAYER_ANIMATIONID::NAMI_AIM_ATTACK_TO_IDLE != iCurStateIndex &&
                 PLAYER_ANIMATIONID::NAMI_IDLE_TO_AIM != iCurStateIndex &&
-                PLAYER_ANIMATIONID::FURR_AIM_LOOP != iCurStateIndex && 
+                PLAYER_ANIMATIONID::FURR_AIM_LOOP != iCurStateIndex &&
                 PLAYER_ANIMATIONID::DUMMY3 != iCurStateIndex)
             {
                 // 점프할때 포물선방정식이용한 점프 구현해야하고 
                 // 무조건 착지 전이면 점프 상태로 돌입 -> 점프상태일때 이동이 안되야하나?
                 // 점프할때 이동 돼 안돼 여부 랑 점프할때 애니메이션 여부
-    
+
                 pBodyPlayer->Get_Model()->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::JUMP_START, false);
                 m_pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::JUMP_LOOP);
             }
         }
-    
+
     }
 
 
     for (auto& pPartObject : m_Parts)
         pPartObject->Late_Update(fTimeDelta);
+
+
+    _vector vPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+    if (nullptr != m_pPlayerPointLight)
+    {
+        m_pPlayerPointLight->vAmbient = _float4(1.f, 1.f, 1.f, 1.f);
+        m_pPlayerPointLight->vSpecular = _float4(1.f, 0.f, 0.f, 1.f);
+        m_pPlayerPointLight->fRange = 500.f;
+        m_pPlayerPointLight->vPosition.x = vPos.m128_f32[0];
+        m_pPlayerPointLight->vPosition.y = vPos.m128_f32[1] + 20.f;
+        m_pPlayerPointLight->vPosition.z = vPos.m128_f32[2];
+    }
 }
 
 HRESULT CPlayer::Render()
@@ -411,7 +423,9 @@ HRESULT CPlayer::Ready_Component()
     if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BlurMask"),
         TEXT("Com_Tex3"), reinterpret_cast<CComponent**>(&m_pBlurMaskTex), nullptr)))
         return E_FAIL;
-
+    if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BlockMaskRefraction"),
+        TEXT("Com_Tex4"), reinterpret_cast<CComponent**>(&m_pBlockMaskRefractionTex), nullptr)))
+        return E_FAIL; 
 
     
 
@@ -738,8 +752,11 @@ void CPlayer::Free()
 
     Safe_Release(m_pTimeStopRefractionTex);
     Safe_Release(m_pMindControlRefractionTex);
+    Safe_Release(m_pBlockMaskRefractionTex);
 
     Safe_Release(m_pBlurMaskTex);
+
+    m_pPlayerPointLight = nullptr;
 
     Safe_Release(m_pFsm);
     Safe_Release(m_pRigidBody);

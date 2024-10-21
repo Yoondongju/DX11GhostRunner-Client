@@ -47,7 +47,7 @@ public:
 
 public:
 	HRESULT Initialize(ANIMATION_DESC* pDesc, const class CModel* pModel);
-	_bool Update_TransformationMatrices(const vector<class CBone*>& Bones, _double* pCurrentTrackPosition, vector<_uint>& CurrentKeyFrameIndices ,_bool isLoop, _float fTimeDelta, _bool isTransitioning, CAnimation* pNextAnimation);
+	_bool Update_TransformationMatrices(_bool isFrustumCulling , const vector<class CBone*>& Bones, _double* pCurrentTrackPosition, vector<_uint>& CurrentKeyFrameIndices ,_bool isLoop, _float fTimeDelta, _bool isTransitioning, CAnimation* pNextAnimation);
 
 
 private:

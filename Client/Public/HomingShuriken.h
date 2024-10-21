@@ -36,6 +36,7 @@ private:
 
     _float3            m_StartPos = {};
     _float             m_fAccScaling = 1.f;
+    _bool              m_isDownScale = { false };
 
     _float             m_fStartTime = {};
     _float             m_fAccSpeed = {};

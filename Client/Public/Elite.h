@@ -75,15 +75,28 @@ public:
 public:
 	void				Set_Energy(_float f) { m_fEnergy = f; }
 	_float				Get_Energy() { return m_fEnergy; }
+	
 
 	void				Set_Hp(_float f) { m_fHp = f; }
 	_float				Get_Hp() { return m_fHp; }
 
 	_bool				IsPage2() { return m_isEnterPage2; }
 
+
+public:
+	class CEliteMotionTrail* Get_MotionTrail() { return m_pMotionTrail; }
+
+
 public:
 	_bool Check_Collision();
 	_bool Check_CollisionGroggy();
+
+
+
+
+private:
+	class	CEliteMotionTrail* m_pMotionTrail = { nullptr };
+	_float	m_fAddMotionTrailTime = { 0.f };  // 모션트레일을 추가할 시간
 
 
 private:
@@ -101,6 +114,7 @@ private:
 private:
 	_float		m_fEnergy = {};
 	_float		m_fHp = {};
+
 	_bool		m_isEnterPage2 = { false };
 
 

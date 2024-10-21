@@ -135,9 +135,12 @@ public:
 	CFsm*			Get_Fsm() override { return m_pFsm; }
 	CRigidBody*		Get_RigidBody() override { return m_pRigidBody; }
 
+public:
 	CTexture*		Get_TimeStopRefractionTex() const { return m_pTimeStopRefractionTex; }
 	CTexture*		Get_MindControlRefractionTex() const { return m_pMindControlRefractionTex; }
+	CTexture*		Get_BlockMaskRefractionTex() const { return m_pBlockMaskRefractionTex; }
 
+public:
 	CTexture*		Get_BlurMaskTex() const { return m_pBlurMaskTex; }
 
 
@@ -177,6 +180,7 @@ public: // BLOCK
 	void				Set_BlockActive(_bool b) { m_bBlockActive = b; }
 	_bool				IsBlockActive() { return m_bBlockActive; }
 
+	void				Set_BlockCoolTime(_float fTime) { m_fBlockCoolTime = fTime; }
 	const _float&		Get_BlockCoolTime() { return m_fBlockCoolTime; }
 	const _float&		Get_BlockRemainingTime() { return m_fBlockRemainingTime; }
 
@@ -250,6 +254,15 @@ public:
 		return static_cast<CWeapon_Player*>(m_Parts[PARTID::PART_WEAPON])->Get_PreType();
 	}
 
+public:
+	void	Set_PointLight(LIGHT_DESC* pLight) 
+	{
+		m_pPlayerPointLight = pLight; 
+	}
+	void	Delete_PointLight()
+	{	
+		m_pPlayerPointLight = nullptr;
+	}
 
 
 public:
@@ -285,14 +298,16 @@ public:
 private:
 	CFsm*					m_pFsm = { nullptr };
 	CRigidBody*				m_pRigidBody = { nullptr };
+	LIGHT_DESC*				m_pPlayerPointLight = { nullptr };
 
+private:
 	CTexture*				m_pTimeStopRefractionTex = { nullptr };
 	CTexture*				m_pMindControlRefractionTex = { nullptr };
+	CTexture*				m_pBlockMaskRefractionTex = { nullptr };
 
 	CTexture*				m_pBlurMaskTex = { nullptr };
 
-
-
+private:
 	PLAYER_ANIMATIONID		m_eCurAnimationID = { PLAYER_ANIMATION_END };
 	POINT					m_ptOldMousePos = {};
 

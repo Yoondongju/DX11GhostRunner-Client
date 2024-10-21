@@ -9,6 +9,7 @@
 #include "Level_Stage2_Boss.h"
 
 #include "GameInstance.h"
+#include "GameObject.h"
 
 CLevel_Loading::CLevel_Loading(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CLevel { pDevice, pContext }
@@ -24,15 +25,29 @@ HRESULT CLevel_Loading::Initialize(LEVELID eNextLevelID)
 		return E_FAIL;	
 		
 
-	if (FAILED(Ready_Layer_BackGround()))
-		return E_FAIL;
+	if (LEVEL_LOGO != m_eNextLevelID)
+	{
+		if (FAILED(Ready_Layer_BackGround()))
+			return E_FAIL;
+	}
+
+	m_pGameInstance->StopAll();
+	m_pGameInstance->PlayBGM(TEXT("19_Daniel_Deluxe_-_Air.ogg"), 1.f);
 
 	return S_OK;
 }
 
 void CLevel_Loading::Update(_float fTimeDelta)
 {	
-	if (//(GetKeyState(VK_SPACE) & 0x8000) && 
+	list<CGameObject*> GameObjects = m_pGameInstance->Get_GameObjects(LEVEL_LOADING, L"Layer_Loding");
+	for (auto& pObj : GameObjects)
+	{
+		pObj->Update(fTimeDelta);
+	}
+
+
+
+	if (m_pGameInstance->Get_KeyState(KEY::SPACE) == KEY_STATE::TAP &&
 		true == m_pLoader->isFinished())
 	{
 		CLevel*			pNewLevel = { nullptr };
@@ -90,6 +105,13 @@ void CLevel_Loading::Update(_float fTimeDelta)
 
 HRESULT CLevel_Loading::Render()
 {
+	list<CGameObject*> GameObjects = m_pGameInstance->Get_GameObjects(LEVEL_LOADING, L"Layer_Loding");
+	for (auto& pObj : GameObjects)
+	{
+		pObj->Render();
+	}
+
+
 	m_pLoader->Draw_LoadingText();
 
 	return S_OK;
@@ -97,9 +119,13 @@ HRESULT CLevel_Loading::Render()
 
 HRESULT CLevel_Loading::Ready_Layer_BackGround()
 {
-	//if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_LOGO, TEXT("Layer_BackGround"),
-	//	TEXT("Prototype_GameObject_BackGround"))))
-	//	return E_FAIL;
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_LOADING, L"Layer_Loding",
+		TEXT("Prototype_GameObject_LogoInnerRing"), TEXT("UI인데 테스트용"))))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_LOADING, L"Layer_Loding",
+		TEXT("Prototype_GameObject_LogoOutRing"), TEXT("UI인데 테스트용"))))
+		return E_FAIL;
 
 	return S_OK;
 }

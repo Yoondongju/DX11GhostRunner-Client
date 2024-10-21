@@ -85,7 +85,36 @@ HRESULT CStatic_Object::Render()
     {
         if (S_FALSE == m_pModel->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i))
         {
-            iPassNum = 6;
+            if(LEVEL_STAGE2_BOSS != g_CurLevel)
+                iPassNum = 6;
+            else
+            {
+                iPassNum = 8;
+
+                if (FAILED(m_pShaderCom->Bind_RawValue("g_fTime", &m_fTextCoordTime, sizeof(_float))))
+                    return E_FAIL; 
+
+
+                _vector vCamPos = m_pGameInstance->Find_Camera(LEVEL_GAMEPLAY)->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+                if (FAILED(m_pShaderCom->Bind_RawValue("g_CameraPosition", &vCamPos , sizeof(_vector))))
+                    return E_FAIL;  
+
+
+                if (nullptr != m_pCircuitTex)
+                {
+                    if (FAILED(m_pCircuitTex->Bind_ShadeResource(m_pShaderCom, "g_CircuitTex", 0)))
+                        return E_FAIL;
+                }
+                if (nullptr != m_pMossaicTex)
+                {
+                    if (FAILED(m_pMossaicTex->Bind_ShadeResource(m_pShaderCom, "g_MossaicTex", 0)))
+                        return E_FAIL;
+                }
+                
+            }
+               
+
+            
         }      
         if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
             return E_FAIL;
@@ -156,12 +185,23 @@ HRESULT CStatic_Object::Ready_Component()
         TEXT("Com_Shader"), reinterpret_cast<CComponent**>(&m_pShaderCom))))
         return E_FAIL;
 
-
-  
     /* For.Com_Model*/
     if (FAILED(__super::Add_Component(g_CurLevel, m_strModelPrototypeName,
         TEXT("Com_Model"), reinterpret_cast<CComponent**>(&m_pModel), nullptr)))
         return E_FAIL;
+
+
+    if (LEVEL_STAGE2_BOSS == g_CurLevel)
+    {
+        if (FAILED(__super::Add_Component(LEVEL_STAGE2_BOSS, TEXT("Prototype_Component_Texture_Circuit"),
+            TEXT("Com_Texture1"), reinterpret_cast<CComponent**>(&m_pCircuitTex))))
+            return E_FAIL;
+
+        if (FAILED(__super::Add_Component(LEVEL_STAGE2_BOSS, TEXT("Prototype_Component_Texture_Mossaic"),
+            TEXT("Com_Texture2"), reinterpret_cast<CComponent**>(&m_pMossaicTex))))
+            return E_FAIL;
+    }
+
 
     return S_OK;
 }
@@ -360,6 +400,8 @@ void CStatic_Object::Free()
     m_MeshGeometry.clear();
 
         
+    Safe_Release(m_pCircuitTex);
+    Safe_Release(m_pMossaicTex);
 
     Safe_Release(m_pShaderCom);
     Safe_Release(m_pModel);

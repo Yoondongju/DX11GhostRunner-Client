@@ -301,15 +301,9 @@ void CVIBuffer_Trail::Update_ShurikenTrail(_float fTimeDelta, deque<TRAIL_INFO>&
 
 }
 
-_fvector CVIBuffer_Trail::CatmullRom(const _fvector& p0, const _fvector& p1, const _fvector& p2, const _fvector& p3, float t)
-{
-	return 0.5f * (
-		(2.0f * p1) +
-		(-p0 + p2) * t +
-		(2.0f * p0 - 5.0f * p1 + 4.0f * p2 - p3) * t * t +
-		(-p0 + 3.0f * p1 - 3.0f * p2 + p3) * t * t * t
-		);
-}
+
+
+
 
 
 

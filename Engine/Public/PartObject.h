@@ -25,7 +25,10 @@ public:
 	_float4x4*    Get_PartObjectComBindWorldMatrixPtr() { return &m_WorldMatrix; }
 	
 public:
-	virtual void		    SetActiveMyParticle(_bool b) { m_isActiveMyParticle = b; }
+	virtual void			SetActiveMyParticle(_bool b, _bool isOtherFlag = false) { m_isActiveMyParticle = b; }
+	// 만약 파생 클래스에서 함수 오버라이딩을 하지 않았다면, 부모 클래스의 두 함수 중 하나가 선택됩니다.
+	// 이때, ** 함수 시그니처가 더 포괄적인 버전(매개변수 두 개 버전)** 이 선택될 수 있습니다.
+
 	_bool					IsActiveMyParticle() { return m_isActiveMyParticle; }
 
 

@@ -80,6 +80,9 @@ void CHel_JumpEnd::Update(_float fTimeDelta)
 		pHel->Get_Part(CHel::PARTID::PART_PARTICLE_JUMPEND)->SetActiveMyParticle(true);
 
 		m_isFirstParticleActive = true;
+
+		if (false == m_pGameInstance->Check_IsPlaying(SOUND_HEL_JUMPEND))
+			m_pGameInstance->Play_Sound(TEXT("Sprint.ogg"), SOUND_HEL_JUMPEND, 20.f);
 	}
 
 	if (0.9f < (_float)TrackPos / Duration)

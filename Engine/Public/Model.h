@@ -16,9 +16,14 @@ private:
 
 public:
 	_uint					Get_NumMeshes() { return m_iNumMeshes; }
-	vector<class CMesh*>& Get_Meshes() { return m_Meshes; }
+	vector<class CMesh*>&	Get_Meshes() { return m_Meshes; }
 
-	TYPE				Get_ModelType() { return m_eType; }
+	TYPE					Get_ModelType() { return m_eType; }
+
+public:
+	_uint					Get_NumAffectBone(_uint iMeshIndex);		// 이 모델의 몇번째 메쉬에서 그 메쉬가 영향을 받는 뼈의 갯수를 구해보자
+
+
 
 	_uint Get_BoneIndex(const _char* pBoneName) const;
 
@@ -55,7 +60,7 @@ public:
 
 public:
 	HRESULT Bind_Material(class CShader* pShader, const _char* pConstantName, aiTextureType eMaterialType, _uint iMeshIndex);
-	HRESULT Bind_MeshBoneMatrices(class CShader* pShader, const _char* pConstantName, _uint iMeshIndex);
+	HRESULT Bind_MeshBoneMatrices(class CShader* pShader, const _char* pConstantName, _uint iMeshIndex, _float4x4*	pOutBoneMatrix = nullptr);
 
 public:
 	virtual HRESULT Initialize_Prototype(TYPE eType, const _char* pModelFilePath,  _wstring* pMaterialTexturesPath,_uint iNumMeshes, _uint iMaterialsCount , _fmatrix PreTransformMatrix = XMMatrixIdentity(), void* pInitMeshArg = nullptr, void* pInitBoneArg = nullptr, void* pInitAnimationArg = nullptr);
@@ -68,7 +73,7 @@ public:
 
 	/* 뼈를 움직인다.(CBone`s m_TransformationMatrix행렬을 갱신한다.) */
 	/* 모든 뼈가 가지고 있는 m_CombinedTransformationMatrix를 갱신한다. */
-	_bool Play_Animation(_float fTimeDelta);
+	_bool Play_Animation(_float fTimeDelta, _bool isFrustumCulling = false);
 
 
 

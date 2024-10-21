@@ -20,8 +20,8 @@ public:
 
 
 private:
-
-
+	_float			m_fTrainSoundAmountTime = { 0.f };
+	_float			m_fTrainSoundAmount = { 0.f };
 
 private:
 	HRESULT Ready_Lights();

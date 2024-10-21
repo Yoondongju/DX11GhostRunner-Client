@@ -8,6 +8,7 @@
 #include "Player.h"
 #include "FreeCamera.h"
 
+
 CHel_CutScene::CHel_CutScene(class CGameObject* pOwner)
 	: CState{ CHel::HEL_ANIMATION::CUTSCENE , pOwner }
 {
@@ -96,6 +97,8 @@ HRESULT CHel_CutScene::Start_State(void* pArg)
 		pRigidBody->Add_Force_Direction(-vHelLookNor, 150, Engine::CRigidBody::ACCELERATION);
 		pRigidBody->Add_Force_Direction(-vHelLookNor, 150, Engine::CRigidBody::VELOCITYCHANGE);
 
+		m_pGameInstance->StopSound(SOUND_BGM);
+		m_pGameInstance->PlayBGM(TEXT("HelPage2.ogg"), g_fBgmVolume);
 	}
 	else
 	{
@@ -124,6 +127,12 @@ HRESULT CHel_CutScene::Start_State(void* pArg)
 
 		_float4& fOffsetHel = pCamera->Get_OffsetByHelRef();
 		fOffsetHel = { 1050.f, 1000.f, -1000.f , 1.f };
+
+		m_pGameInstance->StopSound(SOUND_BGM);
+		m_pGameInstance->PlayBGM(TEXT("HelPage1.ogg"), g_fBgmVolume);
+
+		if (false == m_pGameInstance->Check_IsPlaying(SOUND_SECOND_BGM))
+			m_pGameInstance->Play_Sound(TEXT("HelCutScenePage1Start.ogg"), SOUND_SECOND_BGM, 5.f);
 	}
 
 	return S_OK;
@@ -205,16 +214,21 @@ void CHel_CutScene::Page1(_float fTimeDelta)
 	_vector DistanceVec = XMVectorSubtract(XMLoadFloat4(&TargetOffset) , XMLoadFloat4(&fOffsetHel));
 	_float fDistanceToTarget = XMVectorGetX(XMVector3Length(DistanceVec));
 	
-	if (fDistanceToTarget < 5.f)
-	{
-		pHel->Get_Part(CHel::PARTID::PART_PARTICLE_SWIRL)->SetActiveMyParticle(true);
+	if (fDistanceToTarget < 10.f)
+	{	
+		m_pGameInstance->Play_Sound(TEXT("HelCutScenePage1End.ogg"), SOUND_SECOND_BGM, 3.f);
+		m_pGameInstance->Play_Sound(TEXT("Electric.ogg"), SOUND_HEL_ELECTRIC, 4.f);
+
+
+		pHel->Get_Part(CHel::PARTID::PART_PARTICLE_BIGSMOKE)->SetActiveMyParticle(true);
+		pHel->Set_ActiveParticleBigElectric(true);
 
 		pModel->SetUp_Animation(CHel::HEL_ANIMATION::RAISE, true);
 		pFsm->Change_State(CHel::HEL_ANIMATION::RAISE);
 		return;
 	}
 	
-	_float fSpeedFactor = 0.01f;  
+	_float fSpeedFactor = 0.033f;  
 	_float fSpeed = fDistanceToTarget * fSpeedFactor;
 	
 	
@@ -231,7 +245,7 @@ void CHel_CutScene::Page1(_float fTimeDelta)
 
 	if (fDistanceToTarget < 110.f)
 	{
-		fAccSpeed = 9.f;
+		fAccSpeed *= 0.75f;
 	}
 
 	m_t += fTimeDelta * fSpeed * fAccSpeed / fDistanceToTarget;
@@ -291,6 +305,8 @@ void CHel_CutScene::Page2(_float fTimeDelta)
 					pModel->SetUp_Animation(CHel::HEL_ANIMATION::RUN_JUMP, true);
 					m_isStartJump = true;
 					m_pGameInstance->ActiveBlur(nullptr, CRenderer::BLUR_TYPE::MOTION_BLUR);
+
+					m_pGameInstance->Play_Sound(TEXT("RunJump.ogg"), SOUND_HEL_MOVEMENT, 12.f);
 				}
 				else
 				{
@@ -365,13 +381,13 @@ void CHel_CutScene::Page2(_float fTimeDelta)
 
 
 				_vector vHelCurPos = pHelTransform->Get_State(CTransform::STATE_POSITION);
-				_float fTargetHeight = 600.f;
+				_float fTargetHeight = 800.f;
 				_float fHeightDiff = fTargetHeight - vHelCurPos.m128_f32[1];	// 높이차이 
 
 
 				_float fMaxYSpeed = 6000.f;
-				_float fAcceleration = 6500;	// 가속도 (값을 조정해 가속하는 속도를 결정)
-				_float fDeceleration = 6500.f;  // 감속도 (감속하는 속도를 결정)
+				_float fAcceleration = 6500;	// 가속도 
+				_float fDeceleration = 6500.f;  // 감속도 
 
 
 				if (false == m_isEndJump && fHeightDiff > 0) // 목표보다 아직 아래에 있을 때
@@ -381,7 +397,7 @@ void CHel_CutScene::Page2(_float fTimeDelta)
 				else // 목표보다 높아졌다면
 				{
 					m_isEndJump = true;
-					m_fInitialYSpeed -= fDeceleration * fTimeDelta * 4.f;
+					m_fInitialYSpeed -= fDeceleration * fTimeDelta;
 				}
 				pHelTransform->Set_State(CTransform::STATE_POSITION, XMVectorSetY(vHelCurPos, m_fInitialYSpeed * fTimeDelta));
 			}

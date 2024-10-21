@@ -121,7 +121,7 @@ void CPlayer_Nami::Update(_float fTimeDelta)
 			{
 				m_fTargetCreateTime += fTimeDelta;
 
-				if (m_fTargetCreateTime > 0.2f)
+				if (m_fTargetCreateTime >= 0.09f)
 				{
 					static_cast<CEnemy*>(m_Targets[m_iTargetIndex++])->Set_Targeting(true);
 					m_fTargetCreateTime = 0.f;
@@ -181,6 +181,8 @@ void CPlayer_Nami::Update(_float fTimeDelta)
 
 						CSwordTrail* pSwordTrail = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON))->Get_SwordTrail();
 						pSwordTrail->Set_Active(true);
+
+						m_pGameInstance->ActiveRefraction(static_cast<CPlayer*>(m_pOwner)->Get_TimeStopRefractionTex(), CRenderer::REFRACTION_TYPE::SCREENSPLIT);
 
 						if (false == m_isNamiAttackSoundActive)
 						{
@@ -245,8 +247,10 @@ void CPlayer_Nami::End_State()
 
 	m_pOwner->Get_RigidBody()->Set_GravityReduceRatio(1.f);		// 원상복구
 
-CSwordTrail* pSwordTrail = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON))->Get_SwordTrail();
+	CSwordTrail* pSwordTrail = static_cast<CWeapon_Player*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CPlayer::PARTID::PART_WEAPON))->Get_SwordTrail();
 	pSwordTrail->Set_Active(false);
+
+	m_pGameInstance->UnActiveRefraction();
 }
 
 

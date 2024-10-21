@@ -82,9 +82,6 @@ void CPistol::Update(_float fTimeDelta)
     }
 
  
-    m_pFsm->Update(fTimeDelta);
-    m_pModel->Play_Animation(fTimeDelta);
-
 
     if (true == m_isMindControlReady)
     {
@@ -95,7 +92,17 @@ void CPistol::Update(_float fTimeDelta)
         m_pFsm->Change_State(CPistol::PISTOL_ANIMATION::IDLE_1);
     }
 
+    m_pFsm->Update(fTimeDelta);
 
+    if (true == m_pGameInstance->isIn_Frustum_WorldSpace(m_pTransformCom->Get_State(CTransform::STATE_POSITION), 15.f))
+    {
+        m_isFrustumCulling = false;
+    }
+    else
+        m_isFrustumCulling = true;
+    m_pModel->Play_Animation(fTimeDelta, m_isFrustumCulling);
+
+  
 
     for (auto& pPartObject : m_Parts)
         pPartObject->Update(fTimeDelta);
@@ -106,17 +113,19 @@ void CPistol::Update(_float fTimeDelta)
 
 void CPistol::Late_Update(_float fTimeDelta)
 {
-    if (true == m_pGameInstance->isIn_Frustum_WorldSpace(m_pTransformCom->Get_State(CTransform::STATE_POSITION), 3.f))
+    if (false == m_isFrustumCulling)
     {
         m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 
 #ifdef _DEBUG
         m_pGameInstance->Add_DebugObject(m_pColliderCom);
 #endif
+
+        for (auto& pPartObject : m_Parts)
+            pPartObject->Late_Update(fTimeDelta);
     }
 
-    for (auto& pPartObject : m_Parts)
-        pPartObject->Late_Update(fTimeDelta);
+
 
 }
 

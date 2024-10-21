@@ -94,7 +94,9 @@ HRESULT CMesh::Initialize(void * pArg)
 	return S_OK;
 }
 
-HRESULT CMesh::Bind_BoneMatrices(const CModel* pModel, CShader* pShader, const _char* pConstantName)
+
+
+HRESULT CMesh::Bind_BoneMatrices(const CModel* pModel, CShader* pShader, const _char* pConstantName, _float4x4* pOutBoneMatrix)
 {
 	ZeroMemory(m_BoneMatrices, sizeof(_float4x4) * g_iMaxMeshBones);
 
@@ -103,8 +105,16 @@ HRESULT CMesh::Bind_BoneMatrices(const CModel* pModel, CShader* pShader, const _
 		XMStoreFloat4x4(&m_BoneMatrices[i], XMLoadFloat4x4(&m_OffsetMatrices[i]) * pModel->Get_BoneCombindTransformationMatrix(m_BoneIndices[i]));
 	}
 
+
+	if(nullptr != pOutBoneMatrix)
+		memcpy(pOutBoneMatrix, m_BoneMatrices, sizeof(_float4x4) * m_iNumBones);
+
+
 	return  pShader->Bind_Matrices(pConstantName, m_BoneMatrices, m_iNumBones);
 }
+
+
+
 
 HRESULT CMesh::Ready_VertexBuffer_NonAnim(void* pArg , _fmatrix PreTransformMatrix)
 {

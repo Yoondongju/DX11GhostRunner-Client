@@ -43,6 +43,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <EnableUnitySupport>true</EnableUnitySupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -103,7 +104,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\User\Desktop\Dx11_Ghostrunner\EngineSDK\Inc\PhysX\include;../../EngineSDK/Inc/;../Public/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\User\Desktop\Dx11_Ghostrunner\EngineSDK\Inc\PhysX\include;../../EngineSDK/Inc/;../Default/;../Public/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -175,6 +176,7 @@
     <ClInclude Include="..\Public\Body_Player.h" />
     <ClInclude Include="..\Public\Dynamic_Object.h" />
     <ClInclude Include="..\Public\Elite.h" />
+    <ClInclude Include="..\Public\EliteMotionTrail.h" />
     <ClInclude Include="..\Public\EliteSwordTrail.h" />
     <ClInclude Include="..\Public\EliteTurboTrail.h" />
     <ClInclude Include="..\Public\Elite_Alert.h" />
@@ -191,6 +193,7 @@
     <ClInclude Include="..\Public\EventNotify.h" />
     <ClInclude Include="..\Public\GrapplingPointUI.h" />
     <ClInclude Include="..\Public\Hel.h" />
+    <ClInclude Include="..\Public\HelMotionTrail.h" />
     <ClInclude Include="..\Public\HelSwordTrail.h" />
     <ClInclude Include="..\Public\Hel_Attack.h" />
     <ClInclude Include="..\Public\Hel_BackBlock.h" />
@@ -215,8 +218,13 @@
     <ClInclude Include="..\Public\Jetpack_Fly.h" />
     <ClInclude Include="..\Public\Jetpack_Idle.h" />
     <ClInclude Include="..\Public\Jetpack_Scared.h" />
+    <ClInclude Include="..\Public\KillCountUI.h" />
     <ClInclude Include="..\Public\Level_Stage1.h" />
     <ClInclude Include="..\Public\Level_Stage1_Boss.h" />
+    <ClInclude Include="..\Public\LogoInnerRing.h" />
+    <ClInclude Include="..\Public\LogoName.h" />
+    <ClInclude Include="..\Public\LogoOutRing.h" />
+    <ClInclude Include="..\Public\LogoPanel.h" />
     <ClInclude Include="..\Public\MiniMapMarker.h" />
     <ClInclude Include="..\Public\MiniMapPanel.h" />
     <ClInclude Include="..\Public\MiniMapPlayer.h" />
@@ -228,8 +236,11 @@
     <ClInclude Include="..\Public\Mira_WalkIn.h" />
     <ClInclude Include="..\Public\Monster_Bullet.h" />
     <ClInclude Include="..\Public\NumberUI.h" />
+    <ClInclude Include="..\Public\Particle_Rain.h" />
     <ClInclude Include="..\Public\Particle_Attack.h" />
+    <ClInclude Include="..\Public\Particle_BigElectric.h" />
     <ClInclude Include="..\Public\Particle_BigSmoke.h" />
+    <ClInclude Include="..\Public\Particle_Electric.h" />
     <ClInclude Include="..\Public\Particle_Jump.h" />
     <ClInclude Include="..\Public\Particle_Piece.h" />
     <ClInclude Include="..\Public\Particle_Block.h" />
@@ -314,6 +325,7 @@
     <ClCompile Include="..\Private\Body_Player.cpp" />
     <ClCompile Include="..\Private\Dynamic_Object.cpp" />
     <ClCompile Include="..\Private\Elite.cpp" />
+    <ClCompile Include="..\Private\EliteMotionTrail.cpp" />
     <ClCompile Include="..\Private\EliteSwordTrail.cpp" />
     <ClCompile Include="..\Private\EliteTurboTrail.cpp" />
     <ClCompile Include="..\Private\Elite_Alert.cpp" />
@@ -330,6 +342,7 @@
     <ClCompile Include="..\Private\EventNotify.cpp" />
     <ClCompile Include="..\Private\GrapplingPointUI.cpp" />
     <ClCompile Include="..\Private\Hel.cpp" />
+    <ClCompile Include="..\Private\HelMotionTrail.cpp" />
     <ClCompile Include="..\Private\HelSwordTrail.cpp" />
     <ClCompile Include="..\Private\Hel_Attack.cpp" />
     <ClCompile Include="..\Private\Hel_BackBlock.cpp" />
@@ -354,8 +367,13 @@
     <ClCompile Include="..\Private\Jetpack_Fly.cpp" />
     <ClCompile Include="..\Private\Jetpack_Idle.cpp" />
     <ClCompile Include="..\Private\Jetpack_Scared.cpp" />
+    <ClCompile Include="..\Private\KillCountUI.cpp" />
     <ClCompile Include="..\Private\Level_Stage1.cpp" />
     <ClCompile Include="..\Private\Level_Stage1_Boss.cpp" />
+    <ClCompile Include="..\Private\LogoInnerRing.cpp" />
+    <ClCompile Include="..\Private\LogoName.cpp" />
+    <ClCompile Include="..\Private\LogoOutRing.cpp" />
+    <ClCompile Include="..\Private\LogoPanel.cpp" />
     <ClCompile Include="..\Private\MiniMapMarker.cpp" />
     <ClCompile Include="..\Private\MiniMapPanel.cpp" />
     <ClCompile Include="..\Private\MiniMapPlayer.cpp" />
@@ -367,8 +385,11 @@
     <ClCompile Include="..\Private\Mira_WalkIn.cpp" />
     <ClCompile Include="..\Private\Monster_Bullet.cpp" />
     <ClCompile Include="..\Private\NumberUI.cpp" />
+    <ClCompile Include="..\Private\Particle_Rain.cpp" />
     <ClCompile Include="..\Private\Particle_Attack.cpp" />
+    <ClCompile Include="..\Private\Particle_BigElectric.cpp" />
     <ClCompile Include="..\Private\Particle_BigSmoke.cpp" />
+    <ClCompile Include="..\Private\Particle_Electric.cpp" />
     <ClCompile Include="..\Private\Particle_Jump.cpp" />
     <ClCompile Include="..\Private\Particle_Piece.cpp" />
     <ClCompile Include="..\Private\Particle_Block.cpp" />

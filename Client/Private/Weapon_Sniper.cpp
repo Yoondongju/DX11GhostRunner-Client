@@ -75,6 +75,7 @@ void CWeapon_Sniper::Late_Update(_float fTimeDelta)
 
 	XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(m_pTransformCom->Get_WorldMatrix_Ptr()) * SocketMatrix * XMLoadFloat4x4(m_pParentMatrix));
 
+	
 	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 }
 

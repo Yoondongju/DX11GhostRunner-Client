@@ -70,7 +70,7 @@ void CParticle_EliteBlock::Update(_float fTimeDelta)
 void CParticle_EliteBlock::Late_Update(_float fTimeDelta)
 {
 	if (m_isActiveMyParticle)
-		m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
+		m_pGameInstance->Add_RenderObject(CRenderer::RG_BLOOM, this);
 }
 
 HRESULT CParticle_EliteBlock::Render()

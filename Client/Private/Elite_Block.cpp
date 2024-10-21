@@ -11,6 +11,8 @@
 #include "Weapon_Elite.h"
 #include "EliteSwordTrail.h"
 
+#include "EliteMotionTrail.h"
+
 CElite_Block::CElite_Block(class CGameObject* pOwner)
 	: CState{ CElite::ELITE_ANIMATION::BLOCK_F , pOwner }
 {
@@ -57,6 +59,10 @@ void CElite_Block::Update(_float fTimeDelta)
 
 	if (true == m_bDashBlock)	// 앞으로 뛰쳐나오는 막기였다면
 	{		
+		CElite* pElite = static_cast<CElite*>(m_pOwner);
+		pElite->Get_MotionTrail()->Set_Active(true);
+
+
 		_vector vPlayerPos = m_pGameInstance->Find_Player(LEVEL_GAMEPLAY)->Get_Transform()->Get_State(CTransform::STATE_POSITION);
 		CTransform* pEliteTransform = m_pOwner->Get_Transform();
 		_vector vElitePos = pEliteTransform->Get_State(CTransform::STATE_POSITION);
@@ -83,6 +89,11 @@ void CElite_Block::Update(_float fTimeDelta)
 		}
 		else
 		{	
+			if (false == m_pGameInstance->Check_IsPlaying(SOUND_ELITE))
+			{
+				m_pGameInstance->Play_Sound(TEXT("EliteGoBlock.ogg"), SOUND_ELITE, 2.f);
+			}
+
 			pElite->Get_Part(CElite::PARTID::PART_PARTICLE_DASHBLOCK)->SetActiveMyParticle(true);	// 플레이어 거리가 멀어지면 당연 안터지고
 			m_bDashBlock = false;
 		}			
@@ -121,6 +132,9 @@ void CElite_Block::End_State()
 
 	CEliteSwordTrail* pSwordTrail = static_cast<CWeapon_Elite*>(static_cast<CContainerObject*>(m_pOwner)->Get_Part(CElite::PARTID::PART_WEAPON))->Get_SwordTrail();
 	pSwordTrail->Set_Active(false);
+
+
+	pElite->Get_MotionTrail()->Set_Active(false);
 }
 
 

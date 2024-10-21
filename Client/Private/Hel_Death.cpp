@@ -21,7 +21,8 @@ HRESULT CHel_Death::Initialize()
 
 HRESULT CHel_Death::Start_State(void* pArg)
 {
-
+	m_pGameInstance->StopSound(SOUND_HEL_VOICE);
+	m_pGameInstance->Play_Sound(TEXT("HelDeathVO.ogg"), SOUND_HEL_VOICE, 10.f);
 
 	return S_OK;
 }

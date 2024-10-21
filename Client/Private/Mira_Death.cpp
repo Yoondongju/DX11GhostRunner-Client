@@ -6,6 +6,7 @@
 #include "GameInstance.h"
 #include "Animation.h"
 
+#include "KillCountUI.h"
 
 CMira_Death::CMira_Death(class CGameObject* pOwner)
 	: CState{ CMira::MIRA_ANIMATION::DEATH , pOwner }
@@ -36,6 +37,8 @@ HRESULT CMira_Death::Start_State(void* pArg)
 	default:
 		break;
 	}
+
+	static_cast<CKillCountUI*>(m_pGameInstance->Find_Object(LEVEL_GAMEPLAY, L"Layer_KillCount", 0))->Set_Active(true);
 
 	return S_OK;
 }

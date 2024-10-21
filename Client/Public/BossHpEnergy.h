@@ -47,6 +47,9 @@ private:
 	_float			m_fOriginalSizeX = {};
 	_float			m_fOriginalfX = {};
 
+	_float			m_fPreRatio = { };
+	_bool			m_isStartDecrease = { false };
+
 private:
 	HRESULT Ready_Components();
 

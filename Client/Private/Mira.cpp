@@ -83,10 +83,6 @@ void CMira::Update(_float fTimeDelta)
     }
         
 
-    m_pFsm->Update(fTimeDelta);
-    m_pModel->Play_Animation(fTimeDelta);
-    
-
     if (true == m_isMindControlReady)
     {
         _vector vTargetPos = m_pTargetEnemy->Get_Transform()->Get_State(CTransform::STATE_POSITION);
@@ -97,8 +93,16 @@ void CMira::Update(_float fTimeDelta)
     }
 
 
+    m_pFsm->Update(fTimeDelta);
 
-
+    if (true == m_pGameInstance->isIn_Frustum_WorldSpace(m_pTransformCom->Get_State(CTransform::STATE_POSITION), 15.f))
+    {
+        m_isFrustumCulling = false;
+    }
+    else
+        m_isFrustumCulling = true;
+    m_pModel->Play_Animation(fTimeDelta, m_isFrustumCulling);
+    
 
 
     m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
@@ -109,7 +113,7 @@ void CMira::Update(_float fTimeDelta)
 
 void CMira::Late_Update(_float fTimeDelta)
 {
-    if (true == m_pGameInstance->isIn_Frustum_WorldSpace(m_pTransformCom->Get_State(CTransform::STATE_POSITION), 3.f))
+    if (false  == m_isFrustumCulling)
     {
         m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 

@@ -15,7 +15,7 @@
 #include "Player.h"
 #include "SubShuriken.h"
 
-#include "Elite.h"
+#include "Hel.h"
 
 CLevel_Stage2_Boss::CLevel_Stage2_Boss(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CLevel{ pDevice, pContext }
@@ -42,6 +42,9 @@ HRESULT CLevel_Stage2_Boss::Initialize(void* pArg)
 
 	Desc.iObjectType = CModel::TYPE::TYPE_NONANIM;
 	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_STAGE2_BOSS, L"Layer_Map", L"Prototype_GameObject_Static_Object", L"Prototype_Component_MapModel", &Desc)))
+		return E_FAIL;
+
+	if (FAILED(m_pGameInstance->Add_CloneObject_ToLayer(LEVEL_STAGE2_BOSS, L"Layer_BackGroundParticle", L"Prototype_GameObject_Particle_Rain", L"NoModel")))
 		return E_FAIL;
 
 
@@ -80,13 +83,12 @@ HRESULT CLevel_Stage2_Boss::Initialize(void* pArg)
 
 void CLevel_Stage2_Boss::Update(_float fTimeDelta)
 {
-
+	
 }
 
 
 HRESULT CLevel_Stage2_Boss::Render()
 {
-	SetWindowText(g_hWnd, TEXT("LEVEL_STAGE2_BOSS _ 레벨입니다."));
 	return S_OK;
 }
 
@@ -108,6 +110,11 @@ HRESULT CLevel_Stage2_Boss::Ready_Lights()
 		return E_FAIL;
 
 
+	CPlayer* pPlayer = static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY));
+	pPlayer->Set_BlockCoolTime(0.3f);
+
+
+	
 	return S_OK;
 }
 

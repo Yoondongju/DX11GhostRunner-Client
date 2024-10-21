@@ -55,21 +55,21 @@ void CParticle_Explosion::Update(_float fTimeDelta)
 
 		if (false == m_pGameInstance->Check_IsPlaying(SOUND_ENEMYEFFECT))
 		{
-			//_uint iRandom = m_pGameInstance->Get_Random_Interger(0, 2);
-			//switch (iRandom)
-			//{
-			//case 0:
-			//	m_pGameInstance->Play_Sound(TEXT("SFX_frogger_slam_01.ogg"), SOUND_ENEMYEFFECT, 1.f);
-			//	break;
-			//case 1:
-			//	m_pGameInstance->Play_Sound(TEXT("SFX_frogger_slam_02.ogg"), SOUND_ENEMYEFFECT, 1.f);
-			//	break;
-			//case 2:
-			//	m_pGameInstance->Play_Sound(TEXT("SFX_frogger_slam_03.ogg"), SOUND_ENEMYEFFECT, 1.f);
-			//	break;
-			//default:
-			//	break;
-			//}
+			_uint iRandom = m_pGameInstance->Get_Random_Interger(0, 2);
+			switch (iRandom)
+			{
+			case 0:
+				m_pGameInstance->Play_Sound(TEXT("SFX_frogger_slam_01.ogg"), SOUND_ENEMYEFFECT, 1.f);
+				break;
+			case 1:
+				m_pGameInstance->Play_Sound(TEXT("SFX_frogger_slam_02.ogg"), SOUND_ENEMYEFFECT, 1.f);
+				break;
+			case 2:
+				m_pGameInstance->Play_Sound(TEXT("SFX_frogger_slam_03.ogg"), SOUND_ENEMYEFFECT, 1.f);
+				break;
+			default:
+				break;
+			}
 		}	
 		
 

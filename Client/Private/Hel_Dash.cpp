@@ -5,6 +5,8 @@
 #include "GameInstance.h"
 #include "Animation.h"
 
+#include "HelMotionTrail.h"
+
 CHel_Dash::CHel_Dash(class CGameObject* pOwner)
 	: CState{ CHel::HEL_ANIMATION::DASH_BACK , pOwner }
 {
@@ -35,6 +37,9 @@ HRESULT CHel_Dash::Start_State(void* pArg)
 	_double& TrackPos = pModel->Get_Referene_CurrentTrackPosition();
 	TrackPos = 0.0;
 
+	m_pGameInstance->Play_Sound(TEXT("DashBack.ogg"), SOUND_HEL_MOVEMENT, 10.f);
+
+	static_cast<CHel*>(m_pOwner)->Get_MotionTrail()->Set_Active(true);
 
 	return S_OK;
 }
@@ -62,7 +67,7 @@ void CHel_Dash::Update(_float fTimeDelta)
 
 void CHel_Dash::End_State()
 {
-
+	static_cast<CHel*>(m_pOwner)->Get_MotionTrail()->Set_Active(false);
 }
 
 

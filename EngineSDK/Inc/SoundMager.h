@@ -22,6 +22,9 @@ public:
 
 public:
 	void PlaySound(const TCHAR * pSoundKey, _uint eID, _float fVolume);				// 그냥 소리재생인듯   (반복 X )
+	void PlaySound(const TCHAR * pSoundKey, _uint eID, _float* pVolume);
+
+
 	void Play_SoundRepeat(const TCHAR * pSoundKey, _uint eID, _float fVolume);		// 그냥 소리재생인듯   (반복 O )
 	void PlayBGM(const TCHAR * pSoundKey, _float fVolume);							// 배경음악
 	void StopSound(_uint eID);

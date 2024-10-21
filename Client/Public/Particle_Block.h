@@ -27,8 +27,7 @@ private:
 
 
 public:
-	virtual void		    SetActiveMyParticle(_bool b);
-
+	virtual void			SetActiveMyParticle(_bool b , _bool isOtherFlag) override;
 
 public:
 	virtual HRESULT Initialize_Prototype() override;
@@ -39,14 +38,15 @@ public:
 	virtual HRESULT Render() override;
 
 private:
-	CShader*				  m_pShaderCom = { nullptr };
-	CTexture*				  m_pTextureCom = { nullptr };
-	CVIBuffer_Point_Instance* m_pVIBufferCom = { nullptr };
+	CShader*					m_pShaderCom = { nullptr };
+	CTexture*					m_pTextureCom = { nullptr };
+	CVIBuffer_Point_Instance*	m_pVIBufferCom = { nullptr };
 
 
 private:		
 	_float3						m_SpwanPositionLocal = {};		// 스폰되는 위치
 	_float						m_fDisableTime = { 1.f };
+	_bool						m_isRefraction = { false };
 
 
 private:

@@ -77,6 +77,33 @@ HRESULT CLevel_Stage1_Boss::Initialize(void* pArg)
 
 void CLevel_Stage1_Boss::Update(_float fTimeDelta)
 {
+	if (false == m_pGameInstance->Check_IsPlaying(SOUND_SECOND_BGM))
+	{
+		m_pGameInstance->Play_Sound(TEXT("Train.ogg"), SOUND_SECOND_BGM, 0.f);
+	}
+
+	m_pGameInstance->SetChannelVolume(SOUND_SECOND_BGM, m_fTrainSoundAmount);
+
+	if (m_fTrainSoundAmountTime >= 0.f &&
+		m_fTrainSoundAmountTime < 4.5f)
+	{
+		m_fTrainSoundAmount += fTimeDelta * 0.25f;
+	}
+	else if (m_fTrainSoundAmountTime >= 4.5f &&
+		m_fTrainSoundAmountTime < 9.f)
+	{
+		m_fTrainSoundAmount -= fTimeDelta * 0.25f;
+	}
+	else
+	{
+		m_fTrainSoundAmountTime = 0.f;
+	}
+
+	m_fTrainSoundAmountTime += fTimeDelta;
+
+
+
+
 	if (m_pGameInstance->Get_KeyState(KEY::B) == KEY_STATE::TAP)
 	{
 		if (FAILED(m_pGameInstance->Change_Level(LEVEL_LOADING, CLevel_Loading::Create(m_pDevice, m_pContext, LEVEL_STAGE2_BOSS))))
@@ -87,26 +114,47 @@ void CLevel_Stage1_Boss::Update(_float fTimeDelta)
 
 HRESULT CLevel_Stage1_Boss::Render()
 {
-	SetWindowText(g_hWnd, TEXT("LEVEL_STAGE1_BOSS _ 레벨입니다."));
 	return S_OK;
 }
 
 
 HRESULT CLevel_Stage1_Boss::Ready_Lights()
 {
-	/* 게임플레이 레벨에 필요한 광원을 준비한다. */
-
 	LIGHT_DESC			LightDesc{};
-
 	ZeroMemory(&LightDesc, sizeof LightDesc);
 	LightDesc.eType = LIGHT_DESC::TYPE_DIRECTIONAL;
 	LightDesc.vDirection = _float4(1.f, -1.f, 1.f, 0.f);	// 광원이 쏘는 방향 
-	LightDesc.vDiffuse = _float4(1.f, 0.85f, 0.9f, 1.f);
-	LightDesc.vAmbient = _float4(0.6f, 0.6f, 0.6f, 1.f);
+	LightDesc.vDiffuse = _float4(0.3f, 0.3f, 0.3f, 1.f);
+	LightDesc.vAmbient = _float4(0.8f, 0.8f, 0.8f, 1.f);
 	LightDesc.vSpecular = _float4(1.f, 1.f, 1.f, 1.f);
-
 	if (FAILED(m_pGameInstance->Add_Light(LightDesc)))
 		return E_FAIL;
+
+
+	ZeroMemory(&LightDesc, sizeof LightDesc);
+	LightDesc.eType = LIGHT_DESC::TYPE_POINT;
+	LightDesc.vPosition = _float4(10.f, 3.f, 10.f, 1.f);		//  월드위치네
+	LightDesc.fRange = 5.f;
+	LightDesc.vDiffuse = _float4(1.f, 1.f, 1.f, 1.f);
+	LightDesc.vAmbient = /*_float4(0.4f, 0.2f, 0.2f, 1.f);*/_float4(0.f, 0.f, 0.f, 0.f);
+	LightDesc.vSpecular = LightDesc.vDiffuse;
+	if (FAILED(m_pGameInstance->Add_Light(LightDesc)))
+		return E_FAIL;
+
+
+	ZeroMemory(&LightDesc, sizeof LightDesc);
+	LightDesc.eType = LIGHT_DESC::TYPE_POINT;
+	LightDesc.vPosition = _float4(306.253815f, 70.0848236f, -3449.53833f, 1.f);		//  월드위치네
+	LightDesc.fRange = 200.f;
+	LightDesc.vDiffuse = _float4(1.f, 0.784f, 0.314f, 1.f);
+	LightDesc.vAmbient = /*_float4(0.4f, 0.2f, 0.2f, 1.f);*/_float4(0.f, 0.f, 0.f, 0.f);
+	LightDesc.vSpecular = LightDesc.vDiffuse;
+	if (FAILED(m_pGameInstance->Add_Light(LightDesc)))
+		return E_FAIL;
+
+
+	LIGHT_DESC* pLight = m_pGameInstance->Get_LightDesc(1);
+	static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY))->Set_PointLight(pLight);
 
 
 	return S_OK;
@@ -141,8 +189,6 @@ HRESULT CLevel_Stage1_Boss::Ready_Layer_BackGround(void* pArg)
 
 	return S_OK;
 }
-
-
 
 HRESULT CLevel_Stage1_Boss::Ready_Layer_MapObject(void* pArg)
 {

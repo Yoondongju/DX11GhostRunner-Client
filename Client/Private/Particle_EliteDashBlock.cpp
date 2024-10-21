@@ -76,7 +76,7 @@ void CParticle_EliteDashBlock::Update(_float fTimeDelta)
 void CParticle_EliteDashBlock::Late_Update(_float fTimeDelta)
 {
 	if (m_isActiveMyParticle)
-		m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
+		m_pGameInstance->Add_RenderObject(CRenderer::RG_BLOOM, this);
 }
 
 HRESULT CParticle_EliteDashBlock::Render()

@@ -7,6 +7,8 @@
 
 #include "Animation.h"
 
+#include "KillCountUI.h"
+
 CPistol_Death::CPistol_Death(class CGameObject* pOwner)
 	: CState{ CPistol::PISTOL_ANIMATION::DEATH_1 , pOwner }
 {
@@ -34,6 +36,8 @@ HRESULT CPistol_Death::Start_State(void* pArg)
 	default:
 		break;
 	}
+
+	static_cast<CKillCountUI*>(m_pGameInstance->Find_Object(LEVEL_GAMEPLAY, L"Layer_KillCount", 0))->Set_Active(true);
 
 	return S_OK;
 }

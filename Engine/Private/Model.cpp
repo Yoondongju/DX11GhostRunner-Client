@@ -48,6 +48,11 @@ CModel::CModel(const CModel & Prototype)
 	
 }
 
+_uint CModel::Get_NumAffectBone(_uint iMeshIndex)
+{
+	return m_Meshes[iMeshIndex]->Get_NumAffectBone();
+}
+
 _uint CModel::Get_BoneIndex(const _char* pBoneName) const
 {
 	_uint	iBoneIndex = { 0 };
@@ -147,7 +152,7 @@ void CModel::SetUp_Animation(_uint iAnimationIndex, _bool isLoop,  _float fNextL
 }
 
 
-_bool CModel::Play_Animation(_float fTimeDelta)
+_bool CModel::Play_Animation(_float fTimeDelta, _bool isFrustumCulling)
 {
 	/* 뼈를 움직인다.(CBone`s m_TransformationMatrix행렬을 갱신한다.) */
 	_bool isFinished = false;
@@ -157,7 +162,7 @@ _bool CModel::Play_Animation(_float fTimeDelta)
 		isTransitioning = true;
 
 
-	isFinished = m_Animations[m_iCurrentAnimIndex]->Update_TransformationMatrices(m_Bones,
+	isFinished = m_Animations[m_iCurrentAnimIndex]->Update_TransformationMatrices(isFrustumCulling , m_Bones,
 		&m_CurrentTrackPosition,
 		m_KeyFrameIndices[m_iCurrentAnimIndex],
 		m_isLoop,
@@ -174,6 +179,9 @@ _bool CModel::Play_Animation(_float fTimeDelta)
 	XMStoreFloat3(&m_AnimLocalTranslationAmount , m_Bones[1]->Get_TransformationMatrix().r[3]);
 	m_Bones[1]->Set_TransformationMatrix(XMMatrixIdentity());
 	
+
+	if (true == isFrustumCulling)
+		return false;
 
 	for (auto& pBone : m_Bones)
 	{
@@ -195,9 +203,9 @@ HRESULT CModel::Bind_Material(CShader* pShader, const _char* pConstantName, aiTe
 		return S_FALSE;
 }
 
-HRESULT CModel::Bind_MeshBoneMatrices(CShader* pShader, const _char* pConstantName, _uint iMeshIndex)
+HRESULT CModel::Bind_MeshBoneMatrices(CShader* pShader, const _char* pConstantName, _uint iMeshIndex, _float4x4* pOutBoneMatrix)
 {
-	m_Meshes[iMeshIndex]->Bind_BoneMatrices(this, pShader, pConstantName);
+	m_Meshes[iMeshIndex]->Bind_BoneMatrices(this, pShader, pConstantName, pOutBoneMatrix);
 
 	return S_OK;
 }

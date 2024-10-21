@@ -181,7 +181,7 @@ void CSubShuriken::Update(_float4x4* pParentWMatrix , _bool isAttacking,  _float
 
 void CSubShuriken::Late_Update(_float fTimeDelta)
 {
-	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
+	m_pGameInstance->Add_RenderObject(CRenderer::RG_BLOOM, this);
 
 	//m_pShurikenTrail->Late_Update(fTimeDelta);
 

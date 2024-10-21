@@ -29,7 +29,7 @@ HRESULT CAnimation::Initialize(ANIMATION_DESC* pDesc, const class CModel* pModel
 	return S_OK;
 }
 
-_bool CAnimation::Update_TransformationMatrices(const vector<CBone*>& Bones, _double* pCurrentTrackPosition, vector<_uint>& CurrentKeyFrameIndices , _bool isLoop, _float fTimeDelta, _bool isTransitioning, CAnimation* pNextAnimation)
+_bool CAnimation::Update_TransformationMatrices(_bool isFrustumCulling , const vector<CBone*>& Bones, _double* pCurrentTrackPosition, vector<_uint>& CurrentKeyFrameIndices , _bool isLoop, _float fTimeDelta, _bool isTransitioning, CAnimation* pNextAnimation)
 {
 	/* 현재 재생위치를 계산하낟. */
 	*pCurrentTrackPosition += m_SpeedPerSec * fTimeDelta;
@@ -39,9 +39,11 @@ _bool CAnimation::Update_TransformationMatrices(const vector<CBone*>& Bones, _do
 		*pCurrentTrackPosition = 0.0;
 
 		if (false == isLoop)
-			return true;
-		
+			return true;	
 	}
+
+	if (true == isFrustumCulling)
+		return false;
 
 	/* 현재 재생위치에 맞게 현재 애니메이션이 컨트롤해야 할 뼈의 상태들을 갱신해준다. */
 	_uint		iChannelIndex = { 0 };

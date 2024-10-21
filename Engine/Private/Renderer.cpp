@@ -73,6 +73,7 @@ HRESULT CRenderer::Initialize()
 
 	if (FAILED(m_pGameInstance->Add_RenderTarget(TEXT("Target_Refraction"), ViewportDesc.Width, ViewportDesc.Height, DXGI_FORMAT_B8G8R8A8_UNORM, _float4(1.f, 1.f, 1.f, 1.f))))
 		return E_FAIL;
+
 	
 
 	/* MRT_GameObjects */
@@ -182,12 +183,14 @@ HRESULT CRenderer::Initialize()
 	//	return E_FAIL;
 	//if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Blur_Y"), 900.f, ViewportDesc.Height - 100, 200.f, 200.f)))
 	//	return E_FAIL;
-	//if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Refraction"), 1100.f, ViewportDesc.Height - 100, 200.f, 200.f)))
-	//	return E_FAIL;
+
+	
 
 	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_OriginBloomEffect"), 700.f, ViewportDesc.Height - 300, 200.f, 200.f)))
 		return E_FAIL;
 	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_FinalBloomEffect"), 900.f, ViewportDesc.Height - 300, 200.f, 200.f)))
+		return E_FAIL;
+	if (FAILED(m_pGameInstance->Ready_RT_Debug(TEXT("Target_Refraction"), 1100.f, ViewportDesc.Height - 300, 200.f, 200.f)))
 		return E_FAIL;
 
 
@@ -298,16 +301,23 @@ HRESULT CRenderer::Draw()
 	return S_OK;
 }
 
-void CRenderer::ActiveRefraction(CTexture* pRefractionTex, REFRACTION_TYPE eRefractionType)
+void CRenderer::ActiveRefraction(CTexture* pRefractionTex, REFRACTION_TYPE eRefractionType, class CTexture* pBlockMaskTex)
 {
-	if (nullptr != pRefractionTex)
-	{
-		m_isActiveRefraction = true;
-		m_pRefractionTex = pRefractionTex;
-		m_eRefractionType = eRefractionType;
+	m_isActiveRefraction = true;
+	m_eRefractionType = eRefractionType;
 
+	if (nullptr != pRefractionTex)
+	{	
+		m_pRefractionTex = pRefractionTex;
 		Safe_AddRef(m_pRefractionTex);
 	}
+
+	if (nullptr != pBlockMaskTex)
+	{
+		m_pBlockMaskTex = pBlockMaskTex;
+		Safe_AddRef(m_pBlockMaskTex);
+	}
+
 }
 
 void CRenderer::ActiveBlur(CTexture* pBlurMaskTex, BLUR_TYPE eBlurType)
@@ -327,13 +337,20 @@ void CRenderer::UnActiveRefraction()
 	m_isActiveRefraction = false;
 	m_fRefractAmount = 0.f;
 	m_fRefractTime = 0.f;
+	m_fStopTime = 0.f;
 	m_isShutDownRefract = false;
 
 	if (nullptr != m_pRefractionTex)
 	{
 		Safe_Release(m_pRefractionTex);
 		m_pRefractionTex = nullptr;
-	}		
+	}	
+
+	if (nullptr != m_pBlockMaskTex)
+	{
+		Safe_Release(m_pBlockMaskTex);
+		m_pBlockMaskTex = nullptr;
+	}
 }
 
 void CRenderer::UnActiveBlur()
@@ -749,6 +766,7 @@ HRESULT CRenderer::Render_MotionBlur()
 	return S_OK;
 }
 
+
 HRESULT CRenderer::Render_Refraction()
 {
 	if (FAILED(m_pShader->Bind_Matrix("g_WorldMatrix", &m_WorldMatrix)))
@@ -758,20 +776,23 @@ HRESULT CRenderer::Render_Refraction()
 	if (FAILED(m_pShader->Bind_Matrix("g_ProjMatrix", &m_ProjMatrix)))
 		return E_FAIL;
 
+
 	if (FAILED(m_pGameInstance->Begin_MRT(TEXT("MRT_Refraction"))))
 		return E_FAIL;
-
 
 	if (FAILED(m_pGameInstance->Bind_RT_ShaderResource(m_pShader, TEXT("Target_Final"), "g_FinalTexture")))
 		return E_FAIL;
 
-	if (FAILED(m_pRefractionTex->Bind_ShadeResource(m_pShader, "g_RefractionTex", 0)))
-		return E_FAIL;
 
+	if (nullptr != m_pRefractionTex)
+	{
+		if (FAILED(m_pRefractionTex->Bind_ShadeResource(m_pShader, "g_RefractionTex", 0)))
+			return E_FAIL;
+	}
+	
 
 
 	_vector vCamLook = m_pGameInstance->Find_Camera(3)->Get_Transform()->Get_State(CTransform::STATE_LOOK);
-
 	if (FAILED(m_pShader->Bind_RawValue("g_CamLook", &vCamLook, sizeof(_vector))))
 		return E_FAIL;
 
@@ -823,6 +844,40 @@ HRESULT CRenderer::Render_Refraction()
 		iPassNum = 10;
 	}		
 		break;
+	case Engine::CRenderer::BLOCK:
+	{
+		if (m_fRefractAmount < 1.f)
+			m_fRefractAmount += 0.02;
+
+		if (FAILED(m_pBlockMaskTex->Bind_ShadeResource(m_pShader, "g_BlockMaskTex", 0)))
+			return E_FAIL;
+
+		iPassNum = 17;
+	}
+		break;
+	case Engine::CRenderer::SCREENSPLIT:
+	{
+		if (m_fRefractAmount < 0.3f)
+		{
+			m_fRefractAmount += 0.02;	
+		}
+		else
+		{
+			if (m_fStopTime >= 0.3)
+			{
+				m_fRefractAmount += 0.05;
+			}
+			m_fStopTime += 0.02;
+		}
+			
+		if (FAILED(m_pShader->Bind_RawValue("g_SplitAmount", &m_fRefractAmount, sizeof(_float))))
+			return E_FAIL;
+
+	
+		iPassNum = 18;
+	}
+		break;
+	
 	case Engine::CRenderer::REFRACTION_END:
 		break;
 	default:
@@ -972,6 +1027,9 @@ HRESULT CRenderer::Render_Debug()
 	
 	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_OriginBloomEffect"), m_pShader, m_pVIBuffer);
 	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_FinalBloomEffect"), m_pShader, m_pVIBuffer);
+	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_Refraction"), m_pShader, m_pVIBuffer);
+	
+
 
 	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_BloomBlur_X"), m_pShader, m_pVIBuffer);
 	m_pGameInstance->Render_MRT_Debug(TEXT("MRT_BloomBlur_Y"), m_pShader, m_pVIBuffer);
@@ -1010,6 +1068,7 @@ void CRenderer::Free()
 
 
 	Safe_Release(m_pRefractionTex);
+	Safe_Release(m_pBlockMaskTex);
 	Safe_Release(m_pBlurMaskTex);
 
 	Safe_Release(m_pLightDepthStencilView);

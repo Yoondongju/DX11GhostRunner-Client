@@ -101,12 +101,23 @@ public:
 	_bool				IsPage2() { return m_isEnterPage2; }
 
 public:
-	void				Set_ActiveParticleAttack(_bool b) { m_isActiveParticleAttack = b; }		// 반드시 수작업으로 꺼야한다.
+	class CHelMotionTrail* Get_MotionTrail() { return m_pMotionTrail; }
+
+
+public:
+	void				Set_ActiveParticleAttack(_bool b) { m_isActiveParticle_Attack = b; }		// 반드시 수작업으로 꺼야한다.
+	void				Set_ActiveParticleElectric(_bool b) { m_isActiveParticle_Electric = b; }		// 반드시 수작업으로 꺼야한다.
+	void				Set_ActiveParticleBigElectric(_bool b) { m_isActiveParticle_BigElectric = b; }		// 반드시 수작업으로 꺼야한다.
 
 
 public:
 	_bool Check_Collision();
 	_bool Check_CollisionGroggy();
+
+
+private:
+	class CHelMotionTrail* m_pMotionTrail = { nullptr };
+	_float	fAddMotionTrailTime = { 0.f };  // 모션트레일을 추가할 시간
 
 
 private:
@@ -119,10 +130,26 @@ private:
 	_float		m_fLandPosY = { -1000.f };
 
 
-	vector<class CParticle_Attack*>		m_Particle_Attack;
-	_uint								m_iNextUnActiveParticleIndex = 0;	// 활성화되지 않은 다음 인덱스
-	_bool								m_isActiveParticleAttack = { false };
-	_float								m_fAccNextParticleIndexTime = { 0.f };
+private:
+	vector<class CParticle_Attack*>			m_Particle_Attack;
+	vector<class CParticle_Electric*>		m_Particle_Electric;
+	vector<class CParticle_BigElectric*>	m_Particle_BigElectric;
+
+
+	_uint									m_iNextUnActiveParticleIndex_Attack = 0;	// 활성화되지 않은 다음 인덱스
+	_bool									m_isActiveParticle_Attack = { false };
+	_float									m_fAccNextParticleIndexTime_Attack = { 0.f };
+
+
+	_uint									m_iNextUnActiveParticleIndex_Electric = 0;	// 활성화되지 않은 다음 인덱스
+	_bool									m_isActiveParticle_Electric = { false };
+	_float									m_fAccNextParticleIndexTime_Electric = { 0.f };
+
+
+	_uint									m_iNextUnActiveParticleIndex_BigElectric = 0;	// 활성화되지 않은 다음 인덱스
+	_bool									m_isActiveParticle_BigElectric = { false };
+	_float									m_fAccNextParticleIndexTime_BigElectric = { 0.f };
+
 
 
 
@@ -135,7 +162,7 @@ private:
 	_float		m_fEnergy = {};
 	_float		m_fHp = {};
 	_bool		m_isEnterPage2 = { false };
-
+	
 
 	_float		m_fCollisionCoolTime = {};
 
@@ -152,6 +179,14 @@ private:
 	PxReal					m_vDepth = {};
 
 	CGameObject*			m_pCollisionDestObject = { nullptr };		// 내가 충돌한 옵젝
+
+
+
+private:
+	void	Check_AttackParticle(_float fTimeDelta);
+	void	Check_ElectricParticle(_float fTimeDelta);
+	void	Check_BigElectricParticle(_float fTimeDelta);
+
 
 
 private:

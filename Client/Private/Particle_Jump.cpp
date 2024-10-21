@@ -13,7 +13,7 @@ CParticle_Jump::CParticle_Jump(const CParticle_Jump& Prototype)
 {
 }
 
-void CParticle_Jump::SetActiveMyParticle(_bool b)
+void CParticle_Jump::SetActiveMyParticle(_bool b,_bool isOtherFlag)
 {
 	if (true == m_isActiveMyParticle && 
 		true == b &&
@@ -90,7 +90,7 @@ void CParticle_Jump::Update(_float fTimeDelta)
 void CParticle_Jump::Late_Update(_float fTimeDelta)
 {
 	if (m_isActiveMyParticle)
-		m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
+		m_pGameInstance->Add_RenderObject(CRenderer::RG_BLOOM, this);
 }
 
 HRESULT CParticle_Jump::Render()

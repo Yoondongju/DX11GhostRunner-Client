@@ -90,6 +90,12 @@ void CShurikenTrail::Update(_float fTimeDelta , const _float4x4* pWeaponMatrix)
 	_float fDistance = XMVectorGetX(XMVector3Length(XMVectorSubtract(XMLoadFloat3(&m_StartPos), vCurPos)));
 
 
+	//if (fDistance > 20.f && m_Trail.size() > 1)
+	//{
+	//	m_Trail.pop_front();
+	//}
+
+
 	if (m_Trail.size() > 250)			// 2개당 사각형 하나지
 	{
 		m_Trail.pop_front();

@@ -135,7 +135,22 @@ void CGameInstance::Update_Engine(_float fTimeDelta)
 
 	_float fAdjustedDeltaTime = fTimeDelta;
 	if (true == m_bTimeDelayActive)
+	{
 		fAdjustedDeltaTime *= 0.15f;
+
+		if (-1.f != m_fTimeDelayDuration &&  m_fTimeDelayDuration <= 0.f)
+		{
+			fAdjustedDeltaTime = fTimeDelta;
+			m_fTimeDelayDuration = -1.f;
+			m_bTimeDelayActive = false;
+		}
+
+		if (-1.f != m_fTimeDelayDuration)
+		{
+			m_fTimeDelayDuration -= fTimeDelta;
+		}
+	}
+		
 
 
 	m_pObject_Manager->Priority_Update(fAdjustedDeltaTime);
@@ -331,9 +346,9 @@ list<class CGameObject*>& CGameInstance::Get_RenderList(CRenderer::RENDERGROUP e
 	return m_pRenderer->Get_RenderList(eGroup);
 }
 
-void CGameInstance::ActiveRefraction(CTexture* pRefractionTex ,CRenderer::REFRACTION_TYPE eRefractionType)
+void CGameInstance::ActiveRefraction(CTexture* pRefractionTex ,CRenderer::REFRACTION_TYPE eRefractionType, class CTexture* pBlockMaskTex)
 {
-	m_pRenderer->ActiveRefraction(pRefractionTex, eRefractionType);
+	m_pRenderer->ActiveRefraction(pRefractionTex, eRefractionType , pBlockMaskTex);
 }
 
 void CGameInstance::ActiveBlur(CTexture* pBlurMaskTex , CRenderer::BLUR_TYPE eBlurType)
@@ -419,7 +434,7 @@ HRESULT CGameInstance::Add_Light(const LIGHT_DESC& LightDesc)
 	return m_pLight_Manager->Add_Light(LightDesc);
 }
 
-const LIGHT_DESC* CGameInstance::Get_LightDesc(_uint iIndex) const
+LIGHT_DESC* CGameInstance::Get_LightDesc(_uint iIndex)
 {
 	return m_pLight_Manager->Get_LightDesc(iIndex);
 }
@@ -519,6 +534,7 @@ void CGameInstance::Phys_Clear()
 
 void CGameInstance::Release_Engine()
 {		
+	Safe_Release(m_pSound_Manager);
 	Safe_Release(m_pFrustum);
 	Safe_Release(m_pTarget_Manager);
 	Safe_Release(m_pFont_Manager);
@@ -570,6 +586,11 @@ void CGameInstance::Transform_ToLocalSpace(_fmatrix WorldMatrix)
 void CGameInstance::Play_Sound(const TCHAR* pSoundKey, _uint eID, _float fVolume)
 {
 	m_pSound_Manager->PlaySound(pSoundKey, eID, fVolume);
+}
+
+void CGameInstance::Play_Sound(const TCHAR* pSoundKey, _uint eID, _float* pVolume)
+{
+	m_pSound_Manager->PlaySound(pSoundKey, eID, pVolume);
 }
 
 void CGameInstance::Play_SoundRepeat(const TCHAR* pSoundKey, _uint eID, _float fVolume)

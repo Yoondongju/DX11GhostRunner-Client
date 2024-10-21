@@ -13,7 +13,7 @@ CParticle_Swirl::CParticle_Swirl(const CParticle_Swirl& Prototype)
 {
 }
 
-void CParticle_Swirl::SetActiveMyParticle(_bool b)
+void CParticle_Swirl::SetActiveMyParticle(_bool b,_bool isOtherFlag)
 {
 	if (true == m_isActiveMyParticle &&
 		true == b &&
@@ -59,7 +59,7 @@ void CParticle_Swirl::Update(_float fTimeDelta)
 		if (m_fDisableTime <= 0.f)
 		{
 			m_isActiveMyParticle = false;
-			m_fDisableTime = 5.f;
+			m_fDisableTime = 2.f;
 			m_pVIBufferCom->ResetTranslation();
 			return;
 		}
@@ -107,6 +107,14 @@ HRESULT CParticle_Swirl::Render()
 		return E_FAIL;
 	if (FAILED(m_pTextureCom->Bind_ShadeResource(m_pShaderCom, "g_Texture", 0)))
 		return E_FAIL;
+	if (FAILED(m_pFlowMapTextureCom->Bind_ShadeResource(m_pShaderCom, "g_FlowMap", 0)))
+		return E_FAIL;
+
+	
+
+	if (FAILED(m_pShaderCom->Bind_RawValue("g_fDeltaTime", &m_fDisableTime, sizeof(_float))))
+		return E_FAIL;
+
 	if (FAILED(m_pShaderCom->Bind_RawValue("g_vCamPosition", &m_pGameInstance->Get_CamPosition_Float4(), sizeof(_float4))))
 		return E_FAIL;
 
@@ -134,6 +142,12 @@ HRESULT CParticle_Swirl::Ready_Components()
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Particle_HelSwirl"),
 		TEXT("Com_Texture"), reinterpret_cast<CComponent**>(&m_pTextureCom))))
 		return E_FAIL;
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_FlowMap"),
+		TEXT("Com_Texture1"), reinterpret_cast<CComponent**>(&m_pFlowMapTextureCom))))
+		return E_FAIL;
+
+	
+
 
 	/* FOR.Com_VIBuffer */
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_HelSwirlEffect"),
@@ -177,5 +191,6 @@ void CParticle_Swirl::Free()
 
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pTextureCom);
+	Safe_Release(m_pFlowMapTextureCom);
 	Safe_Release(m_pVIBufferCom);
 }

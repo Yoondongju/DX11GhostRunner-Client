@@ -53,6 +53,29 @@ void CSound_Manager::PlaySound(const TCHAR* pSoundKey, _uint eID, _float fVolume
 	//FMOD_System_Update(m_pSystem);
 }
 
+void CSound_Manager::PlaySound(const TCHAR* pSoundKey, _uint eID, _float* pVolume)
+{
+	map<TCHAR*, FMOD::Sound*>::iterator iter;
+
+	// iter = find_if(m_mapSound.begin(), m_mapSound.end(), CTag_Finder(pSoundKey));
+	iter = find_if(m_Sounds.begin(), m_Sounds.end(),
+		[&](auto& iter)->bool
+		{
+			return !lstrcmp(pSoundKey, iter.first);
+		});
+
+	if (iter == m_Sounds.end())
+		return;
+
+	FMOD_BOOL bPlay = FALSE;
+
+	m_pSystem->playSound(iter->second, 0, false, &m_pChannelArr[eID]);
+
+	m_pChannelArr[eID]->setVolume(*pVolume);
+
+	m_pSystem->update();
+}
+
 void CSound_Manager::Play_SoundRepeat(const TCHAR* pSoundKey, _uint eID, _float fVolume)
 {
 	if (!Check_IsPlaying(eID))

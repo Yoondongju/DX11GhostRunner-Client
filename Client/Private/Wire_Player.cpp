@@ -84,7 +84,7 @@ void CWire_Player::Late_Update(_float fTimeDelta)
 	if (false == m_bActive)
 		return;
 
-	m_pGameInstance->Add_RenderObject(CRenderer::RG_NONLIGHT, this);
+	m_pGameInstance->Add_RenderObject(CRenderer::RG_BLOOM, this);
 }
 
 HRESULT CWire_Player::Render()

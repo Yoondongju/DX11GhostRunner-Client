@@ -21,7 +21,7 @@ public:
 
 private:
     _float      m_fAttackRange = { 0.f };
-    
+    _float      m_fAttackSoundTime = {0.f};
 
 public:
     static CHel_Attack* Create(class CGameObject* pOwner);

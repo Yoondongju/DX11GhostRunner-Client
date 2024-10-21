@@ -11,7 +11,7 @@ private:
 	virtual ~CLight_Manager() = default;
 
 public:
-	const LIGHT_DESC* Get_LightDesc(_uint iIndex) const;
+	LIGHT_DESC* Get_LightDesc(_uint iIndex);
 
 public:
 	HRESULT Initialize();

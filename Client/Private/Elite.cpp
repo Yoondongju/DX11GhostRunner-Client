@@ -23,7 +23,7 @@
 
 #include "BossHpPanel.h"
 
-
+#include "EliteMotionTrail.h"
 
 CElite::CElite(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CEnemy(pDevice, pContext)
@@ -113,6 +113,9 @@ void CElite::Update(_float fTimeDelta)
         m_fCollisionCoolTime -= fTimeDelta;
 
 
+    m_fAddMotionTrailTime += fTimeDelta;
+
+
     _float4x4* pWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
     m_PxTransform.p = { pWorldMatrix->m[3][0], pWorldMatrix->m[3][1] * 2.f + 30.f, pWorldMatrix->m[3][2] };
     m_pPxRigidDynamic->setGlobalPose(m_PxTransform);
@@ -140,6 +143,9 @@ void CElite::Late_Update(_float fTimeDelta)
 
     for (auto& pPartObject : m_Parts)
         pPartObject->Late_Update(fTimeDelta);
+
+
+    m_pMotionTrail->Late_Update(fTimeDelta);
 
 }
 
@@ -174,11 +180,23 @@ HRESULT CElite::Render()
 
 
 
+    deque<CEliteMotionTrail::MOTION_TRAIL_INFO>& MotionTrailInfo = m_pMotionTrail->Get_MotionTrailInfo();
+    if (MotionTrailInfo.size() > 10)
+    {
+        MotionTrailInfo.pop_front();
+    }
+
     _uint iNumMeshes = m_pModel->Get_NumMeshes();
+
+    CEliteMotionTrail::MOTION_TRAIL_INFO  MotionTrail = {};         // 월행 , 본메트릭스, 라이프타임                        
+    XMStoreFloat4x4(&MotionTrail.WorldMatrix, m_pTransformCom->Get_WorldMatrix());
+    MotionTrail.fLifeTime = 1.f;
 
     for (size_t i = 0; i < iNumMeshes; i++)
     {
-        m_pModel->Bind_MeshBoneMatrices(m_pShaderCom, "g_BoneMatrices", i);
+        // 내 모션트레일의 -> 트레일정보의 -> 이 메시에 영향을 주는 뼈행렬의 첫번째 주소를 준다음
+        // 저 안에서 값을 채운다   ( 일단 이거 메쉬 1개라고 가정하고 생각한거임 )
+        m_pModel->Bind_MeshBoneMatrices(m_pShaderCom, "g_BoneMatrices", i, MotionTrail.BoneMatrices[i]);
 
         if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
             return E_FAIL;
@@ -186,13 +204,17 @@ HRESULT CElite::Render()
         if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
             return E_FAIL;
 
-
-
         if (FAILED(m_pShaderCom->Begin(iPassNum)))
             return E_FAIL;
 
         if (FAILED(m_pModel->Render(i)))
             return E_FAIL;
+    }
+
+    if (true == m_pMotionTrail->Is_Active() && m_fAddMotionTrailTime >= 0.13f)
+    {
+        MotionTrailInfo.emplace_back(MotionTrail);
+        m_fAddMotionTrailTime = 0.f;
     }
 
 
@@ -271,13 +293,17 @@ _bool CElite::Check_Collision()
         m_Parts[CElite::PARTID::PART_PARTICLE_BLOCK]->SetActiveMyParticle(true);
 
         if (false == m_isEnterPage2)
-        {
-            m_fEnergy -= 100.f;
+        {          
+            m_fEnergy -= 29.f;
             m_fCollisionCoolTime = 1.f;
         }
            
-        if (m_fEnergy < 0.f)
+        if (m_fEnergy <= 0.f)
+        {
             m_fEnergy = 0.f;
+            m_pGameInstance->Set_TimeDelayActive(true, 1.f);
+        }
+           
 
        
         return true;
@@ -320,8 +346,9 @@ _bool CElite::Check_CollisionGroggy()       // 패링 3번 이상햇을때 켜짐
             }     
         }
 
-        if (m_fHp < 0.f)
+        if (m_fHp <= 0.f)
         {
+            m_pGameInstance->Set_TimeDelayActive(true, 1.f);
             m_fHp = 0.f;
             m_fEnergy = 0.f;
 
@@ -329,6 +356,9 @@ _bool CElite::Check_CollisionGroggy()       // 패링 3번 이상햇을때 켜짐
             m_pFsm->Change_State(ELITE_ANIMATION::DEATH_1);
         }
             
+
+        m_pGameInstance->Play_Sound(TEXT("HitBlood1.ogg"), SOUND_PISTOLBLOOD, 3.f);
+
         m_fCollisionCoolTime = 1.f;
         return true;
     }
@@ -462,7 +492,7 @@ HRESULT CElite::Ready_Parts()
 
 
 
-
+    m_pMotionTrail = static_cast<CEliteMotionTrail*>(m_pGameInstance->Clone_GameObject(L"Prototype_GameObject_EliteMotionTrail"));
 
 
 

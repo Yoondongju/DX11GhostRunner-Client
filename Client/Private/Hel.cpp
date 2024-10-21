@@ -12,6 +12,8 @@
 #include "Particle_BigSmoke.h"
 #include "Particle_Swirl.h"
 #include "Particle_Attack.h"
+#include "Particle_Electric.h"
+#include "Particle_BigElectric.h"
 
 #include "Animation.h"
 
@@ -35,6 +37,8 @@
 
 #include "BossHpPanel.h"
 
+
+#include "HelMotionTrail.h"
 
 
 CHel::CHel(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
@@ -122,6 +126,8 @@ void CHel::Update(_float fTimeDelta)
 
     
     
+    fAddMotionTrailTime += fTimeDelta;
+    
 
     _float4x4* pWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
 
@@ -149,37 +155,10 @@ void CHel::Update(_float fTimeDelta)
 
 
 
-
-    _uint iSize = m_Particle_Attack.size();
-    if (true == m_isActiveParticleAttack)
-    {
-        m_fAccNextParticleIndexTime += fTimeDelta;
-        for (_uint i = 0; i < m_iNextUnActiveParticleIndex; ++i)
-        {    
-            _uint iCurrentIndex = (m_iNextUnActiveParticleIndex + i) % iSize;
-            if (false == m_Particle_Attack[iCurrentIndex]->IsActive())
-            {
-                m_Particle_Attack[iCurrentIndex]->Set_FirstActive(true);
-                m_Particle_Attack[iCurrentIndex]->Set_Active(true);
-            }
-        }
-        if (m_fAccNextParticleIndexTime >= 0.5f)
-        {
-            m_iNextUnActiveParticleIndex = (m_iNextUnActiveParticleIndex + 1) % iSize;
-            m_fAccNextParticleIndexTime = 0.f;
-        }        
-    }
-    else
-    {
-        m_fAccNextParticleIndexTime = 0.f;
-        m_iNextUnActiveParticleIndex = 0;
-    }
-
-    for (_uint i = 0; i < iSize; ++i)
-    {
-        if (m_Particle_Attack[i]->IsActive())
-            m_Particle_Attack[i]->Update(fTimeDelta);
-    }
+    Check_AttackParticle(fTimeDelta);
+    Check_ElectricParticle(fTimeDelta);
+    Check_BigElectricParticle(fTimeDelta);
+    
 
 
     m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
@@ -197,12 +176,29 @@ void CHel::Late_Update(_float fTimeDelta)
         pPartObject->Late_Update(fTimeDelta);
 
 
-    _uint iSize = m_Particle_Attack.size();
-    for (_uint i = 0; i < iSize; ++i)
+    _uint iAttackParticleSize = m_Particle_Attack.size();
+    for (_uint i = 0; i < iAttackParticleSize; ++i)
     {
         if (m_Particle_Attack[i]->IsActive())
             m_Particle_Attack[i]->Late_Update(fTimeDelta);
     }
+
+    _uint iElectricParticleSize = m_Particle_Attack.size();
+    for (_uint i = 0; i < iElectricParticleSize; ++i)
+    {
+        if (m_Particle_Electric[i]->IsActive())
+            m_Particle_Electric[i]->Late_Update(fTimeDelta);
+    }
+
+    _uint iBigElectricParticleSize = m_Particle_Attack.size();
+    for (_uint i = 0; i < iBigElectricParticleSize; ++i)
+    {
+        if (m_Particle_BigElectric[i]->IsActive())
+            m_Particle_BigElectric[i]->Late_Update(fTimeDelta);
+    }
+
+    m_pMotionTrail->Late_Update(fTimeDelta);
+
 }
 
 HRESULT CHel::Render()
@@ -235,20 +231,29 @@ HRESULT CHel::Render()
     }
 
 
+    deque<CHelMotionTrail::MOTION_TRAIL_INFO>& MotionTrailInfo = m_pMotionTrail->Get_MotionTrailInfo();
+    if (MotionTrailInfo.size() > 10)
+    {
+        MotionTrailInfo.pop_front();
+    }
 
     _uint iNumMeshes = m_pModel->Get_NumMeshes();
 
+    CHelMotionTrail::MOTION_TRAIL_INFO  MotionTrail = {};         // 월행 , 본메트릭스, 라이프타임                        
+    XMStoreFloat4x4(&MotionTrail.WorldMatrix, m_pTransformCom->Get_WorldMatrix());
+    MotionTrail.fLifeTime = 1.f;
+
     for (size_t i = 0; i < iNumMeshes; i++)
     {
-        m_pModel->Bind_MeshBoneMatrices(m_pShaderCom, "g_BoneMatrices", i);
-
+        // 내 모션트레일의 -> 트레일정보의 -> 이 메시에 영향을 주는 뼈행렬의 첫번째 주소를 준다음
+        // 저 안에서 값을 채운다   ( 일단 이거 메쉬 1개라고 가정하고 생각한거임 )
+        m_pModel->Bind_MeshBoneMatrices(m_pShaderCom, "g_BoneMatrices", i, MotionTrail.BoneMatrices[i]);
+   
         if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
             return E_FAIL;
 
         if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
             return E_FAIL;
-
-
 
         if (FAILED(m_pShaderCom->Begin(iPassNum)))
             return E_FAIL;
@@ -257,6 +262,12 @@ HRESULT CHel::Render()
             return E_FAIL;
     }
 
+    if (true == m_pMotionTrail->Is_Active() &&  fAddMotionTrailTime >= 0.3f)
+    {
+        MotionTrailInfo.emplace_back(MotionTrail);
+        fAddMotionTrailTime = 0.f;
+    }
+       
 
     return S_OK;
 }
@@ -275,16 +286,21 @@ _bool CHel::Check_Collision()
 
     if (m_fCollisionCoolTime <= 0.f && m_pColliderCom->IsBoundingCollisionEnter())
     {
-        m_Parts[CHel::PARTID::PART_PARTICLE_ATTACK]->SetActiveMyParticle(true);
+        m_Parts[CHel::PARTID::PART_PARTICLE_ATTACK]->SetActiveMyParticle(true);     // << 이게 조각임
+        m_pGameInstance->Play_Sound(TEXT("HelPiece.ogg"), SOUND_HEL_PIECE, 1.f);
 
         if (false == m_isEnterPage2)
         {
-            m_fEnergy -= 100.f;
+            m_fEnergy -= 2.f;
             m_fCollisionCoolTime = 1.f;
         }
 
-        if (m_fEnergy < 0.f)
+        if (m_fEnergy <= 0.f)
+        {
             m_fEnergy = 0.f;
+            m_pGameInstance->Set_TimeDelayActive(true, 1.f);
+        }
+          
 
 
         return true;
@@ -313,6 +329,8 @@ _bool CHel::Check_CollisionGroggy()       // 패링 3번 이상햇을때 켜짐
         TrackPos = 0.0;
 
         static_cast<CParticle_Blood*>(m_Parts[PART_EFFECT])->SetActiveMyParticle(true);
+        m_pGameInstance->Play_Sound(TEXT("HitBlood1.ogg"), SOUND_HELBLOOD, 1.f);
+
         m_fHp -= 17.f;
 
         if (m_fHp <= 50.f)
@@ -326,8 +344,9 @@ _bool CHel::Check_CollisionGroggy()       // 패링 3번 이상햇을때 켜짐
             }
         }
 
-        if (m_fHp < 0.f)
+        if (m_fHp <= 0.f)
         {
+            m_pGameInstance->Set_TimeDelayActive(true, 1.f);
             m_fHp = 0.f;
             m_fEnergy = 0.f;
 
@@ -341,6 +360,114 @@ _bool CHel::Check_CollisionGroggy()       // 패링 3번 이상햇을때 켜짐
 
     return false;
 }
+
+
+
+void CHel::Check_AttackParticle(_float fTimeDelta)
+{
+    _uint iAttackParticleSize = m_Particle_Attack.size();
+    if (true == m_isActiveParticle_Attack)
+    {
+        m_fAccNextParticleIndexTime_Attack += fTimeDelta;
+        for (_uint i = 0; i < m_iNextUnActiveParticleIndex_Attack + 1; ++i)
+        {
+            _uint iCurrentIndex = (m_iNextUnActiveParticleIndex_Attack + i) % iAttackParticleSize;
+            if (false == m_Particle_Attack[iCurrentIndex]->IsActive())
+            {
+                m_Particle_Attack[iCurrentIndex]->Set_FirstActive(true);
+                m_Particle_Attack[iCurrentIndex]->Set_Active(true);
+            }
+        }
+        if (m_fAccNextParticleIndexTime_Attack >= 0.5f)
+        {
+            m_iNextUnActiveParticleIndex_Attack = (m_iNextUnActiveParticleIndex_Attack + 1) % iAttackParticleSize;
+            m_fAccNextParticleIndexTime_Attack = 0.f;
+        }
+    }
+    else
+    {
+        m_fAccNextParticleIndexTime_Attack = 0.f;
+        m_iNextUnActiveParticleIndex_Attack = 0;
+    }
+
+    for (_uint i = 0; i < iAttackParticleSize; ++i)
+    {
+        if (m_Particle_Attack[i]->IsActive())
+            m_Particle_Attack[i]->Update(fTimeDelta);
+    }
+}
+
+void CHel::Check_ElectricParticle(_float fTimeDelta)
+{
+    _uint iAttackParticleSize = m_Particle_Electric.size();
+    if (true == m_isActiveParticle_Electric)
+    {
+        m_fAccNextParticleIndexTime_Electric += fTimeDelta;
+        for (_uint i = 0; i < m_iNextUnActiveParticleIndex_Electric + 1; ++i)
+        {
+            _uint iCurrentIndex = (m_iNextUnActiveParticleIndex_Electric + i) % iAttackParticleSize;
+            if (false == m_Particle_Electric[iCurrentIndex]->IsActive())
+            {
+                m_Particle_Electric[iCurrentIndex]->Set_FirstActive(true);
+                m_Particle_Electric[iCurrentIndex]->Set_Active(true);
+            }
+        }
+        if (m_fAccNextParticleIndexTime_Electric >= 0.3f)
+        {
+            m_iNextUnActiveParticleIndex_Electric = (m_iNextUnActiveParticleIndex_Electric + 1) % iAttackParticleSize;
+            m_fAccNextParticleIndexTime_Electric = 0.f;
+        }
+    }
+    else
+    {
+        m_fAccNextParticleIndexTime_Electric = 0.f;
+        m_iNextUnActiveParticleIndex_Electric = 0;
+    }
+
+    for (_uint i = 0; i < iAttackParticleSize; ++i)
+    {
+        if (m_Particle_Electric[i]->IsActive())
+            m_Particle_Electric[i]->Update(fTimeDelta);
+    }
+}
+
+void CHel::Check_BigElectricParticle(_float fTimeDelta)
+{
+    _uint iAttackParticleSize = m_Particle_BigElectric.size();
+    if (true == m_isActiveParticle_BigElectric)
+    {
+        m_fAccNextParticleIndexTime_BigElectric += fTimeDelta;
+        for (_uint i = 0; i < m_iNextUnActiveParticleIndex_BigElectric + 1; ++i)
+        {
+            _uint iCurrentIndex = (m_iNextUnActiveParticleIndex_BigElectric + i) % iAttackParticleSize;
+            if (false == m_Particle_BigElectric[iCurrentIndex]->IsActive())
+            {
+                m_Particle_BigElectric[iCurrentIndex]->Set_FirstActive(true);
+                m_Particle_BigElectric[iCurrentIndex]->Set_Active(true);
+            }
+        }
+        if (m_fAccNextParticleIndexTime_BigElectric >= 1.f)
+        {
+            m_iNextUnActiveParticleIndex_BigElectric = (m_iNextUnActiveParticleIndex_BigElectric + 1) % iAttackParticleSize;
+            m_fAccNextParticleIndexTime_BigElectric = 0.f;
+        }
+    }
+    else
+    {
+        m_fAccNextParticleIndexTime_BigElectric = 0.f;
+        m_iNextUnActiveParticleIndex_BigElectric = 0;
+    }
+
+    for (_uint i = 0; i < iAttackParticleSize; ++i)
+    {
+        if (m_Particle_BigElectric[i]->IsActive())
+            m_Particle_BigElectric[i]->Update(fTimeDelta);
+    }
+}
+
+
+
+
 
 void CHel::PhysXComputeCollision()
 {
@@ -497,7 +624,7 @@ HRESULT CHel::Ready_Parts()
 
     CParticle_BigSmoke::PARTICLE_EFFECT	    SmokeDesc{};
     SmokeDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
-    SmokeDesc.pSocketBoneMatrix = m_pModel->Get_BoneCombindTransformationMatrix_Ptr("foot_l");
+    SmokeDesc.pSocketBoneMatrix = m_pModel->Get_BoneCombindTransformationMatrix_Ptr("spine_01");
     SmokeDesc.pOwner = this;
     SmokeDesc.InitWorldMatrix = XMMatrixIdentity();
     if (FAILED(__super::Add_PartObject(PART_PARTICLE_BIGSMOKE, TEXT("Prototype_GameObject_Particle_BigSmoke"), &SmokeDesc)))
@@ -507,7 +634,7 @@ HRESULT CHel::Ready_Parts()
 
     CParticle_Swirl::PARTICLE_EFFECT	    SwirlDesc{};
     SwirlDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
-    SwirlDesc.pSocketBoneMatrix = m_pModel->Get_BoneCombindTransformationMatrix_Ptr("spine_01");
+    SwirlDesc.pSocketBoneMatrix = m_pModel->Get_BoneCombindTransformationMatrix_Ptr("foot_l");
     SwirlDesc.pOwner = this;
     SwirlDesc.InitWorldMatrix = XMMatrixIdentity();
     if (FAILED(__super::Add_PartObject(PART_PARTICLE_SWIRL, TEXT("Prototype_GameObject_Particle_Swirl"), &SwirlDesc)))
@@ -528,6 +655,36 @@ HRESULT CHel::Ready_Parts()
     }
 
 
+    m_Particle_Attack.reserve(10);
+    for (_uint i = 0; i < m_Particle_Attack.capacity(); i++)
+    {
+        CParticle_Electric::PARTICLE_DESC	ElectricDesc{};
+        ElectricDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+        ElectricDesc.pSocketBoneMatrix = m_pModel->Get_BoneCombindTransformationMatrix_Ptr("weapon_bone");
+        ElectricDesc.pOwner = this;
+        ElectricDesc.InitWorldMatrix = XMMatrixIdentity();
+
+        CParticle_Electric* pAttackParticle = static_cast<CParticle_Electric*>(m_pGameInstance->Clone_GameObject(TEXT("Prototype_GameObject_Particle_Electric"), &ElectricDesc));
+        m_Particle_Electric.emplace_back(pAttackParticle);
+    }
+
+
+    m_Particle_Attack.reserve(10);
+    for (_uint i = 0; i < m_Particle_Attack.capacity(); i++)
+    {
+        CParticle_BigElectric::PARTICLE_DESC	BigElectricDesc{};
+        BigElectricDesc.pParentWorldMatrix = m_pTransformCom->Get_WorldMatrix_Ptr();
+        BigElectricDesc.pSocketBoneMatrix = m_pModel->Get_BoneCombindTransformationMatrix_Ptr("spine_01");
+        BigElectricDesc.pOwner = this;
+        BigElectricDesc.InitWorldMatrix = XMMatrixIdentity();
+
+        CParticle_BigElectric* pAttackParticle = static_cast<CParticle_BigElectric*>(m_pGameInstance->Clone_GameObject(TEXT("Prototype_GameObject_Particle_BigElectric"), &BigElectricDesc));
+        m_Particle_BigElectric.emplace_back(pAttackParticle);
+    }
+
+
+
+    m_pMotionTrail = static_cast<CHelMotionTrail*>(m_pGameInstance->Clone_GameObject(L"Prototype_GameObject_HelMotionTrail"));
   
 
     return S_OK;
@@ -694,6 +851,22 @@ void CHel::Free()
         Safe_Release(m_Particle_Attack[i]);
     }
     m_Particle_Attack.clear();
+
+    for (_uint i = 0; i < m_Particle_Electric.size(); i++)
+    {
+        Safe_Release(m_Particle_Electric[i]);
+    }
+    m_Particle_Electric.clear();
+
+    for (_uint i = 0; i < m_Particle_BigElectric.size(); i++)
+    {
+        Safe_Release(m_Particle_BigElectric[i]);
+    }
+    m_Particle_BigElectric.clear();
+
+   
+
+    Safe_Release(m_pMotionTrail);
 
     Safe_Release(m_pDeadNoiseTexture);
 

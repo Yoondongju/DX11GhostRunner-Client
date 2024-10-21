@@ -61,7 +61,7 @@ protected:
 
 	class CTransform*			m_pTransformCom = { nullptr };
 	class CGameInstance*		m_pGameInstance = { nullptr };
-
+	_bool						m_isFrustumCulling = { false };
 
 	
 	_wstring				m_strChangeLayerName = L"";		// 레이어이름이 바뀌어야 하는경우

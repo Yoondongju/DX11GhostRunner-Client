@@ -6,6 +6,8 @@
 #include "GameInstance.h"
 #include "Animation.h"
 
+#include "KillCountUI.h"
+
 CSniper_Death::CSniper_Death(class CGameObject* pOwner)
 	: CState{ CSniper::SNIPER_ANIMATION::DEATH_1 , pOwner }
 {
@@ -33,6 +35,8 @@ HRESULT CSniper_Death::Start_State(void* pArg)
 	default:
 		break;
 	}
+
+	static_cast<CKillCountUI*>(m_pGameInstance->Find_Object(LEVEL_GAMEPLAY, L"Layer_KillCount", 0))->Set_Active(true);
 
 	return S_OK;
 }

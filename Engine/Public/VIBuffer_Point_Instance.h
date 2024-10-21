@@ -6,6 +6,15 @@ BEGIN(Engine)
 
 class ENGINE_DLL CVIBuffer_Point_Instance final : public CVIBuffer_Instancing
 {
+public:
+	typedef struct
+	{
+		_bool	isRandomSize = {true};
+
+
+	}POINT_DESC;
+
+
 private:
 	CVIBuffer_Point_Instance(ID3D11Device * pDevice, ID3D11DeviceContext * pContext);
 	CVIBuffer_Point_Instance(const CVIBuffer_Point_Instance& Prototype);
@@ -23,6 +32,8 @@ public:
 
 public:
 	void		 DirectionSpread(_float fTimeDelta, _fvector vDir);
+	void		 Spread_OriginPos(_float fTimeDelta);
+
 	void		 Spread_Side_X(_float fTimeDelta);	// 양 옆으로 퍼지는 스프레드
 	void		 Spread_Side_XZ(_float fTimeDelta);
 	void		 Spread_Side_XY(_float fTimeDelta);

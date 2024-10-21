@@ -43,7 +43,7 @@ HRESULT CPlayer_Climb::Start_State(void* pArg)
 	_float fXWeight = 1.3f;			
 	_float fYWeight = 5.f;			
 	_float fZWeight = 1.3f;			
-
+	 
 	vJumpDirection = XMVectorSetX(vJumpDirection, XMVectorGetX(vJumpDirection) * fXWeight);
 	vJumpDirection = XMVectorSetY(vJumpDirection, XMVectorGetY(vJumpDirection) * fYWeight);
 	vJumpDirection = XMVectorSetZ(vJumpDirection, XMVectorGetZ(vJumpDirection) * fZWeight);
@@ -52,8 +52,8 @@ HRESULT CPlayer_Climb::Start_State(void* pArg)
 	vJumpDirection = XMVector3Normalize(vJumpDirection);
 
 
-	pRigidBody->Add_Force_Direction(vJumpDirection, 250, Engine::CRigidBody::ACCELERATION);
-	pRigidBody->Add_Force_Direction(vJumpDirection, 110, Engine::CRigidBody::VELOCITYCHANGE);
+	pRigidBody->Add_Force_Direction(vJumpDirection, 300, Engine::CRigidBody::ACCELERATION);
+	pRigidBody->Add_Force_Direction(vJumpDirection, 200, Engine::CRigidBody::VELOCITYCHANGE);
 
 
 	m_pGameInstance->Play_Sound(TEXT("ClimbVO.ogg"), SOUND_PLAYERVOICE, 2.f);

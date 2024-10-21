@@ -26,7 +26,7 @@ private:
 	virtual ~CParticle_Swirl() = default;
 
 public:
-	virtual void		SetActiveMyParticle(_bool b) override;
+	virtual void			SetActiveMyParticle(_bool b, _bool isOtherFlag = false) override;
 
 
 public:
@@ -40,12 +40,14 @@ public:
 private:
 	CShader* m_pShaderCom = { nullptr };
 	CTexture* m_pTextureCom = { nullptr };
+	CTexture* m_pFlowMapTextureCom = { nullptr };
+
 	CVIBuffer_Point_Instance* m_pVIBufferCom = { nullptr };
 
 
 private:
 	const _float4x4*			m_pSocketMatrix = { nullptr };
-	_float						m_fDisableTime = { 5.f };
+	_float						m_fDisableTime = { 2.f };
 
 private:
 	_float3						m_test = {};

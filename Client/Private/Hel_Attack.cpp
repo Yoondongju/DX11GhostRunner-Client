@@ -11,6 +11,8 @@
 
 #include "HelSwordTrail.h"
 
+#include "HelMotionTrail.h"
+
 CHel_Attack::CHel_Attack(class CGameObject* pOwner)
 	: CState{ CHel::HEL_ANIMATION::ATTACK1 , pOwner }
 {
@@ -38,6 +40,7 @@ HRESULT CHel_Attack::Start_State(void* pArg)
 
 
 	pHel->Set_ActiveParticleAttack(true);
+	pHel->Get_MotionTrail()->Set_Active(true);
 
 	return S_OK;
 }
@@ -47,7 +50,6 @@ void CHel_Attack::Update(_float fTimeDelta)
 {
 	CHel* pHel = static_cast<CHel*>(m_pOwner);
 	static_cast<CWeapon_Hel*>(pHel->Get_Part(CHel::PART_WEAPON))->Check_Collision();
-
 
 
 	CTransform* pHelTransform = m_pOwner->Get_Transform();
@@ -86,15 +88,15 @@ void CHel_Attack::Update(_float fTimeDelta)
 			break;
 		case 1:
 		{
-			pModel->SetUp_Animation(CHel::HEL_ANIMATION::IDLE, true);
-			pFsm->Change_State(CHel::HEL_ANIMATION::IDLE);
+			pModel->SetUp_Animation(CHel::HEL_ANIMATION::DASH_BACK, true);
+			pFsm->Change_State(CHel::HEL_ANIMATION::DASH_BACK);
 		}
 			break;
 		}
 	}
 
 
-	_float fSpeed = 2.f;
+	_float fSpeed = 3.5f;
 	if (true == pHel->IsPage2())
 	{
 		fSpeed *= 2.f;
@@ -105,6 +107,38 @@ void CHel_Attack::Update(_float fTimeDelta)
 	{
 		pHelTransform->Go_Straight(fTimeDelta * fSpeed);
 	}
+
+
+	if (m_fAttackSoundTime >= 1.f)
+	{
+		_int iRandom = m_pGameInstance->Get_Random_Interger(0, 3);
+		switch (iRandom)
+		{
+		case 0:
+			m_pGameInstance->Play_Sound(TEXT("HelAttack1.ogg"), SOUND_HEL_ATTACK, 1.f);
+			m_pGameInstance->Play_Sound(TEXT("HelAttackVO1.ogg"), SOUND_HEL_VOICE, 10.f);
+			break;
+		case 1:
+			m_pGameInstance->Play_Sound(TEXT("HelAttack2.ogg"), SOUND_HEL_ATTACK, 1.f);
+			m_pGameInstance->Play_Sound(TEXT("HelAttackVO2.ogg"), SOUND_HEL_VOICE, 10.f);
+			break;
+		case 2:
+			//m_pGameInstance->Play_Sound(TEXT("HelAttack3.ogg"), SOUND_HEL_ATTACK, 1.f);
+			m_pGameInstance->Play_Sound(TEXT("HelAttackVO3.ogg"), SOUND_HEL_VOICE, 10.f);
+			break;
+		case 3:
+			//m_pGameInstance->Play_Sound(TEXT("HelAttack4.ogg"), SOUND_HEL_ATTACK, 1.f);
+			m_pGameInstance->Play_Sound(TEXT("HelAttackVO4.ogg"), SOUND_HEL_VOICE, 10.f);
+			break;
+
+		default:
+			break;
+		}	
+		m_fAttackSoundTime = 0.f;
+	}
+	m_fAttackSoundTime += fTimeDelta;
+
+
 }
 
 
@@ -117,6 +151,7 @@ void CHel_Attack::End_State()
 	pSwordTrail->Set_Active(false);
 	
 	pHel->Set_ActiveParticleAttack(false);
+	pHel->Get_MotionTrail()->Set_Active(false);
 }
 
 

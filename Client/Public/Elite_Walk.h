@@ -21,10 +21,12 @@ public:
 
 private:
     _float          m_fRetreatTime = {0.f};
+    _float          m_fTurboTime = { 0.f };
+
 
 private:
     _bool   Check_Death();
-
+    _bool   Check_Turbo(_float fTimeDelta);
 
 public:
     static CElite_Walk* Create(class CGameObject* pOwner);

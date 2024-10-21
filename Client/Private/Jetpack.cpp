@@ -20,6 +20,7 @@
 #include "Particle_Blood.h"
 #include "Particle_Explosion.h"
 
+
 CJetpack::CJetpack(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
     : CEnemy(pDevice, pContext)
 {
@@ -89,8 +90,14 @@ void CJetpack::Update(_float fTimeDelta)
     m_pRigidBody->Update(fTimeDelta, -9999.f, false);  // 중력 안쓸게
 
 
-    
-    m_pModel->Play_Animation(fTimeDelta);
+    if (true == m_pGameInstance->isIn_Frustum_WorldSpace(m_pTransformCom->Get_State(CTransform::STATE_POSITION), 6.f))
+    {
+        m_isFrustumCulling = false;
+    }
+    else
+        m_isFrustumCulling = true;
+
+    m_pModel->Play_Animation(fTimeDelta , m_isFrustumCulling);
     m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix_Ptr());
 
 
@@ -101,7 +108,7 @@ void CJetpack::Update(_float fTimeDelta)
 
 void CJetpack::Late_Update(_float fTimeDelta)
 {
-    if (true == m_pGameInstance->isIn_Frustum_WorldSpace(m_pTransformCom->Get_State(CTransform::STATE_POSITION), 3.f))
+    if (false == m_isFrustumCulling)
     {
         m_pGameInstance->Add_RenderObject(CRenderer::RG_NONBLEND, this);
 

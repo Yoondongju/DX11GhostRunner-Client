@@ -56,6 +56,7 @@ HRESULT CPlayer_CutAll::Start_State(void* pArg)
 			static_cast<CEnemy*>(m_Targets[i].pSelf)->Set_Targeting(true);
 		}
 
+		m_pGameInstance->Play_Sound(TEXT("CutAllStart.ogg"), SOUND_PLAYEREFFECT, 3.f);
 		m_pGameInstance->ActiveBlur(nullptr, CRenderer::BLUR_TYPE::MOTION_BLUR);
 	}
 	else							// 사냥 불가능
@@ -84,7 +85,7 @@ void CPlayer_CutAll::Update(_float fTimeDelta)
 
 	m_fTargetDeleteTime += fTimeDelta;
 
-	if (m_fTargetDeleteTime >= 0.2f && m_Targets.size() > m_iNumHunt)			// 4개   내가 죽일애 3마리
+	if (m_fTargetDeleteTime >= 0.09f && m_Targets.size() > m_iNumHunt)			// 4개   내가 죽일애 3마리
 	{
 		m_fTargetDeleteTime = 0.f; 
 
@@ -227,6 +228,9 @@ void CPlayer_CutAll::FindVisiableEnemy()
 	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Sniper");
 	for (auto Sniper : Snipers)
 	{
+		if (true == static_cast<CEnemy*>(Sniper)->IsDead())
+			continue;
+
 		_vector vSniperPos = Sniper->Get_Transform()->Get_State(CTransform::STATE_POSITION);
 
 		_vector vDifference = XMVectorSubtract(vSniperPos, vPlayerPos);		// 벡터의 차이
@@ -256,6 +260,9 @@ void CPlayer_CutAll::FindVisiableEnemy()
 	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Pistol");
 	for (auto Pistol : Pistols)
 	{
+		if (true == static_cast<CEnemy*>(Pistol)->IsDead())
+			continue;
+
 		_vector vPistolPos = Pistol->Get_Transform()->Get_State(CTransform::STATE_POSITION);
 
 		_vector vDifference = XMVectorSubtract(vPistolPos, vPlayerPos);		// 벡터의 차이
@@ -285,6 +292,9 @@ void CPlayer_CutAll::FindVisiableEnemy()
 	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Mira");
 	for (auto Mira : Miras)
 	{
+		if (true == static_cast<CEnemy*>(Mira)->IsDead())
+			continue;
+
 		_vector vMiraPos = Mira->Get_Transform()->Get_State(CTransform::STATE_POSITION);
 
 		_vector vDifference = XMVectorSubtract(vMiraPos, vPlayerPos);		// 벡터의 차이

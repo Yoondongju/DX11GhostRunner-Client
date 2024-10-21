@@ -48,7 +48,11 @@ public:
    
 
 	_bool	IsTimeDelayActive() { return m_bTimeDelayActive; }
-	void	Set_TimeDelayActive(_bool b) { m_bTimeDelayActive = b; }
+	void	Set_TimeDelayActive(_bool b, _float fTimeDelayDuration = -1.f)
+	{
+		m_bTimeDelayActive = b;
+		m_fTimeDelayDuration = fTimeDelayDuration;
+	}
 
 	
 #pragma region GRAPHIC_DEVICE
@@ -106,7 +110,7 @@ public:
 	HRESULT Add_RenderObject(CRenderer::RENDERGROUP eRenderGroupID, class CGameObject* pRenderObject);
 	list<class CGameObject*>& Get_RenderList(CRenderer::RENDERGROUP eGroup);
 
-	void	ActiveRefraction(class CTexture* pRefractionTex, CRenderer::REFRACTION_TYPE eRefractionType);
+	void	ActiveRefraction(class CTexture* pRefractionTex, CRenderer::REFRACTION_TYPE eRefractionType, class CTexture* pBlockMaskTex = nullptr);
 	void	ActiveBlur(class CTexture* pBlurMaskTex , CRenderer::BLUR_TYPE eBlurType);
 	void	UnActiveRefraction();
 	void	UnActiveBlur();
@@ -140,7 +144,7 @@ public:
 
 #pragma region LIGHT_MANAGER
 	HRESULT Add_Light(const LIGHT_DESC& LightDesc);
-	const LIGHT_DESC* Get_LightDesc(_uint iIndex) const;
+	LIGHT_DESC* Get_LightDesc(_uint iIndex);
 	HRESULT Render_Lights(class CShader* pShader, class CVIBuffer_Rect* pVIBuffer);
 
 	void	Light_Clear();
@@ -182,6 +186,8 @@ public:
 
 #pragma region SOUND_MANAGER
 	void Play_Sound(const TCHAR* pSoundKey, _uint eID, _float fVolume);
+	void Play_Sound(const TCHAR* pSoundKey, _uint eID, _float* pVolume);
+
 	void Play_SoundRepeat(const TCHAR* pSoundKey, _uint eID, _float fVolume);
 	void PlayBGM(const TCHAR* pSoundKey, _float fVolume);
 	void StopSound(_uint eID);
@@ -211,6 +217,7 @@ public:
 private:
 	HWND							m_hWnd = {};
 	_bool							m_bTimeDelayActive = { false };
+	_float							m_fTimeDelayDuration = { -1.f };
 
 	class CGraphic_Device*			m_pGraphic_Device = { nullptr };
 	class CInput_Device*			m_pInput_Device = { nullptr };

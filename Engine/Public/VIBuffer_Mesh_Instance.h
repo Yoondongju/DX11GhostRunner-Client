@@ -36,6 +36,10 @@ public:
 	void		 Spread2(_float fTimeDelta);
 	void		 Spread3(_float fTimeDelta);
 
+	void		 Spread_Side_XZ(_float fTimeDelta);
+	void		 Spread_Side_XY(_float fTimeDelta);
+
+
 	virtual void Drop(_float fTimeDelta) override;
 
 public:

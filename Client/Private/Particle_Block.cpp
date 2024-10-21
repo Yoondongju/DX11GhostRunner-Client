@@ -3,6 +3,8 @@
 
 #include "GameInstance.h"
 
+#include "Player.h"
+
 CParticle_Block::CParticle_Block(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CPartObject{ pDevice, pContext }
 {
@@ -13,9 +15,10 @@ CParticle_Block::CParticle_Block(const CParticle_Block& Prototype)
 {
 }
 
-void CParticle_Block::SetActiveMyParticle(_bool b)
+void CParticle_Block::SetActiveMyParticle(_bool b, _bool isOtherFlag)
 {
 	m_isActiveMyParticle = b;
+	m_isRefraction = isOtherFlag;
 
 	m_pGameInstance->Play_Sound(TEXT("PlayerBlock.mp3"), SOUND_PLAYEREFFECT, 3.f);
 }
@@ -53,25 +56,22 @@ void CParticle_Block::Update(_float fTimeDelta)
 {
 	if (m_isActiveMyParticle)
 	{
-		//if(m_fDisableTime == 1.f)
-		//	m_pGameInstance->Set_TimeDelayActive(true);
-		//else if (m_fDisableTime <= 0.65f)
-		//	m_pGameInstance->Set_TimeDelayActive(false);
-
+		if(true == m_isRefraction)
+			m_pGameInstance->ActiveRefraction(static_cast<CPlayer*>(m_pOwner)->Get_TimeStopRefractionTex(),CRenderer::REFRACTION_TYPE::BLOCK , static_cast<CPlayer*>(m_pOwner)->Get_BlockMaskRefractionTex());
 
 		if (m_fDisableTime <= 0.f)
 		{
+			m_pGameInstance->UnActiveRefraction();
+
 			m_isActiveMyParticle = false;
+			m_isRefraction = false;
 			m_fDisableTime = 1.f;
 			m_pVIBufferCom->ResetTranslation();
 		}
-
 		m_fDisableTime -= fTimeDelta;
 		
 		
 	
-
-
 		_float3* pRight = (_float3*)m_pParentMatrix->m[0];
 		_float3* pUp = (_float3*)m_pParentMatrix->m[1];
 		_float3* pLook = (_float3*)m_pParentMatrix->m[2];

@@ -17,7 +17,7 @@ HRESULT CLight::Initialize(const LIGHT_DESC& LightDesc)
 
 HRESULT CLight::Render(CShader* pShader, CVIBuffer_Rect* pVIBuffer)
 {
-	_uint		iPassIndex = { 0 };
+	_uint		iPassIndex = { 0 };	  // 잠시만 레벨별로 광원이 달라야겟는데 ?  레벨별로 광원을 안지워졋다고 쳐보자	 그럼 다른레벨에서 이전레벨의 광원 렌더하냐? 체크해봐야겟네
 
 	if (LIGHT_DESC::TYPE_DIRECTIONAL == m_LightDesc.eType)
 	{

@@ -16,6 +16,7 @@ public:
 
 	}TRAIL_INFO;
 
+
 private:
 	CVIBuffer_Trail(ID3D11Device * pDevice, ID3D11DeviceContext * pContext);
 	CVIBuffer_Trail(const CVIBuffer_Trail& Prototype);
@@ -32,8 +33,6 @@ public:
 	virtual void		 Update_ShurikenTrail(_float fTimeDelta, deque<TRAIL_INFO>& TrailInfo);
 
 
-
-	_fvector			 CatmullRom(const _fvector& p0, const _fvector& p1, const _fvector& p2, const _fvector& p3, float t);
 
 
 private:
