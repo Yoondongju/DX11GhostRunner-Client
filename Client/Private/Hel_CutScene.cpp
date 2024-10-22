@@ -8,6 +8,7 @@
 #include "Player.h"
 #include "FreeCamera.h"
 
+#include "HelMotionTrail.h"
 
 CHel_CutScene::CHel_CutScene(class CGameObject* pOwner)
 	: CState{ CHel::HEL_ANIMATION::CUTSCENE , pOwner }
@@ -305,6 +306,8 @@ void CHel_CutScene::Page2(_float fTimeDelta)
 					pModel->SetUp_Animation(CHel::HEL_ANIMATION::RUN_JUMP, true);
 					m_isStartJump = true;
 					m_pGameInstance->ActiveBlur(nullptr, CRenderer::BLUR_TYPE::MOTION_BLUR);
+					pHel->Get_MotionTrail()->Set_Active(true);
+
 
 					m_pGameInstance->Play_Sound(TEXT("RunJump.ogg"), SOUND_HEL_MOVEMENT, 12.f);
 				}
@@ -361,6 +364,7 @@ void CHel_CutScene::Page2(_float fTimeDelta)
 					{
 						pModel->SetUp_Animation(CHel::HEL_ANIMATION::IDLE, true);
 						m_pGameInstance->UnActiveBlur();
+						pHel->Get_MotionTrail()->Set_Active(false);
 
 						CPlayer* pPlayer = static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY));
 						CModel* pPlayerBodyModel = pPlayer->Get_Part(CPlayer::PARTID::PART_BODY)->Get_Model();

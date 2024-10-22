@@ -50,8 +50,6 @@ HRESULT CLevel_Stage1_Boss::Initialize(void* pArg)
 		return E_FAIL;
 
 
-
-
 	CPlayer* pPlayer = static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY));
 
 	CTransform* pPlayerTransform = pPlayer->Get_Transform();
@@ -64,12 +62,13 @@ HRESULT CLevel_Stage1_Boss::Initialize(void* pArg)
 	};
 
 	pPlayerTransform->Set_WorldMatrix(InitWorldMatrix);
-	
-	*(_float3*)InitWorldMatrix.m[3] = _float3(0.f, 0.f,0.f);
+
+	*(_float3*)InitWorldMatrix.m[3] = _float3(0.f, 0.f, 0.f);
 
 	_float4x4* pRotationMatrix = pPlayer->Get_RotationMatrixPtr();
 
 	*pRotationMatrix = InitWorldMatrix;
+
 
 	return S_OK;
 }

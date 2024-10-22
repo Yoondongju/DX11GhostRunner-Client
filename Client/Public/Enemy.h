@@ -6,6 +6,8 @@
 
 BEGIN(Engine)
 class CCollider;
+class CModel;
+class CFsm;
 END
 
 BEGIN(Client)
@@ -51,7 +53,7 @@ public:
 		}
 	}
 
-	CEnemy*&				Get_TargetEnemy() { return m_pTargetEnemy; }
+	CEnemy*				Get_TargetEnemy() { return m_pTargetEnemy; }
 
 
 public:
@@ -70,8 +72,15 @@ public:
 
 
 public:
+	virtual CModel*			Get_Model()  { return nullptr; }
+	virtual CFsm*			Get_Fsm()  { return nullptr; }
 	virtual CCollider*		Get_Collider() { return nullptr; }
+
 	virtual _bool			IsDead() { return false; }
+
+
+
+
 
 public:
 	virtual HRESULT Initialize_Prototype() override;

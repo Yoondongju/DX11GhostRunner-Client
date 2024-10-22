@@ -46,7 +46,6 @@ void CLevel_Loading::Update(_float fTimeDelta)
 	}
 
 
-
 	if (m_pGameInstance->Get_KeyState(KEY::SPACE) == KEY_STATE::TAP &&
 		true == m_pLoader->isFinished())
 	{
@@ -110,7 +109,6 @@ HRESULT CLevel_Loading::Render()
 	{
 		pObj->Render();
 	}
-
 
 	m_pLoader->Draw_LoadingText();
 

@@ -10,6 +10,11 @@
 #include "Player.h"
 #include "FreeCamera.h"
 
+
+#include "HelSwordTrail.h"
+#include "Weapon_Hel.h"
+
+
 CHel_BackBlock::CHel_BackBlock(class CGameObject* pOwner)
 	: CState{ CHel::HEL_ANIMATION::BACK_BLOCK , pOwner }
 {
@@ -23,6 +28,9 @@ HRESULT CHel_BackBlock::Initialize()
 
 HRESULT CHel_BackBlock::Start_State(void* pArg)
 {
+	CHel* pHel = static_cast<CHel*>(m_pOwner);
+	CHelSwordTrail* pSwordTrail = static_cast<CWeapon_Hel*>(pHel->Get_Part(CHel::PARTID::PART_WEAPON))->Get_SwordTrail();
+	pSwordTrail->Set_Active(false);
 
 	return S_OK;
 }
@@ -46,8 +54,8 @@ void CHel_BackBlock::Update(_float fTimeDelta)
 		m_isStartBlock = true;
 
 
-		pHel->Get_Part(CHel::PARTID::PART_PARTICLE_ATTACK)->SetActiveMyParticle(true);
-		pHel->Set_ActiveParticleElectric(true);
+		//pHel->Get_Part(CHel::PARTID::PART_PARTICLE_ATTACK)->SetActiveMyParticle(true);
+		pHel->Set_ActiveParticleBigElectric(true);
 		m_pGameInstance->Play_Sound(TEXT("Electric.ogg"), SOUND_HEL_ELECTRIC, 4.f);
 
 

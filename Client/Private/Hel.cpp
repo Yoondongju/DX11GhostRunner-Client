@@ -262,13 +262,26 @@ HRESULT CHel::Render()
             return E_FAIL;
     }
 
-    if (true == m_pMotionTrail->Is_Active() &&  fAddMotionTrailTime >= 0.3f)
+    if (true == m_pMotionTrail->Is_Active())
     {
-        MotionTrailInfo.emplace_back(MotionTrail);
-        fAddMotionTrailTime = 0.f;
+        if (CHel::HEL_ANIMATION::CUTSCENE == m_pFsm->Get_CurStateIndex())
+        {
+            if (fAddMotionTrailTime >= 0.02f)
+            {
+                MotionTrailInfo.emplace_back(MotionTrail);
+                fAddMotionTrailTime = 0.f;
+            }
+        }
+        else
+        {
+            if (fAddMotionTrailTime >= 0.3f)
+            {
+                MotionTrailInfo.emplace_back(MotionTrail);
+                fAddMotionTrailTime = 0.f;
+            }
+        }
     }
-       
-
+         
     return S_OK;
 }
 

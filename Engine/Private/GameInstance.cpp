@@ -210,8 +210,6 @@ void CGameInstance::Render_End()
 	/*m_pGraphic_Device->Render_End(hWnd);*/
 
 	m_pGraphic_Device->Present();
-	
-	
 }
 #pragma region INPUT_DEVICE
 _byte CGameInstance::Get_DIKeyState(_ubyte byKeyID)

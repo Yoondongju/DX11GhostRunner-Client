@@ -54,13 +54,8 @@ HRESULT CLevel_Stage2_Boss::Initialize(void* pArg)
 
 
 	CPlayer* pPlayer = static_cast<CPlayer*>(m_pGameInstance->Find_Player(LEVEL_GAMEPLAY));
-
 	CTransform* pPlayerTransform = pPlayer->Get_Transform();
 
-
-	//_vector vInitPos = { -5293.03174, 500.00000, 250.670639, 1.00000000 };
-	//pPlayerTransform->Set_State(CTransform::STATE_POSITION, vInitPos);
-	
 	_float4x4 InitWorldMatrix =
 	{
 		0.0506078489, -4.36557457e-10, -0.998718739, 0.00000000,

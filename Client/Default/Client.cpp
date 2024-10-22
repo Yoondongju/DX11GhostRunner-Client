@@ -79,28 +79,28 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	while (true)
 	{
-		if(PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-		{
-			if (WM_QUIT == msg.message)
-				break;
+        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+        {
+            if (WM_QUIT == msg.message)
+                break;
 
-			if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-		}
+            if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+            {
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
+        }
 
 		fTimeAcc += pGameInstance->Compute_TimeDelta(TEXT("Timer_Default"));
 
-		if (fTimeAcc >= 1.f / 60.0f)
+		if (fTimeAcc >= (1.f / 60.0f) - FLT_EPSILON)
 		{
 			fTimeAcc = 0.f;
             _float fTimeDelta = pGameInstance->Compute_TimeDelta(TEXT("Timer_60"));
 
-#ifdef _DEBUG
+
             fTimeDelta = 1.f / 60.0f;
-#endif
+
 			pMainApp->Update(fTimeDelta);
 			pMainApp->Render();
             pMainApp->Final_Update();
@@ -135,7 +135,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_CLIENT));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_CLIENT);
+    wcex.lpszMenuName   = nullptr; //MAKEINTRESOURCEW(IDC_CLIENT);
     wcex.lpszClassName  = szWindowClass;
     wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 

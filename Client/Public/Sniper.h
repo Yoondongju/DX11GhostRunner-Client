@@ -8,10 +8,6 @@
 BEGIN(Engine)
 class CShader;
 class CTexture;
-class CModel;
-class CCollider;
-class CFsm;
-class CRigidBody;
 END
 
 

@@ -44,8 +44,8 @@ HRESULT CPlayer_Hook::Start_State(void* pArg)
 	Safe_AddRef(m_pGrapUI);
 
 
+	
 	static_cast<CWire_Player*>(pPlayer->Get_Part(CPlayer::PARTID::PART_WIRE))->Set_Active(true);
-
 	m_pGameInstance->ActiveBlur(nullptr, CRenderer::BLUR_TYPE::MOTION_BLUR);
 
 
@@ -61,11 +61,7 @@ void CPlayer_Hook::Update(_float fTimeDelta)
 	}
 
 
-	m_fAccTime += fTimeDelta;
-
-	if (m_fAccTime >= 0.3f)
-		m_isStartHook = true;
-
+	
 
 	CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
 	CTransform* pTransform = pPlayer->Get_Transform();
@@ -76,7 +72,14 @@ void CPlayer_Hook::Update(_float fTimeDelta)
 
 
 	_float4x4* pPlayerRotationMatrix = static_cast<CPlayer*>(m_pOwner)->Get_RotationMatrixPtr();
-	pTransform->LookAt_Smooth(vGrapPointPos , fTimeDelta * 2, pPlayerRotationMatrix);
+
+	_float	fOutAngle = { 0.f };
+	pTransform->LookAt_Smooth(vGrapPointPos , fTimeDelta * 2, pPlayerRotationMatrix , &fOutAngle);
+
+	if (fOutAngle <= 45.f)
+	{		
+		m_isStartHook = true;
+	}
 
 
 	if (true == m_isStartHook)
@@ -85,8 +88,6 @@ void CPlayer_Hook::Update(_float fTimeDelta)
 
 		pRigidBody->Add_Force_Direction(vDir, 700, Engine::CRigidBody::ACCELERATION);
 		pRigidBody->Add_Force_Direction(vDir, 60, Engine::CRigidBody::VELOCITYCHANGE);
-
-		m_isStartHook = false;
 	}
 
 	

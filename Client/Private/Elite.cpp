@@ -94,7 +94,6 @@ HRESULT CElite::Initialize(void* pArg)
 
 void CElite::Priority_Update(_float fTimeDelta)
 {
-
     for (auto& pPartObject : m_Parts)
         pPartObject->Priority_Update(fTimeDelta);
 }
