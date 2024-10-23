@@ -180,8 +180,8 @@ _bool CModel::Play_Animation(_float fTimeDelta, _bool isFrustumCulling)
 	m_Bones[1]->Set_TransformationMatrix(XMMatrixIdentity());
 	
 
-	if (true == isFrustumCulling)
-		return false;
+	//if (true == isFrustumCulling)
+	//	return false;
 
 	for (auto& pBone : m_Bones)
 	{

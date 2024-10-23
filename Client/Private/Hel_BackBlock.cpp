@@ -39,7 +39,7 @@ HRESULT CHel_BackBlock::Start_State(void* pArg)
 void CHel_BackBlock::Update(_float fTimeDelta)
 {
 	CHel* pHel = static_cast<CHel*>(m_pOwner);
-	pHel->Set_ActiveParticleElectric(false);
+	pHel->Set_ActiveParticleBigElectric(false);
 
 	CModel* pModel = m_pOwner->Get_Model();
 	CFsm* pFsm = m_pOwner->Get_Fsm();
@@ -54,7 +54,7 @@ void CHel_BackBlock::Update(_float fTimeDelta)
 		m_isStartBlock = true;
 
 
-		//pHel->Get_Part(CHel::PARTID::PART_PARTICLE_ATTACK)->SetActiveMyParticle(true);
+		pHel->Get_Part(CHel::PARTID::PART_PARTICLE_ATTACK)->SetActiveMyParticle(true);
 		pHel->Set_ActiveParticleBigElectric(true);
 		m_pGameInstance->Play_Sound(TEXT("Electric.ogg"), SOUND_HEL_ELECTRIC, 4.f);
 

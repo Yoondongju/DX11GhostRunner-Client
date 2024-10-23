@@ -256,10 +256,6 @@ HRESULT CRenderer::Draw()
 	// Final에서 불름효과를 먹인애들이 백버퍼와 함께 그려졌다  그 장면이 Final에 그려졌고  
 	// 후에 모션블러와 리플렉션효과에 불름효과가 먹엇다
 
-	if (FAILED(Render_PreFinal()))
-		return E_FAIL;
-
-
 	if (true == m_isActiveBlur)
 	{
 		switch (m_eBlurType)
@@ -283,6 +279,15 @@ HRESULT CRenderer::Draw()
 		}
 	}
 
+
+	if (0 == m_iMotionBlurCount % 2)
+	{
+		if (FAILED(Render_PreFinal()))
+			return E_FAIL;
+	}
+	m_iMotionBlurCount = (m_iMotionBlurCount + 1) % 2;
+	
+	
 
 	if (true == m_isActiveRefraction && FAILED(Render_Refraction()))	// 얘네들은 매프레임 호출될 필요가없어 내가 스킬을 쓸때만 호출하면되잖니
 		return E_FAIL;

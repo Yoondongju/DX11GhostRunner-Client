@@ -61,6 +61,10 @@ void CPlayer_Hook::Update(_float fTimeDelta)
 	}
 
 
+	m_fAccTime += fTimeDelta;
+
+	if(m_fAccTime >= 0.3f)
+		m_isStartHook = true;
 	
 
 	CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
@@ -76,10 +80,6 @@ void CPlayer_Hook::Update(_float fTimeDelta)
 	_float	fOutAngle = { 0.f };
 	pTransform->LookAt_Smooth(vGrapPointPos , fTimeDelta * 2, pPlayerRotationMatrix , &fOutAngle);
 
-	if (fOutAngle <= 45.f)
-	{		
-		m_isStartHook = true;
-	}
 
 
 	if (true == m_isStartHook)

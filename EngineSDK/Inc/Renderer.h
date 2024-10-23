@@ -81,6 +81,7 @@ private:
 
 
 	class CTexture*				m_pBlurMaskTex = { nullptr };
+	_uint						m_iMotionBlurCount = { 0 };
 
 
 	BLUR_TYPE					m_eBlurType = { BLUR_TYPE::BLUR_END };

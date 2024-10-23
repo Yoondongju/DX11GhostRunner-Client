@@ -266,7 +266,7 @@ HRESULT CHel::Render()
     {
         if (CHel::HEL_ANIMATION::CUTSCENE == m_pFsm->Get_CurStateIndex())
         {
-            if (fAddMotionTrailTime >= 0.02f)
+            if (fAddMotionTrailTime >= 0.15f)
             {
                 MotionTrailInfo.emplace_back(MotionTrail);
                 fAddMotionTrailTime = 0.f;

@@ -61,8 +61,6 @@ HRESULT CMainApp::Render()
 
 	m_pGameInstance->Draw_Engine();
 
-	
-
 	m_pGameInstance->Render_End();
 
 	return S_OK;
