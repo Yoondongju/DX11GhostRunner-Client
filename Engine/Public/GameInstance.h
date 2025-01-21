@@ -213,8 +213,6 @@ public:
 	_bool CollisionUpdate_PlayerToTriangleMeshGeometry(PxVec3 * pOutDir, PxReal * pOutDepth, PxShape * pPlayerShape, PxTransform * pPlayerTransform, class CGameObject **pCollTarget);
 
 	void Phys_Clear();
-		
-
 #pragma endregion
 
 

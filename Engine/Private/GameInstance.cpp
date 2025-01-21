@@ -200,7 +200,7 @@ ID3D11ShaderResourceView* CGameInstance::Get_BackBuffer_SRV() const
 void CGameInstance::Render_Begin()
 {
 	/*m_pGraphic_Device->Render_Begin();*/
-	m_pGraphic_Device->Clear_BackBuffer_View(_float4(0.1f, 0.1f, 0.1f, 1.f));
+	m_pGraphic_Device->Clear_BackBuffer_View(_float4(0.f, 0.f, 0.f, 1.f));
 	m_pGraphic_Device->Clear_DepthStencil_View();
 	
 }
