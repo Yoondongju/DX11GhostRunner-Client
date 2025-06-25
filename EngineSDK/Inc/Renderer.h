@@ -8,7 +8,7 @@
 
 BEGIN(Engine)
 
-class CRenderer final : public CBase
+class ENGINE_DLL CRenderer final : public CBase
 {
 public:
 	enum RENDERGROUP { RG_PRIORITY, RG_HEIGHT, RG_SHADOWOBJ, RG_NONBLEND, RG_NONLIGHT, RG_BLOOM , RG_BLEND, RG_UI, RG_END };

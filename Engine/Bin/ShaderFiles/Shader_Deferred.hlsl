@@ -166,21 +166,15 @@ PS_OUT_LIGHT PS_MAIN_LIGHT_DIRECTIONAL(PS_IN In)
 
     vector vPosition = (vector) 0;
 
-	/* 투영공간상의 화면에 그려지는 픽셀의 위치를 구한다. */
-	/* 로컬위치 * 월드행렬 * 뷰행렬 * 투영행렬 / w */
     vPosition.x = In.vTexcoord.x * 2.f - 1.f;
     vPosition.y = In.vTexcoord.y * -2.f + 1.f;
     vPosition.z = vDepthDesc.x;
     vPosition.w = 1.f;
 
-	/* 뷰스페이스 상의 화면에 그려지는 픽셀의 위치를 구한다.*/
-	/* 로컬위치 * 월드행렬 * 뷰행렬  */
     vPosition = vPosition * fViewZ;
     vPosition = mul(vPosition, g_ProjMatrixInv);
 
-	/* 월드 상의 화면에 그려지는 픽셀의 위치를 구한다.*/
     vPosition = mul(vPosition, g_ViewMatrixInv);
-
     vector vLook = vPosition - g_vCamPosition;
 
     Out.vSpecular = (g_vLightSpecular * g_vMtrlSpecular) * pow(max(dot(normalize(vReflect) * -1.f, normalize(vLook)), 0.f), 50.f);
@@ -200,30 +194,22 @@ PS_OUT_LIGHT PS_MAIN_LIGHT_POINT(PS_IN In)
 
     vector vPosition = (vector) 0;
 
-	/* 투영공간상의 화면에 그려지는 픽셀의 위치를 구한다. */
-	/* 로컬위치 * 월드행렬 * 뷰행렬 * 투영행렬 / w */
     vPosition.x = In.vTexcoord.x * 2.f - 1.f;
     vPosition.y = In.vTexcoord.y * -2.f + 1.f;
     vPosition.z = vDepthDesc.x;
     vPosition.w = 1.f;
 
-	/* 뷰스페이스 상의 화면에 그려지는 픽셀의 위치를 구한다.*/
-	/* 로컬위치 * 월드행렬 * 뷰행렬  */
     vPosition = vPosition * fViewZ;
     vPosition = mul(vPosition, g_ProjMatrixInv);
-
-	/* 월드 상의 화면에 그려지는 픽셀의 위치를 구한다.*/
     vPosition = mul(vPosition, g_ViewMatrixInv);
 
-    vector vLightDir = vPosition - g_vLightPos;     // 이게 최소 몇이 나온다 그게 두자리수 이상이다.
+    vector vLightDir = vPosition - g_vLightPos;   
 
     float fAtt = saturate((g_fLightRange - length(vLightDir)) / g_fLightRange);
-
     Out.vShade = g_vLightDiffuse * saturate(max(dot(normalize(vLightDir) * -1.f, vNormal), 0.f) + (g_vLightAmbient * g_vMtrlAmbient)) * fAtt;
 
     vector vReflect = reflect(normalize(vLightDir), normalize(vNormal));
     vector vLook = vPosition - g_vCamPosition;
-
     Out.vSpecular = (g_vLightSpecular * g_vMtrlSpecular) * pow(max(dot(normalize(vReflect) * -1.f, normalize(vLook)), 0.f), 50.f) * 0.5f;
 
     return Out;
@@ -237,18 +223,14 @@ PS_OUT PS_MAIN_DEFERRED(PS_IN In)
     if (vDiffuse.a == 0.f)
         discard;
 
-	//if (vDiffuse.r == 1.f && 
-	//	vDiffuse.g == 0.f &&
-	//	vDiffuse.b == 1.f)
-	//	discard;
-
     vector vShade = g_ShadeTexture.Sample(LinearSampler, In.vTexcoord);
     vector vSpecular = g_SpecularTexture.Sample(LinearSampler, In.vTexcoord);
     Out.vColor = vDiffuse * vShade + vSpecular;
     
     
+    
     //vector vDepthDesc = g_DepthTexture.Sample(PointSampler, In.vTexcoord);
-    //float fViewZ = vDepthDesc.y * 1000.f;
+    //float fViewZ = vDepthDesc.y * 4000.f;
     //
 	///* 1. 현재 그려내는 픽셀을 광원기준의 위치로 변환하기위해서 우선 월드로 역치환하여 월드위치를 구한다. */
     //vector vPosition = (vector) 0;
@@ -278,7 +260,7 @@ PS_OUT PS_MAIN_DEFERRED(PS_IN In)
     //vTexcoord.x = (vOldPos.x / vOldPos.w) * 0.5f + 0.5f;
     //vTexcoord.y = (vOldPos.y / vOldPos.w) * -0.5f + 0.5f;
     //
-    //float fOldLightDepth = g_LightDepthTexture.Sample(LinearSampler, vTexcoord).r * 1000.f;
+    //float fOldLightDepth = g_LightDepthTexture.Sample(LinearSampler, vTexcoord).r * 4000.f;
     //
     //if (fLightDepth - 0.1f > fOldLightDepth)
     //    Out.vColor = vector(Out.vColor.rgb * 0.6f, Out.vColor.a) +  1.f;    
@@ -298,6 +280,7 @@ PS_OUT PS_MAIN_FINAL(PS_IN In)
     Out.vColor += vBloomColor;
 
     return Out;
+
 }
 
 float g_fWeights[13] =
@@ -580,42 +563,30 @@ PS_OUT PS_MAIN_BLOCK_REFRACTION(PS_IN In)
 PS_OUT PS_MAIN_SCREENSPLIT_REFRACTION(PS_IN In)
 {
     PS_OUT Out = (PS_OUT) 0;
-    float3 vNormal = g_RefractionTex.Sample(LinearSampler, In.vTexcoord).rgb; // 보통 노멀맵의 r은 수평왜곡  b는 좌우방향의 다른 왜곡을 조정하는데 사용한다 ?
+    float3 vNormal = g_RefractionTex.Sample(LinearSampler, In.vTexcoord).rgb; 
 
-    
     float2 newTexCoord = In.vTexcoord;
-    if (In.vTexcoord.y > In.vTexcoord.x - (1.f / 1280.f))               // y = x -  a  
+    if (In.vTexcoord.y > In.vTexcoord.x) //- (1.f / 1280.f))            
     {
-        //  오른쪽 
-        newTexCoord.x += g_SplitAmount * 0.1f * (1.0 + vNormal.rgb); 
-    } 
+        newTexCoord.x += g_SplitAmount * 0.1f * (1.0 + vNormal.rgb);
+    }
     else
     {
-        // 왼쪽
-        newTexCoord.x -= g_SplitAmount * 0.1f * (1.0 + vNormal.rgb); 
-        
-    } 
+        newTexCoord.x -= g_SplitAmount * 0.1f * (1.0 + vNormal.rgb);
+    }
     
-    float noise = frac(sin(dot(In.vTexcoord, float2(12.9898, 78.233))) * 43758.5453 + g_SplitAmount * 10.0);  // 일반 잘게 쪼개진 노이즈
-    
-    //float2 scaledCoord = In.vTexcoord * 0.1; // 큰 노이즈?  잘 모르겟어 체감안댐
-    //float noise = frac(sin(dot(scaledCoord, float2(12.9898, 78.233))) * 43758.5453 + g_SplitAmount * 5.0);
-    
+    float noise = frac(sin(dot(In.vTexcoord, float2(12.9898, 78.233))) * 43758.5453 + g_SplitAmount * 10.0); 
     
     float3 color = g_FinalTexture.Sample(LinearClampSampler, newTexCoord).rgb;
 
-
-    // 글리치해보자 
-    float rShift = noise * g_SplitAmount; // 빨간 채널의 이동량
-    float bShift = -noise * g_SplitAmount; // 파란 채널의 이동량
-
+    float rShift = noise * g_SplitAmount; 
+    float bShift = -noise * g_SplitAmount;
 
     float3 glitchEffect = float3(
-    color.r + rShift, // 빨간 채널 왜곡
-    color.g * (0.8 + noise), // 녹색 채널을 노이즈 기반으로 깜빡이게 함
-    color.b + bShift);    // 파란 채널 왜곡
+    color.r + rShift, 
+    color.g * (0.8 + noise), 
+    color.b + bShift);  
 
-    // 최종 출력 색상 (노이즈로 색이 깜빡이는 효과 추가)
     Out.vColor = float4(glitchEffect * (0.9 + 0.1 * noise), 1.0);
     return Out;
 }

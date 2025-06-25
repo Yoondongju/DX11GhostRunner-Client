@@ -83,48 +83,43 @@ HRESULT CStatic_Object::Render()
 
     for (size_t i = 0; i < iNumMeshes; i++)
     {
-        if (S_FALSE == m_pModel->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i))
+        if (E_FAIL == m_pModel->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i))
         {
-            if(LEVEL_STAGE2_BOSS != g_CurLevel)
-                iPassNum = 6;
-            else
-            {
-                iPassNum = 8;
-
-                if (FAILED(m_pShaderCom->Bind_RawValue("g_fTime", &m_fTextCoordTime, sizeof(_float))))
-                    return E_FAIL; 
-
-
-                _vector vCamPos = m_pGameInstance->Find_Camera(LEVEL_GAMEPLAY)->Get_Transform()->Get_State(CTransform::STATE_POSITION);
-                if (FAILED(m_pShaderCom->Bind_RawValue("g_CameraPosition", &vCamPos , sizeof(_vector))))
-                    return E_FAIL;  
-
-
-                if (nullptr != m_pCircuitTex)
-                {
-                    if (FAILED(m_pCircuitTex->Bind_ShadeResource(m_pShaderCom, "g_CircuitTex", 0)))
-                        return E_FAIL;
-                }
-                if (nullptr != m_pMossaicTex)
-                {
-                    if (FAILED(m_pMossaicTex->Bind_ShadeResource(m_pShaderCom, "g_MossaicTex", 0)))
-                        return E_FAIL;
-                }
-                
-            }
-               
-
-            
+            //if(LEVEL_STAGE2_BOSS != g_CurLevel)
+            //    iPassNum = 6;
+            //else
+            //{
+            //    iPassNum = 8;
+            //
+            //    if (FAILED(m_pShaderCom->Bind_RawValue("g_fTime", &m_fTextCoordTime, sizeof(_float))))
+            //        return E_FAIL; 
+            //
+            //
+            //    _vector vCamPos = m_pGameInstance->Find_Camera(LEVEL_GAMEPLAY)->Get_Transform()->Get_State(CTransform::STATE_POSITION);
+            //    if (FAILED(m_pShaderCom->Bind_RawValue("g_CameraPosition", &vCamPos , sizeof(_vector))))
+            //        return E_FAIL;  
+            //
+            //
+            //    if (nullptr != m_pCircuitTex)
+            //    {
+            //        if (FAILED(m_pCircuitTex->Bind_ShadeResource(m_pShaderCom, "g_CircuitTex", 0)))
+            //            return E_FAIL;
+            //    }
+            //    if (nullptr != m_pMossaicTex)
+            //    {
+            //        if (FAILED(m_pMossaicTex->Bind_ShadeResource(m_pShaderCom, "g_MossaicTex", 0)))
+            //            return E_FAIL;
+            //    }          
+            //}               
         }      
-        if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
-            return E_FAIL;
+        if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_HEIGHT, i)))
+        {
+            int test;
+        }
     
         if (true == m_isChangeTexCoord)     // ±âÂ÷
         {
             iPassNum = 5;
-
-            if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_EmissiveTexture", aiTextureType_EMISSIVE, i)))
-                return E_FAIL;
 
             if (FAILED(m_pShaderCom->Bind_RawValue("g_fTime", &m_fTextCoordTime, sizeof(_float))))
                 return E_FAIL;
@@ -165,8 +160,11 @@ HRESULT CStatic_Object::Render_LightDepth()
 
         if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
             return E_FAIL;
-        /*if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
-        return E_FAIL;*/
+
+        if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_HEIGHT, i)))
+        {
+            int test;
+        }
 
         if (FAILED(m_pShaderCom->Begin(1)))
             return E_FAIL;

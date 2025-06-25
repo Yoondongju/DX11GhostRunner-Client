@@ -58,20 +58,15 @@ void CRigidBody::Update(_float fTimeDelta, _float fTargetY, _bool isColl)
 void CRigidBody::Calculate_Tranform(_float fTimeDelta, _float fTargetY)
 {
 	Calculate_Friction();
-
-	//중력 적용 && !m_isGround
 	if (m_isGravity)
 	{
 		Calculate_Gravity(fTargetY);
 	}
 
-
 	if (nullptr == m_pOwnerTransform)
-		MSG_BOX(TEXT("RigidBody 주인설정해라"));
+		MSG_BOX(TEXT("RigidBody no"));
 
 	_vector vCurrentPosition = m_pOwnerTransform->Get_State(CTransform::STATE_POSITION);
-
-	//속도 제한
 	if (fabsf(m_vMaxVelocity.x) < fabsf(m_vVelocity.x))
 	{
 		m_vVelocity.x = (m_vVelocity.x / fabsf(m_vVelocity.x)) * fabsf(m_vMaxVelocity.x);
@@ -88,17 +83,10 @@ void CRigidBody::Calculate_Tranform(_float fTimeDelta, _float fTargetY)
 	}
 
 
-
-
 	_vector vNewPosition = vCurrentPosition + (XMLoadFloat3(&m_vVelocity) * fTimeDelta);
 	m_pOwnerTransform->Set_State(CTransform::STATE_POSITION, vNewPosition);
 
-
-	// 중력을 줄때 어디까지 내려갈까? 라는걸 체크하기위해선
-	//if (fTargetY < 0)
-	//	fTargetY = 0.f;
-
-	if (XMVectorGetY(vNewPosition) < fTargetY)		// TargetY는 내가 착지해야할 Y위치를 뜻함
+	if (XMVectorGetY(vNewPosition) < fTargetY)		
 	{
 		vNewPosition = XMVectorSetY(vNewPosition, fTargetY);
 		m_pOwnerTransform->Set_State(CTransform::STATE_POSITION, vNewPosition);
@@ -111,35 +99,27 @@ void CRigidBody::Calculate_Gravity(_float fTargetY)
 	if (nullptr == m_pOwnerTransform)
 		return;
 
-	 
 	_vector vCurrentPosition = m_pOwnerTransform->Get_State(CTransform::STATE_POSITION);
 	_float currentHeight = XMVectorGetY(vCurrentPosition);
 
-	// 현재 높이와 목표 높이 간의 차이를 사용하여 높이 비율을 계산
 	_float heightDifference = fabs(fTargetY - currentHeight);
 
-	// 높이 차이에 따른 중력 증가를 조정
 	_float fHeightFactor = 0.0f;
 	if (heightDifference > 0.0f)
 	{
-		// 거리가 클수록 중력이 커지고 가까울수록 중력이 작아지도록 수정
-		fHeightFactor = heightDifference / 70.f + 0.1f;  // +0.1f로 나눗셈에서 0 방지
+		fHeightFactor = heightDifference / 70.f + 0.1f;  
 
-		// 최대 및 최소 중력 값을 설정
-		fHeightFactor = max(fHeightFactor, 3.f);  // 최소 중력
-		fHeightFactor = min(fHeightFactor, 4.5f);  // 최대 중력
+		fHeightFactor = max(fHeightFactor, 3.f); 
+		fHeightFactor = min(fHeightFactor, 4.5f);  
 	}
+
 	_float fAdjustedGravityAccel = m_fGravityAccel * fHeightFactor;
-
-
 	_vector vGravity = { 0.f, fAdjustedGravityAccel * 3.f, 0.f };
 
 	if (fabsf(XMVectorGetY(vGravity)) > m_fGravityLimit)
 	{
 		vGravity = XMVectorSetY(vGravity, m_fGravityLimit);
 	}
-
-	// 중력 가속도를 속도에 반영
 	XMStoreFloat3(&m_vVelocity, XMLoadFloat3(&m_vVelocity) - vGravity * m_fReducedGravity);
 }
 
@@ -175,23 +155,18 @@ void CRigidBody::Add_Force(FORCEMODE eForceMode, _fvector vForce)
 
 	switch (eForceMode)
 	{
-		//가속을 추가해줄 것임(무게를 적용)
 	case Engine::CRigidBody::FORCE:
-		//가속도는 = 힘 / 질량
 		XMStoreFloat3(&m_vAccel, XMLoadFloat3(&m_vAccel) + vForce / m_fMass);
 		break;
 
-		//가속을 추가해줄 것임(무게를 적용 안 함)
 	case Engine::CRigidBody::ACCELERATION:
 		XMStoreFloat3(&m_vAccel, XMLoadFloat3(&m_vAccel) + vForce);
 		break;
 
-		//순간적으로 밀어줄 거임(무게를 적용)
 	case Engine::CRigidBody::IMPLUSE:
 		XMStoreFloat3(&m_vVelocity, XMLoadFloat3(&m_vVelocity) + vForce / m_fMass);
 		break;
 
-		//순간적으로 밀어줄 거임(무게를 적용 안 함)
 	case Engine::CRigidBody::VELOCITYCHANGE:
 		XMStoreFloat3(&m_vVelocity, XMLoadFloat3(&m_vVelocity) + vForce);
 		break;

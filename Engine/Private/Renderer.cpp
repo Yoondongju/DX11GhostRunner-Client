@@ -233,6 +233,7 @@ HRESULT CRenderer::Draw()
 {
 	if (FAILED(Render_Priority()))
 		return E_FAIL;
+
 	//if (FAILED(Render_Height()))
 	//	return E_FAIL;
 
@@ -241,13 +242,12 @@ HRESULT CRenderer::Draw()
 		return E_FAIL;
 	if (FAILED(Render_Lights()))
 		return E_FAIL;
-	if (FAILED(Render_ShadowObj()))
+	//if (FAILED(Render_ShadowObj()))
+	//	return E_FAIL;
+	if (FAILED(Render_Deferred()))
 		return E_FAIL;
 
 	if (FAILED(Render_BloomEffect()))
-		return E_FAIL;
-	
-	if (FAILED(Render_Deferred()))
 		return E_FAIL;
 
 	if (FAILED(Render_Final()))				//  디퍼드연산까지 들어간 내 백버퍼를 Final 렌더타겟에 그린다.
@@ -433,7 +433,7 @@ HRESULT CRenderer::Render_Priority()
 
 HRESULT CRenderer::Render_Height()
 {
-	return E_NOTIMPL;
+	return S_OK;
 }
 
 HRESULT CRenderer::Render_ShadowObj()

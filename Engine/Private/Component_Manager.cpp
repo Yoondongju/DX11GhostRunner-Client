@@ -26,7 +26,7 @@ HRESULT CComponent_Manager::Add_Prototype(_uint iLevelIndex, const _wstring & st
 		// m_pPrototype[iNumLevelIndex].erase(strPrototypeTag);
 		return S_OK;
 	}
-
+	 
 	m_pPrototypes[iLevelIndex].emplace(strPrototypeTag, pPrototype);
 	pPrototype->Set_PrototypeName(strPrototypeTag);
 

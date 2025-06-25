@@ -66,9 +66,7 @@ HRESULT CHelMotionTrail::Render()
 		{
 			m_MotionTrailInfo.pop_front();
 			continue;
-		}
-			
-
+		}	
 
 		if (FAILED(m_pShaderCom->Bind_Matrix("g_WorldMatrix", &m_MotionTrailInfo[i].WorldMatrix)))
 			return E_FAIL;
@@ -91,9 +89,6 @@ HRESULT CHelMotionTrail::Render()
 			if (FAILED(m_pShaderCom->Bind_Matrices("g_BoneMatrices", m_MotionTrailInfo[i].BoneMatrices[j], iNumAffectBone)))
 				return E_FAIL;
 
-			if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, j)))
-				return E_FAIL;
-
 			if (FAILED(m_pShaderCom->Begin(2)))
 				return E_FAIL;
 
@@ -101,7 +96,6 @@ HRESULT CHelMotionTrail::Render()
 				return E_FAIL;
 		}	
 	}
-
 	return S_OK;
 }
 

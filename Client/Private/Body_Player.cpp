@@ -121,7 +121,7 @@ HRESULT CBody_Player::Render()
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
 			return E_FAIL;
 
-		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
+		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_HEIGHT, i)))
 			return E_FAIL;
 
 
@@ -290,21 +290,12 @@ void CBody_Player::PhysXComputeCollision()
 
 	if (true == m_pGameInstance->CollisionUpdate_PlayerToTriangleMeshGeometry(&m_vDir, &m_vDepth, m_pShape, &m_PxTransform, &m_pCollisionDestObject))
 	{
-		//CRigidBody* pPlayerRigidBody = m_pOwner->Get_RigidBody();
-		//
-		//pPlayerRigidBody->Set_Velocity(_float3(0.f, 0.f, 0.f));
-		//pPlayerRigidBody->Set_Accel(_float3(0.f, 0.f, 0.f));
-		//pPlayerRigidBody->Set_ZeroTimer();
-
 		m_pColliderCom->Set_CurPhysXCollision(true);
 
-		_float4x4* pParentMatrix = m_pParentMatrix;
-		
+		_float4x4* pParentMatrix = m_pParentMatrix;	
 		pParentMatrix->m[3][0] += m_vDir.x * (m_vDepth + 0.1f);
 		pParentMatrix->m[3][1] += m_vDir.y * (m_vDepth + 0.1f);
 		pParentMatrix->m[3][2] += m_vDir.z * (m_vDepth + 0.1f);
-
-		// 충돌한 객체가 벽을 탈수있는애인걸 확인해야함
 
 		if (m_pColliderCom->IsPhysXCollisionEnter())
 		{
@@ -328,7 +319,7 @@ void CBody_Player::PhysXComputeCollision()
 							m_pModelCom->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::SH_RUN_WALL_L, true);
 
 						m_iLandWallDir = -1;
-						rayDirection *= -1.f; // 반대방향으로 바꾸고
+						rayDirection *= -1.f;
 					}
 					else
 					{
@@ -339,8 +330,6 @@ void CBody_Player::PhysXComputeCollision()
 
 						m_iLandWallDir = 1;
 					}
-
-
 
 					PxRaycastBuffer hitInfo;
 					PxQueryFilterData data;
@@ -353,16 +342,9 @@ void CBody_Player::PhysXComputeCollision()
 						_float fDistance = hitInfo.block.distance;
 						m_fPreLandingDistance = fDistance;
 
-
 						_float4x4* pParentMatrix = const_cast<_float4x4*>(m_pParentMatrix);
-
-						// 충돌했다면 위치를 그냥 빌보드 오브젝트의 특정부분으로 갈아치우는게 난이도가 훨씬쉽다.
-
-
-						
-						pParentMatrix->m[3][0] += hitInfo.block.normal.x * (m_fPreLandingDistance * 0.8f);
-						//pParentMatrix->m[3][1] += rayDirection.y * (fDistance);
-						//pParentMatrix->m[3][1] += hitInfo.block.position.y * 0.5f;
+					
+						pParentMatrix->m[3][0] += hitInfo.block.normal.x * (m_fPreLandingDistance * 0.8f);			
 						pParentMatrix->m[3][2] += hitInfo.block.normal.z * (m_fPreLandingDistance * 0.8f);
 					}
 				}
@@ -375,13 +357,12 @@ void CBody_Player::PhysXComputeCollision()
 	{
 		m_pColliderCom->Set_CurPhysXCollision(false);
 
-		if (true == m_bRotationChange) // 회전에 변화가 있었니?
+		if (true == m_bRotationChange) 
 		{
 			_vector vLookNormal = XMVector3Normalize(pPlayerTransform->Get_State(CTransform::STATE_LOOK));
 
 			_float	fRotationSpeed = -m_fFinalRotation;
 			_float	fCurRotationSpeed = fRotationSpeed * 0.04f;
-
 
 			if (m_iLandWallDir > 0)
 			{
@@ -402,7 +383,6 @@ void CBody_Player::PhysXComputeCollision()
 					m_fAccRotationSpeed = 0.f;
 					m_bRotationChange = false;
 				}
-
 			}
 			else if (m_iLandWallDir < 0)
 			{
@@ -424,7 +404,6 @@ void CBody_Player::PhysXComputeCollision()
 					m_bRotationChange = false;
 				}
 			}
-
 		}
 
 

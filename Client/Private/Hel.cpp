@@ -238,21 +238,18 @@ HRESULT CHel::Render()
     }
 
     _uint iNumMeshes = m_pModel->Get_NumMeshes();
-
-    CHelMotionTrail::MOTION_TRAIL_INFO  MotionTrail = {};         // 월행 , 본메트릭스, 라이프타임                        
+    CHelMotionTrail::MOTION_TRAIL_INFO  MotionTrail = {};                          
     XMStoreFloat4x4(&MotionTrail.WorldMatrix, m_pTransformCom->Get_WorldMatrix());
     MotionTrail.fLifeTime = 1.f;
 
     for (size_t i = 0; i < iNumMeshes; i++)
     {
-        // 내 모션트레일의 -> 트레일정보의 -> 이 메시에 영향을 주는 뼈행렬의 첫번째 주소를 준다음
-        // 저 안에서 값을 채운다   ( 일단 이거 메쉬 1개라고 가정하고 생각한거임 )
         m_pModel->Bind_MeshBoneMatrices(m_pShaderCom, "g_BoneMatrices", i, MotionTrail.BoneMatrices[i]);
    
         if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_DiffuseTexture", aiTextureType_DIFFUSE, i)))
             return E_FAIL;
 
-        if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, i)))
+        if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_HEIGHT, i)))
             return E_FAIL;
 
         if (FAILED(m_pShaderCom->Begin(iPassNum)))

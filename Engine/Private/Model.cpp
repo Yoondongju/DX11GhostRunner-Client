@@ -200,7 +200,7 @@ HRESULT CModel::Bind_Material(CShader* pShader, const _char* pConstantName, aiTe
 	if (m_Materials[iMaterialIndex].pMaterialTextures[eMaterialType])
 		return m_Materials[iMaterialIndex].pMaterialTextures[eMaterialType]->Bind_ShadeResource(pShader, pConstantName, 0);
 	else
-		return S_FALSE;
+		return E_FAIL;
 }
 
 HRESULT CModel::Bind_MeshBoneMatrices(CShader* pShader, const _char* pConstantName, _uint iMeshIndex, _float4x4* pOutBoneMatrix)

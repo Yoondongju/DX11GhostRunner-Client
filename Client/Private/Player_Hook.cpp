@@ -60,13 +60,11 @@ void CPlayer_Hook::Update(_float fTimeDelta)
 		m_isHookSoundActive = true;
 	}
 
-
 	m_fAccTime += fTimeDelta;
 
 	if(m_fAccTime >= 0.3f)
 		m_isStartHook = true;
 	
-
 	CPlayer* pPlayer = static_cast<CPlayer*>(m_pOwner);
 	CTransform* pTransform = pPlayer->Get_Transform();
 	CRigidBody* pRigidBody = pPlayer->Get_RigidBody();
@@ -74,13 +72,10 @@ void CPlayer_Hook::Update(_float fTimeDelta)
 	_vector vGrapPointPos = m_pGrapUI->Get_Crane()->Get_Transform()->Get_State(CTransform::STATE_POSITION);
 	_vector vPlayerPos = pTransform->Get_State(CTransform::STATE_POSITION);
 
-
 	_float4x4* pPlayerRotationMatrix = static_cast<CPlayer*>(m_pOwner)->Get_RotationMatrixPtr();
 
 	_float	fOutAngle = { 0.f };
 	pTransform->LookAt_Smooth(vGrapPointPos , fTimeDelta * 2, pPlayerRotationMatrix , &fOutAngle);
-
-
 
 	if (true == m_isStartHook)
 	{
@@ -90,7 +85,6 @@ void CPlayer_Hook::Update(_float fTimeDelta)
 		pRigidBody->Add_Force_Direction(vDir, 60, Engine::CRigidBody::VELOCITYCHANGE);
 	}
 
-	
 	_vector vAbsDistance = XMVectorAbs(XMVectorSubtract(vGrapPointPos, vPlayerPos));
 
 	if (300.f >= XMVectorGetX(XMVector3Length(vAbsDistance)))
@@ -116,7 +110,6 @@ void CPlayer_Hook::Update(_float fTimeDelta)
 		pModel->SetUp_Animation(CPlayer::PLAYER_ANIMATIONID::IDLE, true);
 		pFsm->Change_State(CPlayer::PLAYER_ANIMATIONID::IDLE);
 	}
-
 }
 
 void CPlayer_Hook::End_State()

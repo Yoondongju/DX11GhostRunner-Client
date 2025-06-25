@@ -93,7 +93,6 @@ HRESULT CVIBuffer_Instancing::Bind_Buffers()
 		0,
 	};
 		
-	
 	m_pContext->IASetVertexBuffers(0, m_iNumVertexBuffers, pVertexBuffers, iVertexStrides, iOffsets);
 	m_pContext->IASetIndexBuffer(m_pIB, m_eIndexFormat, 0);
 	m_pContext->IASetPrimitiveTopology(m_eTopology);

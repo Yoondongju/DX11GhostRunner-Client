@@ -91,7 +91,7 @@ HRESULT CEliteMotionTrail::Render()
 			if (FAILED(m_pShaderCom->Bind_Matrices("g_BoneMatrices", m_MotionTrailInfo[i].BoneMatrices[j], iNumAffectBone)))
 				return E_FAIL;
 
-			if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_NORMALS, j)))
+			if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_HEIGHT, j)))
 				return E_FAIL;
 
 			if (FAILED(m_pShaderCom->Begin(3)))

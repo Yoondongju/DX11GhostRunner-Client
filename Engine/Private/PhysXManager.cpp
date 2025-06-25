@@ -146,7 +146,6 @@ _bool CPhysXManager::CollisionUpdate_PlayerToTriangleMeshGeometry(PxVec3* pOutDi
 {
 	for (_uint i = 0; i < m_Player_WalkAble_Mesh.size(); i++)
 	{
-		// 두 지오메트리 간의 충돌 검사 수행
 		PxComputeTriangleMeshPenetration(
 			*pOutDir,
 			*pOutDepth,
@@ -156,19 +155,12 @@ _bool CPhysXManager::CollisionUpdate_PlayerToTriangleMeshGeometry(PxVec3* pOutDi
 			m_Player_WalkAble_Mesh[i].PxTransform,
 			4);
 
-		
-
-
-		if (*pOutDepth > 0.f)	// 플레이어가 안으로 들어갔니
+		if (*pOutDepth > 0.f)
 		{
 			*pCollTarget = m_Player_WalkAble_Mesh[i].pOnwer;
 			return true;
 		}
-		
-
 	}
-	
-
 	return false;
 }
 
