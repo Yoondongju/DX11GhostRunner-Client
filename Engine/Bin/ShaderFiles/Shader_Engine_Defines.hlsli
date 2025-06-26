@@ -152,8 +152,8 @@ float3 SpecularIBL(float3 albedo, float3 normalWorld, float3 pixelToEye,
 float3 AmbientLightingByIBL(float3 albedo, float3 normalW, float3 pixelToEye, float ao,
                             float metallic, float roughness)
 {
-    float3 diffuseIBL = DiffuseIBL(albedo, normalW, pixelToEye, metallic);
-    float3 specularIBL = SpecularIBL(albedo, normalW, pixelToEye, metallic, roughness);
+    float3 diffuseIBL = DiffuseIBL(albedo, normalW, pixelToEye, metallic);              // µðÇ»Æ® ³­ ¹Ý»ç±¤
+    float3 specularIBL = SpecularIBL(albedo, normalW, pixelToEye, metallic, roughness); // ½ºÆäÅ§·¯ ³­ ¹Ý»ç±¤
     
     return (diffuseIBL + specularIBL * 0.3f) * (ao);
 }

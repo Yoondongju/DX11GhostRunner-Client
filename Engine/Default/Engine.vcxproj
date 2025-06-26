@@ -65,6 +65,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\private\Shader.cpp" />
+    <ClCompile Include="..\Private\Sky_Manager.cpp" />
     <ClCompile Include="..\Private\SoundMager.cpp" />
     <ClCompile Include="..\Private\State.cpp" />
     <ClCompile Include="..\Private\Target_Manager.cpp" />
@@ -138,6 +139,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\public\Shader.h" />
+    <ClInclude Include="..\Public\Sky_Manager.h" />
     <ClInclude Include="..\Public\SoundMager.h" />
     <ClInclude Include="..\Public\State.h" />
     <ClInclude Include="..\Public\Target_Manager.h" />

@@ -15,6 +15,7 @@ BEGIN(Client)
 class CSky final : public CGameObject
 {
 private:
+	enum TEXTURE { TEXTURE_ENV, TEXTURE_HDR, TEXTURE_BRDF, TEXTURE_END };
 	CSky(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CSky(const CSky& Prototype);
 	virtual ~CSky() = default;
@@ -28,9 +29,9 @@ public:
 	virtual HRESULT Render() override;
 
 private:
-	CShader*		  m_pShaderCom = { nullptr };
-	CTexture*		  m_pTextureCom = { nullptr };
-	CVIBuffer_Cube*			  m_pModelCom = { nullptr };
+	CShader*					m_pShaderCom = { nullptr };
+	class CTexture*				m_pTextureCom[TEXTURE_END] = { nullptr };
+	CVIBuffer_Cube*				m_pModelCom = { nullptr };
 
 	CTransform*		  m_pFreeCameraTransform = { nullptr };
 

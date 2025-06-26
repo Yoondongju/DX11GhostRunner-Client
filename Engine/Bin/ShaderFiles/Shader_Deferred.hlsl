@@ -4,6 +4,7 @@ matrix g_WorldMatrix, g_ViewMatrix, g_ProjMatrix;
 matrix g_ViewMatrixInv, g_ProjMatrixInv;
 matrix g_LightViewMatrix, g_LightProjMatrix;
 texture2D g_Texture;
+texture2D g_SRMTexture;
 
 
 vector g_vLightDir;
@@ -153,30 +154,30 @@ struct PS_OUT_LIGHT
 PS_OUT_LIGHT PS_MAIN_LIGHT_DIRECTIONAL(PS_IN In)
 {
     PS_OUT_LIGHT Out = (PS_OUT_LIGHT) 0;
-
+    
     vector vDepthDesc = g_DepthTexture.Sample(PointSampler, In.vTexcoord);
     float fViewZ = vDepthDesc.y * 4000.f;
-
+    
     vector vNormalDesc = g_NormalTexture.Sample(PointSampler, In.vTexcoord);
     vector vNormal = float4(vNormalDesc.xyz * 2.f - 1.f, 0.f);
-
+    
     Out.vShade = g_vLightDiffuse * saturate(max(dot(normalize(g_vLightDir) * -1.f, vNormal), 0.f) + (g_vLightAmbient * g_vMtrlAmbient));
 
     vector vReflect = reflect(normalize(g_vLightDir), normalize(vNormal));
 
     vector vPosition = (vector) 0;
-
+    
     vPosition.x = In.vTexcoord.x * 2.f - 1.f;
     vPosition.y = In.vTexcoord.y * -2.f + 1.f;
     vPosition.z = vDepthDesc.x;
     vPosition.w = 1.f;
-
+    
     vPosition = vPosition * fViewZ;
     vPosition = mul(vPosition, g_ProjMatrixInv);
-
+    
     vPosition = mul(vPosition, g_ViewMatrixInv);
     vector vLook = vPosition - g_vCamPosition;
-
+    
     Out.vSpecular = (g_vLightSpecular * g_vMtrlSpecular) * pow(max(dot(normalize(vReflect) * -1.f, normalize(vLook)), 0.f), 50.f);
 
     return Out;
@@ -208,11 +209,17 @@ PS_OUT_LIGHT PS_MAIN_LIGHT_POINT(PS_IN In)
     float fAtt = saturate((g_fLightRange - length(vLightDir)) / g_fLightRange);
     Out.vShade = g_vLightDiffuse * saturate(max(dot(normalize(vLightDir) * -1.f, vNormal), 0.f) + (g_vLightAmbient * g_vMtrlAmbient)) * fAtt;
 
-    vector vReflect = reflect(normalize(vLightDir), normalize(vNormal));
-    vector vLook = vPosition - g_vCamPosition;
-    Out.vSpecular = (g_vLightSpecular * g_vMtrlSpecular) * pow(max(dot(normalize(vReflect) * -1.f, normalize(vLook)), 0.f), 50.f) * 0.5f;
+    //vector vReflect = reflect(normalize(vLightDir), normalize(vNormal));
+    //vector vLook = vPosition - g_vCamPosition;
+    //Out.vSpecular = (g_vLightSpecular * g_vMtrlSpecular) * pow(max(dot(normalize(vReflect) * -1.f, normalize(vLook)), 0.f), 50.f) * 0.5f;
 
     return Out;
+}
+
+float3 ToneMapACES(float3 color)
+{
+    color *= 0.6; // 조절용 계수, 너무 강하면 줄이기
+    return (color * (2.51 * color + 0.03)) / (color * (2.43 * color + 0.59) + 0.14);
 }
 
 PS_OUT PS_MAIN_DEFERRED(PS_IN In)
@@ -222,10 +229,58 @@ PS_OUT PS_MAIN_DEFERRED(PS_IN In)
     vector vDiffuse = g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord);
     if (vDiffuse.a == 0.f)
         discard;
+	
+    vector vNormalDesc = g_NormalTexture.Sample(LinearSampler, In.vTexcoord);
+    vector vNormal = float4(vNormalDesc.xyz * 2.f - 1.f, 0.f);
 
-    vector vShade = g_ShadeTexture.Sample(LinearSampler, In.vTexcoord);
-    vector vSpecular = g_SpecularTexture.Sample(LinearSampler, In.vTexcoord);
-    Out.vColor = vDiffuse * vShade + vSpecular;
+    vector vDepthDesc = g_DepthTexture.Sample(PointSampler, In.vTexcoord);
+    float fViewZ = vDepthDesc.y * 4000.f;
+		/* 1. 현재 그려내는 픽셀을 광원기준의 위치로 변환하기위해서 우선 월드로 역치환하여 월드위치를 구한다. */
+    vector vPosition = (vector) 0;
+
+	/* 투영공간상의 화면에 그려지는 픽셀의 위치를 구한다. */
+	/* 로컬위치 * 월드행렬 * 뷰행렬 * 투영행렬 / w */
+    vPosition.x = In.vTexcoord.x * 2.f - 1.f;
+    vPosition.y = In.vTexcoord.y * -2.f + 1.f;
+    vPosition.z = vDepthDesc.x;
+    vPosition.w = 1.f;
+
+	/* 뷰스페이스 상의 화면에 그려지는 픽셀의 위치를 구한다.*/
+	/* 로컬위치 * 월드행렬 * 뷰행렬  */
+    vPosition = vPosition * fViewZ;
+    vPosition = mul(vPosition, g_ProjMatrixInv);
+
+	/* 월드 상의 화면에 그려지는 픽셀의 위치를 구한다.*/
+    vPosition = mul(vPosition, g_ViewMatrixInv);
+	
+	/*-----------------------
+			PBR or Shade
+	------------------------*/
+    
+   
+    
+    float3 pixelToEye = normalize(g_vCamPosition - vPosition);
+    vector vSRM = g_SRMTexture.Sample(LinearSampler, In.vTexcoord);
+    float avg = ((vSRM.r + vSRM.g + vSRM.b));
+    if (avg != 0)
+    {
+        float roughness = vSRM.g;
+        float metallic = vSRM.b;       
+        float ao = vSRM.r;
+
+        float3 ambientLighting = AmbientLightingByIBL(vDiffuse.rgb, vNormal.xyz, pixelToEye, ao,
+                                                  metallic, roughness);
+        
+        float3 litColor = ambientLighting; // 혹은 ambient + direct lighting 합한 거
+        litColor = ToneMapACES(litColor);
+        litColor = pow(litColor, 1.0 / 2.2); // 감마 보정
+        Out.vColor = float4(litColor, 1.0);
+    }
+    else
+    {
+        vector vShade = g_ShadeTexture.Sample(LinearSampler, In.vTexcoord);
+        Out.vColor = vDiffuse * vShade;
+    }
     
     
     

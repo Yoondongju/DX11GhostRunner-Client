@@ -153,42 +153,48 @@ void CVIBuffer_Trail::Update_SwordTrail(_float fTimeDelta, deque<TRAIL_INFO>& Tr
 		return;
 	}
 	
-	for (_uint i = 0; i < TrailInfo.size(); i++)		
+	_uint trailCount = (_uint)TrailInfo.size();
+
+	for (_uint i = 0; i < trailCount; i++)
 	{
-		_uint iIndex = i * 4; 
-		
+		_uint iIndex = i * 4;
+
+		float u = (_float)i / (trailCount - 1); // ← 핵심
+
 		_float3 CurStart = TrailInfo[i].CurStart;
 		_float3 CurEnd = TrailInfo[i].CurEnd;
 
 		pVertices[iIndex].vPosition = CurStart;
-		pVertices[iIndex].vTexcoord = _float2(0.0f, 0.0f);
+		pVertices[iIndex].vTexcoord = _float2(u, 0.0f);
 		pVertices[iIndex].vLifeTime.y += fTimeDelta;
 
 		pVertices[iIndex + 1].vPosition = CurEnd;
-		pVertices[iIndex + 1].vTexcoord = _float2(1.0f, 0.0f);
+		pVertices[iIndex + 1].vTexcoord = _float2(u, 1.0f);
 		pVertices[iIndex + 1].vLifeTime.y += fTimeDelta;
 
-		if (i < TrailInfo.size() - 1)
+		if (i < trailCount - 1)
 		{
+			float uNext = (_float)(i + 1) / (trailCount - 1);
+
 			_float3 NextStart = TrailInfo[i + 1].CurStart;
 			_float3 NextEnd = TrailInfo[i + 1].CurEnd;
 
 			pVertices[iIndex + 2].vPosition = NextStart;
-			pVertices[iIndex + 2].vTexcoord = _float2(0.0f, 1.0f);
+			pVertices[iIndex + 2].vTexcoord = _float2(uNext, 0.0f);
 			pVertices[iIndex + 2].vLifeTime.y += fTimeDelta;
 
 			pVertices[iIndex + 3].vPosition = NextEnd;
-			pVertices[iIndex + 3].vTexcoord = _float2(1.0f, 1.0f);
+			pVertices[iIndex + 3].vTexcoord = _float2(uNext, 1.0f);
 			pVertices[iIndex + 3].vLifeTime.y += fTimeDelta;
 		}
 		else
 		{
 			pVertices[iIndex + 2].vPosition = CurStart;
-			pVertices[iIndex + 2].vTexcoord = _float2(0.0f, 1.0f);
+			pVertices[iIndex + 2].vTexcoord = _float2(u, 0.0f);
 			pVertices[iIndex + 2].vLifeTime.y += fTimeDelta;
 
 			pVertices[iIndex + 3].vPosition = CurEnd;
-			pVertices[iIndex + 3].vTexcoord = _float2(1.0f, 1.0f);
+			pVertices[iIndex + 3].vTexcoord = _float2(u, 1.0f);
 			pVertices[iIndex + 3].vLifeTime.y += fTimeDelta;
 		}
 	}
@@ -236,45 +242,48 @@ void CVIBuffer_Trail::Update_ShurikenTrail(_float fTimeDelta, deque<TRAIL_INFO>&
 	}
 
 
-	for (_uint i = 0; i < TrailInfo.size(); i++)		// m_iNumPanel == TrailInfo.size()
+	_uint trailCount = (_uint)TrailInfo.size();
+
+	for (_uint i = 0; i < trailCount; i++)
 	{
 		_uint iIndex = i * 4;
+
+		float u = (_float)i / (trailCount - 1); // ← 핵심
 
 		_float3 CurStart = TrailInfo[i].CurStart;
 		_float3 CurEnd = TrailInfo[i].CurEnd;
 
 		pVertices[iIndex].vPosition = CurStart;
-		pVertices[iIndex].vTexcoord = _float2(0.0f, 0.0f);
+		pVertices[iIndex].vTexcoord = _float2(u, 0.0f);
 		pVertices[iIndex].vLifeTime.y += fTimeDelta;
 
 		pVertices[iIndex + 1].vPosition = CurEnd;
-		pVertices[iIndex + 1].vTexcoord = _float2(1.0f, 0.0f);
+		pVertices[iIndex + 1].vTexcoord = _float2(u, 1.0f);
 		pVertices[iIndex + 1].vLifeTime.y += fTimeDelta;
 
-
-		// 다음 세그먼트 존재 확인
-		if (i < TrailInfo.size() - 1)
+		if (i < trailCount - 1)
 		{
+			float uNext = (_float)(i + 1) / (trailCount - 1);
+
 			_float3 NextStart = TrailInfo[i + 1].CurStart;
 			_float3 NextEnd = TrailInfo[i + 1].CurEnd;
 
 			pVertices[iIndex + 2].vPosition = NextStart;
-			pVertices[iIndex + 2].vTexcoord = _float2(0.0f, 1.0f);
+			pVertices[iIndex + 2].vTexcoord = _float2(uNext, 0.0f);
 			pVertices[iIndex + 2].vLifeTime.y += fTimeDelta;
 
 			pVertices[iIndex + 3].vPosition = NextEnd;
-			pVertices[iIndex + 3].vTexcoord = _float2(1.0f, 1.0f);
+			pVertices[iIndex + 3].vTexcoord = _float2(uNext, 1.0f);
 			pVertices[iIndex + 3].vLifeTime.y += fTimeDelta;
 		}
 		else
 		{
-			// 마지막 세그먼트일 때: 마지막 포인트들을 그대로 유지
 			pVertices[iIndex + 2].vPosition = CurStart;
-			pVertices[iIndex + 2].vTexcoord = _float2(0.0f, 1.0f);
+			pVertices[iIndex + 2].vTexcoord = _float2(u, 0.0f);
 			pVertices[iIndex + 2].vLifeTime.y += fTimeDelta;
 
 			pVertices[iIndex + 3].vPosition = CurEnd;
-			pVertices[iIndex + 3].vTexcoord = _float2(1.0f, 1.0f);
+			pVertices[iIndex + 3].vTexcoord = _float2(u, 1.0f);
 			pVertices[iIndex + 3].vLifeTime.y += fTimeDelta;
 		}
 	}

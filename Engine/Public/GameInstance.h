@@ -174,6 +174,17 @@ public:
 #pragma endregion
 
 
+#pragma region SKY_MANAGER
+	void Set_HDRTexture(class CTexture* pTexture);
+	void Set_BRDFTexture(class CTexture* pTexture);
+	void Set_DissolveTexture(class CTexture* pTexture);
+	void Set_NoiseTexture(class CTexture* pTexture);
+	HRESULT Bind_HDRTexture(class CShader* pShader);
+	HRESULT Bind_BRDFTexture(class CShader* pShader);
+	HRESULT Bind_DissolveTexture(class CShader* pShader);
+	HRESULT Bind_NoiseTexture(CShader* pShader, const _char* pConstantName);
+#pragma endregion
+
 
 #pragma region PICKING
 	//void Transform_MouseRay_ToLocalSpace(const _float4x4& WorldMatrix);	
@@ -243,7 +254,7 @@ private:
 
 	class CPhysXManager*			m_pPhysX_Manager = { nullptr };
 	class CSound_Manager*			m_pSound_Manager = { nullptr };
-
+	class CSky_Manager*				m_pSky_Manager = { nullptr };
 
 	//class CPickingManager*		m_pPicking_Manager = { nullptr };
 

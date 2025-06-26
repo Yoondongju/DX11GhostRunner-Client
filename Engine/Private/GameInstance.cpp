@@ -16,7 +16,7 @@
 #include "../Public/Target_Manager.h"
 #include "../Public/SoundMager.h"
 #include "../Public/Frustum.h"
-
+#include "../Public/Sky_Manager.h"
 
 
 IMPLEMENT_SINGLETON(CGameInstance)
@@ -117,6 +117,9 @@ HRESULT CGameInstance::Initialize_Engine(HINSTANCE hInst, _uint iNumLevels, cons
 	if (nullptr == m_pPhysX_Manager)
 		return E_FAIL;
 
+	m_pSky_Manager = CSky_Manager::Create();
+	if (nullptr == m_pSky_Manager)
+		return E_FAIL;
 
 
 	return S_OK;
@@ -330,6 +333,52 @@ _float CGameInstance::Compute_TimeDelta(const _wstring & strTimerTag)
 }
 
 #pragma endregion
+
+
+
+void CGameInstance::Set_HDRTexture(CTexture* pTexture)
+{
+	return m_pSky_Manager->Set_HDRTexture(pTexture);
+}
+
+void CGameInstance::Set_BRDFTexture(CTexture* pTexture)
+{
+	return m_pSky_Manager->Set_BRDFTexture(pTexture);
+}
+
+void CGameInstance::Set_DissolveTexture(CTexture* pTexture)
+{
+	return m_pSky_Manager->Set_DissolveTexture(pTexture);
+}
+
+void CGameInstance::Set_NoiseTexture(CTexture* pTexture)
+{
+	return m_pSky_Manager->Set_NoiseTexture(pTexture);
+}
+
+HRESULT CGameInstance::Bind_HDRTexture(CShader* pShader)
+{
+	return m_pSky_Manager->Bind_HDRTexture(pShader);
+}
+
+HRESULT CGameInstance::Bind_BRDFTexture(CShader* pShader)
+{
+	return m_pSky_Manager->Bind_BRDFTexture(pShader);
+}
+
+HRESULT CGameInstance::Bind_DissolveTexture(CShader* pShader)
+{
+	return m_pSky_Manager->Bind_DissolveTexture(pShader);
+}
+
+HRESULT CGameInstance::Bind_NoiseTexture(CShader* pShader, const _char* pConstantName)
+{
+	return m_pSky_Manager->Bind_NoiseTexture(pShader, pConstantName);
+}
+
+
+
+
 
 
 #pragma region RENDERER
@@ -558,6 +607,8 @@ void CGameInstance::Release_Engine()
 	Safe_Release(m_pTimer_Manager);
 	Safe_Release(m_pComponent_Manager);
 	Safe_Release(m_pObject_Manager);
+
+	Safe_Release(m_pSky_Manager);
 
 	Safe_Release(m_pLevel_Manager);
 	Safe_Release(m_pGraphic_Device);

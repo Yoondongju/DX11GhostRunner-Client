@@ -113,7 +113,7 @@ HRESULT CEliteMotionTrail::Ready_Components()
 		return E_FAIL;
 
 	/* FOR.Com_Texture */				// Prototype_Component_Texture_ParticleShuriken
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_SwordTrail"),
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_ParticleShuriken"),
 		TEXT("Com_Texture"), reinterpret_cast<CComponent**>(&m_pTextureCom))))
 		return E_FAIL;
 

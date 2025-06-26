@@ -32,6 +32,11 @@ HRESULT CSky::Initialize(void* pArg)
 	m_pFreeCameraTransform = m_pGameInstance->Find_Camera(LEVEL_GAMEPLAY)->Get_Transform();
 	Safe_AddRef(m_pFreeCameraTransform);
 
+
+	m_pGameInstance->Set_HDRTexture(m_pTextureCom[TEXTURE_HDR]);
+	m_pGameInstance->Set_BRDFTexture(m_pTextureCom[TEXTURE_BRDF]);
+
+
 	return S_OK;
 }
 
@@ -68,7 +73,7 @@ HRESULT CSky::Render()
 	if (FAILED(m_pShaderCom->Bind_Matrix("g_ProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
 		return E_FAIL;
 
-	if (FAILED(m_pTextureCom->Bind_ShadeResource(m_pShaderCom, "g_Texture", 0)))
+	if (FAILED(m_pTextureCom[0]->Bind_ShadeResource(m_pShaderCom, "g_Texture", 0)))
 		return E_FAIL;
 
 	if (FAILED(m_pShaderCom->Bind_RawValue("g_fTime", &m_fTime, sizeof(_float))))
@@ -104,10 +109,24 @@ HRESULT CSky::Ready_Components()
 		TEXT("Com_Shader"), reinterpret_cast<CComponent**>(&m_pShaderCom))))
 		return E_FAIL;
 
-	///* FOR.Com_Texture */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Sky_Blue"),
-		TEXT("Com_Texture"), reinterpret_cast<CComponent**>(&m_pTextureCom))))
+
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Sky_HDR_Env"),
+		TEXT("Com_Texture"), reinterpret_cast<CComponent**>(&m_pTextureCom[TEXTURE_ENV]))))		// 걍 우리가보이는거 ? 디폴트고
 		return E_FAIL;
+	/* FOR.Com_Texture */
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Sky_HDR"),
+		TEXT("Com_Texture1"), reinterpret_cast<CComponent**>(&m_pTextureCom[TEXTURE_HDR]))))	// 스페큘러,IBL(밝기),  SRV가 2장이고 0번이 반들거림, 1번이 매끈  
+		return E_FAIL;
+	/* FOR.Com_Texture */
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Sky_HDR_BRDF"),
+		TEXT("Com_Texture2"), reinterpret_cast<CComponent**>(&m_pTextureCom[TEXTURE_BRDF]))))
+		return E_FAIL;
+
+
+
+
+
+
 
 	/* FOR.Com_VIBuffer */
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Cube"),
@@ -150,7 +169,9 @@ void CSky::Free()
 	__super::Free();
 
 	Safe_Release(m_pShaderCom);
-	Safe_Release(m_pTextureCom);
+	Safe_Release(m_pTextureCom[0]);
+	Safe_Release(m_pTextureCom[1]);
+	Safe_Release(m_pTextureCom[2]);
 	Safe_Release(m_pModelCom);
 
 	Safe_Release(m_pFreeCameraTransform);

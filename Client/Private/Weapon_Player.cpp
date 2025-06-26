@@ -344,6 +344,11 @@ HRESULT CWeapon_Player::Render()
 			int test;
 		}
 
+		if (FAILED(m_pModelCom[m_eCurType]->Bind_Material(m_pShaderCom, "g_SpecularTexture", aiTextureType_SHININESS, i)))
+		{
+			int test;
+		}
+
 		if (FAILED(m_pShaderCom->Begin(iPassNum)))
 			return E_FAIL;
 

@@ -399,6 +399,7 @@
     <ClCompile Include="..\Private\Frustum.cpp">
       <Filter>01.Utility\10.Frustum</Filter>
     </ClCompile>
+    <ClCompile Include="..\Private\Sky_Manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Public\Base.h">
@@ -608,6 +609,7 @@
     <ClInclude Include="..\Public\Frustum.h">
       <Filter>01.Utility\10.Frustum</Filter>
     </ClInclude>
+    <ClInclude Include="..\Public\Sky_Manager.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_Cell.hlsl">

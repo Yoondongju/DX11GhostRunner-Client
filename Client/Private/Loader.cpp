@@ -2233,17 +2233,23 @@ HRESULT CLoader::Create_Sky()
 	/* For. Prototype_Component_Texture_Sky */
 	// TEXT("../Bin/Resources/Textures/SkyBox/Sky_%d.dds")
 
-	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Sky_Blue"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Sky/Blue.dds"), 1))))
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Sky_HDR_Env"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Sky/SkyBox/Sky0/Sky_HDREnvHDR.dds"), 1))))
+		return E_FAIL;
+	/* For. Prototype_Component_Texture_Sky_HDR */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Sky_HDR"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Sky/SkyBox/Sky0/Sky_HDR_%d.dds"), 2))))
+		return E_FAIL;
+	/* For. Prototype_Component_Texture_Sky_HDR_Brf */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Sky_HDR_BRDF"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Sky/SkyBox/Sky0/Sky_HDRBrdf.dds"), 1))))
 		return E_FAIL;
 
-	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Sky_SkyBlue"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Sky/SkyBlue.dds"), 1))))
-		return E_FAIL;
 
-	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Sky_Red"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Sky/Red.dds"), 1))))
-		return E_FAIL;
+
+
+
+
 
 
 	/* For. Prototype_Component_VIBuffer_Cube */
@@ -2332,10 +2338,6 @@ HRESULT CLoader::Create_Particle()
 
 HRESULT CLoader::Create_SwordTrail()
 {
-	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_SwordTrail"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/T_Fibers.dds"), 1))))
-		return E_FAIL;
-
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_VtxSwordTrail"),
 		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxSwordTrail.hlsl"), VTXTRAILTEX::Elements, VTXTRAILTEX::iNumElements))))
 		return E_FAIL;
@@ -2423,7 +2425,7 @@ HRESULT CLoader::Create_ShurikenEffect()
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Player/Particle/Lightning.dds"), 1))))
 		return E_FAIL;
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_ParticleShuriken"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Player/Particle/T_Star_Bright.dds"), 1))))
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Player/Particle/Trail.dds"), 1))))
 		return E_FAIL;
 
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Particle_ShurikenEffect"),

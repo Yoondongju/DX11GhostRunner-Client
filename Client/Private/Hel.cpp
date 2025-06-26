@@ -250,7 +250,9 @@ HRESULT CHel::Render()
             return E_FAIL;
 
         if (FAILED(m_pModel->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_HEIGHT, i)))
-            return E_FAIL;
+        {
+            int test;
+        }
 
         if (FAILED(m_pShaderCom->Begin(iPassNum)))
             return E_FAIL;
