@@ -38,6 +38,11 @@ HRESULT CHomingShuriken::Start_State(void* pArg)
 
 	sort(m_TargetsPos.begin(), m_TargetsPos.end());
 
+	if (m_TargetsPos.size() > 3)
+	{
+		m_TargetsPos.erase(m_TargetsPos.begin() + 3, m_TargetsPos.end());
+	}
+	
 
 
 
@@ -107,7 +112,7 @@ void CHomingShuriken::Update(_float fTimeDelta)
 
 
 	_vector vRightNor = XMVector3Normalize(pShurikenTransform->Get_State(CTransform::STATE_RIGHT));
-	pShurikenTransform->Turn(vRightNor, fTimeDelta * 150.f);	// 계속 돌아 whsskehfdk rmsid
+	pShurikenTransform->Turn(vRightNor, fTimeDelta * 150.f);	// 계속 돌아 whsskehfdk rmsid 
 
 
 	if (m_fAccScaling >= 15.f)
@@ -239,86 +244,86 @@ void CHomingShuriken::FindVisiableEnemy()
 	_vector vShurikenPos = pShurikenTransform->Get_State(CTransform::STATE::STATE_POSITION);
 
 
-	//list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Sniper");
-	//for (auto& Sniper : Snipers)
-	//{
-	//	const _float4x4* pSniperMatrix = Sniper->Get_Transform()->Get_WorldMatrix_Ptr();
-	//
-	//	_float3* pSniperPos = (_float3*)(pSniperMatrix->m[3]);
-	//	_float3* pSniperLook = (_float3*)(pSniperMatrix->m[2]);
-	//
-	//	_vector vSniperPos = XMLoadFloat3(pSniperPos);
-	//	_vector vDistance = XMVectorSubtract(vShurikenPos, vSniperPos);
-	//	_float fDistance = XMVectorGetX(XMVector3Length(vDistance));
-	//
-	//
-	//	vSniperPos = XMVectorSetY(vSniperPos, vSniperPos.m128_f32[1] + 40.f);
-	//
-	//
-	//	Float3Wrapper  SniperPos;
-	//	SniperPos.pValue = pSniperPos;
-	//	SniperPos.fDistanceToPlayer = fDistance;
-	//
-	//	Float3Wrapper  SniperLook;
-	//	SniperLook.pValue = pSniperLook;
-	//	SniperLook.fDistanceToPlayer = fDistance;
-	//
-	//	m_TargetsPos.emplace_back(SniperPos);
-	//}
-	//
-	//list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Pistol");
-	//for (auto& Pistol : Pistols)
-	//{
-	//	const _float4x4* pPistolMatrix = Pistol->Get_Transform()->Get_WorldMatrix_Ptr();
-	//
-	//	_float3* pPistolPos = (_float3*)(pPistolMatrix->m[3]);
-	//	_float3* pPistolLook = (_float3*)(pPistolMatrix->m[2]);
-	//
-	//	_vector vPistolPos = XMLoadFloat3(pPistolPos);
-	//	_vector vDistance = XMVectorSubtract(vShurikenPos, vPistolPos);
-	//	_float fDistance = XMVectorGetX(XMVector3Length(vDistance));
-	//
-	//	vPistolPos = XMVectorSetY(vPistolPos, vPistolPos.m128_f32[1] + 40.f);
-	//
-	//
-	//	Float3Wrapper  PistolPos;
-	//	PistolPos.pValue = pPistolPos;
-	//	PistolPos.fDistanceToPlayer = fDistance;
-	//
-	//	Float3Wrapper  PistolLook;
-	//	PistolLook.pValue = pPistolLook;
-	//	PistolLook.fDistanceToPlayer = fDistance;
-	//
-	//	m_TargetsPos.emplace_back(PistolPos);
-	//}
-	//
-	//list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Mira");
-	//for (auto& Mira : Miras)
-	//{
-	//	const _float4x4* pMiraMatrix = Mira->Get_Transform()->Get_WorldMatrix_Ptr();
-	//
-	//	_float3* pMiraPos = (_float3*)(pMiraMatrix->m[3]);
-	//	_float3* pMiraLook = (_float3*)(pMiraMatrix->m[2]);
-	//
-	//	_vector vMiraPos = XMLoadFloat3(pMiraPos);
-	//	_vector vDistance = XMVectorSubtract(vShurikenPos, vMiraPos);
-	//	_float fDistance = XMVectorGetX(XMVector3Length(vDistance));
-	//
-	//
-	//	vMiraPos = XMVectorSetY(vMiraPos, vMiraPos.m128_f32[1] + 40.f);
-	//
-	//
-	//	Float3Wrapper  MiraPos;
-	//	MiraPos.pValue = pMiraPos;
-	//	MiraPos.fDistanceToPlayer = fDistance;
-	//
-	//	Float3Wrapper  MiraLook;
-	//	MiraLook.pValue = pMiraLook;
-	//	MiraLook.fDistanceToPlayer = fDistance;
-	//
-	//
-	//	m_TargetsPos.emplace_back(MiraPos);
-	//}
+	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Sniper");
+	for (auto& Sniper : Snipers)
+	{
+		const _float4x4* pSniperMatrix = Sniper->Get_Transform()->Get_WorldMatrix_Ptr();
+	
+		_float3* pSniperPos = (_float3*)(pSniperMatrix->m[3]);
+		_float3* pSniperLook = (_float3*)(pSniperMatrix->m[2]);
+	
+		_vector vSniperPos = XMLoadFloat3(pSniperPos);
+		_vector vDistance = XMVectorSubtract(vShurikenPos, vSniperPos);
+		_float fDistance = XMVectorGetX(XMVector3Length(vDistance));
+	
+	
+		vSniperPos = XMVectorSetY(vSniperPos, vSniperPos.m128_f32[1] + 40.f);
+	
+	
+		Float3Wrapper  SniperPos;
+		SniperPos.pValue = pSniperPos;
+		SniperPos.fDistanceToPlayer = fDistance;
+	
+		Float3Wrapper  SniperLook;
+		SniperLook.pValue = pSniperLook;
+		SniperLook.fDistanceToPlayer = fDistance;
+	
+		m_TargetsPos.emplace_back(SniperPos);
+	}
+	
+	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Pistol");
+	for (auto& Pistol : Pistols)
+	{
+		const _float4x4* pPistolMatrix = Pistol->Get_Transform()->Get_WorldMatrix_Ptr();
+	
+		_float3* pPistolPos = (_float3*)(pPistolMatrix->m[3]);
+		_float3* pPistolLook = (_float3*)(pPistolMatrix->m[2]);
+	
+		_vector vPistolPos = XMLoadFloat3(pPistolPos);
+		_vector vDistance = XMVectorSubtract(vShurikenPos, vPistolPos);
+		_float fDistance = XMVectorGetX(XMVector3Length(vDistance));
+	
+		vPistolPos = XMVectorSetY(vPistolPos, vPistolPos.m128_f32[1] + 40.f);
+	
+	
+		Float3Wrapper  PistolPos;
+		PistolPos.pValue = pPistolPos;
+		PistolPos.fDistanceToPlayer = fDistance;
+	
+		Float3Wrapper  PistolLook;
+		PistolLook.pValue = pPistolLook;
+		PistolLook.fDistanceToPlayer = fDistance;
+	
+		m_TargetsPos.emplace_back(PistolPos);
+	}
+	
+	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Mira");
+	for (auto& Mira : Miras)
+	{
+		const _float4x4* pMiraMatrix = Mira->Get_Transform()->Get_WorldMatrix_Ptr();
+	
+		_float3* pMiraPos = (_float3*)(pMiraMatrix->m[3]);
+		_float3* pMiraLook = (_float3*)(pMiraMatrix->m[2]);
+	
+		_vector vMiraPos = XMLoadFloat3(pMiraPos);
+		_vector vDistance = XMVectorSubtract(vShurikenPos, vMiraPos);
+		_float fDistance = XMVectorGetX(XMVector3Length(vDistance));
+	
+	
+		vMiraPos = XMVectorSetY(vMiraPos, vMiraPos.m128_f32[1] + 40.f);
+	
+	
+		Float3Wrapper  MiraPos;
+		MiraPos.pValue = pMiraPos;
+		MiraPos.fDistanceToPlayer = fDistance;
+	
+		Float3Wrapper  MiraLook;
+		MiraLook.pValue = pMiraLook;
+		MiraLook.fDistanceToPlayer = fDistance;
+	
+	
+		m_TargetsPos.emplace_back(MiraPos);
+	}
 
 	list<CGameObject*>& Jetpacks = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Jetpack");
 	for (auto& Jetpack : Jetpacks)
@@ -362,59 +367,63 @@ void CHomingShuriken::Check_Collision()
 	CTransform* pShurikenTransform = pMainShuriken->Get_Transform();
 	_vector vShurikenPos = pShurikenTransform->Get_State(CTransform::STATE::STATE_POSITION);
 
-	//list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Sniper");
-	//for (auto& Sniper : Snipers)
-	//{
-	//	if (true == static_cast<CSniper*>(Sniper)->Check_Collision())
-	//	{
-	//		++m_iNumKill;
-	//
-	//		m_fStartTime = 0.f;
-	//		m_fAccSpeed = 0.f;
-	//
-	//		XMStoreFloat3(&m_StartPos, vShurikenPos);
-	//	}
-	//
-	//}
-	//
-	//list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Pistol");
-	//for (auto& Pistol : Pistols)
-	//{
-	//	if (true == static_cast<CPistol*>(Pistol)->Check_Collision())
-	//	{
-	//		++m_iNumKill;
-	//
-	//		m_fStartTime = 0.f;
-	//		m_fAccSpeed = 0.f;
-	//
-	//		XMStoreFloat3(&m_StartPos, vShurikenPos);
-	//	}
-	//
-	//}
-	//
-	//list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Mira");
-	//for (auto& Mira : Miras)
-	//{
-	//	if (true == static_cast<CMira*>(Mira)->Check_Collision())
-	//	{
-	//		++m_iNumKill;
-	//
-	//		m_fStartTime = 0.f;
-	//		m_fAccSpeed = 0.f;
-	//
-	//		XMStoreFloat3(&m_StartPos, vShurikenPos);
-	//	}
-	//
-	//}
+	list<CGameObject*>& Snipers = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Sniper");
+	for (auto& Sniper : Snipers)
+	{
+		if (true == static_cast<CSniper*>(Sniper)->Check_Collision())
+		{
+			++m_iNumKill;
+	
+			m_fStartTime = 0.f;
+			m_fAccSpeed = 0.f;
+	
+			XMStoreFloat3(&m_StartPos, vShurikenPos);
+		}
+	
+	}
+	
+	list<CGameObject*>& Pistols = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Pistol");
+	for (auto& Pistol : Pistols)
+	{
+		if (true == static_cast<CPistol*>(Pistol)->Check_Collision())
+		{
+			++m_iNumKill;
+	
+			m_fStartTime = 0.f;
+			m_fAccSpeed = 0.f;
+	
+			XMStoreFloat3(&m_StartPos, vShurikenPos);
+		}
+	
+	}
+	
+	list<CGameObject*>& Miras = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Mira");
+	for (auto& Mira : Miras)
+	{
+		if (true == static_cast<CMira*>(Mira)->Check_Collision())
+		{
+			++m_iNumKill;
+	
+			m_fStartTime = 0.f;
+			m_fAccSpeed = 0.f;
+	
+			XMStoreFloat3(&m_StartPos, vShurikenPos);
+		}
+	
+	}
 
 	list<CGameObject*>& Jetpacks = m_pGameInstance->Get_GameObjects(g_CurLevel, L"Layer_Jetpack");
 	for (auto& Jetpack : Jetpacks)
 	{
 		if (true == static_cast<CJetpack*>(Jetpack)->Check_Collision())
 		{
+			++m_iNumKill;
 
+			m_fStartTime = 0.f;
+			m_fAccSpeed = 0.f;
+
+			XMStoreFloat3(&m_StartPos, vShurikenPos);
 		}
-	
 	}
 }
 

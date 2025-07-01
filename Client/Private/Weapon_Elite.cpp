@@ -117,7 +117,9 @@ HRESULT CWeapon_Elite::Render()
 			return E_FAIL;
 
 		if (FAILED(m_pModelCom->Bind_Material(m_pShaderCom, "g_NormalTexture", aiTextureType_HEIGHT, i)))
-			return E_FAIL;
+		{
+			int test;
+		}
 
 		if (FAILED(m_pShaderCom->Begin(0)))
 			return E_FAIL;

@@ -216,9 +216,11 @@ PS_OUT_LIGHT PS_MAIN_LIGHT_POINT(PS_IN In)
     return Out;
 }
 
+float g_fToneTest = 1.f;
+
 float3 ToneMapACES(float3 color)
 {
-    color *= 0.6; // 조절용 계수, 너무 강하면 줄이기
+    color *= g_fToneTest; // 조절용 계수, 너무 강하면 줄이기
     return (color * (2.51 * color + 0.03)) / (color * (2.43 * color + 0.59) + 0.14);
 }
 

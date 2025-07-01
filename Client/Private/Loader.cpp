@@ -2234,15 +2234,15 @@ HRESULT CLoader::Create_Sky()
 	// TEXT("../Bin/Resources/Textures/SkyBox/Sky_%d.dds")
 
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Sky_HDR_Env"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Sky/SkyBox/Sky0/Sky_HDREnvHDR.dds"), 1))))
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Sky/SkyBox/warSky_HDREnvHDR.dds"), 1))))
 		return E_FAIL;
 	/* For. Prototype_Component_Texture_Sky_HDR */
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Sky_HDR"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Sky/SkyBox/Sky0/Sky_HDR_%d.dds"), 2))))
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Sky/SkyBox/warSky_HDR_%d.dds"), 2))))
 		return E_FAIL;
 	/* For. Prototype_Component_Texture_Sky_HDR_Brf */
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Sky_HDR_BRDF"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Sky/SkyBox/Sky0/Sky_HDRBrdf.dds"), 1))))
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Ghostrunner/Sky/SkyBox/warSkyBrdf.dds"), 1))))
 		return E_FAIL;
 
 

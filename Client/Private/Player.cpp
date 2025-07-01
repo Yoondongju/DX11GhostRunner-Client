@@ -381,9 +381,6 @@ void CPlayer::Late_Update(_float fTimeDelta)
     _vector vPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
     if (nullptr != m_pPlayerPointLight)
     {
-        m_pPlayerPointLight->vAmbient = _float4(1.f, 1.f, 1.f, 1.f);
-        m_pPlayerPointLight->vSpecular = _float4(1.f, 0.f, 0.f, 1.f);
-        m_pPlayerPointLight->fRange = 500.f;
         m_pPlayerPointLight->vPosition.x = vPos.m128_f32[0];
         m_pPlayerPointLight->vPosition.y = vPos.m128_f32[1] + 20.f;
         m_pPlayerPointLight->vPosition.z = vPos.m128_f32[2];

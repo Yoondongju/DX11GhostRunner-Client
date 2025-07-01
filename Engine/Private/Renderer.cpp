@@ -9,6 +9,8 @@
 _uint		g_iSizeX = 8192;
 _uint		g_iSizeY = 4608;
 
+
+
 CRenderer::CRenderer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: m_pDevice{ pDevice }
 	, m_pContext{ pContext }
@@ -561,6 +563,16 @@ HRESULT CRenderer::Render_Deferred()
 	if (FAILED(m_pShader->Bind_Matrix("g_LightProjMatrix", &m_pGameInstance->Get_Transform_Float4x4(CPipeLine::D3DTS_PROJ))))
 		return E_FAIL;
 
+
+	if (KEY_STATE::TAP == m_pGameInstance->Get_KeyState(KEY::UP))
+		m_pGameInstance->m_fToneTest += 0.05f;
+	if (KEY_STATE::TAP == m_pGameInstance->Get_KeyState(KEY::DOWN))
+		m_pGameInstance->m_fToneTest -= 0.05f;
+
+
+	if (FAILED(m_pShader->Bind_RawValue("g_fToneTest", &m_pGameInstance->m_fToneTest,sizeof(_float))))
+		return E_FAIL;
+	
 
 	if (FAILED(m_pGameInstance->Bind_HDRTexture(m_pShader)))
 		return E_FAIL;

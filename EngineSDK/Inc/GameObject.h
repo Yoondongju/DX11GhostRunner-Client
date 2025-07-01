@@ -27,10 +27,14 @@ public:
 	void					  Set_FinalLayerName(const _wstring& strFinalLayerName) { m_strFinalLayerName = strFinalLayerName; }
 	const _wstring&			  Get_FinalLayerName() { return m_strFinalLayerName; }
 
+	const _wstring&			Get_ModelPrototypeName() {return m_strModelPrototypeName;}
+
 	_uint					  Get_ModelListType() { return m_iObjectType; }
 
 	
 	virtual void			  Set_ModelPrototypeTag(const _wstring& strModelPrototypeName) { m_strModelPrototypeName = strModelPrototypeName; }
+
+
 
 	virtual class CModel*	  Get_Model() { return nullptr; }
 	virtual class CFsm*		  Get_Fsm() { return nullptr; }

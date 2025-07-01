@@ -258,6 +258,12 @@ private:
 
 	//class CPickingManager*		m_pPicking_Manager = { nullptr };
 
+
+public:
+	_float							m_fToneTest = 1.3f;
+
+
+
 public:	
 	void Release_Engine();
 	virtual void Free() override;

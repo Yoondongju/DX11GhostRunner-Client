@@ -105,6 +105,7 @@ void CHel_JumpEnd::Update(_float fTimeDelta)
 void CHel_JumpEnd::End_State()
 {
 	m_isFirstParticleActive = false;
+
 }
 
 

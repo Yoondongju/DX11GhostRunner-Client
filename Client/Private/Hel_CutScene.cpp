@@ -103,6 +103,8 @@ HRESULT CHel_CutScene::Start_State(void* pArg)
 	}
 	else
 	{
+		m_pGameInstance->m_fToneTest = 0.f;
+
 		CTransform* pHelTransform = pHel->Get_Transform();
 		
 		_vector vHelRight = { 0.208447903, -0.00000000, 3.49380541, 0.0000000 };
@@ -247,6 +249,11 @@ void CHel_CutScene::Page1(_float fTimeDelta)
 	if (fDistanceToTarget < 110.f)
 	{
 		fAccSpeed *= 0.75f;
+
+		if (m_pGameInstance->m_fToneTest < 1.3f)
+			m_pGameInstance->m_fToneTest += 0.003f;
+		else
+			m_pGameInstance->m_fToneTest = 1.3f;
 	}
 
 	m_t += fTimeDelta * fSpeed * fAccSpeed / fDistanceToTarget;

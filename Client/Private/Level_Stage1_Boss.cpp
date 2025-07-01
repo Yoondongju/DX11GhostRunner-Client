@@ -132,24 +132,24 @@ HRESULT CLevel_Stage1_Boss::Ready_Lights()
 
 	ZeroMemory(&LightDesc, sizeof LightDesc);
 	LightDesc.eType = LIGHT_DESC::TYPE_POINT;
-	LightDesc.vPosition = _float4(10.f, 3.f, 10.f, 1.f);		//  월드위치네
-	LightDesc.fRange = 5.f;
-	LightDesc.vDiffuse = _float4(1.f, 1.f, 1.f, 1.f);
-	LightDesc.vAmbient = /*_float4(0.4f, 0.2f, 0.2f, 1.f);*/_float4(0.f, 0.f, 0.f, 0.f);
-	LightDesc.vSpecular = LightDesc.vDiffuse;
-	if (FAILED(m_pGameInstance->Add_Light(LightDesc)))
-		return E_FAIL;
-
-
-	ZeroMemory(&LightDesc, sizeof LightDesc);
-	LightDesc.eType = LIGHT_DESC::TYPE_POINT;
-	LightDesc.vPosition = _float4(306.253815f, 70.0848236f, -3449.53833f, 1.f);		//  월드위치네
+	LightDesc.vPosition = _float4(10.f, 10.f, 10.f, 1.f);		//  월드위치네
 	LightDesc.fRange = 200.f;
-	LightDesc.vDiffuse = _float4(1.f, 0.784f, 0.314f, 1.f);
+	LightDesc.vDiffuse = _float4(0.3f, 0.7f, 0.1f, 1.f);
 	LightDesc.vAmbient = /*_float4(0.4f, 0.2f, 0.2f, 1.f);*/_float4(0.f, 0.f, 0.f, 0.f);
 	LightDesc.vSpecular = LightDesc.vDiffuse;
 	if (FAILED(m_pGameInstance->Add_Light(LightDesc)))
 		return E_FAIL;
+
+
+	//ZeroMemory(&LightDesc, sizeof LightDesc);
+	//LightDesc.eType = LIGHT_DESC::TYPE_POINT;
+	//LightDesc.vPosition = _float4(306.253815f, 70.0848236f, -3449.53833f, 1.f);		//  월드위치네
+	//LightDesc.fRange = 200.f;
+	//LightDesc.vDiffuse = _float4(1.f, 0.784f, 0.314f, 1.f);
+	//LightDesc.vAmbient = /*_float4(0.4f, 0.2f, 0.2f, 1.f);*/_float4(0.f, 0.f, 0.f, 0.f);
+	//LightDesc.vSpecular = LightDesc.vDiffuse;
+	//if (FAILED(m_pGameInstance->Add_Light(LightDesc)))
+	//	return E_FAIL;
 
 
 	LIGHT_DESC* pLight = m_pGameInstance->Get_LightDesc(1);
